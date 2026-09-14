@@ -118,7 +118,7 @@ void main() {
 }
 ```
 
-The snippet is the exact fragment source emitted by `ColorWriteEnableTest::initPrograms()` for `kNumColorAttachments == 3` ([source](../../../modules/vulkan/pipeline/vktPipelineColorWriteEnableTests.cpp#L310-L351)). The representative dynamic leaf configures triangle color `(1.0, 0.75, 0.5, 0.25)`, clear color `(0.25, 0.5, 0.75, 0.5)`, and an all-disabled static array before enabling only attachment 0 dynamically. With `red_channel`, attachment 0 should retain source red and clear GBA; attachments 1 and 2 should retain their clear colors. Depth is checked independently.
+The snippet is the exact fragment source emitted by `ColorWriteEnableTest::initPrograms()` for `kNumColorAttachments == 3` ([`ColorWriteEnableTest::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineColorWriteEnableTests.cpp#L310-L351)). The representative dynamic leaf configures triangle color `(1.0, 0.75, 0.5, 0.25)`, clear color `(0.25, 0.5, 0.75, 0.5)`, and an all-disabled static array before enabling only attachment 0 dynamically. With `red_channel`, attachment 0 should retain source red and clear GBA; attachments 1 and 2 should retain their clear colors. Depth is checked independently.
 
 #### Additional Info
 

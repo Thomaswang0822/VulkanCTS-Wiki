@@ -131,8 +131,8 @@ void main (void)
 
 #### Additional Info
 
-- `BufferSupport::initPrograms()` derives `1024` from `16384 / sizeof(tcu::UVec4)`, emits both `std140` SSBO declarations and the full-copy loop, and passes them to `initPassthroughPrograms()` for insertion into the vertex stage ([source](../../../modules/vulkan/synchronization/vktSynchronizationOperation.cpp#L2446-L2494)).
-- The read implementation binds the synchronized resource at binding 0 and a host-visible storage buffer at binding 1, then inserts a vertex-shader-write-to-host-read barrier before `getData()` exposes the copied bytes ([source](../../../modules/vulkan/synchronization/vktSynchronizationOperation.cpp#L1765-L1963)).
+- `BufferSupport::initPrograms()` derives `1024` from `16384 / sizeof(tcu::UVec4)`, emits both `std140` SSBO declarations and the full-copy loop, and passes them to `initPassthroughPrograms()` for insertion into the vertex stage ([buffer shader generation](../../../modules/vulkan/synchronization/vktSynchronizationOperation.cpp#L2446-L2494)).
+- The read implementation binds the synchronized resource at binding 0 and a host-visible storage buffer at binding 1, then inserts a vertex-shader-write-to-host-read barrier before `getData()` exposes the copied bytes ([synchronized readback path](../../../modules/vulkan/synchronization/vktSynchronizationOperation.cpp#L1765-L1963)).
 
 #### Parameter Variation Summary
 

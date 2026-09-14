@@ -2,7 +2,7 @@
 
 **Core question:** Does `VK_EXT_device_generated_commands` execute every generated compute dispatch with the selected buffer, preprocessing, and queue setup?
 
-- This page covers the implementation and registration of `dgc.ext.compute.smoke` in [`vktDGCComputeSmokeTestsExt.cpp`](../../../modules/vulkan/device_generated_commands/vktDGCComputeSmokeTestsExt.cpp#L584-L620).
+- This page covers the implementation and registration of `dgc.ext.compute.smoke` in [EXT generated-dispatch case registration](../../../modules/vulkan/device_generated_commands/vktDGCComputeSmokeTestsExt.cpp#L584-L620).
 - Each test builds an indirect-command layout with one `VK_INDIRECT_COMMANDS_TOKEN_TYPE_DISPATCH_EXT` token, executes 4 or 1024 generated sequences, and checks an atomic-counter pattern produced by the compute shader.
 - The matrix varies command-buffer input generation, indirect-buffer memory, preprocessing state, queue family, and sequence count. The registered names appear exactly below.
 - The test does not use an indirect execution set. `DGCGenCmdsInfo` passes `VK_NULL_HANDLE`, so generated commands do not select a pipeline or shader object. The already bound compute pipeline executes the dispatch token.
@@ -328,11 +328,11 @@ Unsupported requirements produce `NotSupportedError`; they are not expected test
 
 | Entry point | Link | Why it matters |
 |---|---|---|
-| `SmokeTestParams` and shader generation | [`vktDGCComputeSmokeTestsExt.cpp#L53-L193`](../../../modules/vulkan/device_generated_commands/vktDGCComputeSmokeTestsExt.cpp#L53-L193) | Defines dimensions and the two compute shaders. |
-| Support checks | [`vktDGCComputeSmokeTestsExt.cpp#L196-L207`](../../../modules/vulkan/device_generated_commands/vktDGCComputeSmokeTestsExt.cpp#L196-L207) | Defines feature and queue requirements. |
-| Resource and command setup | [`vktDGCComputeSmokeTestsExt.cpp#L209-L484`](../../../modules/vulkan/device_generated_commands/vktDGCComputeSmokeTestsExt.cpp#L209-L484) | Shows buffers, layout, queue, preprocessing, barriers, and generated execution. |
-| Result verification | [`vktDGCComputeSmokeTestsExt.cpp#L485-L579`](../../../modules/vulkan/device_generated_commands/vktDGCComputeSmokeTestsExt.cpp#L485-L579) | Defines copyback, expected ranges, diagnostics, and pass/fail. |
-| Registered test construction | [`vktDGCComputeSmokeTestsExt.cpp#L584-L620`](../../../modules/vulkan/device_generated_commands/vktDGCComputeSmokeTestsExt.cpp#L584-L620) | Defines the exact 48 direct children. |
+| `SmokeTestParams` and shader generation | [Smoke-test parameters and shader generation](../../../modules/vulkan/device_generated_commands/vktDGCComputeSmokeTestsExt.cpp#L53-L193) | Defines dimensions and the two compute shaders. |
+| Support checks | [Feature and queue support checks](../../../modules/vulkan/device_generated_commands/vktDGCComputeSmokeTestsExt.cpp#L196-L207) | Defines feature and queue requirements. |
+| Resource and command setup | [Generated-dispatch resource and command setup](../../../modules/vulkan/device_generated_commands/vktDGCComputeSmokeTestsExt.cpp#L209-L484) | Shows buffers, layout, queue, preprocessing, barriers, and generated execution. |
+| Result verification | [Output readback and verification](../../../modules/vulkan/device_generated_commands/vktDGCComputeSmokeTestsExt.cpp#L485-L579) | Defines copyback, expected ranges, diagnostics, and pass/fail. |
+| Registered test construction | [`createDGCComputeSmokeTestsExt`](../../../modules/vulkan/device_generated_commands/vktDGCComputeSmokeTestsExt.cpp#L584-L620) | Defines the exact 48 direct children. |
 | Mustpass evidence | [`dgc.txt`](../../../mustpass/main/vk-default/dgc.txt) | Canonical mustpass list for DGC paths. |
 | EXT DGC specification | [`generatedcommands.adoc`](../../../../vulkan-docs/src/chapters/device_generated_commands/generatedcommands.adoc#L23-L29) | Defines preprocessing synchronization. |
 | Layout usage flags | [`generatedcommands.adoc`](../../../../vulkan-docs/src/chapters/device_generated_commands/generatedcommands.adoc#L318-L337) | Defines explicit preprocessing and unordered compute semantics. |

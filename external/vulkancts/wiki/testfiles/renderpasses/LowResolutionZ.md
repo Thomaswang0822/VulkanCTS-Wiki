@@ -214,6 +214,6 @@ The fixed groups target named depth interactions; the seeded fuzz group expands 
 ## Source Reference Appendix
 
 - [Test-group construction and registration](../../../modules/vulkan/renderpass/vktRenderPassLowResolutionZTests.cpp#L3015-L3072)
-- [Low-resolution-Z test implementation](../../../modules/vulkan/renderpass/vktRenderPassLowResolutionZTests.cpp)
+- [vktRenderPassLowResolutionZTests.cpp](../../../modules/vulkan/renderpass/vktRenderPassLowResolutionZTests.cpp)
 - [Shared dispatcher registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8577-L8580)
 - [MUSTPASS entries](../../../mustpass/main/vk-default/renderpasses.txt)

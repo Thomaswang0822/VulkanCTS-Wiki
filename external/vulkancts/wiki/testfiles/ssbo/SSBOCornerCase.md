@@ -10874,10 +10874,10 @@ The test fixes the comparison count at 589 and registers one test case leaf. It 
 
 | Entry point | Link | Why it matters |
 |---|---|---|
-| `useCornerCaseShader()` | [`vktSSBOCornerCase.cpp#L62-L99`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L62-L99) | Generates the buffer-reference shader and its 589 comparisons. |
-| `CornerCase::createInstance()` | [`vktSSBOCornerCase.cpp#L317-L322`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L317-L322) | Applies the buffer-device-address support gate. |
-| `SSBOCornerCaseInstance::iterate()` setup | [`vktSSBOCornerCase.cpp#L168-L283`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L168-L283) | Creates buffers, descriptors, push constants, and the compute pipeline. |
-| `SSBOCornerCaseInstance::iterate()` dispatch and result | [`vktSSBOCornerCase.cpp#L285-L307`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L285-L307) | Records, submits, waits for, and evaluates the dispatch. |
-| `createSSBOCornerCaseTests()` | [`vktSSBOCornerCase.cpp#L330-L334`](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L330-L334) | Registers `corner_case.long_shader_bitwise_and`. |
-| Vulkan default mustpass | [`vk-default/ssbo.txt#L1`](../../../mustpass/main/vk-default/ssbo.txt#L1) | Confirms the Vulkan registration path. |
-| Vulkan SC default mustpass | [`vksc-default/ssbo.txt#L1`](../../../mustpass/main/vksc-default/ssbo.txt#L1) | Confirms the Vulkan SC registration path. |
+| `useCornerCaseShader()` | [useCornerCaseShader()](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L62-L99) | Generates the buffer-reference shader and its 589 comparisons. |
+| `CornerCase::createInstance()` | [CornerCase::createInstance()](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L317-L322) | Applies the buffer-device-address support gate. |
+| `SSBOCornerCaseInstance::iterate()` setup | [SSBOCornerCaseInstance::iterate() setup](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L168-L283) | Creates buffers, descriptors, push constants, and the compute pipeline. |
+| `SSBOCornerCaseInstance::iterate()` dispatch and result | [SSBOCornerCaseInstance::iterate() dispatch and result](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L285-L307) | Records, submits, waits for, and evaluates the dispatch. |
+| `createSSBOCornerCaseTests()` | [createSSBOCornerCaseTests()](../../../modules/vulkan/ssbo/vktSSBOCornerCase.cpp#L330-L334) | Registers `corner_case.long_shader_bitwise_and`. |
+| Vulkan default mustpass | [Vulkan default mustpass](../../../mustpass/main/vk-default/ssbo.txt#L1) | Confirms the Vulkan registration path. |
+| Vulkan SC default mustpass | [Vulkan SC default mustpass](../../../mustpass/main/vksc-default/ssbo.txt#L1) | Confirms the Vulkan SC registration path. |

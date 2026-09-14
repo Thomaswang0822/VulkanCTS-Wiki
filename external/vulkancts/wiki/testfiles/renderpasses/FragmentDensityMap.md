@@ -74,7 +74,7 @@ Representative path:
 dEQP-VK.renderpasses.renderpass1.fragment_density_map.1_view.render.divisible_density_size.1_sample.static_nonsubsampled_2_2
 ```
 
-Mustpass: [`renderpasses.txt#L36009`](../../../mustpass/main/vk-default/renderpasses.txt#L36009).
+Mustpass: [Renderpasses](../../../mustpass/main/vk-default/renderpasses.txt#L36009).
 
 | Parameter choice | Meaning in this representative case |
 |------------------|-------------------------------------|
@@ -131,7 +131,7 @@ void main(void)
 
 #### Additional Info
 
-- The `GL_EXT_multiview` extension is emitted in this common fragment source even for the one-view representative; view-count-specific routing is supplied by the vertex-side path when multiview cases are selected ([source](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L1371-L1388)).
+- The `GL_EXT_multiview` extension is emitted in this common fragment source even for the one-view representative; view-count-specific routing is supplied by the vertex-side path when multiview cases are selected ([`vktRenderPassFragmentDensityMapTests.cpp`](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L1371-L1388)).
 - `gl_FragSizeEXT` is a flat two-component integer input in the compiled interface. For the selected `{2,2}` fragment area, the expected diagnostic components are `0.5` and `0.5`, whose product is `0.25` ([fragment-area setup](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L4981-L4983); [verification](../../../modules/vulkan/renderpass/vktRenderPassFragmentDensityMapTests.cpp#L3130-L3172)).
 
 #### Parameter Variation Summary

@@ -3,7 +3,7 @@
 **Core question:** Can an implementation correctly execute a render pass that mixes inline draw commands and `vkCmdExecuteCommands` calls inside one subpass, when `VK_SUBPASS_CONTENTS_INLINE_AND_SECONDARY_COMMAND_BUFFERS` is advertised through `VK_EXT_nested_command_buffer` or `VK_KHR_maintenance7`?
 
 - This page covers the `renderpasses.renderpass1.nested_command_buffers` test family implemented in [vktRenderPassNestedCommandBuffersTests.cpp](../../../modules/vulkan/renderpass/vktRenderPassNestedCommandBuffersTests.cpp).
-- The test family registers two test case leaves under each of two extension subtrees, `ext` and `khr`, for eight cases total. The leaves vary whether the boundary inline draws at the start and end of a fixed inline/secondary sequence come before or after their neighboring secondary command buffer executions ([registration](../../../modules/vulkan/renderpass/vktRenderPassNestedCommandBuffersTests.cpp#L667-L714)).
+- The test family registers two test case leaves under each of two extension subtrees, `ext` and `khr`, for eight cases total. The leaves vary whether the boundary inline draws at the start and end of a fixed inline/secondary sequence come before or after their neighboring secondary command buffer executions ([`main()`](../../../modules/vulkan/renderpass/vktRenderPassNestedCommandBuffersTests.cpp#L667-L714)).
 - The core property under test is that when a subpass is begun with `VK_SUBPASS_CONTENTS_INLINE_AND_SECONDARY_COMMAND_BUFFERS`, the implementation honors inline draws and secondary execution in any order within that one subpass, so the final per-region color of the attachment matches what strict command order predicts.
 - The reader should expect an explanation of why this subpass contents value is non-trivial, what the test draws, and how a wrong per-region color localizes the failure.
 
@@ -21,7 +21,7 @@ renderpasses.renderpass1.nested_command_buffers
 └── khr
 ```
 
-The group is registered by the internal dispatcher in [vktRenderPassTests.cpp#L8571-L8592](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8571-L8592), and only when `useSecondaryCmdBuffer == false` inside the monolithic-pipeline block, so each leaf uses a primary command buffer with no CTS-level secondary-command-buffer wrapper. The factory group is created at [vktRenderPassNestedCommandBuffersTests.cpp#L667-L714](../../../modules/vulkan/renderpass/vktRenderPassNestedCommandBuffersTests.cpp#L667-L714). The same eight leaves also appear under `renderpass2` and `dynamic_rendering.primary_cmd_buff`; the `renderpass1` root is shown as the representative subtree.
+The group is registered by the internal dispatcher in [Render-pass dispatcher registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8571-L8592), and only when `useSecondaryCmdBuffer == false` inside the monolithic-pipeline block, so each leaf uses a primary command buffer with no CTS-level secondary-command-buffer wrapper. The factory group is created at [create nested-command-buffer cases and their parameter matrix](../../../modules/vulkan/renderpass/vktRenderPassNestedCommandBuffersTests.cpp#L667-L714). The same eight leaves also appear under `renderpass2` and `dynamic_rendering.primary_cmd_buff`; the `renderpass1` root is shown as the representative subtree.
 
 ## Parameter Dimensions and Observed Values
 
@@ -128,10 +128,10 @@ void main() {
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
-| Extension (`ext`, `khr`) | None. Both subtrees call the same `initPrograms()` and differ only in support requirements. | [shader generation](../../../modules/vulkan/renderpass/vktRenderPassNestedCommandBuffersTests.cpp#L604-L631), [registration](../../../modules/vulkan/renderpass/vktRenderPassNestedCommandBuffersTests.cpp#L672-L710) |
+| Extension (`ext`, `khr`) | None. Both subtrees call the same `initPrograms()` and differ only in support requirements. | [initPrograms()](../../../modules/vulkan/renderpass/vktRenderPassNestedCommandBuffersTests.cpp#L604-L631), [registration](../../../modules/vulkan/renderpass/vktRenderPassNestedCommandBuffersTests.cpp#L672-L710) |
 | First command location | Shader text is fixed; the value changes whether inline instance 1 executes before or after secondary instance 0, changing the winning overlap color. | [primary recording](../../../modules/vulkan/renderpass/vktRenderPassNestedCommandBuffersTests.cpp#L484-L493) |
 | Last command location | Shader text is fixed; the value changes whether inline instance 5 executes before or after secondary instance 4, changing the winning overlap color. | [primary recording](../../../modules/vulkan/renderpass/vktRenderPassNestedCommandBuffersTests.cpp#L499-L508) |
-| Rendering type | Shader text is fixed across legacy render pass, render pass 2, and dynamic rendering; only render begin/end and inheritance setup vary. | [render begin](../../../modules/vulkan/renderpass/vktRenderPassNestedCommandBuffersTests.cpp#L247-L325), [shader generation](../../../modules/vulkan/renderpass/vktRenderPassNestedCommandBuffersTests.cpp#L604-L631) |
+| Rendering type | Shader text is fixed across legacy render pass, render pass 2, and dynamic rendering; only render begin/end and inheritance setup vary. | [render begin](../../../modules/vulkan/renderpass/vktRenderPassNestedCommandBuffersTests.cpp#L247-L325), [initPrograms()](../../../modules/vulkan/renderpass/vktRenderPassNestedCommandBuffersTests.cpp#L604-L631) |
 
 #### SPIR-V
 
@@ -409,8 +409,8 @@ All leaves share the same attachment, pipeline, and draw sequence. A failure tha
 - The `ext` subtree requires `VK_EXT_nested_command_buffer` with both the `nestedCommandBuffer` and `nestedCommandBufferRendering` features enabled; if either is missing, `checkSupport` throws `NotSupportedError` and the leaves are skipped ([L644-L653](../../../modules/vulkan/renderpass/vktRenderPassNestedCommandBuffersTests.cpp#L644-L653)).
 - The `khr` subtree requires `VK_KHR_maintenance7` with the `maintenance7` feature enabled; if missing, `checkSupport` throws `NotSupportedError` ([L657-L661](../../../modules/vulkan/renderpass/vktRenderPassNestedCommandBuffersTests.cpp#L657-L661)).
 - The `renderpass2` rendering type requires `VK_KHR_create_renderpass2`, and the `dynamic_rendering` rendering type requires `VK_KHR_dynamic_rendering` ([L635-L642](../../../modules/vulkan/renderpass/vktRenderPassNestedCommandBuffersTests.cpp#L635-L642)).
-- The whole group is compiled out for Vulkan SC through the `CTS_USES_VULKANSC` guard in the dispatcher ([vktRenderPassTests.cpp#L8579-L8592](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8579-L8592)).
-- The group is registered only for the monolithic pipeline construction type and only when `useSecondaryCmdBuffer == false`, so no graphics-pipeline-library or CTS-secondary-command-buffer variants exist ([vktRenderPassTests.cpp#L8571-L8592](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8571-L8592)).
+- The whole group is compiled out for Vulkan SC through the `CTS_USES_VULKANSC` guard in the dispatcher ([Render-pass dispatcher registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8579-L8592)).
+- The group is registered only for the monolithic pipeline construction type and only when `useSecondaryCmdBuffer == false`, so no graphics-pipeline-library or CTS-secondary-command-buffer variants exist ([Render-pass dispatcher registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8571-L8592)).
 
 ### Design-based pruning
 
@@ -439,4 +439,4 @@ All leaves share the same attachment, pipeline, and draw sequence. A failure tha
 | Shader registration | [initPrograms()](../../../modules/vulkan/renderpass/vktRenderPassNestedCommandBuffersTests.cpp#L604-L631) | Generates the trivial vertex and fragment shaders. |
 | Feature checks | [checkSupport()](../../../modules/vulkan/renderpass/vktRenderPassNestedCommandBuffersTests.cpp#L633-L663) | Gates the `ext` and `khr` subtrees on their respective features and rendering-type extensions. |
 | Test family registration | [createNestedCommandBufferTests()](../../../modules/vulkan/renderpass/vktRenderPassNestedCommandBuffersTests.cpp#L667-L714) | Registers the `ext` and `khr` subtrees and the four leaves under each. |
-| Dispatcher attachment | [vktRenderPassTests.cpp#L8571-L8592](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8571-L8592) | Attaches the group under `renderpass1`, `renderpass2`, and `dynamic_rendering.primary_cmd_buff`, monolithic only, no CTS secondary command buffer. |
+| Dispatcher attachment | [Dispatcher attachment](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8571-L8592) | Attaches the group under `renderpass1`, `renderpass2`, and `dynamic_rendering.primary_cmd_buff`, monolithic only, no CTS secondary command buffer. |

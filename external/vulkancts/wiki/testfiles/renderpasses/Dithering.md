@@ -57,13 +57,13 @@ This subgroup verifies that dithering cooperates with framebuffer blending. Each
 
 ## Shader Analysis
 
-The shaders are trivial passthrough and are not part of the tested behavior. The vertex shader ([source](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L252-L261)) copies `position` to `gl_Position` and passes `color` to the fragment stage. The fragment shader ([source](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L263-L274)) writes the interpolated vertex color to up to three color attachments. The dithering modification happens in fixed-function hardware after the fragment shader, so a representative walkthrough would not add information beyond the source listing.
+The shaders are trivial passthrough and are not part of the tested behavior. The vertex shader ([position and color passthrough](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L252-L261)) copies `position` to `gl_Position` and passes `color` to the fragment stage. The fragment shader ([color outputs for three attachments](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L263-L274)) writes the interpolated vertex color to up to three color attachments. The dithering modification happens in fixed-function hardware after the fragment shader, so a representative walkthrough would not add information beyond the source listing.
 
 ## Runtime Execution and Result Checking
 
 Each test case instance builds two complete sets of draw resources: one without dithering (`m_drawResources[0]`) and one with dithering (`m_drawResources[1]`) ([constructor](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L356-L365)). Both sets use identical image formats, clear values, vertex data, and pipeline state. The only difference is whether the dithering enable flag is set on the subpass description, the rendering info, or the pipeline create flags.
 
-The per-viewport iteration ([iterate](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L371-L483)) performs the following for each render area:
+The per-viewport iteration ([per-viewport comparison loop](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L371-L483)) performs the following for each render area:
 
 - Clears the color attachment images to black (or green for blending cases) and transitions them to `VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL`. When depth/stencil is present, clears it to the configured depth and stencil values ([clear setup](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L497-L525)).
 - Renders the quad into both resource sets, once with dithering disabled and once with dithering enabled. For additive blending, the quad is drawn four times per render ([draw count](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L538)).
@@ -139,13 +139,13 @@ The test passes only if every render area, every color attachment, and every dep
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `createRenderPassDitheringTests` | [vktRenderPassDitheringTests.cpp#L1356-L1365](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L1356-L1365) | Category entry point that creates the `dithering` group and attaches `v1` (always) and `v2` (dynamic rendering only). |
-| `createChildren` | [vktRenderPassDitheringTests.cpp#L1152-L1334](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L1152-L1334) | Shared builder that creates the `base`, `depth_stencil`, and `blend` subgroups for both revisions. |
-| `DitheringTest::checkSupport` | [vktRenderPassDitheringTests.cpp#L277-L349](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L277-L349) | Extension, spec version, and format support gating. |
-| `DitheringTest::initPrograms` | [vktRenderPassDitheringTests.cpp#L250-L275](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L250-L275) | Trivial vertex and fragment shader sources. |
-| `DitheringTestInstance::iterate` | [vktRenderPassDitheringTests.cpp#L371-L483](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L371-L483) | Main test loop: dual render, color readback, ULP threshold compare, depth/stencil zero-threshold compare. |
-| `DitheringTestInstance::render` | [vktRenderPassDitheringTests.cpp#L485-L661](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L485-L661) | Per-viewport render path handling render-pass, render-pass-2, and dynamic rendering begin/end, including the `VK_RENDERING_ENABLE_LEGACY_DITHERING_BIT_EXT` flag. |
-| `createRenderPassFramebuffer` | [vktRenderPassDitheringTests.cpp#L1030-L1148](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L1030-L1148) | Render pass and framebuffer creation with the `VK_SUBPASS_DESCRIPTION_ENABLE_LEGACY_DITHERING_BIT_EXT` subpass flag. |
-| Pipeline creation | [vktRenderPassDitheringTests.cpp#L857-L1028](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L857-L1028) | Graphics pipeline creation including the `VK_PIPELINE_CREATE_2_ENABLE_LEGACY_DITHERING_BIT_EXT` flag for revision 2 dynamic rendering. |
+| `createRenderPassDitheringTests` | [createRenderPassDitheringTests](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L1356-L1365) | Category entry point that creates the `dithering` group and attaches `v1` (always) and `v2` (dynamic rendering only). |
+| `createChildren` | [createChildren](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L1152-L1334) | Shared builder that creates the `base`, `depth_stencil`, and `blend` subgroups for both revisions. |
+| `DitheringTest::checkSupport` | [DitheringTest::checkSupport](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L277-L349) | Extension, spec version, and format support gating. |
+| `DitheringTest::initPrograms` | [DitheringTest::initPrograms](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L250-L275) | Trivial vertex and fragment shader sources. |
+| `DitheringTestInstance::iterate` | [compare dithered and reference color, depth, and stencil](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L371-L483) | Main test loop: dual render, color readback, ULP threshold compare, depth/stencil zero-threshold compare. |
+| `DitheringTestInstance::render` | [DitheringTestInstance::render](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L485-L661) | Per-viewport render path handling render-pass, render-pass-2, and dynamic rendering begin/end, including the `VK_RENDERING_ENABLE_LEGACY_DITHERING_BIT_EXT` flag. |
+| `createRenderPassFramebuffer` | [createRenderPassFramebuffer](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L1030-L1148) | Render pass and framebuffer creation with the `VK_SUBPASS_DESCRIPTION_ENABLE_LEGACY_DITHERING_BIT_EXT` subpass flag. |
+| Pipeline creation | [Pipeline creation](../../../modules/vulkan/renderpass/vktRenderPassDitheringTests.cpp#L857-L1028) | Graphics pipeline creation including the `VK_PIPELINE_CREATE_2_ENABLE_LEGACY_DITHERING_BIT_EXT` flag for revision 2 dynamic rendering. |
 | Legacy Dithering spec | [interfaces-legacy-dithering](../../../../vulkan-docs/src/chapters/interfaces.adoc#interfaces-legacy-dithering) | Specification of the one-ULP dithering contract. |
 | Extension appendix | [VK_EXT_legacy_dithering.adoc](../../../../vulkan-docs/src/appendices/VK_EXT_legacy_dithering.adoc) | Extension description and version history. |

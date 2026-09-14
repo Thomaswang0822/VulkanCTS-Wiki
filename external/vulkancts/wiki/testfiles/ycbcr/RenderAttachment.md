@@ -31,7 +31,7 @@ Each format expands to joint/disjoint binding variants and one leaf per applicab
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |---|---|---|---|
-| Format | `g8_b8_r8_3plane_420_unorm`, `g8_b8_r8_3plane_422_unorm`, `g8_b8_r8_3plane_444_unorm`, `g8_b8r8_2plane_420_unorm`, `g8_b8r8_2plane_422_unorm` | Selects plane count and chroma subsampling. | [`vktYCbCrRenderAttachmentTests.cpp`](../../../modules/vulkan/ycbcr/vktYCbCrRenderAttachmentTests.cpp) |
+| Format | `g8_b8_r8_3plane_420_unorm`, `g8_b8_r8_3plane_422_unorm`, `g8_b8_r8_3plane_444_unorm`, `g8_b8r8_2plane_420_unorm`, `g8_b8r8_2plane_422_unorm` | Selects plane count and chroma subsampling. | [Format](../../../modules/vulkan/ycbcr/vktYCbCrRenderAttachmentTests.cpp) |
 | Binding mode | `joint`, `disjoint` | Selects shared or per-plane memory binding. | [`createRenderAttachmentTests`](../../../modules/vulkan/ycbcr/vktYCbCrRenderAttachmentTests.cpp) |
 | Plane | `plane0`, `plane1`, `plane2` | Selects the compatible attachment format and aspect. | [`RenderAttachmentTestInstance`](../../../modules/vulkan/ycbcr/vktYCbCrRenderAttachmentTests.cpp) |
 

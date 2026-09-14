@@ -2,7 +2,7 @@
 
 **Core question:** Do direct, indirect, and base compute dispatch commands execute exactly when `VK_EXT_conditional_rendering` permits them?
 
-- This page covers the `conditional_rendering.dispatch` test family implemented in [vktConditionalDispatchTests.cpp](../../../modules/vulkan/conditional_rendering/vktConditionalDispatchTests.cpp).
+- This page covers the `conditional_rendering.dispatch` test family implemented in [`vktConditionalDispatchTests.cpp`](../../../modules/vulkan/conditional_rendering/vktConditionalDispatchTests.cpp).
 - The family uses one fixed compute shader. Each executed dispatch adds one to a coherent storage-buffer counter, so the host can distinguish executed work from suppressed work.
 - The main matrix combines the shared condition data with `dispatch`, `dispatch_indirect`, and `dispatch_base`. Focused groups check 32-bit predicate interpretation, allocation offsets, and single-dispatch behavior across the device's eligible queue families.
 - The page explains the command-buffer paths, predicate storage, exact counter validation, support gates, and the fixed compute shader.
@@ -312,13 +312,13 @@ void main(void)
 
 | Entry point | Link | Why it matters |
 |---|---|---|
-| `initPrograms()` | [`vktConditionalDispatchTests.cpp#L121-L136`](../../../modules/vulkan/conditional_rendering/vktConditionalDispatchTests.cpp#L121-L136) | Defines the fixed counter shader. |
-| `recordDispatch()` | [`vktConditionalDispatchTests.cpp#L157-L183`](../../../modules/vulkan/conditional_rendering/vktConditionalDispatchTests.cpp#L157-L183) | Records direct, indirect, and base dispatch commands. |
-| `queuePass()` | [`vktConditionalDispatchTests.cpp#L185-L400`](../../../modules/vulkan/conditional_rendering/vktConditionalDispatchTests.cpp#L185-L400) | Builds resources, records command buffers, submits work on the runner-provided queue, and checks the counter. |
+| `initPrograms()` | [`ConditionalDispatchTest::initPrograms()`](../../../modules/vulkan/conditional_rendering/vktConditionalDispatchTests.cpp#L121-L136) | Defines the fixed counter shader. |
+| `recordDispatch()` | [`ConditionalDispatchTestInstance::recordDispatch()`](../../../modules/vulkan/conditional_rendering/vktConditionalDispatchTests.cpp#L157-L183) | Records direct, indirect, and base dispatch commands. |
+| `queuePass()` | [`ConditionalDispatchTestInstance::queuePass()`](../../../modules/vulkan/conditional_rendering/vktConditionalDispatchTests.cpp#L185-L400) | Builds resources, records command buffers, submits work on the runner-provided queue, and checks the counter. |
 | Multi-queue selection | [`MultiQueueRunnerTestInstance`](../../../modules/vulkan/vktTestCase.cpp#L1836-L1889) | Builds the eligible queue list and reports per-family failures. |
 | Main and focused registration | [`ConditionalDispatchTests::init()`](../../../modules/vulkan/conditional_rendering/vktConditionalDispatchTests.cpp#L413-L754) | Defines the 63 direct children and their expanded cases. |
 | Shared condition data | [`ConditionalData` and `s_testsData`](../../../modules/vulkan/conditional_rendering/vktConditionalRenderingTestUtil.hpp#L44-L144) | Defines predicate, memory, placement, inheritance, nesting, and expected execution values. |
 | Condition-buffer creation | [`createConditionalRenderingBuffer()`](../../../modules/vulkan/conditional_rendering/vktConditionalRenderingTestUtil.cpp#L69-L121) | Handles padding, memory type, staging, and allocation-offset setup. |
 | Conditional-rendering semantics | [Vulkan drawing chapter](../../../../vulkan-docs/src/chapters/drawing.adoc#L2086-L2167) | Defines affected commands and predicate interpretation. |
 | Inheritance semantics | [Vulkan command-buffer chapter](../../../../vulkan-docs/src/chapters/cmdbuffers.adoc#L1285-L1318) | Defines secondary-command-buffer conditional-rendering inheritance. |
-| Mustpass coverage | [conditional-rendering.txt](../../../mustpass/main/vk-default/conditional-rendering.txt#L219-L498) | Lists the 280 executable dispatch paths. |
+| Mustpass coverage | [conditional-rendering source](../../../mustpass/main/vk-default/conditional-rendering.txt#L219-L498) | Lists the 280 executable dispatch paths. |

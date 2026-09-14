@@ -712,7 +712,7 @@ Graphics-only or `_compute`-only failures narrow the likely cause to that pipeli
 | 3D instance | [`Texture3DFilteringTestInstance`](../../../modules/vulkan/texture/vktTextureFilteringTests.cpp#L1005-L1190) | Builds volume patterns and verifies S/T/R sampling. |
 | Verifier registration filter | [`verifierCanBeUsed`](../../../modules/vulkan/texture/vktTextureFilteringTests.cpp#L1193-L1203) | Excludes channel/filter combinations the verifier cannot assess. |
 | Generated shader templates | [`initializePrograms`](../../../modules/vulkan/texture/vktTextureTestUtil.cpp#L210-L759) | Emits dimensional graphics and compute GLSL. |
-| Texture resources and renderer API | [`vktTextureTestUtil.hpp`](../../../modules/vulkan/texture/vktTextureTestUtil.hpp#L143-L255) | Defines regular or sparse backing support and dimensional texture bindings. |
+| Texture resources and renderer API | [Texture resources and renderer API](../../../modules/vulkan/texture/vktTextureTestUtil.hpp#L143-L255) | Defines regular or sparse backing support and dimensional texture bindings. |
 | Software sampler conversion | [`createSampler`](../../../modules/vulkan/texture/vktTextureTestUtil.cpp#L1351-L1391) | Builds the sampler used by the software reference and renderer. |
 | Precision-aware verifier | [`verifyTextureResult`](../../../../../framework/opengl/gluTextureTestUtil.cpp#L1735-L2612) | Implements dimensional result verification against allowed lookup and LOD ranges. |
 | Mustpass paths | [`texture.txt`](../../../mustpass/main/vk-default/texture.txt#L2233-L9742) | Confirms 7,510 generated filtering leaves, including graphics and compute pairs. |

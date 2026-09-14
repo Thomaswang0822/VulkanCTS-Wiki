@@ -2,7 +2,7 @@
 
 **Core question:** Do attachment clears and draws obey conditional rendering when predicate setup, scope, and update method vary?
 
-- This page covers the `conditional_rendering.draw_clear` test family implemented in [vktConditionalDrawAndClearTests.cpp](../../../modules/vulkan/conditional_rendering/vktConditionalDrawAndClearTests.cpp).
+- This page covers the `conditional_rendering.draw_clear` test family implemented in [`vktConditionalDrawAndClearTests.cpp`](../../../modules/vulkan/conditional_rendering/vktConditionalDrawAndClearTests.cpp).
 - The family has two direct registered children: `clear` checks conditional color and depth clears, while `draw` checks conditional draws and draw-side predicate updates.
 - The cases use operation-specific parameter grids for predicate value, inversion, memory type, clear shape, draw-command placement, and predicate updates.
 - Color and depth/stencil image observations turn command execution into explicit pass/fail results; predicate-buffer contents are an intermediate input or update target.
@@ -287,8 +287,8 @@ void main()
 |---|---|---|
 | Category registration | [`init()`](../../../modules/vulkan/conditional_rendering/vktConditionalDrawAndClearTests.cpp#L1698-L1767) | Registers `clear` and `draw`. |
 | Clear execution and comparison | [`ConditionalRenderingClearAttachmentsTestInstance::iterate()`](../../../modules/vulkan/conditional_rendering/vktConditionalDrawAndClearTests.cpp#L843-L1023) | Executes conditional color/depth clears and compares the copied image. |
-| Draw registration | [`vktConditionalDrawAndClearTests.cpp`](../../../modules/vulkan/conditional_rendering/vktConditionalDrawAndClearTests.cpp#L1735-L1761) | Defines generated draw and `update_with_rendering` variants. |
+| Draw registration | [`ConditionalRenderingDrawAndClearTests::init()`](../../../modules/vulkan/conditional_rendering/vktConditionalDrawAndClearTests.cpp#L1735-L1761) | Defines generated draw and `update_with_rendering` variants. |
 | Local parameter grids | [`ClearTestParams`, `DrawTestParams`, and update parameters](../../../modules/vulkan/conditional_rendering/vktConditionalDrawAndClearTests.cpp#L52-L208) | Define clear, draw, predicate, and update-with-rendering dimensions for this family. |
 | Capability checks | [`checkSupport()` through `checkFanAndVertexStores()`](../../../modules/vulkan/conditional_rendering/vktConditionalDrawAndClearTests.cpp#L1658-L1694) | Applies extension and draw-variant feature requirements. |
 | Conditional-rendering semantics | [Vulkan drawing chapter](../../../../vulkan-docs/src/chapters/drawing.adoc#L2086-L2167) | Defines affected commands and predicate interpretation. |
-| Mustpass coverage | [conditional-rendering.txt](../../../mustpass/main/vk-default/conditional-rendering.txt) | Lists executable category paths. |
+| Mustpass coverage | [conditional-rendering source](../../../mustpass/main/vk-default/conditional-rendering.txt) | Lists executable category paths. |

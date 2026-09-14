@@ -315,10 +315,10 @@ This representative case does not use GLSL or HLSL. CTS supplies the shader modu
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `CAPABILITIES[]` table | [`vktSpvAsm16bitStorageTests.cpp#L126-L129`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L126-L129) | Defines the two uniform/storage capabilities iterated by every uniform-buffer family. |
-| `get16BitStorageFeatures()` | [`vktSpvAsm16bitStorageTests.cpp#L149-L160`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L149-L160) | Maps capability name to the `ext16BitStorage` feature bit. |
-| `ShaderTemplate` enum | [`vktSpvAsm16bitStorageTests.cpp#L83-L92`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L83-L92) | Lists the struct layout modes (std140/std430/mixed, 16-bit/32-bit). |
-| `getStructSize()` | [`vktSpvAsm16bitStorageTests.cpp#L162-L182`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L162-L182) | Returns the per-layout byte count used to size the struct output buffer. |
+| `CAPABILITIES[]` table | [`CAPABILITIES[]`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L126-L129) | Defines the two uniform/storage capabilities iterated by every uniform-buffer family. |
+| `get16BitStorageFeatures()` | [`get16BitStorageFeatures()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L149-L160) | Maps capability name to the `ext16BitStorage` feature bit. |
+| `ShaderTemplate` enum | [`ShaderTemplate` enum](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L83-L92) | Lists the struct layout modes (std140/std430/mixed, 16-bit/32-bit). |
+| `getStructSize()` | [`getStructSize()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L162-L182) | Returns the per-layout byte count used to size the struct output buffer. |
 | Compute uniform 16-to-32 builder | [`addCompute16bitStorageUniform16To32Group()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L1130-L1506) | Representative SPIR-V `StringTemplate` and the float/int composite matrices. |
 | Compute push-constant builder | [`addCompute16bitStoragePushConstant16To32Group()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L1705-L2001) | Push-constant SPIR-V template (`%pc16`, `PushConstant` storage class). |
 | Compute struct mixed-types builder | [`addCompute16bitStructMixedTypesGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L3055-L3277) | Nested struct + mixed 16/32 layout with `addInfo` bitmask comparison. |
@@ -327,6 +327,6 @@ This representative case does not use GLSL or HLSL. CTS supplies the shader modu
 | `16_to_16x2` builder | [`addShaderCode16BitStorageInputOutput16To16x2()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L4027-L4230) | Dual-output pass-through shader. |
 | Narrowing checkers | [`computeCheck16BitFloats`/`graphicsCheck16BitFloats`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L190-L286) | Rounding-mode-aware re-derivation of expected 16-bit values. |
 | Widening checkers | [`check32BitFloats`/`check64BitFloats`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L316-L364) | Exact comparison for unambiguous widening. |
-| `computeCheckBuffersFloats` | [`vktSpvAsm16bitStorageTests.cpp#L238-L259`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L238-L259) | 16-to-16 pass-through checker with NaN-equality fallback. |
-| `addInfo` | [`vktSpvAsm16bitStorageTests.cpp#L364-L368`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L364-L368) | Builds the padding-vs-data bitmask for struct comparison. |
+| `computeCheckBuffersFloats` | [`computeCheckBuffersFloats()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L238-L259) | 16-to-16 pass-through checker with NaN-equality fallback. |
+| `addInfo` | [`addInfo`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L364-L368) | Builds the padding-vs-data bitmask for struct comparison. |
 | Registration entry points | [`create16BitStorageComputeGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L8616-L8644), [`create16BitStorageGraphicsGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsm16bitStorageTests.cpp#L8646-L8700) | Map test family names to builder functions. |

@@ -252,8 +252,8 @@ Both cases follow the same Amber-driven flow:
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `createVectorShuffleGroup()` | [`vktSpvAsmVectorShuffleTests.cpp#L68-L73`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVectorShuffleTests.cpp#L68-L73) | Registers the `vector_shuffle` test family and points at the Amber data directory |
-| `createTests()` | [`vktSpvAsmVectorShuffleTests.cpp#L35-L63`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVectorShuffleTests.cpp#L35-L63) | Adds both Amber test case leaves; contains the VulkanSC guard |
-| `cases` array | [`vktSpvAsmVectorShuffleTests.cpp#L46-L50`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVectorShuffleTests.cpp#L46-L50) | The two basenames and their feature requirements |
+| `createVectorShuffleGroup()` | [`createVectorShuffleGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVectorShuffleTests.cpp#L68-L73) | Registers the `vector_shuffle` test family and points at the Amber data directory |
+| `createTests()` | [`createTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVectorShuffleTests.cpp#L35-L63) | Adds both Amber test case leaves; contains the VulkanSC guard |
+| `cases` array | [`cases`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVectorShuffleTests.cpp#L46-L50) | The two basenames and their feature requirements |
 | `vector_shuffle.amber` | [`vector_shuffle.amber`](../../../data/vulkan/amber/spirv_assembly/instruction/compute/vector_shuffle/vector_shuffle.amber#L13-L84) | Representative Amber script: undef-marker shuffle, expected `6.0` |
 | `long_vector_shuffle.amber` | [`long_vector_shuffle.amber`](../../../data/vulkan/amber/spirv_assembly/instruction/compute/vector_shuffle/long_vector_shuffle.amber#L14-L80) | Long-vector Amber script: 6-component permutation, expected `(4.0, 2.0, -3.0, 9.0, 7.0, 1.0)` |

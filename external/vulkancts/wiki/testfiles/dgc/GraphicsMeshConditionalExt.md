@@ -2,7 +2,7 @@
 
 **Core question:** Does conditional rendering control execution of a generated mesh draw while leaving explicit preprocessing unaffected?
 
-- [`vktDGCGraphicsMeshConditionalTestsExt.cpp`](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMeshConditionalTestsExt.cpp#L1) implements the `dgc.ext.graphics.mesh.conditional_rendering` test family.
+- [Conditional generated-mesh-draw tests](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMeshConditionalTestsExt.cpp#L1) implements the `dgc.ext.graphics.mesh.conditional_rendering` test family.
 - The test has two registered children, `general` and `preprocess`.
 - `general` wraps `vkCmdExecuteGeneratedCommandsEXT` in conditional rendering. It covers classic pipeline binding and an indirect execution-set pipeline, optional sequence-count buffering, true and false predicates, inversion, and direct mesh or task-plus-mesh execution.
 - `preprocess` wraps `vkCmdPreprocessGeneratedCommandsEXT` in conditional rendering, then executes the preprocessed commands under the same predicate. It checks both the preprocessing rule and the rendered result.
@@ -30,7 +30,7 @@ The registration loops at [`createDGCGraphicsMeshConditionalTestsExt`](../../../
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |---|---|---|---|
-| Test family | `general`, `preprocess` | Selects execution-only conditional rendering or the preprocessing-plus-execution check. | [registration](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMeshConditionalTestsExt.cpp#L680-L722) |
+| Test family | `general`, `preprocess` | Selects execution-only conditional rendering or the preprocessing-plus-execution check. | [`createDGCGraphicsMeshConditionalTestsExt()`](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMeshConditionalTestsExt.cpp#L680-L722) |
 | Pipeline selection | `classic_bind`, `pipeline_token` | Uses an ordinary bound graphics pipeline or an indirect execution-set pipeline token. | [general registration](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMeshConditionalTestsExt.cpp#L684-L706) |
 | Sequence-count source | `with_count_buffer`, `without_count_buffer` | Supplies a one-sequence count buffer or uses the fixed sequence count. | [sequence-count setup](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMeshConditionalTestsExt.cpp#L427-L454) |
 | Predicate value | `condition_false`, `condition_true` | Writes `0` or `1024` to the conditional-rendering buffer. Both are zero/nonzero predicate cases. | [predicate setup](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMeshConditionalTestsExt.cpp#L401-L413) |
@@ -411,6 +411,6 @@ void main() {
 | General execution | [`conditionalDispatchRun`](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMeshConditionalTestsExt.cpp#L281-L496) | Builds resources and DGC state, executes the draw, and compares the image. |
 | Preprocess execution | [`conditionalPreprocessRun`](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMeshConditionalTestsExt.cpp#L499-L672) | Runs preprocessing and later execution with the required barrier and result check. |
 | Registration | [`createDGCGraphicsMeshConditionalTestsExt`](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMeshConditionalTestsExt.cpp#L676-L727) | Registers the exact `general` and `preprocess` variant names. |
-| Conditional rendering semantics | [drawing.adoc](../../../../vulkan-docs/src/chapters/drawing.adoc#L2090-L2167) | Defines predicate and inversion behavior. |
-| Mesh and task shader semantics | [mesh.adoc](../../../../vulkan-docs/src/chapters/VK_NV_mesh_shader/mesh.adoc#L8-L23) | Defines task-to-mesh workgroup creation and emitted primitives. |
-| DGC preprocessing semantics | [generatedcommands.adoc](../../../../vulkan-docs/src/chapters/device_generated_commands/generatedcommands.adoc#L3394-L3483) | Defines explicit preprocessing and conditional-rendering interaction. |
+| Conditional rendering semantics | [drawing source](../../../../vulkan-docs/src/chapters/drawing.adoc#L2090-L2167) | Defines predicate and inversion behavior. |
+| Mesh and task shader semantics | [mesh source](../../../../vulkan-docs/src/chapters/VK_NV_mesh_shader/mesh.adoc#L8-L23) | Defines task-to-mesh workgroup creation and emitted primitives. |
+| DGC preprocessing semantics | [generatedcommands source](../../../../vulkan-docs/src/chapters/device_generated_commands/generatedcommands.adoc#L3394-L3483) | Defines explicit preprocessing and conditional-rendering interaction. |

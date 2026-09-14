@@ -5,7 +5,7 @@
 - This page covers the `m10_feedback_loop` test family implemented in
   [vktDynamicRenderingLocalReadMaint10Tests.cpp](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadMaint10Tests.cpp) and attached under
   `renderpasses.dynamic_rendering.primary_cmd_buff`
-  [vktRenderPassTests.cpp#L8522-L8536](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8522-L8536).
+  [Render-pass dispatcher registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8522-L8536).
 - The test family exercises the `VK_KHR_maintenance10` explicit feedback-loop declaration
   (`VK_RENDERING_ATTACHMENT_INPUT_ATTACHMENT_FEEDBACK_BIT_KHR` together with
   `VK_RENDERING_LOCAL_READ_CONCURRENT_ACCESS_CONTROL_BIT_KHR`) on top of
@@ -15,7 +15,7 @@
   `D24_UNORM_S8_UINT`, `D32_SFLOAT_S8_UINT`); sample counts are 1x and 4x; and each run can be
   performed with either the `RENDERING_LOCAL_READ` layout or the `GENERAL` layout.
 - 120 test case leaves are registered as direct children of the family
-  [renderpasses.txt#L19675-L19794](../../../mustpass/main/vk-default/renderpasses.txt#L19675-L19794),
+  [Renderpasses](../../../mustpass/main/vk-default/renderpasses.txt#L19675-L19794),
   and also appear in the `vk-main-2026-03-01` Android CTS mustpass subset.
 
 ## Background Knowledge
@@ -43,7 +43,7 @@
   of ones and adds a buffer of zeros. This is a no-op on correct hardware but prevents the compiler
   from folding the input attachment read out of the shader, so a driver that skips the local read
   produces visibly wrong output
-  ([vktDynamicRenderingLocalReadMaint10Tests.cpp#L297-L306](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadMaint10Tests.cpp#L297-L306)).
+  ([`DRLRFeedbackLoopCase()`](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadMaint10Tests.cpp#L297-L306)).
 
 ## Registration Hierarchy
 
@@ -65,13 +65,13 @@ The tree shows the family root and a representative selection of its 120 direct 
 full leaf set is enumerated in `## Parameter Dimensions and Observed Values` and
 `## Behavior Parameters`. The naming pattern is
 `{format}_samples_{count}_loop_{case}{_sample_{id}}{_general_layout}`
-([vktDynamicRenderingLocalReadMaint10Tests.cpp#L1744-L1748](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadMaint10Tests.cpp#L1744-L1748)).
+([`createDynamicRenderingLocalReadMaint10Tests()`](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadMaint10Tests.cpp#L1744-L1748)).
 
 The `m10_feedback_loop` family is attached only under `primary_cmd_buff`, and only when the pipeline
 construction type is monolithic. The attachment site gates both conditions: dynamic rendering with a
 non-monolithic pipeline construction type breaks early before reaching this factory, and the
 secondary-command-buffer path that would re-add some local read families does not re-add this one
-([vktRenderPassTests.cpp#L8522-L8546](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8522-L8546)).
+([Render-pass dispatcher registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8522-L8546)).
 The family does not register under `renderpass1` or `renderpass2` at all.
 
 ## Parameter Dimensions and Observed Values
@@ -99,7 +99,7 @@ Color format arithmetic: 6 feedback vectors x 1 sampleId (-1) x 2 layouts = 12 a
 vectors x 5 sampleIds (-1, 0, 1, 2, 3) x 2 layouts = 60 at 4x. Depth/stencil formats admit only the
 single-attachment feedback vector `{true}` (registered as `loop_Y`), giving 1 x 1 x 2 = 2 cases at 1x
 and 1 x 5 x 2 = 10 cases at 4x per format
-([vktDynamicRenderingLocalReadMaint10Tests.cpp#L1733-L1738](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadMaint10Tests.cpp#L1733-L1738)).
+([`createDynamicRenderingLocalReadMaint10Tests()`](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadMaint10Tests.cpp#L1733-L1738)).
 
 ## Behavior Parameters
 
@@ -155,7 +155,7 @@ shader that carries the core validation signal: it reads an input attachment aft
 written it in the same rendering instance, applies a detectable transform, and writes the result.
 The other shaders establish coverage and source data, overwrite the right half with an independent
 reference gradient, or expand multisample data for host comparison
-([shader inventory](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadMaint10Tests.cpp#L308-L564)).
+([`Modifiers()`](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadMaint10Tests.cpp#L308-L564)).
 The representative walkthrough therefore uses the single-sample `loop_Y` color path and reconstructs
 only `frag-modify`; multisample, depth/stencil, and multiple-attachment generator branches are covered
 in the variation table.
@@ -333,7 +333,7 @@ rendering.
   `VK_RENDERING_ATTACHMENT_INPUT_ATTACHMENT_FEEDBACK_BIT_KHR` onto each looped attachment's
   `VkRenderingAttachmentInfo`, and sets `VK_RENDERING_LOCAL_READ_CONCURRENT_ACCESS_CONTROL_BIT_KHR` on
   the `VkRenderingInfo`. This is the maintenance10 explicit declaration under test
-  ([flags setup](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadMaint10Tests.cpp#L1209-L1265)).
+  ([`in()`](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadMaint10Tests.cpp#L1209-L1265)).
 - **Input attachment index mapping.** For depth/stencil cases, the host sets
   `VkRenderingInputAttachmentIndexInfo` to give depth and stencil their own input attachment indices
   ([index info](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadMaint10Tests.cpp#L915-L937)).
@@ -516,13 +516,13 @@ implementation's layout handling.
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Family attachment site | [vktRenderPassTests.cpp#L8522-L8536](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8522-L8536) | Attaches `m10_feedback_loop` under `dynamic_rendering.primary_cmd_buff`, monolithic only. |
-| Test case factory | [vktDynamicRenderingLocalReadMaint10Tests.cpp#L1710-L1753](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadMaint10Tests.cpp#L1710-L1753) | Builds the 120-case matrix from format, sample count, feedback vector, sample id, and layout. |
-| Parameter struct | [vktDynamicRenderingLocalReadMaint10Tests.cpp#L59-L217](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadMaint10Tests.cpp#L59-L217) | Holds the per-case parameters and the attachment routing helpers. |
-| Support checks | [vktDynamicRenderingLocalReadMaint10Tests.cpp#L254-L295](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadMaint10Tests.cpp#L254-L295) | Requires the extensions, features, and format properties used for pruning. |
-| Shader generation | [vktDynamicRenderingLocalReadMaint10Tests.cpp#L308-L564](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadMaint10Tests.cpp#L308-L564) | Emits the vertex, load, modify, gradient, and copy fragment shaders. |
-| Feedback-loop declaration | [vktDynamicRenderingLocalReadMaint10Tests.cpp#L1209-L1265](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadMaint10Tests.cpp#L1209-L1265) | Chains the maintenance10 flags onto the rendering attachment and rendering info. |
-| Runtime execution | [vktDynamicRenderingLocalReadMaint10Tests.cpp#L610-L1698](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadMaint10Tests.cpp#L610-L1698) | Creates resources, runs the pass sequence, expands multisample images, and compares results. |
-| Mustpass entry | [renderpasses.txt#L19675-L19794](../../../mustpass/main/vk-default/renderpasses.txt#L19675-L19794) | Lists all 120 registered cases for the family. |
+| Family attachment site | [Family attachment site](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8522-L8536) | Attaches `m10_feedback_loop` under `dynamic_rendering.primary_cmd_buff`, monolithic only. |
+| Test case factory | [Test case factory](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadMaint10Tests.cpp#L1710-L1753) | Builds the 120-case matrix from format, sample count, feedback vector, sample id, and layout. |
+| Parameter struct | [Parameter struct](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadMaint10Tests.cpp#L59-L217) | Holds the per-case parameters and the attachment routing helpers. |
+| Support checks | [`DRLRFeedbackLoopCase::checkSupport()`](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadMaint10Tests.cpp#L254-L295) | Requires the extensions, features, and format properties used for pruning. |
+| Shader generation | [generate local-read load, modify, gradient, and copy shaders](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadMaint10Tests.cpp#L308-L564) | Emits the vertex, load, modify, gradient, and copy fragment shaders. |
+| Feedback-loop declaration | [chain maintenance10 feedback-loop flags into rendering info](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadMaint10Tests.cpp#L1209-L1265) | Chains the maintenance10 flags onto the rendering attachment and rendering info. |
+| Runtime execution | [Runtime execution](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadMaint10Tests.cpp#L610-L1698) | Creates resources, runs the pass sequence, expands multisample images, and compares results. |
+| Mustpass entry | [Mustpass entry](../../../mustpass/main/vk-default/renderpasses.txt#L19675-L19794) | Lists all 120 registered cases for the family. |
 | Spec: feedback flag | [renderpass.adoc, rendering-attachment-input-attachment-feedback](../../../../vulkan-docs/src/chapters/renderpass.adoc) | Defines `VK_RENDERING_ATTACHMENT_INPUT_ATTACHMENT_FEEDBACK_BIT_KHR` and the concurrent access control bit. |
 | Spec: local read layout | [resources.adoc](../../../../vulkan-docs/src/chapters/resources.adoc) | Restricts `VK_IMAGE_LAYOUT_RENDERING_LOCAL_READ` to input attachment plus color or depth/stencil usage. |

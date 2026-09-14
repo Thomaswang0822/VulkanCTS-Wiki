@@ -2,7 +2,7 @@
 
 **Core question:** Do the NV mesh task draw commands honor direct, indirect, and indirect-count parameters while producing the expected image?
 
-- This page covers the `mesh_shader.nv.api` test family implemented by [vktMeshShaderApiTests.cpp](../../../modules/vulkan/mesh_shader/vktMeshShaderApiTests.cpp#L64-L113).
+- This page covers the `mesh_shader.nv.api` test family implemented by [`vktMeshShaderApiTests.cpp`](../../../modules/vulkan/mesh_shader/vktMeshShaderApiTests.cpp#L64-L113).
 - The factory registers three draw-command families. The cases vary task count, indirect-buffer layout, count-buffer selection, task-shader use, and `firstTask`.
 - Each case renders a 32 by 64 `VK_FORMAT_R8G8B8A8_UNORM` image. The host copies that image to a host-visible buffer and compares every pixel with a generated reference.
 - The current default mustpass contains 436 `mesh_shader.nv.api` cases: 20 `draw`, 96 `draw_indirect`, and 320 `draw_indirect_count` entries.
@@ -30,7 +30,7 @@ The factory loops over every listed dimension and skips combinations that do not
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Draw family | `draw`, `draw_indirect`, `draw_indirect_count` | Selects the Vulkan command used to launch mesh workgroups. | [factory](../../../modules/vulkan/mesh_shader/vktMeshShaderApiTests.cpp#L658-L666) |
+| Draw family | `draw`, `draw_indirect`, `draw_indirect_count` | Selects the Vulkan command used to launch mesh workgroups. | [Test factory](../../../modules/vulkan/mesh_shader/vktMeshShaderApiTests.cpp#L658-L666) |
 | `drawCount` | `0`, `1`, `2`, `32`, `64` | For `draw`, this is the direct task count. For `draw_indirect`, it is the number of draws to execute. For `draw_indirect_count`, it supplies either the count-buffer value or `maxDrawCount`; the effective draw count is the selected value. The host still allocates one indirect record when this value is zero. | [draw-count cases](../../../modules/vulkan/mesh_shader/vktMeshShaderApiTests.cpp#L668-L670), [record allocation and count selection](../../../modules/vulkan/mesh_shader/vktMeshShaderApiTests.cpp#L431-L448), [indirect command recording](../../../modules/vulkan/mesh_shader/vktMeshShaderApiTests.cpp#L577-L596) |
 | Indirect arguments | `no_indirect_args`; `offset_0_stride_0`, `offset_0_stride_normal`, `offset_0_stride_large`; `offset_alt_stride_0`, `offset_alt_stride_normal`, `offset_alt_stride_large` | Selects no buffer for direct draws, or selects the indirect record offset and stride. `normal` is `sizeof(VkDrawMeshTasksIndirectCommandNV)`, `large` is twice that size plus 4, and `alt` is offset `20`. | [indirect argument cases](../../../modules/vulkan/mesh_shader/vktMeshShaderApiTests.cpp#L671-L691) |
 | Count limit | `no_count_limit`, `count_limit_buffer`, `count_limit_max_count` | Direct and non-count indirect draws have no count-buffer mode. Count indirect draws either use the buffer value as the actual count or use `maxDrawCount` to limit a larger buffer value. | [count-limit cases](../../../modules/vulkan/mesh_shader/vktMeshShaderApiTests.cpp#L693-L701), [count-buffer setup](../../../modules/vulkan/mesh_shader/vktMeshShaderApiTests.cpp#L547-L559) |
@@ -39,7 +39,7 @@ The factory loops over every listed dimension and skips combinations that do not
 | First workgroup | `first_task_zero`, `first_task_nonzero` | Uses `firstTask = 0` or `1001` in command parameters and push constants. | [first-task cases](../../../modules/vulkan/mesh_shader/vktMeshShaderApiTests.cpp#L722-L729) |
 | Seed | Per-case values beginning at `1628678795u` | Gives each case's block-size generator a deterministic pseudorandom seed. It changes the partition of rows for indirect records, not the registered path. | [seed and case construction](../../../modules/vulkan/mesh_shader/vktMeshShaderApiTests.cpp#L731-L796) |
 
-The default mustpass has 20 direct cases, 96 indirect cases, and 320 indirect-count cases. The counts reflect pruning of inapplicable dimensions and invalid stride-zero combinations, not a Cartesian product of every table row. [mesh-shader.txt](../../../mustpass/main/vk-default/mesh-shader.txt#L26891-L26910) shows the direct entries, and the following lines continue with the indirect families.
+The default mustpass has 20 direct cases, 96 indirect cases, and 320 indirect-count cases. The counts reflect pruning of inapplicable dimensions and invalid stride-zero combinations, not a Cartesian product of every table row. [mesh-shader source](../../../mustpass/main/vk-default/mesh-shader.txt#L26891-L26910) shows the direct entries, and the following lines continue with the indirect families.
 
 ## Behavior Parameters
 
@@ -611,13 +611,13 @@ This requirement-based pruning means that a case is unsupported or omitted becau
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Parameter types and draw enums | [vktMeshShaderApiTests.cpp#L64-L114](../../../modules/vulkan/mesh_shader/vktMeshShaderApiTests.cpp#L64-L114) | Defines the registered draw, indirect, count, task, and first-task dimensions. |
-| Shader generation | [vktMeshShaderApiTests.cpp#L213-L335](../../../modules/vulkan/mesh_shader/vktMeshShaderApiTests.cpp#L213-L335) | Emits the optional task shader, mesh shader, and fragment shader. |
-| Support checks | [vktMeshShaderApiTests.cpp#L337-L350](../../../modules/vulkan/mesh_shader/vktMeshShaderApiTests.cpp#L337-L350) | Applies NV mesh support, multi-draw, and indirect-count requirements. |
-| Resource and pipeline setup | [vktMeshShaderApiTests.cpp#L381-L560](../../../modules/vulkan/mesh_shader/vktMeshShaderApiTests.cpp#L381-L560) | Creates the image, block-size storage buffer, descriptors, push constants, pipeline, and indirect buffers. |
-| Command recording and readback | [vktMeshShaderApiTests.cpp#L563-L619](../../../modules/vulkan/mesh_shader/vktMeshShaderApiTests.cpp#L563-L619) | Records the selected draw command, copies the image, and waits for completion. |
-| Reference image comparison | [vktMeshShaderApiTests.cpp#L621-L653](../../../modules/vulkan/mesh_shader/vktMeshShaderApiTests.cpp#L621-L653) | Defines expected pixels, threshold, failure message, and pass result. |
-| Test factory | [vktMeshShaderApiTests.cpp#L658-L817](../../../modules/vulkan/mesh_shader/vktMeshShaderApiTests.cpp#L658-L817) | Builds the full hierarchy and prunes inapplicable combinations. |
-| Mustpass registration | [mesh-shader.txt#L26891-L26910](../../../mustpass/main/vk-default/mesh-shader.txt#L26891-L26910) | Shows the exact direct registration paths; subsequent lines contain indirect and count families. |
+| Parameter types and draw enums | [Parameter types and draw enums](../../../modules/vulkan/mesh_shader/vktMeshShaderApiTests.cpp#L64-L114) | Defines the registered draw, indirect, count, task, and first-task dimensions. |
+| Shader generation | [`MeshApiCase::initPrograms()`](../../../modules/vulkan/mesh_shader/vktMeshShaderApiTests.cpp#L213-L335) | Emits the optional task shader, mesh shader, and fragment shader. |
+| Support checks | [support check](../../../modules/vulkan/mesh_shader/vktMeshShaderApiTests.cpp#L337-L350) | Applies NV mesh support, multi-draw, and indirect-count requirements. |
+| Resource and pipeline setup | [Resource and pipeline setup](../../../modules/vulkan/mesh_shader/vktMeshShaderApiTests.cpp#L381-L560) | Creates the image, block-size storage buffer, descriptors, push constants, pipeline, and indirect buffers. |
+| Command recording and readback | [command recording and readback](../../../modules/vulkan/mesh_shader/vktMeshShaderApiTests.cpp#L563-L619) | Records the selected draw command, copies the image, and waits for completion. |
+| Reference image comparison | [`MeshApiInstance::iterate()`](../../../modules/vulkan/mesh_shader/vktMeshShaderApiTests.cpp#L621-L653) | Defines expected pixels, threshold, failure message, and pass result. |
+| Test factory | [`createMeshShaderApiTests()`](../../../modules/vulkan/mesh_shader/vktMeshShaderApiTests.cpp#L658-L817) | Builds the full hierarchy and prunes inapplicable combinations. |
+| Mustpass registration | [Mustpass registration](../../../mustpass/main/vk-default/mesh-shader.txt#L26891-L26910) | Shows the exact direct registration paths; subsequent lines contain indirect and count families. |
 | Mesh shading model | [Mesh Shading](../../../../vulkan-docs/src/chapters/VK_NV_mesh_shader/mesh.adoc#L8-L24) | Explains task-to-mesh workgroup generation and mesh output. |
 | NV draw commands | [NV mesh draw commands](../../../../vulkan-docs/src/chapters/drawing.adoc#L2318-L2482) | Defines direct, indirect, and indirect-count command parameters and valid usage. |

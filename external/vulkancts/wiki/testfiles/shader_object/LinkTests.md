@@ -364,15 +364,15 @@ since the test performs its own barrier, copy, and host comparison steps.
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Link state, bind type, and parameter structs | [vktShaderObjectLinkTests.cpp#L45-L104](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L45-L104) | Defines `ShaderType`, `BindType`, `NextStages`, and the parameter payloads. |
-| Graphics `getNextStage()` | [vktShaderObjectLinkTests.cpp#L130-L191](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L130-L191) | Computes the exact next linked stage or the fallback mask per stage. |
-| Graphics creation and batching | [vktShaderObjectLinkTests.cpp#L304-L464](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L304-L464) | Implements the linked/unlinked creation split, `comp2` append, random order, and separate link. |
-| Graphics bind modes | [vktShaderObjectLinkTests.cpp#L487-L596](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L487-L596) | Implements `separate`, `one_linked_unlinked`, `all`, null unbinds, and dynamic state setup. |
-| Graphics verification | [vktShaderObjectLinkTests.cpp#L661-L717](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L661-L717) | Image region check and storage buffer check with the 4/8 pixel border rule. |
-| Graphics support check | [vktShaderObjectLinkTests.cpp#L742-L754](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L742-L754) | Extension and feature gates, including the tessellation and geometry requirement. |
-| Graphics shader programs | [vktShaderObjectLinkTests.cpp#L756-L832](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L756-L832) | Storage-buffer shader variants and the empty compute shader. |
-| Mesh instance | [vktShaderObjectLinkTests.cpp#L834-L1241](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L834-L1241) | Mesh/task/fragment creation, no-task flag handling, binding, draw, and checks. |
-| Registration | [vktShaderObjectLinkTests.cpp#L1351-L1650](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1351-L1650) | Builds the 16 graphics groups, the `next_stage` group, and the 5 mesh groups. |
-| Shared shader set and helpers | [vktShaderObjectCreateUtil.cpp#L58-L211](../../../modules/vulkan/shader_object/vktShaderObjectCreateUtil.cpp#L58-L211) | Basic GLSL set, default `nextStage` derivation, and `makeShaderCreateInfo`. |
-| Dynamic state and bind helpers | [vktShaderObjectCreateUtil.cpp#L244-L489](../../../modules/vulkan/shader_object/vktShaderObjectCreateUtil.cpp#L244-L489) | `setDefaultShaderObjectDynamicStates`, `bindGraphicsShaders`, and null-stage bind helpers. |
+| Link state, bind type, and parameter structs | [Link state, bind type, and parameter structs](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L45-L104) | Defines `ShaderType`, `BindType`, `NextStages`, and the parameter payloads. |
+| Graphics `getNextStage()` | [getNextStage](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L130-L191) | Computes the exact next linked stage or the fallback mask per stage. |
+| Graphics creation and batching | [`ShaderObjectLinkInstance::iterate()`](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L304-L464) | Implements the linked/unlinked creation split, `comp2` append, random order, and separate link. |
+| Graphics bind modes | [binding](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L487-L596) | Implements `separate`, `one_linked_unlinked`, `all`, null unbinds, and dynamic state setup. |
+| Graphics verification | [graphics checks](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L661-L717) | Image region check and storage buffer check with the 4/8 pixel border rule. |
+| Graphics support check | [`ShaderObjectLinkCase::checkSupport()`](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L742-L754) | Extension and feature gates, including the tessellation and geometry requirement. |
+| Graphics shader programs | [graphics programs](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L756-L832) | Storage-buffer shader variants and the empty compute shader. |
+| Mesh instance | [Mesh instance](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L834-L1241) | Mesh/task/fragment creation, no-task flag handling, binding, draw, and checks. |
+| Registration | [createShaderObjectLinkTests()](../../../modules/vulkan/shader_object/vktShaderObjectLinkTests.cpp#L1351-L1650) | Builds the 16 graphics groups, the `next_stage` group, and the 5 mesh groups. |
+| Shared shader set and helpers | [Shared shader set and helpers](../../../modules/vulkan/shader_object/vktShaderObjectCreateUtil.cpp#L58-L211) | Basic GLSL set, default `nextStage` derivation, and `makeShaderCreateInfo`. |
+| Dynamic state and bind helpers | [Dynamic state and bind helpers](../../../modules/vulkan/shader_object/vktShaderObjectCreateUtil.cpp#L244-L489) | `setDefaultShaderObjectDynamicStates`, `bindGraphicsShaders`, and null-stage bind helpers. |
 | Mustpass evidence | [link.txt](../../../mustpass/main/vk-default/shader-object/link.txt) | All 161 registered `dEQP-VK.shader_object.link.*` case paths. |

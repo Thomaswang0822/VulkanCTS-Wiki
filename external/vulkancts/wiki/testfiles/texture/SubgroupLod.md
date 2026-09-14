@@ -31,7 +31,7 @@ The source does not generate a parameter matrix. Each operation is one fixed Amb
 
 | Dimension | Observed values | Meaning in this test | Evidence |
 |-----------|-----------------|----------------------|----------|
-| Test case leaf | `texelfetch`, `texturegrad`, `texturelod` | Selects the texture operation and the way the shader requests a mip level. | [registration](../../../modules/vulkan/texture/vktTextureSubgroupLodTests.cpp#L38-L51) |
+| Test case leaf | `texelfetch`, `texturegrad`, `texturelod` | Selects the texture operation and the way the shader requests a mip level. | [`populateSubgroupLodTests()`](../../../modules/vulkan/texture/vktTextureSubgroupLodTests.cpp#L38-L51) |
 | Mip count | 4 for `texelfetch` and `texturelod`; 2 for `texturegrad` | Provides enough distinct solid-color levels to identify each requested result. | [fetch recipe](../../../data/vulkan/amber/texture/subgroup_lod/texel_fetch.amber#L47-L49), [gradient recipe](../../../data/vulkan/amber/texture/subgroup_lod/texture_grad.amber#L50-L52), [LOD recipe](../../../data/vulkan/amber/texture/subgroup_lod/texture_lod.amber#L45-L47) |
 | Request selected by `gl_VertexIndex` | integer levels 0 through 3; zero or unit gradients; floating-point LODs 0 through 3 | Makes the four rectangle corners carry results from different level-selection inputs. | [fetch shader](../../../data/vulkan/amber/texture/subgroup_lod/texel_fetch.amber#L20-L33), [gradient shader](../../../data/vulkan/amber/texture/subgroup_lod/texture_grad.amber#L20-L36), [LOD shader](../../../data/vulkan/amber/texture/subgroup_lod/texture_lod.amber#L20-L31) |
 | Validation sample positions | `(0,511)`, `(511,0)`, `(511,511)`, `(0,0)` | Checks one pixel at each exact framebuffer corner, where the interpolated color equals the corresponding vertex output. | [fetch expectations](../../../data/vulkan/amber/texture/subgroup_lod/texel_fetch.amber#L101-L105), [gradient expectations](../../../data/vulkan/amber/texture/subgroup_lod/texture_grad.amber#L86-L90), [LOD expectations](../../../data/vulkan/amber/texture/subgroup_lod/texture_lod.amber#L99-L103) |
@@ -306,14 +306,14 @@ A failure shared by all three values can also come from mip-level attachment vie
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Texture dispatcher | [vktTextureTests.cpp#L48-L66](../../../modules/vulkan/texture/vktTextureTests.cpp#L48-L66) | Adds `subgroup_lod` to the Vulkan texture category and excludes it from Vulkan SC. |
-| Family registration | [vktTextureSubgroupLodTests.cpp#L38-L62](../../../modules/vulkan/texture/vktTextureSubgroupLodTests.cpp#L38-L62) | Registers the three exact leaves and maps them to Amber files. |
-| `texelfetch` recipe | [texel_fetch.amber#L18-L105](../../../data/vulkan/amber/texture/subgroup_lod/texel_fetch.amber#L18-L105) | Defines integer fetch logic, four colored levels, the draw, and corner checks. |
-| `texturegrad` recipe | [texture_grad.amber#L18-L90](../../../data/vulkan/amber/texture/subgroup_lod/texture_grad.amber#L18-L90) | Defines the explicit-gradient shader, two colored levels, and alternating expectations. |
-| `texturelod` recipe | [texture_lod.amber#L18-L103](../../../data/vulkan/amber/texture/subgroup_lod/texture_lod.amber#L18-L103) | Defines floating-point explicit LOD selection and four-level expectations. |
-| Amber compilation | [vktAmberTestCase.cpp#L435-L499](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L435-L499) | Shows the default SPIR-V 1.0 target and stage-specific GLSL compilation. |
-| Amber execution and result | [vktAmberTestCase.cpp#L546-L615](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L546-L615) | Executes the recipe with compiled shaders and maps the Amber result to CTS status. |
-| Default Vulkan mustpass | [texture.txt#L15770-L15774](../../../mustpass/main/vk-default/texture.txt#L15770-L15774) | Lists exactly the three executable Vulkan paths. |
-| Explicit gradients and LOD operands | [textures.adoc#L1315-L1353](../../../../vulkan-docs/src/chapters/textures.adoc#L1315-L1353) | Defines derivative inputs and direct floating-point `Lod` handling. |
-| LOD and image-level selection | [textures.adoc#L1654-L1720](../../../../vulkan-docs/src/chapters/textures.adoc#L1654-L1720) | Defines LOD bounds and conversion to an image level. |
-| Integer fetch LOD | [textures.adoc#L2028-L2053](../../../../vulkan-docs/src/chapters/textures.adoc#L2028-L2053) | Defines level selection for integer-coordinate fetches. |
+| Texture dispatcher | [`createTextureTests()`](../../../modules/vulkan/texture/vktTextureTests.cpp#L48-L66) | Adds `subgroup_lod` to the Vulkan texture category and excludes it from Vulkan SC. |
+| Family registration | [Family registration](../../../modules/vulkan/texture/vktTextureSubgroupLodTests.cpp#L38-L62) | Registers the three exact leaves and maps them to Amber files. |
+| `texelfetch` recipe | [`texelfetch` recipe](../../../data/vulkan/amber/texture/subgroup_lod/texel_fetch.amber#L18-L105) | Defines integer fetch logic, four colored levels, the draw, and corner checks. |
+| `texturegrad` recipe | [`texturegrad` recipe](../../../data/vulkan/amber/texture/subgroup_lod/texture_grad.amber#L18-L90) | Defines the explicit-gradient shader, two colored levels, and alternating expectations. |
+| `texturelod` recipe | [`texturelod` recipe](../../../data/vulkan/amber/texture/subgroup_lod/texture_lod.amber#L18-L103) | Defines floating-point explicit LOD selection and four-level expectations. |
+| Amber compilation | [`AmberTestCase::initPrograms()`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L435-L499) | Shows the default SPIR-V 1.0 target and stage-specific GLSL compilation. |
+| Amber execution and result | [Amber execution and result](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L546-L615) | Executes the recipe with compiled shaders and maps the Amber result to CTS status. |
+| Default Vulkan mustpass | [Default Vulkan mustpass](../../../mustpass/main/vk-default/texture.txt#L15770-L15774) | Lists exactly the three executable Vulkan paths. |
+| Explicit gradients and LOD operands | [Explicit gradients and LOD operands](../../../../vulkan-docs/src/chapters/textures.adoc#L1315-L1353) | Defines derivative inputs and direct floating-point `Lod` handling. |
+| LOD and image-level selection | [LOD and image-level selection](../../../../vulkan-docs/src/chapters/textures.adoc#L1654-L1720) | Defines LOD bounds and conversion to an image level. |
+| Integer fetch LOD | [Integer fetch LOD](../../../../vulkan-docs/src/chapters/textures.adoc#L2028-L2053) | Defines level selection for integer-coordinate fetches. |

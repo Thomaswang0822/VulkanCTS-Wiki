@@ -128,11 +128,11 @@ The registration fixes the image type to `2d` and uses one extent, `512_256_1`. 
 
 | Entry point or range | Link | Why it matters |
 |----------------------|------|----------------|
-| `getBasicTestFormats` | [`vktSparseResourcesTransferQueueTests.cpp#L61-L89`](../../../modules/vulkan/sparse_resources/vktSparseResourcesTransferQueueTests.cpp#L61-L89) | Lists the registered formats. |
-| `SparseResourceTransferQueueCase::checkSupport` | [`vktSparseResourcesTransferQueueTests.cpp#L117-L133`](../../../modules/vulkan/sparse_resources/vktSparseResourcesTransferQueueTests.cpp#L117-L133) | Checks sparse binding, image size, and the R64 feature path. |
-| Image and queue setup | [`vktSparseResourcesTransferQueueTests.cpp#L169-L229`](../../../modules/vulkan/sparse_resources/vktSparseResourcesTransferQueueTests.cpp#L169-L229) | Creates the queue and sparse image and checks image limits. |
-| Opaque sparse bind submission | [`vktSparseResourcesTransferQueueTests.cpp#L233-L276`](../../../modules/vulkan/sparse_resources/vktSparseResourcesTransferQueueTests.cpp#L233-L276) | Allocates sparse memory and calls `vkQueueBindSparse`. |
-| Copy regions and transfer commands | [`vktSparseResourcesTransferQueueTests.cpp#L278-L417`](../../../modules/vulkan/sparse_resources/vktSparseResourcesTransferQueueTests.cpp#L278-L417) | Defines upload, layout transitions, readback, and host visibility. |
-| Result validation | [`vktSparseResourcesTransferQueueTests.cpp#L421-L455`](../../../modules/vulkan/sparse_resources/vktSparseResourcesTransferQueueTests.cpp#L421-L455) | Applies format masks and returns the test status. |
-| Shared queue creation | [`vktSparseResourcesBase.cpp#L88-L194`](../../../modules/vulkan/sparse_resources/vktSparseResourcesBase.cpp#L88-L194) | Provides the sparse base queue and device setup used by the instance. |
+| `getBasicTestFormats` | [`getBasicTestFormats()`](../../../modules/vulkan/sparse_resources/vktSparseResourcesTransferQueueTests.cpp#L61-L89) | Lists the registered formats. |
+| `SparseResourceTransferQueueCase::checkSupport` | [`SparseResourceTransferQueueCase::checkSupport()`](../../../modules/vulkan/sparse_resources/vktSparseResourcesTransferQueueTests.cpp#L117-L133) | Checks sparse binding, image size, and the R64 feature path. |
+| Image and queue setup | [`SparseResourceTransferQueueInstance::iterate()`](../../../modules/vulkan/sparse_resources/vktSparseResourcesTransferQueueTests.cpp#L169-L229) | Creates the queue and sparse image and checks image limits. |
+| Opaque sparse bind submission | [`SparseResourceTransferQueueInstance::iterate()`](../../../modules/vulkan/sparse_resources/vktSparseResourcesTransferQueueTests.cpp#L233-L276) | Allocates sparse memory and calls `vkQueueBindSparse`. |
+| Copy regions and transfer commands | [`SparseResourceTransferQueueInstance::iterate()`](../../../modules/vulkan/sparse_resources/vktSparseResourcesTransferQueueTests.cpp#L278-L417) | Defines upload, layout transitions, readback, and host visibility. |
+| Result validation | [`SparseResourceTransferQueueInstance::iterate()`](../../../modules/vulkan/sparse_resources/vktSparseResourcesTransferQueueTests.cpp#L421-L455) | Applies format masks and returns the test status. |
+| Shared queue creation | [`SparseResourcesBaseInstance::createDeviceSupportingQueues()`](../../../modules/vulkan/sparse_resources/vktSparseResourcesBase.cpp#L88-L194) | Provides the sparse base queue and device setup used by the instance. |
 | Vulkan sparse memory reference | [`sparsemem.adoc`](../../../../vulkan-docs/src/chapters/sparsemem.adoc) | Provides the specification background for sparse resource memory. |

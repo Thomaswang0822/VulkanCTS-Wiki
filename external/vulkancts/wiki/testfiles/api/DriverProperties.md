@@ -152,17 +152,17 @@ The test design splits driver-metadata validation into five independent leaves r
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `createDriverPropertiesTests()` | [vktApiDriverPropertiesTests.cpp#L174-L177](../../../modules/vulkan/api/vktApiDriverPropertiesTests.cpp#L174-L177) | Public entry point that creates the `driver_properties` test group. |
-| `createTestCases()` | [vktApiDriverPropertiesTests.cpp#L163-L170](../../../modules/vulkan/api/vktApiDriverPropertiesTests.cpp#L163-L170) | Registers the five test case leaves and their `TestType` values. |
-| `testQueryProperties()` | [vktApiDriverPropertiesTests.cpp#L120-L161](../../../modules/vulkan/api/vktApiDriverPropertiesTests.cpp#L120-L161) | Shared host-side query and validator dispatch. |
-| `testDriverMatch()` | [vktApiDriverPropertiesTests.cpp#L66-L75](../../../modules/vulkan/api/vktApiDriverPropertiesTests.cpp#L66-L75) | `driver_id_match` validator. |
-| `testNameIsNotEmpty()` | [vktApiDriverPropertiesTests.cpp#L77-L81](../../../modules/vulkan/api/vktApiDriverPropertiesTests.cpp#L77-L81) | `name_is_not_empty` validator. |
-| `testNameZeroTerminated()` | [vktApiDriverPropertiesTests.cpp#L83-L87](../../../modules/vulkan/api/vktApiDriverPropertiesTests.cpp#L83-L87) | `name_zero_terminated` validator. |
-| `testInfoZeroTerminated()` | [vktApiDriverPropertiesTests.cpp#L89-L93](../../../modules/vulkan/api/vktApiDriverPropertiesTests.cpp#L89-L93) | `info_zero_terminated` validator. |
-| `testVersion()` | [vktApiDriverPropertiesTests.cpp#L95-L118](../../../modules/vulkan/api/vktApiDriverPropertiesTests.cpp#L95-L118) | `conformance_version` validator. |
-| `checkSupport()` | [vktApiDriverPropertiesTests.cpp#L60-L64](../../../modules/vulkan/api/vktApiDriverPropertiesTests.cpp#L60-L64) | Shared support gate requiring `VK_KHR_driver_properties`. |
-| `isNullTerminated()` | [vktApiDriverPropertiesTests.cpp#L50-L53](../../../modules/vulkan/api/vktApiDriverPropertiesTests.cpp#L50-L53) | Bounded null-termination helper used by the two `*_zero_terminated` leaves. |
-| `enum TestType` | [vktApiDriverPropertiesTests.cpp#L41-L48](../../../modules/vulkan/api/vktApiDriverPropertiesTests.cpp#L41-L48) | Leaf-to-validator dispatch enum. |
-| Parent registration | [vktApiTests.cpp#L91-L91](../../../modules/vulkan/api/vktApiTests.cpp#L91-L91) | Where the `driver_properties` group is attached to the `api` test category. |
+| `createDriverPropertiesTests()` | [createDriverPropertiesTests()](../../../modules/vulkan/api/vktApiDriverPropertiesTests.cpp#L174-L177) | Public entry point that creates the `driver_properties` test group. |
+| `createTestCases()` | [createTestCases()](../../../modules/vulkan/api/vktApiDriverPropertiesTests.cpp#L163-L170) | Registers the five test case leaves and their `TestType` values. |
+| `testQueryProperties()` | [testQueryProperties()](../../../modules/vulkan/api/vktApiDriverPropertiesTests.cpp#L120-L161) | Shared host-side query and validator dispatch. |
+| `testDriverMatch()` | [testDriverMatch()](../../../modules/vulkan/api/vktApiDriverPropertiesTests.cpp#L66-L75) | `driver_id_match` validator. |
+| `testNameIsNotEmpty()` | [testNameIsNotEmpty()](../../../modules/vulkan/api/vktApiDriverPropertiesTests.cpp#L77-L81) | `name_is_not_empty` validator. |
+| `testNameZeroTerminated()` | [testNameZeroTerminated()](../../../modules/vulkan/api/vktApiDriverPropertiesTests.cpp#L83-L87) | `name_zero_terminated` validator. |
+| `testInfoZeroTerminated()` | [testInfoZeroTerminated()](../../../modules/vulkan/api/vktApiDriverPropertiesTests.cpp#L89-L93) | `info_zero_terminated` validator. |
+| `testVersion()` | [testVersion()](../../../modules/vulkan/api/vktApiDriverPropertiesTests.cpp#L95-L118) | `conformance_version` validator. |
+| `checkSupport()` | [checkSupport()](../../../modules/vulkan/api/vktApiDriverPropertiesTests.cpp#L60-L64) | Shared support gate requiring `VK_KHR_driver_properties`. |
+| `isNullTerminated()` | [isNullTerminated()](../../../modules/vulkan/api/vktApiDriverPropertiesTests.cpp#L50-L53) | Bounded null-termination helper used by the two `*_zero_terminated` leaves. |
+| `enum TestType` | [enum TestType](../../../modules/vulkan/api/vktApiDriverPropertiesTests.cpp#L41-L48) | Leaf-to-validator dispatch enum. |
+| Parent registration | [Parent registration](../../../modules/vulkan/api/vktApiTests.cpp#L91-L91) | Where the `driver_properties` group is attached to the `api` test category. |
 | Header | [vktApiDriverPropertiesTests.hpp](../../../modules/vulkan/api/vktApiDriverPropertiesTests.hpp) | Public declaration of `createDriverPropertiesTests()`. |
-| Mustpass entries | [api.txt#L269464-L269468](../../../mustpass/main/vk-default/api.txt#L267497-L267497) | The five `dEQP-VK.api.driver_properties.*` leaves in the canonical mustpass. |
+| Mustpass entries | [Mustpass entries](../../../mustpass/main/vk-default/api.txt#L267497-L267497) | The five `dEQP-VK.api.driver_properties.*` leaves in the canonical mustpass. |

@@ -315,11 +315,11 @@ All cases share the reference-image and compare path, so an infrastructure defec
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `createScissorMultiViewportTests()` | [`vktFragmentOperationsScissorMultiViewportTests.cpp#L442-L451`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorMultiViewportTests.cpp#L442-L451) | Registers `scissor_1`..`scissor_16` via the 1..16 loop |
-| `checkSupport()` | [`vktFragmentOperationsScissorMultiViewportTests.cpp#L431-L438`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorMultiViewportTests.cpp#L431-L438) | Feature and limit gate |
-| `test()` | [`vktFragmentOperationsScissorMultiViewportTests.cpp#L380-L429`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorMultiViewportTests.cpp#L380-L429) | Host flow: setup, draw, compare |
-| `initPrograms()` geometry block | [`vktFragmentOperationsScissorMultiViewportTests.cpp#L219-L260`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorMultiViewportTests.cpp#L219-L260) | The shader under test |
-| `generateScissors()` | [`vktFragmentOperationsScissorMultiViewportTests.cpp#L131-L161`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorMultiViewportTests.cpp#L131-L161) | Grid tiling |
-| `generateReferenceImage()` | [`vktFragmentOperationsScissorMultiViewportTests.cpp#L180-L197`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorMultiViewportTests.cpp#L180-L197) | Reference image construction |
-| `makeGraphicsPipeline()` | [`vktFragmentOperationsScissorMultiViewportTests.cpp#L94-L129`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorMultiViewportTests.cpp#L94-L129) | Viewport and scissor array binding |
-| Parent registration | [`vktFragmentOperationsScissorTests.cpp#L573-L576`](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorTests.cpp#L573-L576) | Where `multi_viewport` is attached under `scissor` |
+| `createScissorMultiViewportTests()` | [Viewport-count case registration](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorMultiViewportTests.cpp#L442-L451) | Registers `scissor_1`..`scissor_16` via the 1..16 loop |
+| `checkSupport()` | [Geometry shader and multi-viewport support checks](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorMultiViewportTests.cpp#L431-L438) | Feature and limit gate |
+| `test()` | [Scissor-grid rendering and image comparison](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorMultiViewportTests.cpp#L380-L429) | Host flow: setup, draw, compare |
+| `initPrograms()` geometry block | [Quad emission with per-primitive viewport selection](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorMultiViewportTests.cpp#L219-L260) | The shader under test |
+| `generateScissors()` | [Grid-shaped scissor rectangle generation](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorMultiViewportTests.cpp#L131-L161) | Grid tiling |
+| `generateReferenceImage()` | [Reference-image filling within scissor rectangles](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorMultiViewportTests.cpp#L180-L197) | Reference image construction |
+| `makeGraphicsPipeline()` | [Pipeline setup with paired viewport and scissor arrays](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorMultiViewportTests.cpp#L94-L129) | Viewport and scissor array binding |
+| Parent registration | [Scissor parent attachment for multi-viewport tests](../../../modules/vulkan/fragment_ops/vktFragmentOperationsScissorTests.cpp#L573-L576) | Where `multi_viewport` is attached under `scissor` |

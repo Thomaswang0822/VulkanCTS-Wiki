@@ -377,7 +377,7 @@ Cases are skipped when the required extension, feature, format feature, image us
 
 | Entry point | Link | Why it matters |
 |---|---|---|
-| Category dispatch | [`vktImageProcessingTests.cpp#createChildren()`](../../../modules/vulkan/image_processing/vktImageProcessingTests.cpp#L45-L87) | Selects graphics construction branches, API, and compute. |
+| Category dispatch | [vktImageProcessingTests.cpp](../../../modules/vulkan/image_processing/vktImageProcessingTests.cpp#L45-L87) | Selects graphics construction branches, API, and compute. |
 | Common registration | [`createImageProcessingBlockMatchingCommonTests()`](../../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L1881-L2257) | Registers operation families and all variation groups. |
 | Operation mapping and formats | [`vktImageProcessingTestsUtil.cpp`](../../../modules/vulkan/image_processing/vktImageProcessingTestsUtil.cpp#L250-L255), [`getOpSupportedFormats()`](../../../modules/vulkan/image_processing/vktImageProcessingTestsUtil.cpp#L408-L435) | Maps `sad`/`ssd` to GLSL built-ins and supplies candidate formats. |
 | Generated graphics source | [`initPrograms()`](../../../modules/vulkan/image_processing/vktImageProcessingBlockMatchingTests.cpp#L275-L369) | Builds vertex and fragment GLSL for graphics cases. |

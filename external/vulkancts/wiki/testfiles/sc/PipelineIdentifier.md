@@ -142,7 +142,7 @@ The host initializes the output vector and expected-nullness vector, performs on
 
 ### Requirement-based pruning
 
-The registration supplies shader-generation and test functions without a case-specific support callback. This file contains no feature-dependent pruning of the registered product. Custom-device creation is runtime setup, not an explicit `NotSupported` gate. It requests a universal queue and copies the context device-extension list. [Registration](../../../modules/vulkan/sc/vktPipelineIdentifierTests.cpp#L670-L677), [custom-device setup](../../../modules/vulkan/sc/vktPipelineIdentifierTests.cpp#L133-L162).
+The registration supplies shader-generation and test functions without a case-specific support callback. This file contains no feature-dependent pruning of the registered product. Custom-device creation is runtime setup, not an explicit `NotSupported` gate. It requests a universal queue and copies the context device-extension list. [`createPipelineIdentifierTests()`](../../../modules/vulkan/sc/vktPipelineIdentifierTests.cpp#L670-L677), [custom-device setup](../../../modules/vulkan/sc/vktPipelineIdentifierTests.cpp#L133-L162).
 
 ### Design-based pruning
 

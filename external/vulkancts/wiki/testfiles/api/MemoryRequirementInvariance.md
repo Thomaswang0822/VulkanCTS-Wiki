@@ -25,7 +25,7 @@ api.invariance
 └── memory_dedicated_requirements_matching
 ```
 
-[vktApiTests.cpp#L122](../../../modules/vulkan/api/vktApiTests.cpp#L122) adds the `invariance` test family to the `api` test category. The three test case leaves are added directly under the family by [createMemoryRequirementInvarianceTests()](../../../modules/vulkan/api/vktApiMemoryRequirementInvarianceTests.cpp#L760-L770); there are no intermediate nodes. The function name embeds `MemoryRequirementInvariance`, but the registered group name is `invariance`, so the mustpass identifier is `dEQP-VK.api.invariance.*` rather than `dEQP-VK.api.memory_requirement_invariance.*`.
+[ApiTests source lines](../../../modules/vulkan/api/vktApiTests.cpp#L122) adds the `invariance` test family to the `api` test category. The three test case leaves are added directly under the family by [createMemoryRequirementInvarianceTests()](../../../modules/vulkan/api/vktApiMemoryRequirementInvarianceTests.cpp#L760-L770); there are no intermediate nodes. The function name embeds `MemoryRequirementInvariance`, but the registered group name is `invariance`, so the mustpass identifier is `dEQP-VK.api.invariance.*` rather than `dEQP-VK.api.memory_requirement_invariance.*`.
 
 ## Parameter Dimensions and Observed Values
 
@@ -185,7 +185,7 @@ The `random` leaf also probes each candidate image format against `vkGetPhysical
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
 | Test family registration | [createMemoryRequirementInvarianceTests()](../../../modules/vulkan/api/vktApiMemoryRequirementInvarianceTests.cpp#L760-L770) | Builds the `invariance` tree with the three test case leaves |
-| Parent registration | [vktApiTests.cpp#L122](../../../modules/vulkan/api/vktApiTests.cpp#L122) | Adds the `invariance` test family to the `api` test category |
+| Parent registration | [Parent registration](../../../modules/vulkan/api/vktApiTests.cpp#L122) | Adds the `invariance` test family to the `api` test category |
 | Header declaration | [vktApiMemoryRequirementInvarianceTests.hpp](../../../modules/vulkan/api/vktApiMemoryRequirementInvarianceTests.hpp#L1) | Public entry point declaration |
 | Test case class | [InvarianceCase](../../../modules/vulkan/api/vktApiMemoryRequirementInvarianceTests.cpp#L727-L758) | `TestCase` subclass; `createInstance()` dispatches by `TestType`, `checkSupport()` enforces `VK_KHR_maintenance4` |
 | TestType enum | [TestType](../../../modules/vulkan/api/vktApiMemoryRequirementInvarianceTests.cpp#L46-L51) | Internal enum: `TT_BASIC_INVARIANCE`, `TT_REQUIREMENTS_MATCHING`, `TT_DEDICATED_REQUIREMENTS` |

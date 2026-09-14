@@ -22,7 +22,7 @@ ray_tracing_pipeline.indirect_acceleration_structure
 └── update
 ```
 
-The two direct children are registered by [createBuildIndirectTests](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L1254-L1401). The `addIndirectTests` helper is called twice: once with `doUpdate == false` for the `build` child, and once with `doUpdate == true` for the `update` child. Each call registers the same four geometry-type groups (`triangles_indexed`, `triangles_no_index`, `aabbs`, `instances`) and the same field-intermediate nodes (`primitive_count`, `primitive_offset`, `first_vertex`, `transform_offset`) under each applicable geometry type.
+The two direct children are registered by [register indirect build and update field variants](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L1254-L1401). The `addIndirectTests` helper is called twice: once with `doUpdate == false` for the `build` child, and once with `doUpdate == true` for the `update` child. Each call registers the same four geometry-type groups (`triangles_indexed`, `triangles_no_index`, `aabbs`, `instances`) and the same field-intermediate nodes (`primitive_count`, `primitive_offset`, `first_vertex`, `transform_offset`) under each applicable geometry type.
 
 ## Parameter Dimensions and Observed Values
 
@@ -149,18 +149,18 @@ void main()
 
 #### Additional Info
 
-- `wr-asb` is the producer for BLAS geometries. The analogous `wr-ast` shader writes one record for the TLAS: `instancesCount` occupies `primitiveCount`, and `instancesOffset` occupies `primitiveOffset` [producer generation](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L171-L242).
+- `wr-asb` is the producer for BLAS geometries. The analogous `wr-ast` shader writes one record for the TLAS: `instancesCount` occupies `primitiveCount`, and `instancesOffset` occupies `primitiveOffset` [BLAS and TLAS range-producer shaders](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L171-L242).
 - The trace rgen is fixed across `build` and `update`, all geometry types, and all field leaves. Closest-hit stores `uvec4(1,0,0,1)`, miss stores `uvec4(2,0,0,1)`, and AABB cases additionally use an intersection shader that calls `reportIntersectionEXT(1.5, 0)` [trace/result stage generation](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L243-L314).
-- The producer literals vary with `CaseDef`; its loop bound remains `depth = 8`. The update path changes host-side AS build sequencing and geometry/address setup, not generated shader text [CaseDef](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L74-L89) [initProgramsHelper](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L171-L242).
+- The producer literals vary with `CaseDef`; its loop bound remains `depth = 8`. The update path changes host-side AS build sequencing and geometry/address setup, not generated shader text [indirect range fields and update-mode parameters](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L74-L89) [BLAS and TLAS range-producer shaders](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L171-L242).
 
 #### Parameter Variation Summary
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|-----------------------------------------|----------|
-| Build range field/value | `wr-asb` keeps the same declarations and loop but embeds the selected `primitiveCount`, `primitiveOffset`, `firstVertex`, and `transformOffset` literals. `wr-ast` embeds the instance count/offset variant. | [initProgramsHelper](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L171-L242) |
-| Geometry type | The three BLAS groups share the `wr-asb` producer shape; `instances` uses the single-record `wr-ast` variant. The trace rgen is unchanged. | [geometry-group registration](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L1256-L1387) |
+| Build range field/value | `wr-asb` keeps the same declarations and loop but embeds the selected `primitiveCount`, `primitiveOffset`, `firstVertex`, and `transformOffset` literals. `wr-ast` embeds the instance count/offset variant. | [BLAS and TLAS range-producer shaders](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L171-L242) |
+| Geometry type | The three BLAS groups share the `wr-asb` producer shape; `instances` uses the single-record `wr-ast` variant. The trace rgen is unchanged. | [geometry-specific indirect field combinations](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L1256-L1387) |
 | Build/update mode | No generated shader changes; only the host AS build sequence and geometry/address setup change. | [update build sequence](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L615-L624) |
-| Launch dimensions | The trace rgen uses `gl_LaunchIDEXT` directly. Fixed `width = height = 5`, `depth = 8` changes invocation count, not shader structure. | [CaseDef dimensions](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L74-L89) |
+| Launch dimensions | The trace rgen uses `gl_LaunchIDEXT` directly. Fixed `width = height = 5`, `depth = 8` changes invocation count, not shader structure. | [indirect range fields and update-mode parameters](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L74-L89) |
 
 #### SPIR-V
 
@@ -384,12 +384,12 @@ void main()
 ### Indirect buffer generation
 
 - Before the build, two small rgen shaders run on the device to fill the indirect buffers. `wr-asb` writes one `VkAccelerationStructureBuildRangeInfoKHR` per BLAS geometry into a storage buffer, baking `primitiveCount`, `primitiveOffset`, `firstVertex`, and `transformOffset` from the case's `CaseDef` [initProgramsHelper wr-asb](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L174-L211). `wr-ast` writes a single struct for the TLAS, baking `instancesCount` and `instancesOffset` [initProgramsHelper wr-ast](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L212-L242).
-- The indirect buffers are created with `VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT` and are host-visible. `prepareBuffer` builds a one-group ray tracing pipeline, records `cmdTraceRays(1,1,1)`, and submits it to fill the buffer [prepareBuffer](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L933-L999).
+- The indirect buffers are created with `VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT` and are host-visible. `prepareBuffer` builds a one-group ray tracing pipeline, records `cmdTraceRays(1,1,1)`, and submits it to fill the buffer [fill indirect build buffers with raygen](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L933-L999).
 - The BLAS indirect buffer holds `geometriesGroupCount` structs and the TLAS indirect buffer holds one struct, both with stride `sizeof(VkAccelerationStructureBuildRangeInfoKHR)` [initIndirectBottomAccelerationStructure](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L1173-L1182) [initIndirectTopAccelerationStructure](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L1163-L1171).
 
 ### Geometry layout and offset arithmetic
 
-- The scene is a `SQUARE_SIZE x SQUARE_SIZE` grid of primitives. Each primitive covers one cell. A deterministic rule (`primId % 7 == 5`) marks certain cells as miss cells by placing their geometry out of the ray path [isMissTriangle](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L59-L63).
+- The scene is a `SQUARE_SIZE x SQUARE_SIZE` grid of primitives. Each primitive covers one cell. A deterministic rule (`primId % 7 == 5`) marks certain cells as miss cells by placing their geometry out of the ray path [deterministic miss-cell selection](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L59-L63).
 - For `primitive_count`, only the first `primitiveCount` primitives are built. Cells whose linear index `n >= primitiveCount` must miss, so the expected value is `MISS` for them [primitive_count loop](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L1272-L1283).
 - For `primitive_offset`, the vertex or AABB data is laid out with the real geometry at a byte offset into the buffer. The test negates the offset when setting the buffer address (`setVertexBufferAddressOffset(-m_data.primitiveOffset)`) so the resolved address lands on the real geometry, and adds padding primitives behind it to keep the build in range [non-indexed BLAS offset](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L572-L603) [AABB BLAS offset](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L766-L795).
 - For `first_vertex`, the indexed triangle geometry is laid out with fake triangles before the real vertices, and the index values are shifted by `firstVertexReminder` so the resolved `firstVertex` lands on the correct vertices [indexed BLAS firstVertex](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L657-L687).
@@ -449,7 +449,7 @@ All leaves share the indirect-buffer generation, the scene construction, the tra
 
 - All leaves require `VK_KHR_acceleration_structure` and `VK_KHR_ray_tracing_pipeline`, with the `accelerationStructure` and `rayTracingPipeline` feature bits set. If either is not set, the test throws `NotSupportedError` [checkSupport](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L519-L529).
 - All leaves additionally require `accelerationStructureIndirectBuild`; otherwise the test throws `NotSupportedError` [indirect build feature gate](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L531-L533).
-- At instance time, the test checks ray tracing property limits: `maxPrimitiveCount` must cover the case's `primitiveCount`, `maxGeometryCount` must cover `geometriesGroupCount`, and `maxInstanceCount` must cover `instancesCount`. Any shortfall throws `NotSupportedError` [checkSupportInInstance](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L1147-L1161).
+- At instance time, the test checks ray tracing property limits: `maxPrimitiveCount` must cover the case's `primitiveCount`, `maxGeometryCount` must cover `geometriesGroupCount`, and `maxInstanceCount` must cover `instancesCount`. Any shortfall throws `NotSupportedError` [indirect-build primitive, geometry, and instance limits](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L1147-L1161).
 
 ### Design-based pruning
 
@@ -469,24 +469,24 @@ All leaves share the indirect-buffer generation, the scene construction, the tra
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `CaseDef` struct | [vktRayTracingBuildIndirectTests.cpp#L74-L89](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L74-L89) | Per-case parameters: primitive count, offsets, first vertex, instance counts, doUpdate |
-| `isMissTriangle` | [vktRayTracingBuildIndirectTests.cpp#L59-L63](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L59-L63) | Deterministic miss-cell placement rule |
-| `initProgramsHelper` | [vktRayTracingBuildIndirectTests.cpp#L171-L315](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L171-L315) | Generated rgen/chit/miss/rint shaders, including the indirect-buffer writer shaders |
-| `RayTracingBuildIndirectTestInstance` | [vktRayTracingBuildIndirectTests.cpp#L398-L427](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L398-L427) | Base instance: non-indexed triangle BLAS, TLAS, indirect buffer setup, iterate |
-| `RayTracingBuildTrianglesIndexed` | [vktRayTracingBuildIndirectTests.cpp#L441-L451](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L441-L451) | Indexed triangle BLAS override with first_vertex and index buffer offset |
-| `RayTracingBuildAABBs` | [vktRayTracingBuildIndirectTests.cpp#L453-L463](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L453-L463) | AABB BLAS override with AABB-tolerant iterate |
-| `RayTracingBuildInstances` | [vktRayTracingBuildIndirectTests.cpp#L465-L479](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L465-L479) | Instance TLAS/BLAS override with instance count and offset |
-| `checkSupport` | [vktRayTracingBuildIndirectTests.cpp#L518-L534](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L518-L534) | Feature gates for acceleration structure, ray tracing pipeline, indirect build |
-| `initTopAccelerationStructure` (base) | [vktRayTracingBuildIndirectTests.cpp#L536-L555](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L536-L555) | Base TLAS init with indirect build parameters |
-| `initBottomAccelerationStructure` (base) | [vktRayTracingBuildIndirectTests.cpp#L557-L632](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L557-L632) | Non-indexed triangle BLAS with primitive/first-vertex/transform offset arithmetic |
-| `initBottomAccelerationStructure` (indexed) | [vktRayTracingBuildIndirectTests.cpp#L634-L750](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L634-L750) | Indexed triangle BLAS with first_vertex and index buffer offset |
-| `initBottomAccelerationStructure` (AABBs) | [vktRayTracingBuildIndirectTests.cpp#L752-L817](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L752-L817) | AABB BLAS with primitive offset arithmetic |
-| `initTopAccelerationStructure` (instances) | [vktRayTracingBuildIndirectTests.cpp#L819-L878](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L819-L878) | Instance TLAS with count and offset arithmetic |
-| `initBottomAccelerationStructure` (instances) | [vktRayTracingBuildIndirectTests.cpp#L880-L931](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L880-L931) | Instance BLAS shared by the instances group |
-| `prepareBuffer` | [vktRayTracingBuildIndirectTests.cpp#L933-L999](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L933-L999) | Device-side indirect buffer fill via one-group rgen trace |
-| `runTest` | [vktRayTracingBuildIndirectTests.cpp#L1001-L1145](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L1001-L1145) | AS build, trace dispatch, and result copyback |
-| `checkSupportInInstance` | [vktRayTracingBuildIndirectTests.cpp#L1147-L1161](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L1147-L1161) | Runtime property-limit pruning |
-| `iterate` (base) | [vktRayTracingBuildIndirectTests.cpp#L1184-L1215](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L1184-L1215) | Per-pixel expected-value rule and pass/fail condition |
-| `iterate` (AABBs) | [vktRayTracingBuildIndirectTests.cpp#L1217-L1250](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L1217-L1250) | AABB-expansion-tolerant result check |
-| `addIndirectTests` | [vktRayTracingBuildIndirectTests.cpp#L1256-L1387](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L1256-L1387) | Per-geometry-type and per-field matrix generation |
-| `createBuildIndirectTests` | [vktRayTracingBuildIndirectTests.cpp#L1254-L1401](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L1254-L1401) | Registration of the build and update direct children |
+| `CaseDef` struct | [indirect range fields and update-mode parameters](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L74-L89) | Per-case parameters: primitive count, offsets, first vertex, instance counts, doUpdate |
+| `isMissTriangle` | [deterministic miss-cell selection](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L59-L63) | Deterministic miss-cell placement rule |
+| `initProgramsHelper` | [initProgramsHelper](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L171-L315) | Generated rgen/chit/miss/rint shaders, including the indirect-buffer writer shaders |
+| `RayTracingBuildIndirectTestInstance` | [RayTracingBuildIndirectTestInstance](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L398-L427) | Base instance: non-indexed triangle BLAS, TLAS, indirect buffer setup, iterate |
+| `RayTracingBuildTrianglesIndexed` | [RayTracingBuildTrianglesIndexed](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L441-L451) | Indexed triangle BLAS override with first_vertex and index buffer offset |
+| `RayTracingBuildAABBs` | [RayTracingBuildAABBs](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L453-L463) | AABB BLAS override with AABB-tolerant iterate |
+| `RayTracingBuildInstances` | [RayTracingBuildInstances](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L465-L479) | Instance TLAS/BLAS override with instance count and offset |
+| `checkSupport` | [checkSupport](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L518-L534) | Feature gates for acceleration structure, ray tracing pipeline, indirect build |
+| `initTopAccelerationStructure` (base) | [initTopAccelerationStructure (base)](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L536-L555) | Base TLAS init with indirect build parameters |
+| `initBottomAccelerationStructure` (base) | [initBottomAccelerationStructure (base)](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L557-L632) | Non-indexed triangle BLAS with primitive/first-vertex/transform offset arithmetic |
+| `initBottomAccelerationStructure` (indexed) | [initBottomAccelerationStructure (indexed)](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L634-L750) | Indexed triangle BLAS with first_vertex and index buffer offset |
+| `initBottomAccelerationStructure` (AABBs) | [initBottomAccelerationStructure (AABBs)](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L752-L817) | AABB BLAS with primitive offset arithmetic |
+| `initTopAccelerationStructure` (instances) | [initTopAccelerationStructure (instances)](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L819-L878) | Instance TLAS with count and offset arithmetic |
+| `initBottomAccelerationStructure` (instances) | [initBottomAccelerationStructure (instances)](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L880-L931) | Instance BLAS shared by the instances group |
+| `prepareBuffer` | [fill indirect build buffers with raygen](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L933-L999) | Device-side indirect buffer fill via one-group rgen trace |
+| `runTest` | [runTest](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L1001-L1145) | AS build, trace dispatch, and result copyback |
+| `checkSupportInInstance` | [indirect-build primitive, geometry, and instance limits](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L1147-L1161) | Runtime property-limit pruning |
+| `iterate` (base) | [iterate (base)](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L1184-L1215) | Per-pixel expected-value rule and pass/fail condition |
+| `iterate` (AABBs) | [iterate (AABBs)](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L1217-L1250) | AABB-expansion-tolerant result check |
+| `addIndirectTests` | [geometry-specific indirect field combinations](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L1256-L1387) | Per-geometry-type and per-field matrix generation |
+| `createBuildIndirectTests` | [register indirect build and update field variants](../../../modules/vulkan/ray_tracing/vktRayTracingBuildIndirectTests.cpp#L1254-L1401) | Registration of the build and update direct children |

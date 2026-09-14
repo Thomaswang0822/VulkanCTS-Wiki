@@ -63,7 +63,7 @@ These dimensions recur across implementations but do not imply one shared valida
 
 | Topic | Source |
 |---|---|
-| Category registration | [`vktQueryPoolTests.cpp#L42-L61`](../../modules/vulkan/query_pool/vktQueryPoolTests.cpp#L42-L61) |
-| Build split | [`CMakeLists.txt#L7-L35`](../../modules/vulkan/query_pool/CMakeLists.txt#L7-L35) |
+| Category registration | [Category registration](../../modules/vulkan/query_pool/vktQueryPoolTests.cpp#L42-L61) |
+| Build split | [Build split](../../modules/vulkan/query_pool/CMakeLists.txt#L7-L35) |
 | Query-pool semantics | [Vulkan Queries](../../../vulkan-docs/src/chapters/queries.adoc) |
-| Historical query coverage | [`apitests.adoc#L427-L432`](../../../../doc/testspecs/VK/apitests.adoc#L427-L432) |
+| Historical query coverage | [Historical query coverage](../../../../doc/testspecs/VK/apitests.adoc#L427-L432) |

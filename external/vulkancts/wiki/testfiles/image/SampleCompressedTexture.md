@@ -36,7 +36,7 @@ image.sample_texture
 | Compressed block class | `64_bit_compressed_format`, `128_bit_compressed_format` | Selects BC1 with a two-component unsigned-integer view, or BC3 with a four-component unsigned-integer view. | [Registration](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L890-L912) |
 | Sampler configuration | ordinary, `two_samplers` | Ordinary leaves render after each of two compute writes. `two_samplers` leaves first render the raw integer-view sample, then overwrite it with the compressed-view sample. | [Pass description](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L847-L872) |
 | Image topology | ordinary 2D, `cubemap` | Cubemap leaves allocate six array layers and bind separate 2D views for each face. | [View setup](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L313-L346), [per-face commands](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L556-L609) |
-| Decoded extent | fixed 80 x 80 | Sets the backing image and color-target dimensions. The compute dispatch instead uses the compressed block-grid extent. | [Constants and dispatch extent](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L76-L79), [#L286-L301](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L286-L301) |
+| Decoded extent | fixed 80 x 80 | Sets the backing image and color-target dimensions. The compute dispatch instead uses the compressed block-grid extent. | [Constants and dispatch extent](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L76-L79), [`vktImageSampleCompressedTextureTests.cpp`](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L286-L301) |
 
 ## Behavior Parameters
 
@@ -119,8 +119,8 @@ void main() {
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---|---|---|
 | Compressed block class | BC3 replaces the BC1 red and blue block literals. The storage declaration remains `rgba32ui`; the compatible view has four 32-bit components. | [Generated literals](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L757-L764) |
-| Sampler configuration | `two_samplers` removes `pc` from the compute shader, writes blue once, and makes the fragment shader select raw or compressed sampling by its own push constant. | [Generator branches](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L773-L789), [#L813-L831](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L813-L831) |
-| Image topology | Cubemap leaves reuse the same generated shader text; the host changes the bound 2D view and descriptor set for each face. | [Cubemap descriptor and command loops](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L319-L334), [#L556-L609](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L556-L609) |
+| Sampler configuration | `two_samplers` removes `pc` from the compute shader, writes blue once, and makes the fragment shader select raw or compressed sampling by its own push constant. | [Generator branches](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L773-L789), [`vktImageSampleCompressedTextureTests.cpp`](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L813-L831) |
+| Image topology | Cubemap leaves reuse the same generated shader text; the host changes the bound 2D view and descriptor set for each face. | [Cubemap descriptor and command loops](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L319-L334), [`vktImageSampleCompressedTextureTests.cpp`](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L556-L609) |
 
 #### SPIR-V
 
@@ -270,7 +270,7 @@ The registration intentionally contains only BC1 and BC3, one fixed 80 x 80 deco
 
 | Entry point | Link | Why it matters |
 |---|---|---|
-| Test purpose and image creation | [`vktImageSampleCompressedTextureTests.cpp#L20-L30`](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L20-L30), [`makeImageCreateInfo()`](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L86-L120) | Defines the stated purpose, fixed dimensions, usages, and image-create flags. |
+| Test purpose and image creation | [`vktImageSampleCompressedTextureTests.cpp`](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L20-L30), [`makeImageCreateInfo()`](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L86-L120) | Defines the stated purpose, fixed dimensions, usages, and image-create flags. |
 | Resource setup and execution | [`SampleDrawnTextureTestInstance::iterate()`](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L259-L689) | Creates views and descriptors, records barriers and passes, copies results, and performs the verdict. |
 | Support requirements | [`SampleDrawnTextureTest::checkSupport()`](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L719-L753) | Defines maintenance2 and image-format support gating. |
 | Generated GLSL | [`SampleDrawnTextureTest::initPrograms()`](../../../modules/vulkan/image/vktImageSampleCompressedTextureTests.cpp#L755-L836) | Generates the compute, vertex, and fragment shaders. |

@@ -9,7 +9,7 @@
 
 The implementation lives in [`vktCommandPoolMemoryReservationTests.cpp`](../../../modules/vulkan/sc/vktCommandPoolMemoryReservationTests.cpp#L24-L372). The SC root registers it from [`vktSafetyCriticalTests.cpp`](../../../modules/vulkan/sc/vktSafetyCriticalTests.cpp#L45-L64). The checked-in default mustpass contains the generated leaves under [`sc.txt`](../../../mustpass/main/vksc-default/sc.txt#L17-L106).
 
-The test measures in the CTS child process. The parent process performs mock recording, so the source deliberately avoids treating parent-side memory-consumption queries as evidence ([`vktCommandPoolMemoryReservationTests.cpp#L123-L143`](../../../modules/vulkan/sc/vktCommandPoolMemoryReservationTests.cpp#L123-L143)).
+The test measures in the CTS child process. The parent process performs mock recording, so the source deliberately avoids treating parent-side memory-consumption queries as evidence ([`verifyCommandPoolReservedSize()`](../../../modules/vulkan/sc/vktCommandPoolMemoryReservationTests.cpp#L123-L143)).
 
 ## Background Knowledge
 
@@ -18,7 +18,7 @@ Each case creates a command pool with a `VkCommandPoolMemoryReservationCreateInf
 - `commandPoolReservedSize`, the byte-sized reservation requested by the case;
 - `commandPoolMaxCommandBuffers`, the count selected by the `cb_*` group.
 
-The test allocates primary command buffers from that pool for the allocation cases. It creates one `VkEvent` for `size_small` or 32 events for `size_big`, then records `vkCmdSetEvent` into every command buffer. That command is workload for command-buffer accounting; it is not a shader dispatch ([`vktCommandPoolMemoryReservationTests.cpp#L146-L203`](../../../modules/vulkan/sc/vktCommandPoolMemoryReservationTests.cpp#L146-L203)).
+The test allocates primary command buffers from that pool for the allocation cases. It creates one `VkEvent` for `size_small` or 32 events for `size_big`, then records `vkCmdSetEvent` into every command buffer. That command is workload for command-buffer accounting; it is not a shader dispatch ([`verifyCommandPoolAllocEqualsCommandBufferAlloc()`](../../../modules/vulkan/sc/vktCommandPoolMemoryReservationTests.cpp#L146-L203)).
 
 `VkCommandPoolMemoryConsumption` carries three values used here:
 
@@ -26,7 +26,7 @@ The test allocates primary command buffers from that pool for the allocation cas
 - `commandPoolReservedSize`: the pool reservation reported by the query;
 - `commandBufferAllocated`: the allocation attributed to the command buffer passed to the query.
 
-The test queries once with a null command-buffer handle for the reservation case. For allocation cases it queries each allocated command buffer and sums the returned `commandBufferAllocated` fields. It takes `commandPoolAllocated` from the query results and compares the two quantities ([`vktCommandPoolMemoryReservationTests.cpp#L236-L270`](../../../modules/vulkan/sc/vktCommandPoolMemoryReservationTests.cpp#L236-L270)).
+The test queries once with a null command-buffer handle for the reservation case. For allocation cases it queries each allocated command buffer and sums the returned `commandBufferAllocated` fields. It takes `commandPoolAllocated` from the query results and compares the two quantities ([`verifyCommandPoolAllocEqualsCommandBufferAlloc()`](../../../modules/vulkan/sc/vktCommandPoolMemoryReservationTests.cpp#L236-L270)).
 
 ## Registration Hierarchy
 
@@ -35,13 +35,13 @@ sc.command_pool_memory_reservation
 └── memory_consumption
 ```
 
-The `memory_consumption` test family expands into five command-buffer-count groups, two reserved-size groups, and two recording-order groups. The exact executable leaves appear in `## Parameter Dimensions and Observed Values`; the factory creates this hierarchy in [`vktCommandPoolMemoryReservationTests.cpp#L286-L372`](../../../modules/vulkan/sc/vktCommandPoolMemoryReservationTests.cpp#L286-L372).
+The `memory_consumption` test family expands into five command-buffer-count groups, two reserved-size groups, and two recording-order groups. The exact executable leaves appear in `## Parameter Dimensions and Observed Values`; the factory creates this hierarchy in [`createCommandPoolMemoryReservationTests()`](../../../modules/vulkan/sc/vktCommandPoolMemoryReservationTests.cpp#L286-L372).
 
 The default list has 90 leaves: each of the five counts has two sizes, with nine leaves for single recording and eight for multiple recording. The names and paths in the list are the externally registered names; support checks can still prune a leaf at runtime.
 
 ## Parameter Dimensions and Observed Values
 
-The registered dimensions are `cb_single`, `cb_few`, `cb_many`, `cb_min_limit`, and `cb_above_min_limit`; `size_small` and `size_big`; `single_recording` and `multiple_recording`; and allocation leaves `allocated_size_1`, `_2`, `_8`, and `_16`. The factory and their exact source effects are documented in the matrix below ([`vktCommandPoolMemoryReservationTests.cpp#L286-L372`](../../../modules/vulkan/sc/vktCommandPoolMemoryReservationTests.cpp#L286-L372)).
+The registered dimensions are `cb_single`, `cb_few`, `cb_many`, `cb_min_limit`, and `cb_above_min_limit`; `size_small` and `size_big`; `single_recording` and `multiple_recording`; and allocation leaves `allocated_size_1`, `_2`, `_8`, and `_16`. The factory and their exact source effects are documented in the matrix below ([`createCommandPoolMemoryReservationTests()`](../../../modules/vulkan/sc/vktCommandPoolMemoryReservationTests.cpp#L286-L372)).
 
 | Dimension | Values | Effect |
 |---|---|---|
@@ -59,9 +59,9 @@ The registered dimensions are `cb_single`, `cb_few`, `cb_many`, `cb_min_limit`, 
 | recording mode | `single_recording`, `multiple_recording` | Records each buffer completely before moving to the next, or begins all buffers, fills all buffers, and ends all buffers. |
 | allocation leaf | `allocated_size_1`, `_2`, `_8`, `_16` | Passes internal iteration values 1, 2, 4, and 8. The loop performs twice that many passes because recording and reset alternate. |
 
-The reservation calculation applies minimums. For `reserved_size`, the source takes the maximum of the size-class workload and `commandPoolMinSize`, then the maximum of that result and `commandBufferCount * commandBufferMinSize` ([`vktCommandPoolMemoryReservationTests.cpp#L76-L106`](../../../modules/vulkan/sc/vktCommandPoolMemoryReservationTests.cpp#L76-L106)). Allocation cases use the event count in the same pattern ([`vktCommandPoolMemoryReservationTests.cpp#L146-L173`](../../../modules/vulkan/sc/vktCommandPoolMemoryReservationTests.cpp#L146-L173)). Therefore `size_small` and `size_big` describe inputs to a calculation, not guaranteed final byte values.
+The reservation calculation applies minimums. For `reserved_size`, the source takes the maximum of the size-class workload and `commandPoolMinSize`, then the maximum of that result and `commandBufferCount * commandBufferMinSize` ([`vktCommandPoolMemoryReservationTests.cpp`](../../../modules/vulkan/sc/vktCommandPoolMemoryReservationTests.cpp#L76-L106)). Allocation cases use the event count in the same pattern ([`verifyCommandPoolAllocEqualsCommandBufferAlloc()`](../../../modules/vulkan/sc/vktCommandPoolMemoryReservationTests.cpp#L146-L173)). Therefore `size_small` and `size_big` describe inputs to a calculation, not guaranteed final byte values.
 
-The names `_1`, `_2`, `_8`, and `_16` are registered leaf names. Their internal values are 1, 2, 4, and 8. On each even pass the test records. On each odd pass it resets. Thus `allocated_size_8`, for example, performs four record/reset pairs, while the loop counter runs through eight passes ([`vktCommandPoolMemoryReservationTests.cpp#L205-L242`](../../../modules/vulkan/sc/vktCommandPoolMemoryReservationTests.cpp#L205-L242)).
+The names `_1`, `_2`, `_8`, and `_16` are registered leaf names. Their internal values are 1, 2, 4, and 8. On each even pass the test records. On each odd pass it resets. Thus `allocated_size_8`, for example, performs four record/reset pairs, while the loop counter runs through eight passes ([`verifyCommandPoolAllocEqualsCommandBufferAlloc()`](../../../modules/vulkan/sc/vktCommandPoolMemoryReservationTests.cpp#L205-L242)).
 
 ### `reserved_size`
 
@@ -73,7 +73,7 @@ This leaf exercises the reservation report without allocating command buffers.
 4. It chains that structure into `VkCommandPoolCreateInfo` and creates the pool for the universal queue family.
 5. In the CTS subprocess, it calls `vkGetCommandPoolMemoryConsumption(device, pool, nullptr, &consumption)`.
 6. It compares `consumption.commandPoolReservedSize` with the exact value supplied at pool creation.
-7. A mismatch returns `tcu::TestStatus::fail("Failed")`; otherwise the function returns `pass("Pass")` ([`vktCommandPoolMemoryReservationTests.cpp#L76-L143`](../../../modules/vulkan/sc/vktCommandPoolMemoryReservationTests.cpp#L76-L143)).
+7. A mismatch returns `tcu::TestStatus::fail("Failed")`; otherwise the function returns `pass("Pass")` ([`vktCommandPoolMemoryReservationTests.cpp`](../../../modules/vulkan/sc/vktCommandPoolMemoryReservationTests.cpp#L76-L143)).
 
 This leaf does not assert `commandPoolAllocated` or `commandBufferAllocated`. A pass establishes a reservation-report round trip for this pool configuration. It does not establish an allocator layout or the allocation identity exercised by the other leaves.
 
@@ -83,7 +83,7 @@ The allocation function follows the same setup for every count, size, recording 
 
 ### Setup
 
-The function maps `size_small` to one event and `size_big` to 32 events. It computes the reservation using the event count, `commandPoolMinSize`, and the command-buffer minimum. It creates the pool with that reservation and maximum command-buffer count, then allocates the selected number of primary command buffers ([`vktCommandPoolMemoryReservationTests.cpp#L146-L190`](../../../modules/vulkan/sc/vktCommandPoolMemoryReservationTests.cpp#L146-L190)).
+The function maps `size_small` to one event and `size_big` to 32 events. It computes the reservation using the event count, `commandPoolMinSize`, and the command-buffer minimum. It creates the pool with that reservation and maximum command-buffer count, then allocates the selected number of primary command buffers ([`verifyCommandPoolAllocEqualsCommandBufferAlloc()`](../../../modules/vulkan/sc/vktCommandPoolMemoryReservationTests.cpp#L146-L190)).
 
 It creates the event objects before entering the iteration loop. The event handles remain available for every record pass. The test does not submit the buffers to a queue; the accounting observation concerns command-pool recording state.
 
@@ -94,7 +94,7 @@ On an even loop iteration, the case records event commands.
 - `single_recording` begins one command buffer, records one or 32 `vkCmdSetEvent` commands into it, ends it, and repeats for the remaining buffers.
 - `multiple_recording` begins every command buffer first, records all event commands into every buffer, and ends every buffer last.
 
-Both modes create the same number of command buffers and event commands. They differ only in host call order, allowing the implementation's multiple-buffer recording path to receive separate coverage ([`vktCommandPoolMemoryReservationTests.cpp#L205-L235`](../../../modules/vulkan/sc/vktCommandPoolMemoryReservationTests.cpp#L205-L235)).
+Both modes create the same number of command buffers and event commands. They differ only in host call order, allowing the implementation's multiple-buffer recording path to receive separate coverage ([`verifyCommandPoolAllocEqualsCommandBufferAlloc()`](../../../modules/vulkan/sc/vktCommandPoolMemoryReservationTests.cpp#L205-L235)).
 
 ### Measurement after recording
 
@@ -108,7 +108,7 @@ A mismatch sets `isOK` to false. The test does not identify which command buffer
 
 ### Reset pass
 
-On the following odd iteration, the case calls `vkResetCommandPool` unless the device lacks `commandPoolResetCommandBuffer`. It then performs the same per-buffer query and equality check. Because this measurement follows a reset, it also requires `commandPoolAllocated == 0` ([`vktCommandPoolMemoryReservationTests.cpp#L236-L270`](../../../modules/vulkan/sc/vktCommandPoolMemoryReservationTests.cpp#L236-L270)).
+On the following odd iteration, the case calls `vkResetCommandPool` unless the device lacks `commandPoolResetCommandBuffer`. It then performs the same per-buffer query and equality check. Because this measurement follows a reset, it also requires `commandPoolAllocated == 0` ([`verifyCommandPoolAllocEqualsCommandBufferAlloc()`](../../../modules/vulkan/sc/vktCommandPoolMemoryReservationTests.cpp#L236-L270)).
 
 The function returns `Pass` only if every performed measurement satisfies both applicable conditions. A reset leaf can therefore fail either because the pool total disagrees with the per-buffer sum or because the reported pool allocation remains nonzero after reset.
 
@@ -159,11 +159,11 @@ The factory omits unsupported enum values and keeps the reservation-only leaf un
 
 - A leaf with internal `iterations > 1` requires `commandPoolResetCommandBuffer`.
 - `multiple_recording` requires `commandPoolMultipleCommandBuffersRecording`.
-- Every requested count must not exceed `maxCommandPoolCommandBuffers` ([`vktCommandPoolMemoryReservationTests.cpp#L273-L281`](../../../modules/vulkan/sc/vktCommandPoolMemoryReservationTests.cpp#L273-L281)).
+- Every requested count must not exceed `maxCommandPoolCommandBuffers` ([`checkSupport()`](../../../modules/vulkan/sc/vktCommandPoolMemoryReservationTests.cpp#L273-L281)).
 
 The reservation function repeats the maximum-count check because it has no `checkSupport` callback. A rejected condition raises `NotSupportedError`. That outcome means the implementation did not advertise the operation needed by the case; it is not the same result as an accounting assertion returning `Failed`.
 
-The factory does not register other reserved-size enum values. `CPS_UNUSED` is a sentinel, and passing it to the test functions raises `InternalError` rather than creating a case ([`vktCommandPoolMemoryReservationTests.cpp#L39-L60`](../../../modules/vulkan/sc/vktCommandPoolMemoryReservationTests.cpp#L39-L60)). The factory also keeps `reserved_size` under single recording because recording order has no role in that reservation-only assertion.
+The factory does not register other reserved-size enum values. `CPS_UNUSED` is a sentinel, and passing it to the test functions raises `InternalError` rather than creating a case ([`vktCommandPoolMemoryReservationTests.cpp`](../../../modules/vulkan/sc/vktCommandPoolMemoryReservationTests.cpp#L39-L60)). The factory also keeps `reserved_size` under single recording because recording order has no role in that reservation-only assertion.
 
 ## Key Takeaways
 
@@ -177,8 +177,8 @@ The test does not submit command buffers, wait for event state, inspect event pa
 |---|---:|---|
 | [`vktSafetyCriticalTests.cpp`](../../../modules/vulkan/sc/vktSafetyCriticalTests.cpp#L45-L64) | 45-64 | Registers the command-pool reservation group below the SC root. |
 | [`vktCommandPoolMemoryReservationTests.cpp`](../../../modules/vulkan/sc/vktCommandPoolMemoryReservationTests.cpp#L76-L143) | 76-143 | Computes and verifies the declared reservation. |
-| [`vktCommandPoolMemoryReservationTests.cpp`](../../../modules/vulkan/sc/vktCommandPoolMemoryReservationTests.cpp#L146-L203) | 146-203 | Creates allocation workloads and records event commands. |
-| [`vktCommandPoolMemoryReservationTests.cpp`](../../../modules/vulkan/sc/vktCommandPoolMemoryReservationTests.cpp#L205-L270) | 205-270 | Alternates recording/reset and checks memory-consumption fields. |
-| [`vktCommandPoolMemoryReservationTests.cpp`](../../../modules/vulkan/sc/vktCommandPoolMemoryReservationTests.cpp#L273-L281) | 273-281 | Applies support and device-limit gates. |
-| [`vktCommandPoolMemoryReservationTests.cpp`](../../../modules/vulkan/sc/vktCommandPoolMemoryReservationTests.cpp#L286-L372) | 286-372 | Defines the registered hierarchy and parameter names. |
+| [`verifyCommandPoolAllocEqualsCommandBufferAlloc()`](../../../modules/vulkan/sc/vktCommandPoolMemoryReservationTests.cpp#L146-L203) | 146-203 | Creates allocation workloads and records event commands. |
+| [`verifyCommandPoolAllocEqualsCommandBufferAlloc()`](../../../modules/vulkan/sc/vktCommandPoolMemoryReservationTests.cpp#L205-L270) | 205-270 | Alternates recording/reset and checks memory-consumption fields. |
+| [`checkSupport()`](../../../modules/vulkan/sc/vktCommandPoolMemoryReservationTests.cpp#L273-L281) | 273-281 | Applies support and device-limit gates. |
+| [`createCommandPoolMemoryReservationTests()`](../../../modules/vulkan/sc/vktCommandPoolMemoryReservationTests.cpp#L286-L372) | 286-372 | Defines the registered hierarchy and parameter names. |
 | [`sc.txt`](../../../mustpass/main/vksc-default/sc.txt#L17-L106) | 17-106 | Lists the default generated test paths. |

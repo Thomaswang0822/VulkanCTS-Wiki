@@ -4,7 +4,7 @@
 
 - This page covers the `tensor.array_access` test family implemented by `vktTensorArrayAccess.cpp` and `genShaderArrayAccess`.
 - Each case binds one tensor view and one storage buffer, then tests either `array_read` (tensor to buffer) or `array_write` (buffer to tensor).
-- The registered matrix uses eight integer formats, the fixed rank-4 shape `{13, 17, 19, 23}`, linear and optimal tiling, array lengths 2, 3, 4, and an implementation maximum. The 128 leaves are listed in [tensor.txt#L1-L128](../../../mustpass/main/vk-default/tensor.txt#L1-L128).
+- The registered matrix uses eight integer formats, the fixed rank-4 shape `{13, 17, 19, 23}`, linear and optimal tiling, array lengths 2, 3, 4, and an implementation maximum. The 128 leaves are listed in [default mustpass matrix](../../../mustpass/main/vk-default/tensor.txt#L1-L128).
 - The page explains coordinate mapping, optimal-tensor staging, and the host comparison that turns a mismatch into a CTS failure.
 
 ## Background Knowledge
@@ -22,11 +22,11 @@ tensor.array_access
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Format | `r8_uint`, `r8_sint`, `r16_uint`, `r16_sint`, `r32_uint`, `r32_sint`, `r64_uint`, `r64_sint` | Selects the tensor element type and matching host comparison type. | [vktTensorTestsUtil.cpp#L115-L156](../../../modules/vulkan/tensor/vktTensorTestsUtil.cpp#L115-L156) |
-| Tiling | `linear`, `optimal` | Chooses direct tensor transfer or a linear staging tensor used to initialize the optimal tensor and, for `array_write`, receive its result. | [vktTensorArrayAccess.cpp#L721-L759](../../../modules/vulkan/tensor/vktTensorArrayAccess.cpp#L721-L759) |
-| Shape and rank | `shape_13_17_19_23` | Fixes rank to 4 and gives the coordinate calculation three outer dimensions plus an innermost dimension of 23. | [vktTensorArrayAccess.cpp#L715-L716](../../../modules/vulkan/tensor/vktTensorArrayAccess.cpp#L715-L716) |
-| Array size | `2`, `3`, `4`, `max` | Sets the number of consecutive values handled by one tensor operation. `max` is resolved from device limits. | [vktTensorArrayAccess.cpp#L68-L76](../../../modules/vulkan/tensor/vktTensorArrayAccess.cpp#L68-L76) |
-| Access variant | `array_read`, `array_write` | Selects the tensor-operation direction and initialized side. | [vktTensorArrayAccess.cpp#L365-L378](../../../modules/vulkan/tensor/vktTensorArrayAccess.cpp#L365-L378), [vktTensorArrayAccessShaders.cpp#L83-L109](../../../modules/vulkan/tensor/shaders/vktTensorArrayAccessShaders.cpp#L83-L109) |
+| Format | `r8_uint`, `r8_sint`, `r16_uint`, `r16_sint`, `r32_uint`, `r32_sint`, `r64_uint`, `r64_sint` | Selects the tensor element type and matching host comparison type. | [Format](../../../modules/vulkan/tensor/vktTensorTestsUtil.cpp#L115-L156) |
+| Tiling | `linear`, `optimal` | Chooses direct tensor transfer or a linear staging tensor used to initialize the optimal tensor and, for `array_write`, receive its result. | [Tiling](../../../modules/vulkan/tensor/vktTensorArrayAccess.cpp#L721-L759) |
+| Shape and rank | `shape_13_17_19_23` | Fixes rank to 4 and gives the coordinate calculation three outer dimensions plus an innermost dimension of 23. | [Shape and rank](../../../modules/vulkan/tensor/vktTensorArrayAccess.cpp#L715-L716) |
+| Array size | `2`, `3`, `4`, `max` | Sets the number of consecutive values handled by one tensor operation. `max` is resolved from device limits. | [Array size](../../../modules/vulkan/tensor/vktTensorArrayAccess.cpp#L68-L76) |
+| Access variant | `array_read`, `array_write` | Selects the tensor-operation direction and initialized side. | [Access variant](../../../modules/vulkan/tensor/vktTensorArrayAccess.cpp#L365-L378), [Access variant](../../../modules/vulkan/tensor/shaders/vktTensorArrayAccessShaders.cpp#L83-L109) |
 
 ## Behavior Parameters
 
@@ -116,10 +116,10 @@ void main()
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
-| Format | Changes `glslType`, the tensor and buffer element types, and the host template type. | [vktTensorArrayAccessShaders.cpp#L40-L54](../../../modules/vulkan/tensor/shaders/vktTensorArrayAccessShaders.cpp#L40-L54) |
-| Array size | Changes `offset_x`, buffer indexing, the local array declaration, and the bounded loop. | [vktTensorArrayAccessShaders.cpp#L64-L103](../../../modules/vulkan/tensor/shaders/vktTensorArrayAccessShaders.cpp#L64-L103) |
-| Access variant | Selects `tensorReadARM` plus buffer stores or buffer loads plus `tensorWriteARM`. | [vktTensorArrayAccessShaders.cpp#L83-L109](../../../modules/vulkan/tensor/shaders/vktTensorArrayAccessShaders.cpp#L83-L109) |
-| Tiling | Does not change generated GLSL; optimal tiling changes host-side staging and copy commands. | [vktTensorArrayAccess.cpp#L512-L525](../../../modules/vulkan/tensor/vktTensorArrayAccess.cpp#L512-L525) |
+| Format | Changes `glslType`, the tensor and buffer element types, and the host template type. | [Format](../../../modules/vulkan/tensor/shaders/vktTensorArrayAccessShaders.cpp#L40-L54) |
+| Array size | Changes `offset_x`, buffer indexing, the local array declaration, and the bounded loop. | [Array size](../../../modules/vulkan/tensor/shaders/vktTensorArrayAccessShaders.cpp#L64-L103) |
+| Access variant | Selects `tensorReadARM` plus buffer stores or buffer loads plus `tensorWriteARM`. | [Access variant](../../../modules/vulkan/tensor/shaders/vktTensorArrayAccessShaders.cpp#L83-L109) |
+| Tiling | Does not change generated GLSL; optimal tiling changes host-side staging and copy commands. | [Tiling](../../../modules/vulkan/tensor/vktTensorArrayAccess.cpp#L512-L525) |
 
 #### SPIR-V
 
@@ -389,13 +389,13 @@ void main()
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Root registration | [vktTensorTests.cpp#L37-L47](../../../modules/vulkan/tensor/vktTensorTests.cpp#L37-L47) | Adds the `array_access` test family under `tensor`. |
-| Array matrix and factory | [createArrayAccessTests#L712-L777](../../../modules/vulkan/tensor/vktTensorArrayAccess.cpp#L712-L777) | Defines every registered format, tiling, variant, and array length. |
-| Support and max-size calculation | [calculateMaxArraySizeSupported#L68-L76](../../../modules/vulkan/tensor/vktTensorArrayAccess.cpp#L68-L76), [checkSupport#L134-L168](../../../modules/vulkan/tensor/vktTensorArrayAccess.cpp#L134-L168) | Maps device capabilities to skip decisions. |
-| GLSL generator | [genShaderArrayAccess#L40-L116](../../../modules/vulkan/tensor/shaders/vktTensorArrayAccessShaders.cpp#L40-L116) | Emits tensor declarations, indexing, and array read/write code. |
-| Linear execution | [TensorArrayReadWriteTestInstance::iterate#L330-L495](../../../modules/vulkan/tensor/vktTensorArrayAccess.cpp#L330-L495) | Creates resources, dispatches, synchronizes, and compares. |
-| Optimal execution | [OptimalTensorArrayReadWriteTestInstance::iterate#L498-L709](../../../modules/vulkan/tensor/vktTensorArrayAccess.cpp#L498-L709) | Adds linear staging tensor copies around the same shader test. |
-| Tensor operation rules | [tensorops.adoc#L8-L24](../../../../vulkan-docs/src/chapters/VK_ARM_tensors/tensorops.adoc#L8-L24), [tensorops.adoc#L82-L109](../../../../vulkan-docs/src/chapters/VK_ARM_tensors/tensorops.adoc#L82-L109) | Defines coordinate validation and tensor read semantics. |
-| Device limits | [limits.adoc#L5704-L5728](../../../../vulkan-docs/src/chapters/limits.adoc#L5704-L5728) | Defines rank, array-length, and byte-size limits. |
-| Tensor shader feature | [features.adoc#L8042-L8055](../../../../vulkan-docs/src/chapters/features.adoc#L8042-L8055) | Defines `shaderTensorAccess` and related shader features. |
-| Mustpass cases | [tensor.txt#L1-L128](../../../mustpass/main/vk-default/tensor.txt#L1-L128) | Confirms the exact 128 registered array-access leaves. |
+| Root registration | [Root registration](../../../modules/vulkan/tensor/vktTensorTests.cpp#L37-L47) | Adds the `array_access` test family under `tensor`. |
+| Array matrix and factory | [vktTensorArrayAccess.cpp](../../../modules/vulkan/tensor/vktTensorArrayAccess.cpp#L712-L777) | Defines every registered format, tiling, variant, and array length. |
+| Support and max-size calculation | [vktTensorArrayAccess.cpp](../../../modules/vulkan/tensor/vktTensorArrayAccess.cpp#L68-L76), [vktTensorArrayAccess.cpp](../../../modules/vulkan/tensor/vktTensorArrayAccess.cpp#L134-L168) | Maps device capabilities to skip decisions. |
+| GLSL generator | [vktTensorArrayAccessShaders.cpp](../../../modules/vulkan/tensor/shaders/vktTensorArrayAccessShaders.cpp#L40-L116) | Emits tensor declarations, indexing, and array read/write code. |
+| Linear execution | [vktTensorArrayAccess.cpp](../../../modules/vulkan/tensor/vktTensorArrayAccess.cpp#L330-L495) | Creates resources, dispatches, synchronizes, and compares. |
+| Optimal execution | [vktTensorArrayAccess.cpp](../../../modules/vulkan/tensor/vktTensorArrayAccess.cpp#L498-L709) | Adds linear staging tensor copies around the same shader test. |
+| Tensor operation rules | [Tensor operation rules](../../../../vulkan-docs/src/chapters/VK_ARM_tensors/tensorops.adoc#L8-L24), [Tensor operation rules](../../../../vulkan-docs/src/chapters/VK_ARM_tensors/tensorops.adoc#L82-L109) | Defines coordinate validation and tensor read semantics. |
+| Device limits | [Device limits](../../../../vulkan-docs/src/chapters/limits.adoc#L5704-L5728) | Defines rank, array-length, and byte-size limits. |
+| Tensor shader feature | [Tensor shader feature](../../../../vulkan-docs/src/chapters/features.adoc#L8042-L8055) | Defines `shaderTensorAccess` and related shader features. |
+| Mustpass cases | [Mustpass cases](../../../mustpass/main/vk-default/tensor.txt#L1-L128) | Confirms the exact 128 registered array-access leaves. |

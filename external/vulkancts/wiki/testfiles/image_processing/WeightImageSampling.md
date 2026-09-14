@@ -333,5 +333,5 @@ Only supported combinations are registered.
 | Entry point | Link | Purpose |
 |---|---|---|
 | Factory | [weight-sampling factory](../../../modules/vulkan/image_processing/vktImageProcessingWeightImageSamplingTests.cpp#L1280-L1600) | Registers cases. |
-| Support/runtime | [weight-sampling implementation](../../../modules/vulkan/image_processing/vktImageProcessingWeightImageSamplingTests.cpp#L70-L150) | Defines gates and checking. |
+| Support/runtime | [vktImageProcessingWeightImageSamplingTests.cpp](../../../modules/vulkan/image_processing/vktImageProcessingWeightImageSamplingTests.cpp#L70-L150) | Defines gates and checking. |
 | Mustpass | [`image-processing.txt`](../../../mustpass/main/vk-default/image-processing.txt) | Lists coverage. |

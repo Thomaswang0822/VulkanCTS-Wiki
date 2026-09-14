@@ -35,7 +35,7 @@ ray_tracing_pipeline.callable_shader
 
 ## Parameter Dimensions and Observed Values
 
-The full leaf matrix comes from the registration loop at [vktRayTracingCallableShadersTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L1975-L2032). The table adds local meaning for each dimension.
+The full leaf matrix comes from the registration loop at [register simple and nested callable flows](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L1975-L2032). The table adds local meaning for each dimension.
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
@@ -43,7 +43,7 @@ The full leaf matrix comes from the registration loop at [vktRayTracingCallableS
 | Invoking stage | `raygen`, `callable`, `closest_hit`, `miss` | Selects which shader stage calls `executeCallableEXT`. The any-hit stage is intentionally excluded. | [invokingShaders](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L2006-L2009) |
 | Invocation count | `single_invocation`, `multiple_invocations` | Selects whether the invoking shader calls one callable or several callables with an index-dependent branch. | [multipleInvocations](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L2003-L2004) |
 | Result image size | `8 x 8` | Fixed for the simple group; gives a 6x6 inner hit square and a 1-pixel miss border. | [TEST_WIDTH, TEST_HEIGHT](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L71-L72) |
-| Result buffer size | `12 * sizeof(Vec4)` | Fixed for the shader-record group; one Vec4 per pre-baked ray. | [rays.size()](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L1838-L1839) |
+| Result buffer size | `12 * sizeof(Vec4)` | Fixed for the shader-record group; one Vec4 per pre-baked ray. | [per-ray result-buffer sizing](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L1838-L1839) |
 | Shader record buffer | `CallableBuffer0 {1, 4, 3, 7}`, `CallableBuffer1 {10.5, 2.5, 2, 0}` | Fixed parameter blocks written into the callable SBT entries. `CallableBuffer0` produces `((1<<4)+3)*7 = 133`. `CallableBuffer1` produces `(10.5/2.5)^2 = 17.64`; halving produces 8.82. | [callableBuffer0, callableBuffer1](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L1713-L1714) |
 | SPIR-V target | `spirv1.4` | All generated shaders use `vk::SPIRV_VERSION_1_4`. The representative walkthrough in this page was compiled with `--target-env vulkan1.2`, which emits SPIR-V 1.5. | [ShaderBuildOptions](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L549) |
 
@@ -187,7 +187,7 @@ The `topLevelAS` binding is declared in rgen because the shader build pipeline e
 | Callable from chit / miss | `hit_call` uses the `rgen` shader that traces rays, plus `chit_call` and `miss_call` shaders that each invoke the callable. | [chit_call, miss_call](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L632-L676) |
 | Multiple callable data types | `rgen_multicall` declares four `callableDataEXT` variables with types `uvec4`, `uint`, `CallValue`, `vec3` at locations 0, 1, 2, 4. | [rgen_multicall shader](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L588-L616) |
 | Shader-record buffer | The shader-record invocation group uses `shaderRecordEXT` buffer storage inside the callable to read `CallableBuffer0` or `CallableBuffer1` parameters. | [build-callable-0](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L1426-L1443), [build-callable-1](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L1481-L1504) |
-| Invoking stage | The shader-record group has separate rgen, chit, miss, and callable shader generators, each calling `executeCallableEXT` from its own stage. | [getRayGenSource, getClosestHitSource, getMissSource, getCallableSource](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L1130-L1331) |
+| Invoking stage | The shader-record group has separate rgen, chit, miss, and callable shader generators, each calling `executeCallableEXT` from its own stage. | [ray-stage and callable shader generators](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L1130-L1331) |
 
 #### SPIR-V
 
@@ -304,24 +304,24 @@ The `topLevelAS` binding is declared in rgen because the shader build pipeline e
 
 ## Runtime Execution and Result Checking
 
-Both test classes share the same support check: `VK_KHR_acceleration_structure` and `VK_KHR_ray_tracing_pipeline` must be present, with `rayTracingPipeline` and `accelerationStructure` feature bits set [checkSupport](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L530-L545).
+Both test classes share the same support check: `VK_KHR_acceleration_structure` and `VK_KHR_ray_tracing_pipeline` must be present, with `rayTracingPipeline` and `accelerationStructure` feature bits set [simple callable-flow feature requirements](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L530-L545).
 
 ### Simple image-output flow
 
 - The host builds a 2-triangle BLAS forming a square in the 8x8 image area, then a 1-instance TLAS [initBottomAccelerationStructures](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L184-L212).
-- The pipeline is assembled per `CallableShaderTestType`, mapping each type to its rgen / chit / miss / callable shader groups [initRayTracingShaders](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L228-L308).
-- The host creates four SBT regions: raygen (1 entry), hit (1 entry), miss (1 entry), and callable (1 entry for `CSTT_RGEN_CALL`, `CSTT_HIT_CALL`; 2 entries for `CSTT_RGEN_CALL_CALL`; 4 entries for `CSTT_RGEN_MULTICALL`) [initShaderBindingTables](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L310-L429).
+- The pipeline is assembled per `CallableShaderTestType`, mapping each type to its rgen / chit / miss / callable shader groups [shader-group selection for callable flows](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L228-L308).
+- The host creates four SBT regions: raygen (1 entry), hit (1 entry), miss (1 entry), and callable (1 entry for `CSTT_RGEN_CALL`, `CSTT_HIT_CALL`; 2 entries for `CSTT_RGEN_CALL_CALL`; 4 entries for `CSTT_RGEN_MULTICALL`) [callable-flow SBT entry counts and strides](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L310-L429).
 - The host clears an 8x8 r32ui storage image to `(0xFF, 0, 0, 0)`, transitions it to `GENERAL`, builds and binds the AS, then calls `cmdTraceRays` with dimensions 8x8x1 [runTest](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L809-L860).
-- After submit, the host copies the image to a host-visible buffer and builds a reference image: clear to `missValue`, overwrite the inner 6x6 square with `hitValue` [verifyImage](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L431-L475).
+- After submit, the host copies the image to a host-visible buffer and builds a reference image: clear to `missValue`, overwrite the inner 6x6 square with `hitValue` [type-specific callable image references](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L431-L475).
 - Pass condition: `tcu::intThresholdCompare` with zero threshold returns true.
 
 ### Shader-record invocation flow
 
 - The host builds three BLAS, each with two geometries (one opaque, one non-opaque) and a vertex layer offset, then a 3-instance TLAS [iterate](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L1862-L1888).
 - The pipeline has rgen at index 0, miss at 1, chit at 2, and one or more callable groups starting at 3 [pipeline assembly](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L1693-L1711).
-- The callable SBT stride is `deAlign32(shaderGroupHandleSize + max(sizeof(CallableBuffer0), sizeof(CallableBuffer1)), shaderGroupHandleSize)`. The host writes `CallableBuffer0` and (when `multipleInvocations`) `CallableBuffer1` into the SBT entries right after the shader group handles [SBT setup](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L1713-L1765).
+- The callable SBT stride is `deAlign32(shaderGroupHandleSize + max(sizeof(CallableBuffer0), sizeof(CallableBuffer1)), shaderGroupHandleSize)`. The host writes `CallableBuffer0` and (when `multipleInvocations`) `CallableBuffer1` into the SBT entries right after the shader group handles [append callable data after SBT handles](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L1713-L1765).
 - The host allocates a `results` buffer of 12 `Vec4` and a `rays` buffer of 12 pre-baked `Ray` structs, then calls `cmdTraceRays` with dimensions 12x1x1 [runTest body](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L1836-L1912).
-- After submit, the host invalidates and reads the `results` buffer. For each of 12 rays, `verifyResultData` checks `value0`, `value1`, `value2`, and `closestT` against expected values that depend on `hits[index]`, `params.invokingShader`, and `params.multipleInvocations` [verifyResultData](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L1021-L1128).
+- After submit, the host invalidates and reads the `results` buffer. For each of 12 rays, `verifyResultData` checks `value0`, `value1`, `value2`, and `closestT` against expected values that depend on `hits[index]`, `params.invokingShader`, and `params.multipleInvocations` [per-ray callable output comparison](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L1021-L1128).
 - A `mismatch[32]` union aliased to `mismatchAll` records failing rays. Pass condition: `mismatchAll == 0` after all 12 rays are checked.
 
 ## Failure Meaning
@@ -387,7 +387,7 @@ All leaves share a common infrastructure: r32ui image comparison (simple group) 
 
 ### Requirement-based pruning
 
-- All leaves require `VK_KHR_acceleration_structure` and `VK_KHR_ray_tracing_pipeline` extensions [checkSupport](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L530-L545) and [checkSupport](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L999-L1014).
+- All leaves require `VK_KHR_acceleration_structure` and `VK_KHR_ray_tracing_pipeline` extensions [simple callable-flow feature requirements](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L530-L545) and [callable-invocation feature requirements](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L999-L1014).
 - Both `rayTracingPipeline` and `accelerationStructure` feature bits must be set. If `accelerationStructure` is not set, the test throws `TestError` because `VK_KHR_ray_tracing_pipeline` requires it.
 - No additional feature or limit gates are checked. The fixed 8x8 image and 12-ray buffer are well within any reasonable device limit.
 
@@ -412,18 +412,18 @@ All leaves share a common infrastructure: r32ui image comparison (simple group) 
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Registration root | [vktRayTracingCallableShadersTests.cpp#L1975-L2032](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L1975-L2032) | Creates `callable_shader` group and attaches all 12 leaves |
-| `CallableShaderTestType` enum | [vktRayTracingCallableShadersTests.cpp#L62-L69](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L62-L69) | Defines the 4 simple test types |
-| `TestParams` struct | [vktRayTracingCallableShadersTests.cpp#L107-L115](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L107-L115) | Carries `callableShaderTestType`, `invokingShader`, `multipleInvocations` |
-| Simple flow shader sources | [vktRayTracingCallableShadersTests.cpp#L547-L722](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L547-L722) | `initPrograms` for `CallableShaderTestCase`: emits `rgen`, `rgen_call`, `rgen_multicall`, `chit`, `chit_call`, `miss`, `miss_call`, `call_0..3`, `call_call` |
-| Simple flow pipeline assembly | [vktRayTracingCallableShadersTests.cpp#L228-L308](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L228-L308) | Maps each `CallableShaderTestType` to its shader groups |
-| Simple flow SBT construction | [vktRayTracingCallableShadersTests.cpp#L310-L429](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L310-L429) | Per-type SBT entry counts and strides |
-| Simple flow image verification | [vktRayTracingCallableShadersTests.cpp#L431-L475](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L431-L475) | `verifyImage` reference values per `CallableShaderTestType` |
-| Simple flow runtime | [vktRayTracingCallableShadersTests.cpp#L739-L883](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L739-L883) | `runTest` body: descriptor set, pipeline, SBT, image, trace, copyback |
-| Invoke flow shader generators | [vktRayTracingCallableShadersTests.cpp#L1130-L1331](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L1130-L1331) | `getRayGenSource`, `getClosestHitSource`, `getMissSource`, `getCallableSource` |
-| Invoke flow shader build helpers | [vktRayTracingCallableShadersTests.cpp#L1333-L1397](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L1333-L1397) | `generateShaderSource` and `addShaderSource` shared prefix builders |
-| Invoke flow shader record buffer setup | [vktRayTracingCallableShadersTests.cpp#L1713-L1765](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L1713-L1765) | Builds SBT with extra `CallableBuffer0` / `CallableBuffer1` data |
-| Invoke flow per-ray verification | [vktRayTracingCallableShadersTests.cpp#L1021-L1128](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L1021-L1128) | `verifyResultData` expected-value table |
-| Invoke flow 12-ray geometry | [vktRayTracingCallableShadersTests.cpp#L1784-L1834](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L1784-L1834) | 12 rays, 3 BLAS, opaque / non-opaque mix |
-| Invoke flow runtime | [vktRayTracingCallableShadersTests.cpp#L1565-L1971](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L1565-L1971) | `iterate` body: pipeline, SBT, descriptor set, trace, readback, mismatch check |
-| checkSupport | [vktRayTracingCallableShadersTests.cpp#L530-L545](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L530-L545) and [vktRayTracingCallableShadersTests.cpp#L999-L1014](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L999-L1014) | Required features for both test classes |
+| Registration root | [register simple and nested callable flows](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L1975-L2032) | Creates `callable_shader` group and attaches all 12 leaves |
+| `CallableShaderTestType` enum | [CallableShaderTestType enum](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L62-L69) | Defines the 4 simple test types |
+| `TestParams` struct | [TestParams struct](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L107-L115) | Carries `callableShaderTestType`, `invokingShader`, `multipleInvocations` |
+| Simple flow shader sources | [Simple flow shader sources](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L547-L722) | `initPrograms` for `CallableShaderTestCase`: emits `rgen`, `rgen_call`, `rgen_multicall`, `chit`, `chit_call`, `miss`, `miss_call`, `call_0..3`, `call_call` |
+| Simple flow pipeline assembly | [shader-group selection for callable flows](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L228-L308) | Maps each `CallableShaderTestType` to its shader groups |
+| Simple flow SBT construction | [callable-flow SBT entry counts and strides](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L310-L429) | Per-type SBT entry counts and strides |
+| Simple flow image verification | [type-specific callable image references](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L431-L475) | `verifyImage` reference values per `CallableShaderTestType` |
+| Simple flow runtime | [Simple flow runtime](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L739-L883) | `runTest` body: descriptor set, pipeline, SBT, image, trace, copyback |
+| Invoke flow shader generators | [ray-stage and callable shader generators](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L1130-L1331) | `getRayGenSource`, `getClosestHitSource`, `getMissSource`, `getCallableSource` |
+| Invoke flow shader build helpers | [Invoke flow shader build helpers](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L1333-L1397) | `generateShaderSource` and `addShaderSource` shared prefix builders |
+| Invoke flow shader record buffer setup | [append callable data after SBT handles](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L1713-L1765) | Builds SBT with extra `CallableBuffer0` / `CallableBuffer1` data |
+| Invoke flow per-ray verification | [per-ray callable output comparison](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L1021-L1128) | `verifyResultData` expected-value table |
+| Invoke flow 12-ray geometry | [Invoke flow 12-ray geometry](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L1784-L1834) | 12 rays, 3 BLAS, opaque / non-opaque mix |
+| Invoke flow runtime | [Invoke flow runtime](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L1565-L1971) | `iterate` body: pipeline, SBT, descriptor set, trace, readback, mismatch check |
+| checkSupport | [simple callable-flow feature requirements](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L530-L545) and [callable-invocation feature requirements](../../../modules/vulkan/ray_tracing/vktRayTracingCallableShadersTests.cpp#L999-L1014) | Required features for both test classes |

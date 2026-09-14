@@ -4,8 +4,8 @@
 
 - [vktDynamicRenderingLocalReadTests.cpp](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadTests.cpp) implements the `local_read` test family under the `dynamic_rendering` test category.
 - The test family is registered under both `primary_cmd_buff` and `partial_secondary_cmd_buff`, so most cases run once on a primary command buffer and once when the draws are recorded into secondary command buffers
-  [vktRenderPassTests.cpp](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8535),
-  [vktRenderPassTests.cpp](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8544).
+  [Render-pass dispatcher registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8535),
+  [Render-pass dispatcher registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8544).
 - The core test idea is a two-phase render: a write pipeline stores values into color and depth/stencil attachments using a `VkRenderingAttachmentLocationInfo` remapping, then a memory barrier inside the render pass instance makes those writes visible, and a read pipeline loads the same images as input attachments using a `VkRenderingInputAttachmentIndexInfo` remapping. The output buffer must equal a host-computed expected value derived from the two remapping tables.
 - The page explains what each registered case changes about that remapping contract, how the shaders consume the remapped indices, and what a mismatched output means.
 
@@ -62,7 +62,7 @@ The same 21 `TestType`-driven cases are also registered under `renderpasses.dyna
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
 | TestType | 21 enum values | Selects the remapping shape, the attachment count, and which extension interaction is exercised. Each value maps to exactly one registered case name. | [TestType](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadTests.cpp#L59-L123), [testConfigs](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadTests.cpp#L3751-L3773) |
-| Command buffer mode | `primary_cmd_buff`, `partial_secondary_cmd_buff` | Runs the same TestType with draws recorded into secondary command buffers, exercising the `VkCommandBufferInheritanceInfo` pNext path for both remapping structures. | [registration sites](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8535), [vktRenderPassTests.cpp](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8544) |
+| Command buffer mode | `primary_cmd_buff`, `partial_secondary_cmd_buff` | Runs the same TestType with draws recorded into secondary command buffers, exercising the `VkCommandBufferInheritanceInfo` pNext path for both remapping structures. | [Render-pass dispatcher registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8535), [Render-pass dispatcher registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8544) |
 | Color attachment count | device-dependent for `max_*`; fixed 0, 2, 3, or 4 otherwise | Drives the width of the `pColorAttachmentLocations` and `pColorAttachmentInputIndices` arrays and the number of shader color outputs. | [constructor switch](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadTests.cpp#L267-L425) |
 | Depth/stencil input indices | `VK_ATTACHMENT_UNUSED`, same index, large index (20, 21), or NULL | Tests the four spec-permitted shapes for `pDepthInputAttachmentIndex` and `pStencilInputAttachmentIndex`. | [constructor switch](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadTests.cpp#L352-L402) |
 | Null location mode | `commandMode`, `nullAfterRemap`, `nullBeforeIdentity` | For `null_color_attachment_location_*` cases, picks whether the NULL `pColorAttachmentLocations` is set by command or by pipeline-create info, and whether a non-identity remap precedes it. | [registration](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadTests.cpp#L3782-L3798) |
@@ -333,7 +333,7 @@ void main() {
 ### Design-based pruning
 
 - The four `null_color_attachment_location_*` cases are registered only under `primary_cmd_buff` because they exercise pipeline-create info paths guarded by `!grpParams->useSecondaryCmdBuffer` and do not add coverage when recorded into secondaries
-  [registration guard](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadTests.cpp#L3782-L3798).
+  [registration](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadTests.cpp#L3782-L3798).
 - The four `mapping_*_attachments_to_locs_from_*` cases are registered under both `primary_cmd_buff` and `partial_secondary_cmd_buff` (no secondary guard), so they account for 4 of the 25 secondary mustpass leaves
   [registration](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadTests.cpp#L3801-L3818).
 - The `max_input_attachments` case generates shaders for a fixed list of possible attachment counts (`inputAttachmentsPossibleValues`) rather than for every device-specific count, and asserts at runtime that the device's count is in that list
@@ -356,10 +356,10 @@ void main() {
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
 | Test family factory | [createDynamicRenderingLocalReadTests](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadTests.cpp#L3744-L3821) | Registers all cases under `local_read`, including the TestType-driven set and the null-location and high-location sets. |
-| TestType enum | [vktDynamicRenderingLocalReadTests.cpp](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadTests.cpp#L59-L123) | Defines the 21 behavioral cases and their shader-resource needs. |
-| BasicLocalReadTestInstance constructor | [vktDynamicRenderingLocalReadTests.cpp](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadTests.cpp#L224-L441) | Switches on TestType to set attachment counts, remapping tables, and depth/stencil indices. |
+| TestType enum | [TestType](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadTests.cpp#L59-L123) | Defines the 21 behavioral cases and their shader-resource needs. |
+| BasicLocalReadTestInstance constructor | [`BasicLocalReadTestInstance::BasicLocalReadTestInstance()`](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadTests.cpp#L224-L441) | Switches on TestType to set attachment counts, remapping tables, and depth/stencil indices. |
 | Expected value computation | [CalculateExpectedValues](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadTests.cpp#L480-L556) | Mirrors shader arithmetic so validation is table-driven. |
-| Basic iterate | [vktDynamicRenderingLocalReadTests.cpp](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadTests.cpp#L563-L1145) | Write-then-read render pass instance, mid-render barrier, and output verification. |
+| Basic iterate | [`BasicLocalReadTestInstance::iterate()`](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadTests.cpp#L563-L1145) | Write-then-read render pass instance, mid-render barrier, and output verification. |
 | Blend-state instance | [MappingWithBlendStateTestInstance](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadTests.cpp#L1147-L1441) | Isolates remapping from blend-state application. |
 | Pipeline-library instance | [MappingWithGraphicsPipelineLibraryTestInstance](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadTests.cpp#L1443-L1762) | Tests remapping through merged graphics pipeline libraries. |
 | Shader-object and single-attachment instance | [MappingWithShaderObjectOrSingleAttachmentTestInstance](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadTests.cpp#L1764-L2069) | Tests remapping across monolithic, fast-linked, and shader-object pipeline forms. |
@@ -368,8 +368,8 @@ void main() {
 | High-location instance | [RemapToHighLocationTestInstance](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadTests.cpp#L3480-L3740) | Tests remapping to locations above the default indices. |
 | Shader generation | [initPrograms](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadTests.cpp#L2507-L3112) | Generates write and read fragment shaders, including SPIR-V assembly for NULL-index cases. |
 | Feature and limit checks | [checkSupport](../../../modules/vulkan/renderpass/vktDynamicRenderingLocalReadTests.cpp#L2450-L2505) | Guards extension, feature, format, and limit requirements per case. |
-| Registration in render pass tests | [vktRenderPassTests.cpp](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8535) | Attaches the family under `primary_cmd_buff`. |
-| Registration in render pass tests (secondaries) | [vktRenderPassTests.cpp](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8544) | Attaches the family under `partial_secondary_cmd_buff`. |
-| Mustpass (primary) | [renderpasses.txt](../../../mustpass/main/vk-default/renderpasses.txt#L19646-L19674) | Lists the 29 `primary_cmd_buff.local_read` cases. |
-| Mustpass (secondary) | [renderpasses.txt](../../../mustpass/main/vk-default/renderpasses.txt#L11802-L11826) | Lists the 25 `partial_secondary_cmd_buff.local_read` cases. |
+| Registration in render pass tests | [Render-pass dispatcher registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8535) | Attaches the family under `primary_cmd_buff`. |
+| Registration in render pass tests (secondaries) | [Render-pass dispatcher registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8544) | Attaches the family under `partial_secondary_cmd_buff`. |
+| Mustpass (primary) | [Render-pass mustpass entries](../../../mustpass/main/vk-default/renderpasses.txt#L19646-L19674) | Lists the 29 `primary_cmd_buff.local_read` cases. |
+| Mustpass (secondary) | [Render-pass mustpass entries](../../../mustpass/main/vk-default/renderpasses.txt#L11802-L11826) | Lists the 25 `partial_secondary_cmd_buff.local_read` cases. |
 | Extension proposal | [VK_KHR_dynamic_rendering_local_read.adoc](../../../../vulkan-docs/src/proposals/VK_KHR_dynamic_rendering_local_read.adoc) | Authoritative description of the remapping structures and their defaults. |

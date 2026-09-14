@@ -20,7 +20,7 @@ The family exercises four interaction surfaces of dynamic rendering: a single se
 renderpasses.dynamic_rendering.primary_cmd_buff.basic
 ```
 
-The `basic` group is created by [`createDynamicRenderingBasicTests`](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L3728-L3750). It contains 30 direct test case leaves: 15 `TestType` values, each instantiated once with `endRendering2=false` and once with `endRendering2=true` (which appends `_end_rendering_2` to the leaf name).
+The `basic` group is created by [`BaseTestCase()`](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L3728-L3750). It contains 30 direct test case leaves: 15 `TestType` values, each instantiated once with `endRendering2=false` and once with `endRendering2=true` (which appends `_end_rendering_2` to the leaf name).
 
 The `basic` group is one of several groups registered under `primary_cmd_buff` by the shared function [`createRenderPassTestsInternal`](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8499-L8626). That function builds the `suballocation`, `dedicated_allocation`, and `no_draws` subtrees as siblings of `basic`, and then dispatches into many other render-pass source files whose behavior is outside this page. The `dynamic_rendering` families are registered through four sibling roots (`primary_cmd_buff`, `partial_secondary_cmd_buff`, `complete_secondary_cmd_buff`, `graphics_pipeline_library`) via [`createDynamicRenderingTests`](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8652-L8693). The `basic` group itself appears only under `primary_cmd_buff`, because the dispatcher guards it on `useSecondaryCmdBuffer == false`.
 
@@ -28,7 +28,7 @@ The `basic` group is one of several groups registered under `primary_cmd_buff` b
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| `TestType` | 15 values | The behavioral axis: which command-buffer topology and which dynamic-rendering feature is exercised | [enum definition](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L72-L123), [name table](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L3703-L3719) |
+| `TestType` | 15 values | The behavioral axis: which command-buffer topology and which dynamic-rendering feature is exercised | [TestType](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L72-L123), [name table](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L3703-L3719) |
 | `endRendering2` | `false`, `true` | Selects `vkCmdEndRendering` versus `vkCmdEndRendering2KHR`; `true` appends `_end_rendering_2` to the leaf name | [registration loop](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L3733-L3747) |
 | Color format | `VK_FORMAT_R8G8B8A8_UNORM` | Fixed across the family; up to four color attachments | [parameters](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L3741) |
 | Render size | 32x32 | Fixed | [parameters](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L3742) |
@@ -87,7 +87,7 @@ Every `TestType` value above is also instantiated with `endRendering2=true`, pro
 
 ## Shader Analysis
 
-The shader pair is trivial and is not the observed behavior. The vertex shader ([source](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L3588-L3604)) passes through `position` and derives a color from `gl_Position.z`. The fragment shader ([source](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L3608-L3627)) writes a per-attachment color to up to four color outputs. The depth and stencil values exercised by the test come from fixed-function rasterization and stencil state set in [`makeGraphicsPipeline`](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L349-L542), not from shader logic. A representative walkthrough would not add information beyond the source listing, because the correctness question is command-buffer recording and attachment binding, not shader execution.
+The shader pair is trivial and is not the observed behavior. The vertex shader ([`vktDynamicRenderingTests.cpp`](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L3588-L3604)) passes through `position` and derives a color from `gl_Position.z`. The fragment shader ([`PartialBindingDepthStencil::rendering()`](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L3608-L3627)) writes a per-attachment color to up to four color outputs. The depth and stencil values exercised by the test come from fixed-function rasterization and stencil state set in [`makeGraphicsPipeline`](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L349-L542), not from shader logic. A representative walkthrough would not add information beyond the source listing, because the correctness question is command-buffer recording and attachment binding, not shader execution.
 
 ## Runtime Execution and Result Checking
 
@@ -155,7 +155,7 @@ The resuming leaves submit the suspending and resuming command buffers together 
 - `VK_KHR_dynamic_rendering` is required for every leaf ([checkSupport](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L3571-L3572)).
 - `VK_KHR_maintenance10` is required when `endRendering2` is true ([checkSupport](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L3574-L3575)).
 - `VK_EXT_dynamic_rendering_unused_attachments` is required only for `partial_binding_depth_stencil` ([checkSupport](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L3578-L3582)).
-- The whole `basic` group is registered only under `primary_cmd_buff`. The dispatcher in `createRenderPassTestsInternal` guards `createDynamicRenderingBasicTests` on `useSecondaryCmdBuffer == false`, so the group does not appear under `partial_secondary_cmd_buff`, `complete_secondary_cmd_buff`, or `graphics_pipeline_library` ([registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8530-L8540)).
+- The whole `basic` group is registered only under `primary_cmd_buff`. The dispatcher in `createRenderPassTestsInternal` guards `createDynamicRenderingBasicTests` on `useSecondaryCmdBuffer == false`, so the group does not appear under `partial_secondary_cmd_buff`, `complete_secondary_cmd_buff`, or `graphics_pipeline_library` ([Render-pass dispatcher registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8530-L8540)).
 
 ### Design-based pruning
 
@@ -174,20 +174,20 @@ The resuming leaves submit the suspending and resuming command buffers together 
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `TestType` enum and per-value comments | [vktDynamicRenderingTests.cpp#L72-L123](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L72-L123) | Authoritative description of each behavioral axis value |
-| `TestParameters` struct | [vktDynamicRenderingTests.cpp#L143-L152](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L143-L152) | Fields that parameterize every leaf |
-| `beginRendering` helper | [vktDynamicRenderingTests.cpp#L1044-L1137](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L1044-L1137) | Builds `VkRenderingInfo` and the attachment info list |
-| `endRendering` helper | [vktDynamicRenderingTests.cpp#L1139-L1149](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L1139-L1149) | Selects `vkCmdEndRendering` or `vkCmdEndRendering2KHR` |
-| `beginSecondaryCmdBuffer` helper | [vktDynamicRenderingTests.cpp#L565-L599](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L565-L599) | Builds the `VkCommandBufferInheritanceRenderingInfoKHR` |
-| `DynamicRenderingTestInstance::rendering` (base) | [vktDynamicRenderingTests.cpp#L903-L984](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L903-L984) | The `single_cmdbuffer` recording loop |
-| `SingleCmdBufferResuming::rendering` | [vktDynamicRenderingTests.cpp#L1290-L1381](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L1290-L1381) | Representative suspend/resume recording |
-| `ContentsSecondaryCmdBuffer::rendering` | [vktDynamicRenderingTests.cpp#L1845-L1940](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L1845-L1940) | Representative `CONTENTS_SECONDARY` recording |
-| `SecondaryCmdBufferOutOfRenderingCommands::rendering` | [vktDynamicRenderingTests.cpp#L3018-L3116](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L3018-L3116) | Mixed in-rendering and out-of-rendering secondary |
-| `PartialBindingDepthStencil::rendering` | [vktDynamicRenderingTests.cpp#L3497-L3543](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L3497-L3543) | Dispatch over partial-binding sub-cases |
-| `PartialBindingDepthStencil::baseTest` | [vktDynamicRenderingTests.cpp#L3178-L3321](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L3178-L3321) | Partial-binding clear and draw verification |
-| `verifyResults`, `verifyDepth`, `verifyStencil` | [vktDynamicRenderingTests.cpp#L1185-L1272](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L1185-L1272) | Color, depth, and stencil comparison helpers |
-| `createInstance` dispatch | [vktDynamicRenderingTests.cpp#L3631-L3699](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L3631-L3699) | Maps `TestType` to the subclass |
-| `createDynamicRenderingBasicTests` | [vktDynamicRenderingTests.cpp#L3728-L3750](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L3728-L3750) | Registers the `basic` group and the `endRendering2` doubling |
-| `createRenderPassTestsInternal` | [vktRenderPassTests.cpp#L8486-L8612](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8486-L8612) | Shared dispatcher that places `basic` beside `suballocation`, `dedicated_allocation`, and `no_draws` |
-| `createDynamicRenderingTests` | [vktRenderPassTests.cpp#L8638-L8679](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8638-L8679) | Registers the four `dynamic_rendering` roots |
-| Spec: render pass suspension | [renderpass.adoc#L995-L1002](../../../../vulkan-docs/src/chapters/renderpass.adoc#L995-L1002) | Suspending and resuming constraints |
+| `TestType` enum and per-value comments | [dynamic-rendering behavior variants and their meanings](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L72-L123) | Authoritative description of each behavioral axis value |
+| `TestParameters` struct | [TestParameters struct](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L143-L152) | Fields that parameterize every leaf |
+| `beginRendering` helper | [beginRendering helper](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L1044-L1137) | Builds `VkRenderingInfo` and the attachment info list |
+| `endRendering` helper | [endRendering helper](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L1139-L1149) | Selects `vkCmdEndRendering` or `vkCmdEndRendering2KHR` |
+| `beginSecondaryCmdBuffer` helper | [beginSecondaryCmdBuffer helper](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L565-L599) | Builds the `VkCommandBufferInheritanceRenderingInfoKHR` |
+| `DynamicRenderingTestInstance::rendering` (base) | [record rendering operations in a single command buffer](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L903-L984) | The `single_cmdbuffer` recording loop |
+| `SingleCmdBufferResuming::rendering` | [SingleCmdBufferResuming::rendering](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L1290-L1381) | Representative suspend/resume recording |
+| `ContentsSecondaryCmdBuffer::rendering` | [ContentsSecondaryCmdBuffer::rendering](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L1845-L1940) | Representative `CONTENTS_SECONDARY` recording |
+| `SecondaryCmdBufferOutOfRenderingCommands::rendering` | [SecondaryCmdBufferOutOfRenderingCommands::rendering](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L3018-L3116) | Mixed in-rendering and out-of-rendering secondary |
+| `PartialBindingDepthStencil::rendering` | [PartialBindingDepthStencil::rendering](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L3497-L3543) | Dispatch over partial-binding sub-cases |
+| `PartialBindingDepthStencil::baseTest` | [PartialBindingDepthStencil::baseTest](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L3178-L3321) | Partial-binding clear and draw verification |
+| `verifyResults`, `verifyDepth`, `verifyStencil` | [verifyResults, verifyDepth, verifyStencil](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L1185-L1272) | Color, depth, and stencil comparison helpers |
+| `createInstance` dispatch | [createInstance dispatch](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L3631-L3699) | Maps `TestType` to the subclass |
+| `createDynamicRenderingBasicTests` | [register basic rendering with both end-rendering APIs](../../../modules/vulkan/renderpass/vktDynamicRenderingTests.cpp#L3728-L3750) | Registers the `basic` group and the `endRendering2` doubling |
+| `createRenderPassTestsInternal` | [createRenderPassTestsInternal](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8486-L8612) | Shared dispatcher that places `basic` beside `suballocation`, `dedicated_allocation`, and `no_draws` |
+| `createDynamicRenderingTests` | [createDynamicRenderingTests](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8638-L8679) | Registers the four `dynamic_rendering` roots |
+| Spec: render pass suspension | [Spec: render pass suspension](../../../../vulkan-docs/src/chapters/renderpass.adoc#L995-L1002) | Suspending and resuming constraints |

@@ -2,7 +2,7 @@
 
 **Core question:** Do different AABB representations of an application-defined procedural surface produce the same per-pixel payload, including when a real triangle is closer than the generated procedural hit?
 
-This page covers the `procedural_geometry` test family registered by [vktRayQueryProceduralGeometryTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L495-L503). Both test case leaves are implemented in one source file.
+This page covers the `procedural_geometry` test family registered by [Procedural-geometry case registration](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L495-L503). Both test case leaves are implemented in one source file.
 
 - A procedural surface is an application-defined shape whose exact ray intersection is calculated by shader code. Here the surface is an ellipsoid; an AABB in the acceleration structure acts as a traversal proxy that gives the shader an opportunity to run the ray-ellipsoid intersection test.
 - Each leaf builds two TLASes: a reference representation and a result representation. They use the same rays, ellipsoid, and shader but different AABB layouts, then write one 64 × 64 payload image each for exact comparison.
@@ -32,10 +32,10 @@ Each child is a direct test case leaf. There are no intermediate nodes.
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| `TestType` | `OBJECT_BEHIND_BOUNDING_BOX`, `TRIANGLE_IN_BETWEEN` | Selects which `setupAccelerationStructures` implementation runs and therefore which reference/result TLAS pair the leaf builds. | [vktRayQueryProceduralGeometryTests.cpp:52-L56](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L52-L56), [L486-L491](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L486-L491) |
-| Image size | `imageSize = 64u` | Sets dispatch count (`64 × 64`) and the per-pixel buffer length. | [vktRayQueryProceduralGeometryTests.cpp:97](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L97), [L194](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L194), [L199](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L199) |
-| Ray range | `tmin = 0.0`, `tmax = 50.0` | Defines the trace window shared by reference and result dispatches. | [vktRayQueryProceduralGeometryTests.cpp:425-L426](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L425-L426) |
-| Ray direction | `vec3(0, 0, -1)` | Fixed for every cell; rays trace straight along `-Z` from each grid cell's `(x + 0.5, y + 0.5, 2.0)`. | [vktRayQueryProceduralGeometryTests.cpp:427-L429](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L427-L429) |
+| `TestType` | `OBJECT_BEHIND_BOUNDING_BOX`, `TRIANGLE_IN_BETWEEN` | Selects which `setupAccelerationStructures` implementation runs and therefore which reference/result TLAS pair the leaf builds. | [Procedural geometry test type](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L52-L56), [Test-instance selection](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L486-L491) |
+| Image size | `imageSize = 64u` | Sets dispatch count (`64 × 64`) and the per-pixel buffer length. | [Image-size constant](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L97), [Reference dispatch](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L194), [Result dispatch](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L199) |
+| Ray range | `tmin = 0.0`, `tmax = 50.0` | Defines the trace window shared by reference and result dispatches. | [Ray interval setup](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L425-L426) |
+| Ray direction | `vec3(0, 0, -1)` | Fixed for every cell; rays trace straight along `-Z` from each grid cell's `(x + 0.5, y + 0.5, 2.0)`. | [Fixed ray direction](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L427-L429) |
 
 ## Behavior Parameters
 
@@ -165,7 +165,7 @@ void main()
 
 #### Additional Info
 
-- `updateRayTracingGLSL()` is an identity passthrough in this CTS version ([vkRayTracingUtil.hpp:111](../../../framework/vulkan/vkRayTracingUtil.hpp#L111)), so the reconstructed GLSL is exactly the GLSL the host feeds to `glslangValidator`. `glslBuildOptions` is `vk::ShaderBuildOptions` with `SPIRV_VERSION_1_4` ([vktRayQueryProceduralGeometryTests.cpp:412](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L412)).
+- `updateRayTracingGLSL()` is an identity passthrough in this CTS version ([GLSL identity helper](../../../framework/vulkan/vkRayTracingUtil.hpp#L111)), so the reconstructed GLSL is exactly the GLSL the host feeds to `glslangValidator`. `glslBuildOptions` is `vk::ShaderBuildOptions` with `SPIRV_VERSION_1_4` ([GLSL build options](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L412)).
 - The `triangle_in_between` leaf runs the same shader binary; only the TLAS layout differs. Its triangle branch temporarily sets `payload = 250`, but any committed hit has a non-negative instance ID and the later common shading block overwrites that value using the committed `t`. The host therefore compares the resulting shaded payload, not a persistent triangle marker.
 - The AABB quadratic uses only the near root `(-b - sqrt(h)) / a`; the far root `(-b + sqrt(h)) / a` is intentionally ignored. A driver that returns the far root would commit the back side of the ellipsoid and the lighting term would invert.
 - The `instanceId > -1` guard exists because some leaves place non-renderable helper geometry that produces a committed intersection but no shading; the guard prevents the lighting math from running for those.
@@ -174,9 +174,9 @@ void main()
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
-| `TestType = TRIANGLE_IN_BETWEEN` | Same shader binary; the TLAS adds a triangle instance whose candidates take the triangle-confirm branch and set `payload = 250`. | [vktRayQueryProceduralGeometryTests.cpp:320-L375](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L320-L375) |
-| Reference vs result dispatch | Same shader binary; the descriptor set is rewritten between dispatches to swap `m_referenceTLAS` for `m_resultTLAS`. | [vktRayQueryProceduralGeometryTests.cpp:189-L199](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L189-L199) |
-| Ray direction | Fixed `(0, 0, -1)` for every cell. | [vktRayQueryProceduralGeometryTests.cpp:427-L429](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L427-L429) |
+| `TestType = TRIANGLE_IN_BETWEEN` | Same shader binary; the TLAS adds a triangle instance whose candidates take the triangle-confirm branch and set `payload = 250`. | [Triangle-in-between acceleration structures](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L320-L375) |
+| Reference vs result dispatch | Same shader binary; the descriptor set is rewritten between dispatches to swap `m_referenceTLAS` for `m_resultTLAS`. | [Reference and result dispatches](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L189-L199) |
+| Ray direction | Fixed `(0, 0, -1)` for every cell. | [Fixed ray direction](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L427-L429) |
 
 #### SPIR-V
 
@@ -486,11 +486,11 @@ void main()
 
 ## Runtime Execution and Result Checking
 
-- **Reference/result TLAS build.** The instance subclass builds both `m_referenceTLAS` and `m_resultTLAS` inside `setupAccelerationStructures()` during command-buffer recording ([vktRayQueryProceduralGeometryTests.cpp:151](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L151)). The reference and result TLASes describe the same intended procedural surface differently: the reference uses an enclosing AABB, while the result uses thin proxy AABBs. In the `triangle_in_between` leaf, both also contain the same real triangle.
-- **Buffer pre-fill.** Both `referenceBuffer` and `resultBuffer` (`imageSize² * sizeof(int)` bytes, host-visible) are cleared to `1` via `deMemset` + `flushAlloc` before dispatch so unset entries are visually distinguishable from shader-written entries in the comparison image ([vktRayQueryProceduralGeometryTests.cpp:240-L249](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L240-L249)).
-- **Two-dispatch flow.** Two compute dispatches are issued back to back: the first binds `referenceDescriptorSet`, the second binds `resultDescriptorSet`. Both use the same compute pipeline and the same shader binary ([vktRayQueryProceduralGeometryTests.cpp:189-L199](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L189-L199)).
-- **Result copyback and interpretation.** After submission, host memory is invalidated and the two `int` buffers are wrapped as `tcu::PixelBufferAccess` of `VK_FORMAT_R8G8B8A8_UNORM` size `64 × 64` ([vktRayQueryProceduralGeometryTests.cpp:219-L221](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L219-L221)).
-- **Pass/fail decision.** `tcu::intThresholdCompare` with `tcu::UVec4(0)` and `COMPARE_LOG_ON_ERROR`; mismatch returns `tcu::TestStatus::fail("Fail")` ([vktRayQueryProceduralGeometryTests.cpp:223-L226](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L223-L226)). The instance passes only when reference and result agree on every cell.
+- **Reference/result TLAS build.** The instance subclass builds both `m_referenceTLAS` and `m_resultTLAS` inside `setupAccelerationStructures()` during command-buffer recording ([Reference and result TLAS build](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L151)). The reference and result TLASes describe the same intended procedural surface differently: the reference uses an enclosing AABB, while the result uses thin proxy AABBs. In the `triangle_in_between` leaf, both also contain the same real triangle.
+- **Buffer pre-fill.** Both `referenceBuffer` and `resultBuffer` (`imageSize² * sizeof(int)` bytes, host-visible) are cleared to `1` via `deMemset` + `flushAlloc` before dispatch so unset entries are visually distinguishable from shader-written entries in the comparison image ([Result-buffer prefill](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L240-L249)).
+- **Two-dispatch flow.** Two compute dispatches are issued back to back: the first binds `referenceDescriptorSet`, the second binds `resultDescriptorSet`. Both use the same compute pipeline and the same shader binary ([Reference and result dispatches](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L189-L199)).
+- **Result copyback and interpretation.** After submission, host memory is invalidated and the two `int` buffers are wrapped as `tcu::PixelBufferAccess` of `VK_FORMAT_R8G8B8A8_UNORM` size `64 × 64` ([Result-buffer readback](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L219-L221)).
+- **Pass/fail decision.** `tcu::intThresholdCompare` with `tcu::UVec4(0)` and `COMPARE_LOG_ON_ERROR`; mismatch returns `tcu::TestStatus::fail("Fail")` ([Reference-result comparison](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L223-L226)). The instance passes only when reference and result agree on every cell.
 
 ## Failure Meaning
 
@@ -531,7 +531,7 @@ void main()
 
 ### Requirement-based pruning
 
-- Required: `VK_KHR_acceleration_structure` and `VK_KHR_ray_query` device extensions ([vktRayQueryProceduralGeometryTests.cpp:398-L407](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L398-L407)).
+- Required: `VK_KHR_acceleration_structure` and `VK_KHR_ray_query` device extensions ([Procedural-geometry support checks](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L398-L407)).
 - Required: `VkPhysicalDeviceRayQueryFeaturesKHR::rayQuery` and `VkPhysicalDeviceAccelerationStructureFeaturesKHR::accelerationStructure`. Missing `rayQuery` throws `NotSupportedError`; missing `accelerationStructure` throws `TestError`. The split between `NotSupportedError` and `TestError` is a deliberate distinction between "not legal on this device" and "test cannot recover."
 
 ### Design-based pruning
@@ -550,9 +550,9 @@ void main()
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `createProceduralGeometryTests` (registration) | [vktRayQueryProceduralGeometryTests.cpp:495-L503](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L495-L503) | Adds the `procedural_geometry` test family with both leaves. |
-| `ObjectBehindBoundingBoxInstance::setupAccelerationStructures` | [vktRayQueryProceduralGeometryTests.cpp:263-L307](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L263-L307) | Builds the four-thin-AABB wall and the single-fat-AABB reference. |
-| `TriangleInBeteenInstance::setupAccelerationStructures` | [vktRayQueryProceduralGeometryTests.cpp:320-L375](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L320-L375) | Builds the triangle + ellipsoid-wall TLAS and the two-instance reference. |
-| `RayQueryProceduralGeometryTestCase::checkSupport` | [vktRayQueryProceduralGeometryTests.cpp:398-L408](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L398-L408) | Enforces extension and feature gates. |
-| `RayQueryProceduralGeometryTestCase::initPrograms` (compute shader) | [vktRayQueryProceduralGeometryTests.cpp:410-L482](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L410-L482) | Implements the ray-vs-ellipsoid and triangle-confirm logic, writes the masked payload to `Result.value[]`. |
-| `RayQueryProceduralGeometryTestBase::iterate` | [vktRayQueryProceduralGeometryTests.cpp:90-L227](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L90-L227) | Runs the back-to-back reference/result dispatches and the `tcu::intThresholdCompare` verdict. |
+| `createProceduralGeometryTests` (registration) | [Procedural-geometry case registration](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L495-L503) | Adds the `procedural_geometry` test family with both leaves. |
+| `ObjectBehindBoundingBoxInstance::setupAccelerationStructures` | [Object-behind-box acceleration structures](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L263-L307) | Builds the four-thin-AABB wall and the single-fat-AABB reference. |
+| `TriangleInBeteenInstance::setupAccelerationStructures` | [Triangle-in-between acceleration structures](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L320-L375) | Builds the triangle + ellipsoid-wall TLAS and the two-instance reference. |
+| `RayQueryProceduralGeometryTestCase::checkSupport` | [Procedural-geometry support entry point](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L398-L408) | Enforces extension and feature gates. |
+| `RayQueryProceduralGeometryTestCase::initPrograms` (compute shader) | [Procedural-geometry compute shader](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L410-L482) | Implements the ray-vs-ellipsoid and triangle-confirm logic, writes the masked payload to `Result.value[]`. |
+| `RayQueryProceduralGeometryTestBase::iterate` | [Reference-result execution and verdict](../../../modules/vulkan/ray_query/vktRayQueryProceduralGeometryTests.cpp#L90-L227) | Runs the back-to-back reference/result dispatches and the `tcu::intThresholdCompare` verdict. |

@@ -3,7 +3,7 @@
 **Core question:** Does the implementation correctly compute SPIR-V integer operations whose carried signedness intentionally mismatches the declared operand type's signedness?
 
 - Source file: [`vktSpvAsmSignedOpTests.cpp`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSignedOpTests.cpp), a pure Amber dispatcher that registers 21 test case leaves under the `signed_op` test family.
-- Registered path: `spirv_assembly.instruction.compute.signed_op`, parented by [`vktSpvAsmInstructionTests.cpp`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21419).
+- Registered path: `spirv_assembly.instruction.compute.signed_op`, parented by [`createMixedRelaxedPrecisionOperandsTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21419).
 - The dispatcher and [`vk-default` mustpass span](../../../mustpass/main/vk-default/spirv-assembly.txt#L16178-L16198) enumerate the same 21 leaves. The data directory also contains unregistered `uint_umulextended.amber`; it is not a `signed_op` leaf and is absent from the mustpass span.
 - The cases apply GLSL.std.450 extended instructions (`FindUMsb`, `FindSMsb`, `UClamp`, `UMax`, `UMin`, `SAbs`, `SClamp`, `SMax`, `SMin`, `SSign`, `SMulExtended`), core SPIR-V signed integer opcodes (`OpSDiv`, `OpSNegate`), atomic min/max opcodes (`OpAtomicUMax`, `OpAtomicUMin`, `OpAtomicSMax`, `OpAtomicSMin`), and unsigned comparison opcodes (`OpUGreaterThan`, `OpUGreaterThanEqual`, `OpULessThan`, `OpULessThanEqual`) to a 32-bit integer storage buffer whose declared element type carries the opposite signedness.
 - The reader should expect: the registration hierarchy, the behavioral grouping of the 21 leaves, one representative shader walkthrough, the Amber pass/fail mechanic, and failure meaning per behavioral group.
@@ -40,7 +40,7 @@ spirv_assembly.instruction.compute.signed_op
 └── uint_snegate
 ```
 
-The `signed_op` test family is added to the `compute` intermediate node by [`vktSpvAsmInstructionTests.cpp`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21419). There are no intermediate nodes between the test family and the 21 test case leaves.
+The `signed_op` test family is added to the `compute` intermediate node by [`createMixedRelaxedPrecisionOperandsTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21419). There are no intermediate nodes between the test family and the 21 test case leaves.
 
 ## Parameter Dimensions and Observed Values
 
@@ -264,7 +264,7 @@ The Amber harness is a common layer, so a pipeline, descriptor-binding, or `EQ_B
 
 ### Requirement-based pruning
 
-The entire `signed_op` test family is compiled only for non-VulkanSC builds: the registration loop is wrapped in [`#ifndef CTS_USES_VULKANSC`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSignedOpTests.cpp#L38-L84). On Vulkan SC targets the group is empty and no leaf is registered. No per-leaf device feature, extension, or limit gate is applied; the cases assume baseline Vulkan compute with storage buffers.
+The entire `signed_op` test family is compiled only for non-VulkanSC builds: the registration loop is wrapped in [vktSpvAsmSignedOpTests.cpp](../../../modules/vulkan/spirv_assembly/vktSpvAsmSignedOpTests.cpp#L38-L84). On Vulkan SC targets the group is empty and no leaf is registered. No per-leaf device feature, extension, or limit gate is applied; the cases assume baseline Vulkan compute with storage buffers.
 
 ### Design-based pruning
 
@@ -282,10 +282,10 @@ No design-based pruning applies. The 21 leaves are a fixed hand-curated enumerat
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `createSignedOpTestsGroup` | [`vktSpvAsmSignedOpTests.cpp#L89`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSignedOpTests.cpp#L89) | Top-level group factory; names the test family `signed_op` and the Amber data directory. |
-| `cases` table | [`vktSpvAsmSignedOpTests.cpp#L49-L71`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSignedOpTests.cpp#L49-L71) | The 21-leaf enumeration with basenames and (sometimes mismatched) description strings. |
-| Amber dispatch loop | [`vktSpvAsmSignedOpTests.cpp#L73-L80`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSignedOpTests.cpp#L73-L80) | Builds `<basename>.amber` file names and calls `createAmberTestCase`. |
-| VulkanSC guard | [`vktSpvAsmSignedOpTests.cpp#L40-L84`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSignedOpTests.cpp#L40-L84) | Wraps the registration loop in `#ifndef CTS_USES_VULKANSC`. |
-| Parent registration | [`vktSpvAsmInstructionTests.cpp#L21419`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21419) | Adds `signed_op` under `spirv_assembly.instruction.compute`. |
+| `createSignedOpTestsGroup` | [`createSignedOpTestsGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSignedOpTests.cpp#L89) | Top-level group factory; names the test family `signed_op` and the Amber data directory. |
+| `cases` table | [`cases` table](../../../modules/vulkan/spirv_assembly/vktSpvAsmSignedOpTests.cpp#L49-L71) | The 21-leaf enumeration with basenames and (sometimes mismatched) description strings. |
+| Amber dispatch loop | [`createSignedOpTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSignedOpTests.cpp#L73-L80) | Builds `<basename>.amber` file names and calls `createAmberTestCase`. |
+| VulkanSC guard | [`createSignedOpTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSignedOpTests.cpp#L40-L84) | Wraps the registration loop in `#ifndef CTS_USES_VULKANSC`. |
+| Parent registration | [`createMixedRelaxedPrecisionOperandsTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21419) | Adds `signed_op` under `spirv_assembly.instruction.compute`. |
 | Amber data directory | [`spirv_assembly/instruction/compute/signed_op/`](../../../data/vulkan/amber/spirv_assembly/instruction/compute/signed_op/) | Contains the 21 registered scripts plus unregistered `uint_umulextended.amber`; each registered script embeds SPIR-V assembly and `EQ_BUFFER` checks. |
 | Representative case | [`glsl_int_findumsb.amber`](../../../data/vulkan/amber/spirv_assembly/instruction/compute/signed_op/glsl_int_findumsb.amber) | Source of the `#### Source Code` SPIR-V assembly in the walkthrough above. |

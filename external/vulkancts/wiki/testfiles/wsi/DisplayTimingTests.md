@@ -2,7 +2,7 @@
 
 **Core question:** Does swapchain presentation report coherent timing data while the application schedules frames through `VK_GOOGLE_display_timing`?
 
-- This page covers the `display_timing` test family implemented in [vktWsiDisplayTimingTests.cpp](../../../modules/vulkan/wsi/vktWsiDisplayTimingTests.cpp).
+- This page covers the `display_timing` test family implemented in [`vktWsiDisplayTimingTests.cpp`](../../../modules/vulkan/wsi/vktWsiDisplayTimingTests.cpp).
 - The WSI dispatcher registers the same five present-mode intermediate nodes for each supported platform. Each contains a baseline `reference` test case and a `display_timing` test case.
 - Both test cases render and present 300 frames. The timed case supplies desired presentation times, queries past presentation records, checks their timestamps, and adjusts its target frame interval from the returned data.
 - The host performs all timing checks. The shaders only render a frame-dependent color pattern into the swapchain image.
@@ -141,7 +141,7 @@ The shaders do not implement the timing property or produce the pass/fail signal
 | Completion and out-of-date recovery | [DisplayTimingTestInstance::iterate](../../../modules/vulkan/wsi/vktWsiDisplayTimingTests.cpp#L986-L1046) | Defines the 300-frame completion rule and recreation limit. |
 | Shader source | [Programs::init](../../../modules/vulkan/wsi/vktWsiDisplayTimingTests.cpp#L1048-L1085) | Generates the frame-dependent render pattern. |
 | Registration | [createDisplayTimingTests](../../../modules/vulkan/wsi/vktWsiDisplayTimingTests.cpp#L1089-L1124) | Registers all present-mode intermediate nodes and both test case leaves. |
-| WSI dispatch | [vktWsiTests.cpp](../../../modules/vulkan/wsi/vktWsiTests.cpp#L42-L81) | Attaches this test family under each platform-specific WSI branch. |
+| WSI dispatch | [WSI dispatch](../../../modules/vulkan/wsi/vktWsiTests.cpp#L42-L81) | Attaches this test family under each platform-specific WSI branch. |
 | Extension timing semantics | [Vulkan WSI specification](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L5293-L5465) | Defines refresh duration, timing-history fields, and present-mode behavior. |
 | Desired presentation times | [Vulkan WSI specification](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L8077-L8141) | Defines the timed-present structures and requested-time contract. |
 | Representative mustpass registration | [default WSI mustpass list](../../../mustpass/main/vk-default/wsi.txt#L11528-L11537) | Confirms the five modes and two leaves under `wsi.headless.display_timing`. |

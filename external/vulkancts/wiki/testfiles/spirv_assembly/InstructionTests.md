@@ -387,14 +387,14 @@ A cross-cutting cause shared by every family: the harness's default byte compari
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `createInstructionTests` | [`vktSpvAsmInstructionTests.cpp#L21311-L21547`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21311-L21547) | Aggregator root; assembles `compute`, `graphics`, and the six direct children |
-| `computeTests` registration block | [`vktSpvAsmInstructionTests.cpp#L21316-L21449`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21316-L21449) | All inline compute groups + delegated subfamilies |
-| `graphicsTests` registration block | [`vktSpvAsmInstructionTests.cpp#L21451-L21533`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21451-L21533) | All inline graphics groups + delegated subfamilies |
-| `createOpNopGroup` (representative walkthrough) | [`vktSpvAsmInstructionTests.cpp#L1089-L1141`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L1089-L1141) | Smallest inline compute group; shows the shared-helpers + per-test-body pattern |
-| `createOpSRemComputeGroup` (`failResult` story) | [`vktSpvAsmInstructionTests.cpp#L2526-L2626`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L2526-L2626) | Source of the `PASS` / `QUALITY_WARNING` / `FAIL` `failResult` variants |
-| `android` sub-groups (compute) | [`vktSpvAsmInstructionTests.cpp#L21384-L21391`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21384-L21391) | `QUALITY_WARNING` registration for `OpSRem`/`OpSMod` |
-| `maintenance8` sub-groups (compute) | [`vktSpvAsmInstructionTests.cpp#L21437-L21448`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21437-L21448) | `VK_KHR_maintenance8` `FAIL` registration |
-| `createFunctionParamsGroup` | [`vktSpvAsmInstructionTests.cpp#L21096-L21118`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21096-L21118) | Amber-backed `function_params` family |
-| `createQueryGroup` (`image_query`) | [`vktSpvAsmInstructionTests.cpp#L21283-L21309`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21283-L21309) | Amber-backed `image_query` family |
-| `SpvAsmComputeShaderCase` harness | [`vktSpvAsmComputeShaderCase.cpp#L940-L999`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderCase.cpp#L940-L999) | Default byte comparison + `failResult`/`verifyIO` overrides |
-| Compute assembly helpers | [`vktSpvAsmComputeShaderTestUtil.cpp#L65-L133`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderTestUtil.cpp#L65-L133) | Shared preamble / types / SSBO layout helpers |
+| `createInstructionTests` | [`createInstructionTests`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21311-L21547) | Aggregator root; assembles `compute`, `graphics`, and the six direct children |
+| `computeTests` registration block | [`computeTests`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21316-L21449) | All inline compute groups + delegated subfamilies |
+| `graphicsTests` registration block | [`graphicsTests`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21451-L21533) | All inline graphics groups + delegated subfamilies |
+| `createOpNopGroup` (representative walkthrough) | [`createOpNopGroup` (representative walkthrough)](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L1089-L1141) | Smallest inline compute group; shows the shared-helpers + per-test-body pattern |
+| `createOpSRemComputeGroup` (`failResult` story) | [`createOpSRemComputeGroup`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L2526-L2626) | Source of the `PASS` / `QUALITY_WARNING` / `FAIL` `failResult` variants |
+| `android` sub-groups (compute) | [compute](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21384-L21391) | `QUALITY_WARNING` registration for `OpSRem`/`OpSMod` |
+| `maintenance8` sub-groups (compute) | [compute](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21437-L21448) | `VK_KHR_maintenance8` `FAIL` registration |
+| `createFunctionParamsGroup` | [`createFunctionParamsGroup`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21096-L21118) | Amber-backed `function_params` family |
+| `createQueryGroup` (`image_query`) | [`createQueryGroup`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21283-L21309) | Amber-backed `image_query` family |
+| `SpvAsmComputeShaderCase` harness | [`SpvAsmComputeShaderCase`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderCase.cpp#L940-L999) | Default byte comparison + `failResult`/`verifyIO` overrides |
+| Compute assembly helpers | [Compute assembly helpers](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderTestUtil.cpp#L65-L133) | Shared preamble / types / SSBO layout helpers |

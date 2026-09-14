@@ -43,7 +43,7 @@ Each direct child is an intermediate node that owns three `testOp` subgroups (`e
 | `stage` | `rgen`, `chit`, `miss`, `sect`, `call` | Selects the stage that contains the control-flow block. Per-op applicability filters the cross product. | [testStages array](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L1812-L1816) |
 | Launch size | fixed `4 x 4 x 1` | 16 rays per case, enough to exercise varying `id` values across the grid. | [width/height](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L1861-L1862) |
 | Result image | fixed `4 x 4 x 16`, `r32ui` | 16 Z-layers carry the per-launch observable signals. | [runTest image setup](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L609-L622) |
-| Push constants | per-`testType` values | Drive branch conditions, loop bounds, and masks for each construct. | [getPushConstants](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L476-L550) |
+| Push constants | per-`testType` values | Drive branch conditions, loop bounds, and masks for each construct. | [branch and loop push constants](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L476-L550) |
 
 ## Behavior Parameters
 
@@ -92,13 +92,13 @@ A function `f1()` calls `f0()` from inside its own body, and `f0()` issues the s
 ## Shader Analysis
 
 The shaders are inline GLSL strings emitted by `initPrograms` with `vk::SPIRV_VERSION_1_4` build options
-[vktRayTracingComplexControlFlowTests.cpp#L1233-L1235](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L1233-L1235).
+[SPIR-V 1.4 shader build options](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L1233-L1235).
 A shared `calleeMainPart` body writes the per-payload Z layer and the launch-id echo, then increments `payload.y`
-[vktRayTracingComplexControlFlowTests.cpp#L1236-L1241](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L1236-L1241).
+[callee payload and launch-ID image writes](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L1236-L1241).
 A `shaderCallInstruction` template substitutes `executeCallableEXT`, `traceRayEXT`, or `reportIntersectionEXT` for the `$` payload-index placeholder
-[vktRayTracingComplexControlFlowTests.cpp#L1243-L1251](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L1243-L1251).
+[shader-call instruction selection](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L1243-L1251).
 Per-`testType` `opInMain` blocks wrap that instruction in the tested control flow
-[vktRayTracingComplexControlFlowTests.cpp#L1283-L1502](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L1283-L1502).
+[control-flow blocks around shader calls](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L1283-L1502).
 
 One walkthrough covers the `if.execute_callable.rgen` case because the `if/else` is the most fundamental control-flow construct and cleanly exposes branch-direction payload selection. The same rgen shell drives every `testType`; only the `opInMain` block changes. The shared callable shader is the same across every `execute_callable` case.
 
@@ -231,8 +231,8 @@ void main()
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|--------------------------------------------|----------|
-| `testType` | Swaps the `opInMain` block: `if/else` becomes `for`, `switch`, nested `for`, or a function body. The rgen shell, push constants, and image layout stay the same. | [opInMain switch](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L1283-L1502) |
-| `testOp` | Swaps `executeCallableEXT(0, $)` for `traceRayEXT(..., $)` or `reportIntersectionEXT(1.0f, 0u)`. The payload declaration changes from `callableDataEXT` to `rayPayloadEXT` or `hitAttributeEXT`. | [shaderCallInstruction](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L1243-L1251) |
+| `testType` | Swaps the `opInMain` block: `if/else` becomes `for`, `switch`, nested `for`, or a function body. The rgen shell, push constants, and image layout stay the same. | [control-flow blocks around shader calls](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L1283-L1502) |
+| `testOp` | Swaps `executeCallableEXT(0, $)` for `traceRayEXT(..., $)` or `reportIntersectionEXT(1.0f, 0u)`. The payload declaration changes from `callableDataEXT` to `rayPayloadEXT` or `hitAttributeEXT`. | [shader-call instruction selection](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L1243-L1251) |
 | `stage` | Moves the `opInMain` block from rgen into chit, miss, sect, or an outer callable. Non-rgen stages use `getCommonRayGenerationShader()` for the rgen and add a second SBT hit/miss group for nested `trace_ray`. | [stage switch](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L1525-L1738) |
 
 #### SPIR-V
@@ -625,8 +625,8 @@ void main()
 - **Copyback.** A shader-write to transfer-read memory barrier follows the trace, then `cmdCopyImageToBuffer` copies the 16-layer image to a host-visible buffer, and a transfer-write to host-read barrier precedes `submitCommandsAndWait`. The host invalidates the mapped range before reading
   [copyback](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L689-L702).
 - **Reference comparison.** `getExpectedValues` builds a 256-element reference vector by mirroring the same `testType` switch in C++. It fills Z = 0 with the per-testType `result` formula, Z = 1..6 with the push constants, Z = 7 with the launch id, and Z = 8..15 with the per-iteration or per-branch payload values. The `iterate` function compares `bufferPtr[pos] != expected[pos]` for every `(z, y, x)` and counts failures
-  [getExpectedValues](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L707-L1075),
-  [iterate](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L1077-L1129).
+  [host reference for each control-flow case](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L707-L1075),
+  [image comparison and mismatch logging](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L1077-L1129).
 - **Pass/fail.** The instance returns pass iff `failures == 0`; otherwise it returns fail with the failure count. On failure, the host logs a per-Z-layer dump of the actual and expected values for debugging
   [iterate log](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L1096-L1123).
 
@@ -704,7 +704,7 @@ void main()
 - The `execute_callable` op is registered for `rgen`, `chit`, `miss`, and `call` (mask `R | C | M | L`). The `call` stage case uses a two-level callable invocation: rgen calls an outer callable (SBT index 1), which calls the inner callable (SBT index 0) from inside the tested control flow.
 - The `trace_ray` op is registered for `rgen`, `chit`, and `miss` (mask `R | C | M`). It is not registered for `sect` because `traceRayEXT` from an intersection shader would conflict with the ongoing traversal, and not for `call` because callable shaders cannot trace rays without a recursion depth increase that the test does not exercise.
 - Push constants are chosen per `testType` to exercise the relevant branches of each construct. For example, `TEST_TYPE_IF` uses `p.a = 32 | 8 | 1 = 41` so the `(p.a & id)` condition varies across the 4x4 grid, while `TEST_TYPE_LOOP_DOUBLE_CALL_SPARSE` uses `p.a = 16` and `p.b = 5` so the sparse filter `(x & p.b) != 0` excludes roughly half the iterations
-  [getPushConstants](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L476-L550).
+  [branch and loop push constants](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L476-L550).
 
 ## Key Takeaways
 
@@ -718,15 +718,15 @@ void main()
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `TestType` and `TestOp` enums | [vktRayTracingComplexControlFlowTests.cpp#L61-L80](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L61-L80) | Defines the ten `testType` and three `testOp` values. |
-| `CaseDef` struct | [vktRayTracingComplexControlFlowTests.cpp#L91-L98](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L91-L98) | Carries `testType`, `testOp`, `stage`, and launch dimensions. |
-| `getPushConstants` | [vktRayTracingComplexControlFlowTests.cpp#L476-L550](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L476-L550) | Per-`testType` push-constant values that drive branches and loops. |
-| `getExpectedValues` | [vktRayTracingComplexControlFlowTests.cpp#L707-L1075](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L707-L1075) | Host-side reference image computation; the source of truth for pass/fail. |
-| `initPrograms` GLSL emission | [vktRayTracingComplexControlFlowTests.cpp#L1233-L1788](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L1233-L1788) | Generator for every case's shader set; basis for the walkthrough reconstruction. |
-| `calleeMainPart` and `shaderCallInstruction` | [vktRayTracingComplexControlFlowTests.cpp#L1236-L1251](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L1236-L1251) | Shared callee body and the per-`testOp` shader-call instruction template. |
-| `opInMain` per-`testType` switch | [vktRayTracingComplexControlFlowTests.cpp#L1283-L1502](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L1283-L1502) | The tested control-flow blocks; source of the `if/else` walkthrough. |
-| Pass-through ahit/chit/miss/sect | [vktRayTracingComplexControlFlowTests.cpp#L1189-L1231](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L1189-L1231) | No-op stages used when the tested stage is elsewhere. |
-| `runTest` host flow | [vktRayTracingComplexControlFlowTests.cpp#L552-L705](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L552-L705) | Image clear, AS build, trace, copyback, host invalidation. |
-| `iterate` pass/fail decision | [vktRayTracingComplexControlFlowTests.cpp#L1077-L1129](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L1077-L1129) | Element-wise zero-threshold comparison and failure logging. |
-| `checkSupport` feature gates | [vktRayTracingComplexControlFlowTests.cpp#L1159-L1187](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L1159-L1187) | Requires the two KHR feature bits and `maxRayRecursionDepth >= 2` for nested trace cases. |
-| Registration loop | [vktRayTracingComplexControlFlowTests.cpp#L1797-L1884](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L1797-L1884) | Builds the `complexcontrolflow.<testType>.<testOp>.<stage>` tree with per-op stage filtering. |
+| `TestType` and `TestOp` enums | [TestType and TestOp enums](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L61-L80) | Defines the ten `testType` and three `testOp` values. |
+| `CaseDef` struct | [CaseDef struct](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L91-L98) | Carries `testType`, `testOp`, `stage`, and launch dimensions. |
+| `getPushConstants` | [branch and loop push constants](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L476-L550) | Per-`testType` push-constant values that drive branches and loops. |
+| `getExpectedValues` | [host reference for each control-flow case](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L707-L1075) | Host-side reference image computation; the source of truth for pass/fail. |
+| `initPrograms` GLSL emission | [initPrograms GLSL emission](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L1233-L1788) | Generator for every case's shader set; basis for the walkthrough reconstruction. |
+| `calleeMainPart` and `shaderCallInstruction` | [calleeMainPart and shaderCallInstruction](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L1236-L1251) | Shared callee body and the per-`testOp` shader-call instruction template. |
+| `opInMain` per-`testType` switch | [control-flow blocks around shader calls](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L1283-L1502) | The tested control-flow blocks; source of the `if/else` walkthrough. |
+| Pass-through ahit/chit/miss/sect | [Pass-through ahit/chit/miss/sect](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L1189-L1231) | No-op stages used when the tested stage is elsewhere. |
+| `runTest` host flow | [runTest host flow](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L552-L705) | Image clear, AS build, trace, copyback, host invalidation. |
+| `iterate` pass/fail decision | [image comparison and mismatch logging](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L1077-L1129) | Element-wise zero-threshold comparison and failure logging. |
+| `checkSupport` feature gates | [checkSupport feature gates](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L1159-L1187) | Requires the two KHR feature bits and `maxRayRecursionDepth >= 2` for nested trace cases. |
+| Registration loop | [control-flow, operation, and stage registration](../../../modules/vulkan/ray_tracing/vktRayTracingComplexControlFlowTests.cpp#L1797-L1884) | Builds the `complexcontrolflow.<testType>.<testOp>.<stage>` tree with per-op stage filtering. |

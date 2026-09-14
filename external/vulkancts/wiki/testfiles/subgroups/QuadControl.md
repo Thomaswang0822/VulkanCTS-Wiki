@@ -306,15 +306,15 @@ void main (void)
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `TestMode` and shared instance state | [`vktSubgroupsQuadControlTests.cpp#L53-L100`](../../../modules/vulkan/subgroups/vktSubgroupsQuadControlTests.cpp#L53-L100) | Defines the four behavior values and common render state. |
-| `DrawWithQuadControlInstanceBase::iterate` | [`vktSubgroupsQuadControlTests.cpp#L124-L336`](../../../modules/vulkan/subgroups/vktSubgroupsQuadControlTests.cpp#L124-L336) | Creates resources, records the draw, copies back pixels, and dispatches result checking. |
-| Mode-specific instances and checks | [`vktSubgroupsQuadControlTests.cpp#L339-L597`](../../../modules/vulkan/subgroups/vktSubgroupsQuadControlTests.cpp#L339-L597) | Supplies geometry and the four pass/fail contracts. |
-| `DrawWithQuadControlTestCase::checkSupport` | [`vktSubgroupsQuadControlTests.cpp#L621-L633`](../../../modules/vulkan/subgroups/vktSubgroupsQuadControlTests.cpp#L621-L633) | Defines feature gates, including termination dependencies. |
-| `DrawWithQuadControlTestCase::initPrograms` | [`vktSubgroupsQuadControlTests.cpp#L648-L805`](../../../modules/vulkan/subgroups/vktSubgroupsQuadControlTests.cpp#L648-L805) | Generates the vertex and mode-specific fragment programs and sets SPIR-V 1.3. |
-| `createSubgroupsQuadControlTests` | [`vktSubgroupsQuadControlTests.cpp#L807-L818`](../../../modules/vulkan/subgroups/vktSubgroupsQuadControlTests.cpp#L807-L818) | Registers the four direct children below `subgroups.shader_quad_control`. |
-| Mustpass paths | [`subgroups.txt#L38070-L38073`](../../../mustpass/main/vk-default/subgroups.txt#L38070-L38073) | Lists all four default exact executable paths. |
-| Quad and derivative semantics | [`shaders.adoc#L3572-L3647`](../../../../vulkan-docs/src/chapters/shaders.adoc#L3572-L3647) | Defines quad operations, derivative grouping, and helper launches. |
-| Helper invocation semantics | [`shaders.adoc#L3728-L3773`](../../../../vulkan-docs/src/chapters/shaders.adoc#L3728-L3773) | Defines helper identity and effects. |
-| Termination semantics | [`shaders.adoc#L1841-L1859`](../../../../vulkan-docs/src/chapters/shaders.adoc#L1841-L1859) | Defines shader invocation termination. |
-| Quad-control feature | [`features.adoc#L8889-L8906`](../../../../vulkan-docs/src/chapters/features.adoc#L8889-L8906) | Defines `shaderQuadControl` and `QuadControlKHR`. |
-| Termination feature | [`features.adoc#L5250-L5283`](../../../../vulkan-docs/src/chapters/features.adoc#L5250-L5283) | Defines `shaderTerminateInvocation`. |
+| `TestMode` and shared instance state | [`TestMode` and shared instance state](../../../modules/vulkan/subgroups/vktSubgroupsQuadControlTests.cpp#L53-L100) | Defines the four behavior values and common render state. |
+| `DrawWithQuadControlInstanceBase::iterate` | [`DrawWithQuadControlInstanceBase::iterate()`](../../../modules/vulkan/subgroups/vktSubgroupsQuadControlTests.cpp#L124-L336) | Creates resources, records the draw, copies back pixels, and dispatches result checking. |
+| Mode-specific instances and checks | [Mode-specific instances and checks](../../../modules/vulkan/subgroups/vktSubgroupsQuadControlTests.cpp#L339-L597) | Supplies geometry and the four pass/fail contracts. |
+| `DrawWithQuadControlTestCase::checkSupport` | [`DrawWithQuadControlTestCase::checkSupport()`](../../../modules/vulkan/subgroups/vktSubgroupsQuadControlTests.cpp#L621-L633) | Defines feature gates, including termination dependencies. |
+| `DrawWithQuadControlTestCase::initPrograms` | [`DrawWithQuadControlTestCase::initPrograms()`](../../../modules/vulkan/subgroups/vktSubgroupsQuadControlTests.cpp#L648-L805) | Generates the vertex and mode-specific fragment programs and sets SPIR-V 1.3. |
+| `createSubgroupsQuadControlTests` | [`createSubgroupsQuadControlTests`](../../../modules/vulkan/subgroups/vktSubgroupsQuadControlTests.cpp#L807-L818) | Registers the four direct children below `subgroups.shader_quad_control`. |
+| Mustpass paths | [Mustpass paths](../../../mustpass/main/vk-default/subgroups.txt#L38070-L38073) | Lists all four default exact executable paths. |
+| Quad and derivative semantics | [Quad and derivative semantics](../../../../vulkan-docs/src/chapters/shaders.adoc#L3572-L3647) | Defines quad operations, derivative grouping, and helper launches. |
+| Helper invocation semantics | [Helper invocation semantics](../../../../vulkan-docs/src/chapters/shaders.adoc#L3728-L3773) | Defines helper identity and effects. |
+| Termination semantics | [Termination semantics](../../../../vulkan-docs/src/chapters/shaders.adoc#L1841-L1859) | Defines shader invocation termination. |
+| Quad-control feature | [Quad-control feature](../../../../vulkan-docs/src/chapters/features.adoc#L8889-L8906) | Defines `shaderQuadControl` and `QuadControlKHR`. |
+| Termination feature | [Termination feature](../../../../vulkan-docs/src/chapters/features.adoc#L5250-L5283) | Defines `shaderTerminateInvocation`. |

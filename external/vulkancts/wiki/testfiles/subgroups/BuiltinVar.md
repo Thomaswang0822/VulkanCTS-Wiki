@@ -319,14 +319,14 @@ All values also depend on correct shader lowering, output addressing, pipeline e
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `TestType` and check callbacks | [`vktSubgroupsBuiltinVarTests.cpp#L43-L304`](../../../modules/vulkan/subgroups/vktSubgroupsBuiltinVarTests.cpp#L43-L304) | Defines the four built-ins and exact host predicates. |
-| `initFrameBufferPrograms` | [`vktSubgroupsBuiltinVarTests.cpp#L317-L962`](../../../modules/vulkan/subgroups/vktSubgroupsBuiltinVarTests.cpp#L317-L962) | Builds direct-SPIR-V framebuffer programs. |
-| `initPrograms` | [`vktSubgroupsBuiltinVarTests.cpp#L983-L1628`](../../../modules/vulkan/subgroups/vktSubgroupsBuiltinVarTests.cpp#L983-L1628) | Builds the representative compute GLSL and routes other execution paths. |
-| Support and execution | [`vktSubgroupsBuiltinVarTests.cpp#L1630-L1944`](../../../modules/vulkan/subgroups/vktSubgroupsBuiltinVarTests.cpp#L1630-L1944) | Applies feature gates and selects runtime/check helpers. |
-| Registration | [`vktSubgroupsBuiltinVarTests.cpp#L1946-L2106`](../../../modules/vulkan/subgroups/vktSubgroupsBuiltinVarTests.cpp#L1946-L2106) | Defines the hierarchy, stages, leaves, and required-size variants. |
-| Shared shader generation | [`vktSubgroupsTestsUtils.cpp#L1406-L1675`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L1406-L1675) | Expands mesh/task and ray-tracing GLSL. |
-| Compute/mesh dispatch and readback | [`vktSubgroupsTestsUtils.cpp#L3985-L4131`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L3985-L4131) | Shows dispatch, barrier, invalidation, callback, and tested local sizes. |
-| Framebuffer copyback and verdict | [`vktSubgroupsTestsUtils.cpp#L2430-L2637`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L2430-L2637) | Shows attachment execution, image copy, callback, and final result. |
-| Registered mustpass leaves | [`subgroups.txt#L18502-L18537`](../../../mustpass/main/vk-default/subgroups.txt#L18502-L18537) | Confirms all executable `builtin_var` paths, including the representative case. |
-| Vulkan built-in semantics | [`interfaces.adoc#L3891-L3916`](../../../../vulkan-docs/src/chapters/interfaces.adoc#L3891-L3916) | Defines `NumSubgroups`; `SubgroupId`, `SubgroupLocalInvocationId`, and `SubgroupSize` follow at lines 4955-5246. |
-| Vulkan subgroup scope | [`shaders.adoc#L3219-L3247`](../../../../vulkan-docs/src/chapters/shaders.adoc#L3219-L3247) | Defines subgroup membership and scope. |
+| `TestType` and check callbacks | [`TestType` and check callbacks](../../../modules/vulkan/subgroups/vktSubgroupsBuiltinVarTests.cpp#L43-L304) | Defines the four built-ins and exact host predicates. |
+| `initFrameBufferPrograms` | [`initFrameBufferPrograms()`](../../../modules/vulkan/subgroups/vktSubgroupsBuiltinVarTests.cpp#L317-L962) | Builds direct-SPIR-V framebuffer programs. |
+| `initPrograms` | [`initPrograms()`](../../../modules/vulkan/subgroups/vktSubgroupsBuiltinVarTests.cpp#L983-L1628) | Builds the representative compute GLSL and routes other execution paths. |
+| Support and execution | [Support and execution](../../../modules/vulkan/subgroups/vktSubgroupsBuiltinVarTests.cpp#L1630-L1944) | Applies feature gates and selects runtime/check helpers. |
+| Registration | [`createSubgroupsBuiltinVarTests()`](../../../modules/vulkan/subgroups/vktSubgroupsBuiltinVarTests.cpp#L1946-L2106) | Defines the hierarchy, stages, leaves, and required-size variants. |
+| Shared shader generation | [`initStdPrograms`](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L1406-L1675) | Expands mesh/task and ray-tracing GLSL. |
+| Compute/mesh dispatch and readback | [Compute/mesh dispatch and readback](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L3985-L4131) | Shows dispatch, barrier, invalidation, callback, and tested local sizes. |
+| Framebuffer copyback and verdict | [Framebuffer copyback and verdict](../../../modules/vulkan/subgroups/vktSubgroupsTestsUtils.cpp#L2430-L2637) | Shows attachment execution, image copy, callback, and final result. |
+| Registered mustpass leaves | [Registered mustpass leaves](../../../mustpass/main/vk-default/subgroups.txt#L18502-L18537) | Confirms all executable `builtin_var` paths, including the representative case. |
+| Vulkan built-in semantics | [Vulkan built-in semantics](../../../../vulkan-docs/src/chapters/interfaces.adoc#L3891-L3916) | Defines `NumSubgroups`; `SubgroupId`, `SubgroupLocalInvocationId`, and `SubgroupSize` follow at lines 4955-5246. |
+| Vulkan subgroup scope | [Vulkan subgroup scope](../../../../vulkan-docs/src/chapters/shaders.adoc#L3219-L3247) | Defines subgroup membership and scope. |

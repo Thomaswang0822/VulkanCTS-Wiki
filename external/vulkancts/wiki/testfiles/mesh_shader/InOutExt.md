@@ -437,7 +437,7 @@ The code above is a compact reconstruction of the generator's structure, not a r
 
 ## Source Reference Appendix
 
-- [EXT interface-variable implementation](../../../modules/vulkan/mesh_shader/vktMeshShaderInOutTestsEXT.cpp)
+- [vktMeshShaderInOutTestsEXT.cpp](../../../modules/vulkan/mesh_shader/vktMeshShaderInOutTestsEXT.cpp)
 - [Interface variable declarations and checks](../../../modules/vulkan/mesh_shader/vktMeshShaderInOutTestsEXT.cpp#L76-L291)
 - [Feature-gated support](../../../modules/vulkan/mesh_shader/vktMeshShaderInOutTestsEXT.cpp#L590-L630)
 - [Generated program sources](../../../modules/vulkan/mesh_shader/vktMeshShaderInOutTestsEXT.cpp#L632-L924)

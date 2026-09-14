@@ -321,5 +321,5 @@ that share the affected pipeline or copyback state.
 | Pipeline and bias setup | [iterate()](../../../modules/vulkan/rasterization/vktRasterizationDepthBiasControlTests.cpp#L460-L593) | Computes factors, builds the pipeline, and records the bias command for each mechanism. |
 | Result verification | [iterate()](../../../modules/vulkan/rasterization/vktRasterizationDepthBiasControlTests.cpp#L637-L695) | Computes `expectedDepth`, the depth threshold, and runs `tcu::dsThresholdCompare()` plus `tcu::floatThresholdCompare()`. |
 | Matrix registration and pruning | [createDepthBiasControlTests()](../../../modules/vulkan/rasterization/vktRasterizationDepthBiasControlTests.cpp#L700-L910) | Builds the six-format tree and applies the representation-info + `DYNAMIC_1` skip and the secondary-command-buffer reduction. |
-| Header declaration | [vktRasterizationDepthBiasControlTests.hpp#L35](../../../modules/vulkan/rasterization/vktRasterizationDepthBiasControlTests.hpp#L35) | Declares `createDepthBiasControlTests`. |
-| Mustpass examples | [rasterization.txt#L400-L411](../../../mustpass/main/vk-default/rasterization.txt#L400-L411) | Confirms the registered case names and the six-format hierarchy. |
+| Header declaration | [Header declaration](../../../modules/vulkan/rasterization/vktRasterizationDepthBiasControlTests.hpp#L35) | Declares `createDepthBiasControlTests`. |
+| Mustpass examples | [Mustpass examples](../../../mustpass/main/vk-default/rasterization.txt#L400-L411) | Confirms the registered case names and the six-format hierarchy. |

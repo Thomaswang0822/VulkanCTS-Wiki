@@ -2,7 +2,7 @@
 
 **Core question:** Do the EXT direct, indirect, indirect-count, and device-address mesh draw commands launch exactly the requested work and preserve the same result through primary and secondary command buffers?
 
-- [vktMeshShaderApiTestsEXT.cpp](../../../modules/vulkan/mesh_shader/vktMeshShaderApiTestsEXT.cpp) implements the `mesh_shader.ext.api` test family.
+- [`vktMeshShaderApiTestsEXT.cpp`](../../../modules/vulkan/mesh_shader/vktMeshShaderApiTestsEXT.cpp) implements the `mesh_shader.ext.api` test family.
 - The matrix covers `vkCmdDrawMeshTasksEXT`, `vkCmdDrawMeshTasksIndirectEXT`, `vkCmdDrawMeshTasksIndirectCountEXT`, and sampled `VK_KHR_device_address_commands` forms.
 - Every ordinary case runs with and without a task shader, and inline or through a render-pass-continuing secondary command buffer.
 - The test turns each launched mesh workgroup into one colored framebuffer row. A host-side reference image exposes missing, extra, or misaddressed draws.
@@ -10,8 +10,8 @@
 ## Background Knowledge
 
 - **Mesh and task workgroups.** A mesh draw assembles a workgroup grid from X, Y, and Z group counts. Without a task shader, those workgroups run the mesh shader directly. With a task shader, each task workgroup calls `EmitMeshTasksEXT` and can pass a payload to the mesh workgroup it emits. The specification defines this relationship in [Mesh Shading](../../../../vulkan-docs/src/chapters/VK_NV_mesh_shader/mesh.adoc#L12-L19).
-- **Indirect command records.** `vkCmdDrawMeshTasksIndirectEXT` reads `VkDrawMeshTasksIndirectCommandEXT` records from a buffer at a byte offset and stride. `drawCount` selects the number of records. The count form reads a 32-bit count from another buffer and executes the smaller of that value and `maxDrawCount` [drawing.adoc](../../../../vulkan-docs/src/chapters/drawing.adoc#L2554-L2579).
-- **Device-address commands.** The `*2EXT` commands replace buffer handles and offsets with address ranges for indirect draws. They preserve the corresponding indirect and indirect-count semantics, but require `VK_KHR_device_address_commands` and buffers that can supply device addresses [drawing.adoc](../../../../vulkan-docs/src/chapters/drawing.adoc#L2519-L2547).
+- **Indirect command records.** `vkCmdDrawMeshTasksIndirectEXT` reads `VkDrawMeshTasksIndirectCommandEXT` records from a buffer at a byte offset and stride. `drawCount` selects the number of records. The count form reads a 32-bit count from another buffer and executes the smaller of that value and `maxDrawCount` [drawing source](../../../../vulkan-docs/src/chapters/drawing.adoc#L2554-L2579).
+- **Device-address commands.** The `*2EXT` commands replace buffer handles and offsets with address ranges for indirect draws. They preserve the corresponding indirect and indirect-count semantics, but require `VK_KHR_device_address_commands` and buffers that can supply device addresses [drawing source](../../../../vulkan-docs/src/chapters/drawing.adoc#L2519-L2547).
 
 ## Registration Hierarchy
 
@@ -22,7 +22,7 @@ mesh_shader.ext.api
 └── draw_indirect_count
 ```
 
-The canonical default mustpass contains 540 executable leaves for this family: 20 `draw`, 120 `draw_indirect`, and 400 `draw_indirect_count` cases [mesh-shader.txt](../../../mustpass/main/vk-default/mesh-shader.txt#L1-L540).
+The canonical default mustpass contains 540 executable leaves for this family: 20 `draw`, 120 `draw_indirect`, and 400 `draw_indirect_count` cases [mesh-shader source](../../../mustpass/main/vk-default/mesh-shader.txt#L1-L540).
 
 ## Parameter Dimensions and Observed Values
 
@@ -173,7 +173,7 @@ void main ()
 
 #### Additional Info
 
-- `getMinMeshEXTBuildOptions` targets SPIR-V 1.4 for all generated stages [vktMeshShaderUtil.cpp](../../../modules/vulkan/mesh_shader/vktMeshShaderUtil.cpp#L141-L144).
+- `getMinMeshEXTBuildOptions` targets SPIR-V 1.4 for all generated stages [`getMinMeshEXTBuildOptions`](../../../modules/vulkan/mesh_shader/vktMeshShaderUtil.cpp#L141-L144).
 - The fixed fragment shader copies `primitiveColor` to the color attachment. It does not alter the workgroup-to-row mapping [fragment generation](../../../modules/vulkan/mesh_shader/vktMeshShaderApiTestsEXT.cpp#L326-L340).
 
 #### Parameter Variation Summary
@@ -564,19 +564,19 @@ void main ()
 
 **Possible failure symptoms:** expected colored rows remain clear, rows beyond the direct count become colored, or generated colors differ from their row and column reference values.
 
-**Possible implementation causes:** the implementation may use the wrong X/Y/Z group count, mishandle zero or multi-workgroup direct draws, lose the task payload, or lower `SetMeshOutputsEXT` and mesh output indices incorrectly. The EXT mesh specification defines direct workgroup assembly, task emission, and mesh output counts [mesh.adoc](../../../../vulkan-docs/src/chapters/VK_NV_mesh_shader/mesh.adoc#L12-L19) and [mesh.adoc](../../../../vulkan-docs/src/chapters/VK_NV_mesh_shader/mesh.adoc#L149-L166).
+**Possible implementation causes:** the implementation may use the wrong X/Y/Z group count, mishandle zero or multi-workgroup direct draws, lose the task payload, or lower `SetMeshOutputsEXT` and mesh output indices incorrectly. The EXT mesh specification defines direct workgroup assembly, task emission, and mesh output counts [mesh source](../../../../vulkan-docs/src/chapters/VK_NV_mesh_shader/mesh.adoc#L12-L19) and [mesh source](../../../../vulkan-docs/src/chapters/VK_NV_mesh_shader/mesh.adoc#L149-L166).
 
 #### Indirect record addressing
 
 **Possible failure symptoms:** indirect cases color too few or too many rows, reorder row blocks, or fail only for nonzero offsets, padded strides, multiple records, secondary command buffers, or `_device_address` leaves.
 
-**Possible implementation causes:** the command processor may compute a record address from offset and stride incorrectly, ignore a record, read padding as a record, mishandle `drawCount`, or interpret the supplied address range or valid address flags incorrectly. Vulkan requires successive records to begin at `offset + i * stride`, and requires a nonzero suitably aligned stride when multiple records are consumed [drawing.adoc](../../../../vulkan-docs/src/chapters/drawing.adoc#L2571-L2599).
+**Possible implementation causes:** the command processor may compute a record address from offset and stride incorrectly, ignore a record, read padding as a record, mishandle `drawCount`, or interpret the supplied address range or valid address flags incorrectly. Vulkan requires successive records to begin at `offset + i * stride`, and requires a nonzero suitably aligned stride when multiple records are consumed [drawing source](../../../../vulkan-docs/src/chapters/drawing.adoc#L2571-L2599).
 
 #### Count limiting and count addressing
 
 **Possible failure symptoms:** `count_limit_buffer` and `count_limit_max_count` produce different images, count-offset variants fail, or count-address cases execute the stored large count instead of the requested maximum.
 
-**Possible implementation causes:** the implementation may read the count from the wrong byte offset or address, fail to use `min(count, maxDrawCount)`, or combine the count with indirect record stride incorrectly. The specification defines the minimum rule and 4-byte count alignment [drawing.adoc](../../../../vulkan-docs/src/chapters/drawing.adoc#L2671-L2714) and [draw_indirect_count_common.adoc](../../../../vulkan-docs/src/chapters/commonvalidity/draw_indirect_count_common.adoc#L7-L25).
+**Possible implementation causes:** the implementation may read the count from the wrong byte offset or address, fail to use `min(count, maxDrawCount)`, or combine the count with indirect record stride incorrectly. The specification defines the minimum rule and 4-byte count alignment [drawing source](../../../../vulkan-docs/src/chapters/drawing.adoc#L2671-L2714) and [draw indirect count common source](../../../../vulkan-docs/src/chapters/commonvalidity/draw_indirect_count_common.adoc#L7-L25).
 
 #### Command-buffer execution or readback
 
@@ -589,7 +589,7 @@ void main ()
 ### Requirement-based pruning
 
 - Every case requires `VK_EXT_mesh_shader` and the `meshShader` feature. `with_task_shader` also requires `taskShader` [checkTaskMeshShaderSupportEXT](../../../modules/vulkan/mesh_shader/vktMeshShaderUtil.cpp#L126-L139).
-- `draw_indirect` with more than one record requires the core `multiDrawIndirect` feature, matching the draw-count validity rule [checkSupport](../../../modules/vulkan/mesh_shader/vktMeshShaderApiTestsEXT.cpp#L343-L351) and [draw_indirect_drawcount.adoc](../../../../vulkan-docs/src/chapters/commonvalidity/draw_indirect_drawcount.adoc#L7-L12).
+- `draw_indirect` with more than one record requires the core `multiDrawIndirect` feature, matching the draw-count validity rule [checkSupport](../../../modules/vulkan/mesh_shader/vktMeshShaderApiTestsEXT.cpp#L343-L351) and [draw indirect drawcount source](../../../../vulkan-docs/src/chapters/commonvalidity/draw_indirect_drawcount.adoc#L7-L12).
 - `draw_indirect_count` requires draw-indirect-count functionality (`VK_KHR_draw_indirect_count` when not provided by its promoted core feature path) [checkSupport](../../../modules/vulkan/mesh_shader/vktMeshShaderApiTestsEXT.cpp#L353-L355) and [functionality check](../../../modules/vulkan/vktTestCase.cpp#L1104-L1147).
 - `_device_address` leaves require `VK_KHR_device_address_commands`; their indirect and count buffers request shader-device-address usage and addressable memory [checkSupport](../../../modules/vulkan/mesh_shader/vktMeshShaderApiTestsEXT.cpp#L357-L358).
 

@@ -29,7 +29,7 @@ api.buffer_memory_requirements
 └── create_sparse_binding_sparse_residency_sparse_aliased
 ```
 
-[vktApiTests.cpp#L127](../../../modules/vulkan/api/vktApiTests.cpp#L127) adds the `buffer_memory_requirements` test family to the `api` test category. The six `create_*` intermediate nodes are produced by iterating all valid combinations of `AvailableBufferCreateBits` after [`updateBufferCreateFlags()`](../../../modules/vulkan/api/vktApiBufferMemoryRequirementsTests.cpp#L193) enforces the VUID constraints.
+[Parent registration](../../../modules/vulkan/api/vktApiTests.cpp#L127) adds the `buffer_memory_requirements` test family to the `api` test category. The six `create_*` intermediate nodes are produced by iterating all valid combinations of `AvailableBufferCreateBits` after [`updateBufferCreateFlags()`](../../../modules/vulkan/api/vktApiBufferMemoryRequirementsTests.cpp#L193) enforces the VUID constraints.
 
 Beneath each `create_*` intermediate node the tree is uniform: two `ext_mem_flags_*` nodes, each with `method1` and `method2`, each with ten test case leaves: five non-prefixed `*_usage_bits` leaves and five `size_req_*_usage_bits` leaves. The full set of registered leaves for each `create_*` value is enumerated under `## Parameter Dimensions and Observed Values`.
 
@@ -192,7 +192,7 @@ The `BufferFateBits` combiner is disabled in [`createBufferMemoryRequirementsTes
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
 | Test family registration | [createBufferMemoryRequirementsTests()](../../../modules/vulkan/api/vktApiBufferMemoryRequirementsTests.cpp#L977) | Builds the `buffer_memory_requirements` tree from the pruned `create_*`, `ext_mem_flags_*`, `method*`, and fate-bit cross product |
-| Parent registration | [vktApiTests.cpp#L127](../../../modules/vulkan/api/vktApiTests.cpp#L127) | Adds the test family to the `api` test category |
+| Parent registration | [Parent registration](../../../modules/vulkan/api/vktApiTests.cpp#L127) | Adds the test family to the `api` test category |
 | VUID-driven create-flag pruning | [updateBufferCreateFlags()](../../../modules/vulkan/api/vktApiBufferMemoryRequirementsTests.cpp#L193) | Enforces VUID-00918 and VUID-None-01888, removes redundant zero bit, removes duplicates |
 | Available create / fate / usage / ext-mem bit tables | [L119-L174](../../../modules/vulkan/api/vktApiBufferMemoryRequirementsTests.cpp#L119-L174) | Source of registered `create_*` names and usage-flag category mappings |
 | Test case configuration | [TestConfig](../../../modules/vulkan/api/vktApiBufferMemoryRequirementsTests.cpp#L87) | Carries `useMethod2`, `createBits`, `fateBits`, `incExtMemTypeFlags`, `testSizeRequirements` |

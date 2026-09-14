@@ -85,7 +85,7 @@ Representative path:
 dEQP-VK.glsl.shader_expect_assume.compute.expect.storagebuffer_int32_vec3_wrong_expected
 ```
 
-This leaf is registered by `addShaderExpectAssumeTests()` in [`vktShaderExpectAssumeTests.cpp#L1416-L1511`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1416-L1511), under the `compute` → `expect` groups. The name is formed by the `storagebuffer_int32` table entry plus the `_vec3` and `_wrong_expected` suffixes in the registration loop.
+This leaf is registered by `addShaderExpectAssumeTests()` in [`addShaderExpectAssumeTests()`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1416-L1511), under the `compute` → `expect` groups. The name is formed by the `storagebuffer_int32` table entry plus the `_vec3` and `_wrong_expected` suffixes in the registration loop.
 
 | Parameter choice | Meaning in this representative case |
 |------------------|-------------------------------------|
@@ -444,16 +444,16 @@ The registration loop intentionally avoids a full Cartesian product. It loops ov
 
 | Entry point | Link | Why it matters |
 |---|---|---|
-| Test implementation and source-defined purpose | [`vktShaderExpectAssumeTests.cpp#L20-L28`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L20-L28) | Identifies the `VK_KHR_shader_expect_assume` coverage and implementation file. |
-| Public factory declaration | [`vktShaderExpectAssumeTests.hpp#L22-L35`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.hpp#L22-L35) | Declares `createShaderExpectAssumeTests()`. |
-| Package registration | [`vktTestPackage.cpp#L1274-L1287`](../../../modules/vulkan/vktTestPackage.cpp#L1274-L1287) | Shows the GLSL package registration and the Vulkan SC guard. |
-| Output constants and data model | [`vktShaderExpectAssumeTests.cpp#L57-L93`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L57-L93) | Defines 32 elements, `VK_FORMAT_R32G32_UINT`, operations, data classes, data types, and test parameters. |
-| Runtime iteration and oracle | [`vktShaderExpectAssumeTests.cpp#L106-L137`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L106-L137) | Dispatches or renders, invalidates output, and checks `(index, 1)` for all elements. |
-| Resource and pipeline setup | [`vktShaderExpectAssumeTests.cpp#L140-L870`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L140-L870) | Creates buffers, graphics attachments, pipelines, dispatches, draws, and copies output. |
-| Parameter specialization | [`vktShaderExpectAssumeTests.cpp#L894-L1105`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L894-L1105) | Maps operation, data type, data class, stage, and expectation state to generated GLSL operands. |
-| Feature support checks | [`vktShaderExpectAssumeTests.cpp#L1108-L1150`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1108-L1150) | Defines extension, feature, and storage prerequisites. |
-| Compute shader template | [`vktShaderExpectAssumeTests.cpp#L1153-L1229`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1153-L1229) | Generates the compute path and output writes. |
-| Vertex and graphics fragment templates | [`vktShaderExpectAssumeTests.cpp#L1231-L1322`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1231-L1322) | Generates the vertex operation and flat-value handoff. |
-| Fragment shader template | [`vktShaderExpectAssumeTests.cpp#L1324-L1410`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1324-L1410) | Generates the fragment operation and direct color output. |
-| Test registration and pruning | [`vktShaderExpectAssumeTests.cpp#L1416-L1511`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1416-L1511) | Builds stage/operation groups, expands the parameter table, and applies vector and wrong-expectation filters. |
-| Factory definition | [`vktShaderExpectAssumeTests.cpp#L1516-L1519`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1516-L1519) | Creates the `shader_expect_assume` root group. |
+| Test implementation and source-defined purpose | [`vktShaderExpectAssumeTests.cpp`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L20-L28) | Identifies the `VK_KHR_shader_expect_assume` coverage and implementation file. |
+| Public factory declaration | [`vktShaderExpectAssumeTests.hpp`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.hpp#L22-L35) | Declares `createShaderExpectAssumeTests()`. |
+| Package registration | [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1274-L1287) | Shows the GLSL package registration and the Vulkan SC guard. |
+| Output constants and data model | [`vktShaderExpectAssumeTests.cpp`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L57-L93) | Defines 32 elements, `VK_FORMAT_R32G32_UINT`, operations, data classes, data types, and test parameters. |
+| Runtime iteration and oracle | [iteration and validation](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L106-L137) | Dispatches or renders, invalidates output, and checks `(index, 1)` for all elements. |
+| Resource and pipeline setup | [`vktShaderExpectAssumeTests.cpp`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L140-L870) | Creates buffers, graphics attachments, pipelines, dispatches, draws, and copies output. |
+| Parameter specialization | [`vktShaderExpectAssumeTests.cpp`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L894-L1105) | Maps operation, data type, data class, stage, and expectation state to generated GLSL operands. |
+| Feature support checks | [`vktShaderExpectAssumeTests.cpp`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1108-L1150) | Defines extension, feature, and storage prerequisites. |
+| Compute shader template | [compute template](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1153-L1229) | Generates the compute path and output writes. |
+| Vertex and graphics fragment templates | [`vktShaderExpectAssumeTests.cpp`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1231-L1322) | Generates the vertex operation and flat-value handoff. |
+| Fragment shader template | [`vktShaderExpectAssumeTests.cpp`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1324-L1410) | Generates the fragment operation and direct color output. |
+| Test registration and pruning | [`addShaderExpectAssumeTests()`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1416-L1511) | Builds stage/operation groups, expands the parameter table, and applies vector and wrong-expectation filters. |
+| Factory definition | [`createShaderExpectAssumeTests()`](../../../modules/vulkan/shaderexecutor/vktShaderExpectAssumeTests.cpp#L1516-L1519) | Creates the `shader_expect_assume` root group. |

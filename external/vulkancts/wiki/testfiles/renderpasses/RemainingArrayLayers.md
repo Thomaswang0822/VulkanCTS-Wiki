@@ -3,15 +3,15 @@
 **Core question:** When a 3D image is viewed as a 2D array with `subresourceRange.layerCount` set to `VK_REMAINING_ARRAY_LAYERS`, does the implementation attach and render to the correct set of layers across single-layer and multi-layer framebuffers?
 
 - This page covers the `remaining_array_layers` test family implemented in [vktRenderPassRemainingArrayLayersTests.cpp](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp) and registered under the `renderpass1` and `renderpass2` roots of the `renderpasses` test category.
-- The family is registered only for legacy render pass and render pass 2; the dispatcher excludes it from dynamic rendering at [vktRenderPassTests.cpp#L8596-L8598](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8596-L8598).
+- The family is registered only for legacy render pass and render pass 2; the dispatcher excludes it from dynamic rendering at [Render-pass dispatcher registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8596-L8598).
 - Each test creates a 3D image with `VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT`, builds a `VK_IMAGE_VIEW_TYPE_2D_ARRAY` view whose `layerCount` is `VK_REMAINING_ARRAY_LAYERS` starting at a nonzero `baseArrayLayer`, and renders white into a framebuffer built from that view.
 - Three framebuffer variants change how many layers the framebuffer exposes and how the draw reaches them: a single-layer framebuffer, a multi-layer framebuffer drawn once, and a multi-layer framebuffer drawn once per layer through a geometry shader that writes `gl_Layer`.
 - Passing requires every checked pixel to be `(1.0, 1.0, 1.0, 1.0)` across all drawn layers.
 
 ## Background Knowledge
 
-- **`VK_REMAINING_ARRAY_LAYERS`.** This sentinel, used in `VkImageViewSubresourceRange::layerCount`, means the view includes every array layer of the image from `baseArrayLayer` onward. The implementation must resolve it to the actual remaining layer count at view creation time. See [resources.adoc#L5708-L5712](../../../../vulkan-docs/src/chapters/resources.adoc#L5708-L5712).
-- **`VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT`.** A 3D image created with this flag can be viewed as `VK_IMAGE_VIEW_TYPE_2D` or `VK_IMAGE_VIEW_TYPE_2D_ARRAY`. Each slice of the 3D image's depth dimension maps to one array layer of the 2D-array view. See [resources.adoc#L4160-L4162](../../../../vulkan-docs/src/chapters/resources.adoc#L4160-L4162).
+- **`VK_REMAINING_ARRAY_LAYERS`.** This sentinel, used in `VkImageViewSubresourceRange::layerCount`, means the view includes every array layer of the image from `baseArrayLayer` onward. The implementation must resolve it to the actual remaining layer count at view creation time. See [Resources](../../../../vulkan-docs/src/chapters/resources.adoc#L5708-L5712).
+- **`VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT`.** A 3D image created with this flag can be viewed as `VK_IMAGE_VIEW_TYPE_2D` or `VK_IMAGE_VIEW_TYPE_2D_ARRAY`. Each slice of the 3D image's depth dimension maps to one array layer of the 2D-array view. See [Resources](../../../../vulkan-docs/src/chapters/resources.adoc#L4160-L4162).
 - **Framebuffer layer count versus draw layer routing.** A framebuffer attachment carries its own layer count, taken here from the image view. A draw can reach those layers in two ways: by default, all instances land on framebuffer layer 0; or, when a geometry shader writes `gl_Layer`, each invocation can direct its primitives to a chosen framebuffer layer. This distinction is what the three framebuffer variants exercise.
 
 ## Registration Hierarchy
@@ -23,7 +23,7 @@ renderpasses.renderpass1.remaining_array_layers
 └── multi_layer_fb_gl_layer
 ```
 
-The same three intermediate nodes exist under `renderpasses.renderpass2.remaining_array_layers`. Each intermediate node holds the four layer-count test case leaves `1_1`, `2_2`, `4_1`, and `1_4`, registered by [createRenderPassRemainingArrayLayersTests](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L488-L530).
+The same three intermediate nodes exist under `renderpasses.renderpass2.remaining_array_layers`. Each intermediate node holds the four layer-count test case leaves `1_1`, `2_2`, `4_1`, and `1_4`, registered by [`main()`](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L488-L530).
 
 ## Parameter Dimensions and Observed Values
 
@@ -142,7 +142,7 @@ void main() {
 |---------------------|------------------------------------------|----------|
 | Framebuffer variant | `multi_layer_fb_gl_layer` attaches the geometry module. `single_layer_fb` and `multi_layer_fb` omit it, draw one instance, and therefore use the default framebuffer layer 0. | [module and pipeline selection](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L242-L246), [draw instance count](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L327-L351) |
 | Base/additional layer pair | The generated shader text is unchanged. The pair changes the host-computed framebuffer layer count and, for this geometry variant, the number of instances and destination `gl_Layer` values. | [layer cases](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L493-L503), [runtime counts](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L226-L227) |
-| Render-pass API | Legacy render pass and render pass 2 use the same vertex, geometry, and fragment sources; only host-side render-pass construction and commands differ. | [shader generation](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L427-L465), [render-pass selection](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L219-L224) |
+| Render-pass API | Legacy render pass and render pass 2 use the same vertex, geometry, and fragment sources; only host-side render-pass construction and commands differ. | [Render-pass API](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L427-L465), [render-pass selection](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L219-L224) |
 
 #### SPIR-V
 
@@ -404,7 +404,7 @@ void main() {
 
 - The host creates a 3D `VK_FORMAT_R8G8B8A8_UNORM` image with extent `{32, 32, depth}` where `depth = 1 + baseLayer + additionalLayers`, `arrayLayers = 1`, and flag `VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT` ([imageCreateInfo](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L184-L200)).
 - A `VK_IMAGE_VIEW_TYPE_2D_ARRAY` view is created with `subresourceRange = {COLOR, baseMipLevel 0, levelCount 1, baseArrayLayer baseLayer, layerCount VK_REMAINING_ARRAY_LAYERS}` ([imageViewCreateInfo](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L205-L215)).
-- The render pass has one color attachment cleared on load and stored on `STORE`, in `VK_IMAGE_LAYOUT_GENERAL` ([createRenderPass](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L96-L145)).
+- The render pass has one color attachment cleared on load and stored on `STORE`, in `VK_IMAGE_LAYOUT_GENERAL` ([`RemainingArrayLayersTestInstance()`](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L96-L145)).
 - The framebuffer layer count is `1` for `single_layer_fb` and `depth - baseLayer` for the multi-layer variants ([framebufferLayers](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L226)).
 - A pipeline barrier transitions the image to `VK_IMAGE_LAYOUT_GENERAL`, the render pass is begun, the pipeline is bound, and `cmdDraw(3, instanceCount)` is recorded where `instanceCount` is `framebufferLayers` when `writeGlLayer` is true and `1` otherwise ([draw](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L327-L356)).
 - After the render pass ends, a memory barrier makes the color attachment write visible to transfer, and `vkCmdCopyImageToBuffer` copies `instanceCount` slices starting at depth `baseLayer` into a host-visible buffer ([copyback](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L358-L375)).
@@ -480,14 +480,14 @@ void main() {
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Dispatcher attachment (dynamic-rendering gate) | [vktRenderPassTests.cpp#L8596-L8598](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8596-L8598) | Adds the family only for legacy render pass and render pass 2. |
-| Factory function | [vktRenderPassRemainingArrayLayersTests.cpp#L488-L530](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L488-L530) | Builds the three framebuffer groups and the four layer-count leaves under each. |
-| Test parameters | [vktRenderPassRemainingArrayLayersTests.cpp#L49-L65](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L49-L65) | Defines `baseLayer`, `additionalLayers`, `multiLayeredFramebuffer`, and `writeGlLayer`. |
-| Image and view creation | [vktRenderPassRemainingArrayLayersTests.cpp#L184-L217](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L184-L217) | Creates the 3D image with `VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT` and the 2D-array view with `VK_REMAINING_ARRAY_LAYERS`. |
-| Render pass creation | [vktRenderPassRemainingArrayLayersTests.cpp#L96-L145](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L96-L145) | Defines the single color attachment and subpass. |
-| Runtime execution and draw | [vktRenderPassRemainingArrayLayersTests.cpp#L171-L378](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L171-L378) | Builds the framebuffer, pipeline, records the draw, and copies back. |
-| Result check | [vktRenderPassRemainingArrayLayersTests.cpp#L385-L405](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L385-L405) | Scans every pixel of every copied layer for white. |
-| Shader generation | [vktRenderPassRemainingArrayLayersTests.cpp#L427-L465](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L427-L465) | Emits the vertex, optional geometry, and fragment shaders. |
-| Support checks | [vktRenderPassRemainingArrayLayersTests.cpp#L472-L484](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L472-L484) | Requires render pass 2 extension and geometry shader feature as applicable. |
-| Mustpass entries (renderpass1) | [renderpasses.txt#L36309-L36320](../../../mustpass/main/vk-default/renderpasses.txt#L36309-L36320) | 12 leaves under `renderpass1.remaining_array_layers`. |
-| Mustpass entries (renderpass2) | [renderpasses.txt#L71602-L71613](../../../mustpass/main/vk-default/renderpasses.txt#L71602-L71613) | 12 leaves under `renderpass2.remaining_array_layers`. |
+| Dispatcher attachment (dynamic-rendering gate) | [Dispatcher attachment (dynamic-rendering gate)](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8596-L8598) | Adds the family only for legacy render pass and render pass 2. |
+| Factory function | [combine framebuffer variants with remaining-layer counts](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L488-L530) | Builds the three framebuffer groups and the four layer-count leaves under each. |
+| Test parameters | [Test parameters](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L49-L65) | Defines `baseLayer`, `additionalLayers`, `multiLayeredFramebuffer`, and `writeGlLayer`. |
+| Image and view creation | [Image and view creation](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L184-L217) | Creates the 3D image with `VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT` and the 2D-array view with `VK_REMAINING_ARRAY_LAYERS`. |
+| Render pass creation | [configure the single-color-attachment subpass](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L96-L145) | Defines the single color attachment and subpass. |
+| Runtime execution and draw | [Runtime execution and draw](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L171-L378) | Builds the framebuffer, pipeline, records the draw, and copies back. |
+| Result check | [require white pixels in every copied layer](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L385-L405) | Scans every pixel of every copied layer for white. |
+| Shader generation | [generate layered rendering shaders with optional geometry stage](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L427-L465) | Emits the vertex, optional geometry, and fragment shaders. |
+| Support checks | [Support checks](../../../modules/vulkan/renderpass/vktRenderPassRemainingArrayLayersTests.cpp#L472-L484) | Requires render pass 2 extension and geometry shader feature as applicable. |
+| Mustpass entries (renderpass1) | [Mustpass entries (renderpass1)](../../../mustpass/main/vk-default/renderpasses.txt#L36309-L36320) | 12 leaves under `renderpass1.remaining_array_layers`. |
+| Mustpass entries (renderpass2) | [Mustpass entries (renderpass2)](../../../mustpass/main/vk-default/renderpasses.txt#L71602-L71613) | 12 leaves under `renderpass2.remaining_array_layers`. |

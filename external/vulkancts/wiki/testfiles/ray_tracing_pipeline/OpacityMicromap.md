@@ -2,7 +2,7 @@
 
 **Core question:** Does `VK_EXT_opacity_micromap` resolve the correct opacity state for each subtriangle a ray hits, under every valid combination of opacity-forcing, culling, force-2-state, and disable-micromap flags?
 
-This page covers the `opacity_micromap` test family registered from [vktRayTracingOpacityMicromapTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L818-L936):
+This page covers the `opacity_micromap` test family registered from [`createOpacityMicromapTests` registration](../../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L818-L936):
 
 - The family attaches an opacity micromap to a single triangle, traces one ray per subtriangle at the subtriangle centroid, and records which shader stage executed (miss, any-hit, or closest-hit) as the output mode.
 - The host computes the expected output mode for each ray using the same micromap data and the same flag precedence rules the spec defines for traversal, then compares entry by entry.
@@ -34,12 +34,12 @@ The EXT registration also adds a `null_handle` subgroup under every valid flag m
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Test flag mask | 120 valid combinations of 9 flags | Controls opacity forcing, culling, force-2-state, and disable-micromap behavior. Each combination produces a different opacity resolution path. | [vktRayTracingOpacityMicromapTests.cpp#L834-L933](../../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L834-L933) |
-| Micromap data source | `map_value`, `special_index` | `map_value` uses per-subtriangle data from the micromap buffer. `special_index` uses a single special index for the entire triangle. | [vktRayTracingOpacityMicromapTests.cpp#L829-L832](../../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L829-L832) |
-| Micromap format | `2`, `4` | 2-state format uses 1 bit per subtriangle (opaque or transparent). 4-state format uses 2 bits, adding the two unknown states. Only used with `map_value`. | [vktRayTracingOpacityMicromapTests.cpp#L893-L927](../../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L893-L927) |
-| Subdivision level | `level_0` through `level_15` | Controls micromap subdivision depth. Level L produces `4^L` subtriangles and the same number of rays. Only used with `map_value`. | [vktRayTracingOpacityMicromapTests.cpp#L902-L925](../../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L902-L925) |
-| Special index | `0`, `1`, `2`, `3` | Selects which special index value the micromap uses. Maps to `~specialIndex`: 0 becomes `FULLY_TRANSPARENT`, 1 becomes `FULLY_OPAQUE`, 2 becomes `FULLY_UNKNOWN_TRANSPARENT`, 3 becomes `FULLY_UNKNOWN_OPAQUE`. Only used with `special_index`. | [vktRayTracingOpacityMicromapTests.cpp#L876-L887](../../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L876-L887) |
-| Non-zero base | enabled, disabled | When enabled, `baseTriangle = 1` with two triangles in the geometry; only the second triangle has a micromap. Only registered for `NoFlags`. | [vktRayTracingOpacityMicromapTests.cpp#L919-L924](../../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L919-L924) |
+| Test flag mask | 120 valid combinations of 9 flags | Controls opacity forcing, culling, force-2-state, and disable-micromap behavior. Each combination produces a different opacity resolution path. | [Test flag mask](../../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L834-L933) |
+| Micromap data source | `map_value`, `special_index` | `map_value` uses per-subtriangle data from the micromap buffer. `special_index` uses a single special index for the entire triangle. | [Micromap data source](../../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L829-L832) |
+| Micromap format | `2`, `4` | 2-state format uses 1 bit per subtriangle (opaque or transparent). 4-state format uses 2 bits, adding the two unknown states. Only used with `map_value`. | [Micromap format](../../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L893-L927) |
+| Subdivision level | `level_0` through `level_15` | Controls micromap subdivision depth. Level L produces `4^L` subtriangles and the same number of rays. Only used with `map_value`. | [Subdivision level](../../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L902-L925) |
+| Special index | `0`, `1`, `2`, `3` | Selects which special index value the micromap uses. Maps to `~specialIndex`: 0 becomes `FULLY_TRANSPARENT`, 1 becomes `FULLY_OPAQUE`, 2 becomes `FULLY_UNKNOWN_TRANSPARENT`, 3 becomes `FULLY_UNKNOWN_OPAQUE`. Only used with `special_index`. | [Special index](../../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L876-L887) |
+| Non-zero base | enabled, disabled | When enabled, `baseTriangle = 1` with two triangles in the geometry; only the second triangle has a micromap. Only registered for `NoFlags`. | [Non-zero base](../../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L919-L924) |
 
 ## Behavior Parameters
 
@@ -332,12 +332,12 @@ The shader source and stage-specific declarations for the representative case ar
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `TestParams` struct and `TestFlagBits` enum | [vktRayTracingOpacityMicromapTests.cpp#L53-L81](../../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L53-L81) | Defines the per-case parameters and the nine flag bits. |
-| `checkSupport` | [vktRayTracingOpacityMicromapTests.cpp#L119-L156](../../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L119-L156) | Feature requirements and subdivision level limit checks. |
-| `initPrograms` rgen shader | [vktRayTracingOpacityMicromapTests.cpp#L163-L214](../../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L163-L214) | Generates the raygen shader with flag-dependent `flagsString`. |
-| `initPrograms` ah/ch/miss shaders | [vktRayTracingOpacityMicromapTests.cpp#L216-L257](../../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L216-L257) | Generates the any-hit, closest-hit, and miss shaders. |
-| `calcSubtriangleCentroid` | [vktRayTracingOpacityMicromapTests.cpp#L271-L323](../../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L271-L323) | Computes the centroid of each subtriangle for ray origin placement. |
-| Micromap build and AS setup | [vktRayTracingOpacityMicromapTests.cpp#L325-L541](../../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L325-L541) | Builds the micromap, BLAS, and TLAS with micromap attachment. |
-| Expected value computation | [vktRayTracingOpacityMicromapTests.cpp#L561-L651](../../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L561-L651) | Host-side opacity resolution logic mirroring the spec. |
-| Result verification | [vktRayTracingOpacityMicromapTests.cpp#L780-L812](../../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L780-L812) | Reads output buffer and compares against expected modes. |
-| `createOpacityMicromapTests` registration | [vktRayTracingOpacityMicromapTests.cpp#L818-L936](../../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L818-L936) | Registers the 120 flag groups with `map_value` and `special_index` subgroups. |
+| `TestParams` struct and `TestFlagBits` enum | [`TestParams` struct and `TestFlagBits` enum](../../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L53-L81) | Defines the per-case parameters and the nine flag bits. |
+| `checkSupport` | [`checkSupport`](../../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L119-L156) | Feature requirements and subdivision level limit checks. |
+| `initPrograms` rgen shader | [`initPrograms` rgen shader](../../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L163-L214) | Generates the raygen shader with flag-dependent `flagsString`. |
+| `initPrograms` ah/ch/miss shaders | [`initPrograms` ah/ch/miss shaders](../../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L216-L257) | Generates the any-hit, closest-hit, and miss shaders. |
+| `calcSubtriangleCentroid` | [`calcSubtriangleCentroid`](../../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L271-L323) | Computes the centroid of each subtriangle for ray origin placement. |
+| Micromap build and AS setup | [Micromap build and AS setup](../../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L325-L541) | Builds the micromap, BLAS, and TLAS with micromap attachment. |
+| Expected value computation | [Expected value computation](../../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L561-L651) | Host-side opacity resolution logic mirroring the spec. |
+| Result verification | [`OpacityMicromapInstance::iterate()`](../../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L780-L812) | Reads output buffer and compares against expected modes. |
+| `createOpacityMicromapTests` registration | [`createOpacityMicromapTests` registration](../../../modules/vulkan/ray_tracing/vktRayTracingOpacityMicromapTests.cpp#L818-L936) | Registers the 120 flag groups with `map_value` and `special_index` subgroups. |

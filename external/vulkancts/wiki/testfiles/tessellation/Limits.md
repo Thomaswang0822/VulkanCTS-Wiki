@@ -143,12 +143,12 @@ Across all eight leaves, the implementation advertises `tessellationShader` supp
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Test category attachment | [vktTessellationTests.cpp#L64-L80](../../../modules/vulkan/tessellation/vktTessellationTests.cpp#L64-L80) | Adds the `limits` test family under the `tessellation` test category. |
-| Limit selectors and case definition | [vktTessellationLimitsTests.cpp#L45-L61](../../../modules/vulkan/tessellation/vktTessellationLimitsTests.cpp#L45-L61) | Defines the eight selectable limits and the expected-minimum field. |
-| Comparison helper | [vktTessellationLimitsTests.cpp#L63-L71](../../../modules/vulkan/tessellation/vktTessellationLimitsTests.cpp#L63-L71) | Logs expected and actual values and implements the pass/fail comparison. |
-| Feature query and property dispatch | [vktTessellationLimitsTests.cpp#L73-L112](../../../modules/vulkan/tessellation/vktTessellationLimitsTests.cpp#L73-L112) | Checks `tessellationShader`, queries physical-device properties, and selects the requested limit member. |
-| Test case registration | [vktTessellationLimitsTests.cpp#L116-L143](../../../modules/vulkan/tessellation/vktTessellationLimitsTests.cpp#L116-L143) | Defines the eight names and thresholds, then registers their function cases. |
-| Mustpass coverage | [tessellation.txt#L227-L234](../../../mustpass/main/vk-default/tessellation.txt#L227-L234) | Lists all eight `dEQP-VK.tessellation.limits.*` paths. |
-| Vulkan tessellation limit meanings | [limits.adoc#L425-L462](../../../../vulkan-docs/src/chapters/limits.adoc#L425-L462) | Defines the semantic meaning of every queried `VkPhysicalDeviceLimits` member. |
-| Feature dependency table | [limits.adoc#L6062-L6069](../../../../vulkan-docs/src/chapters/limits.adoc#L6062-L6069) | Associates all eight queried limit members with `tessellationShader`. |
-| Baseline limit values | [limits.adoc#L6621-L6633](../../../../vulkan-docs/src/chapters/limits.adoc#L6621-L6633) | Shows the baseline minimum values that correspond to the CTS constants. |
+| Test category attachment | [`createChildren()`](../../../modules/vulkan/tessellation/vktTessellationTests.cpp#L64-L80) | Adds the `limits` test family under the `tessellation` test category. |
+| Limit selectors and case definition | [Limit selectors and case definition](../../../modules/vulkan/tessellation/vktTessellationLimitsTests.cpp#L45-L61) | Defines the eight selectable limits and the expected-minimum field. |
+| Comparison helper | [`expectGreaterOrEqual()`](../../../modules/vulkan/tessellation/vktTessellationLimitsTests.cpp#L63-L71) | Logs expected and actual values and implements the pass/fail comparison. |
+| Feature query and property dispatch | [`deviceLimitsTestCase()`](../../../modules/vulkan/tessellation/vktTessellationLimitsTests.cpp#L73-L112) | Checks `tessellationShader`, queries physical-device properties, and selects the requested limit member. |
+| Test case registration | [`createLimitsTests()`](../../../modules/vulkan/tessellation/vktTessellationLimitsTests.cpp#L116-L143) | Defines the eight names and thresholds, then registers their function cases. |
+| Mustpass coverage | [Mustpass coverage](../../../mustpass/main/vk-default/tessellation.txt#L227-L234) | Lists all eight `dEQP-VK.tessellation.limits.*` paths. |
+| Vulkan tessellation limit meanings | [Vulkan tessellation limit meanings](../../../../vulkan-docs/src/chapters/limits.adoc#L425-L462) | Defines the semantic meaning of every queried `VkPhysicalDeviceLimits` member. |
+| Feature dependency table | [Feature dependency table](../../../../vulkan-docs/src/chapters/limits.adoc#L6062-L6069) | Associates all eight queried limit members with `tessellationShader`. |
+| Baseline limit values | [Baseline limit values](../../../../vulkan-docs/src/chapters/limits.adoc#L6621-L6633) | Shows the baseline minimum values that correspond to the CTS constants. |

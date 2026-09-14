@@ -186,6 +186,6 @@ The matrix uses one scalar structure and one array shape, plus live/dead control
 
 ## Source Reference Appendix
 
-- [OpUndef implementation and registration](../../../modules/vulkan/spirv_assembly/vktSpvAsmOpUndefTests.cpp#L49-L310)
+- [vktSpvAsmOpUndefTests.cpp](../../../modules/vulkan/spirv_assembly/vktSpvAsmOpUndefTests.cpp#L49-L310)
 - [Instruction-family integration](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L7460-L7475)
 - [SPIR-V MUSTPASS entries](../../../mustpass/main/vk-default/spirv-assembly.txt)

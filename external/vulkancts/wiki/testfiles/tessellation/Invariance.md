@@ -328,7 +328,7 @@ Geometry-capture families can also fail if the capture path reports too few prim
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Tessellation invariance specification | [`invariance.adoc#tessellation-invariance`](../../../../vulkan-docs/src/appendices/invariance.adoc#tessellation-invariance) | Defines rules 1 through 8 and their allowed ordering differences. |
+| Tessellation invariance specification | [invariance.adoc](../../../../vulkan-docs/src/appendices/invariance.adoc#tessellation-invariance) | Defines rules 1 through 8 and their allowed ordering differences. |
 | Program naming and shared generation | [`getProgramName()` and `addDefaultPrograms()`](../../../modules/vulkan/tessellation/vktTessellationInvarianceTests.cpp#L162-L427) | Emits level transport, evaluation variants, mirrored coordinates, and geometry capture. |
 | Edge descriptions | [`outerEdgeDescriptions()`](../../../modules/vulkan/tessellation/vktTessellationInvarianceTests.cpp#L429-L495) | Maps triangle, quad, and isoline coordinates to their outer edges. |
 | Shared edge resources and draw | [`InvariantOuterEdge::BaseTestInstance`](../../../modules/vulkan/tessellation/vktTessellationInvarianceTests.cpp#L497-L773) | Creates the storage capture path and returns sorted primitive records. |
@@ -339,4 +339,4 @@ Geometry-capture families can also fail if the capture path reports too few prim
 | Rule-8 implementation | [`TessCoordComponent`](../../../modules/vulkan/tessellation/vktTessellationInvarianceTests.cpp#L2082-L2428) | Generates coordinate checks, reads individual invocations, and contains the result-propagation limitation. |
 | Registration matrix | [`createInvarianceTests()`](../../../modules/vulkan/tessellation/vktTessellationInvarianceTests.cpp#L2438-L2514) | Registers all nine families and 192 leaves. |
 | Portability checks | [`checkSupportCase()`](../../../modules/vulkan/tessellation/vktTessellationUtil.hpp#L538-L550) | Prunes unsupported primitive and point-mode combinations. |
-| Default mustpass entries | [`tessellation.txt#L35-L226`](../../../mustpass/main/vk-default/tessellation.txt#L35-L226) | Confirms the complete Vulkan leaf inventory. |
+| Default mustpass entries | [Default mustpass entries](../../../mustpass/main/vk-default/tessellation.txt#L35-L226) | Confirms the complete Vulkan leaf inventory. |

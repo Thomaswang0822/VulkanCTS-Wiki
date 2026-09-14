@@ -2,7 +2,7 @@
 
 **Core question:** Does each graphics state or shader-interface variation produce the result required when Vulkan device-generated commands drive it?
 
-- This page covers the implementation in [`vktDGCGraphicsMiscTestsExt.cpp`](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMiscTestsExt.cpp#L1-L25) and the registered `dgc.ext.graphics.misc` test family.
+- This page covers the implementation in [Miscellaneous generated-graphics tests](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMiscTestsExt.cpp#L1-L25) and the registered `dgc.ext.graphics.misc` test family.
 - The file combines focused checks for vertex input, pipeline and shader-object interfaces, draw reuse, fragment-stage state, tessellation and geometry push constants, ray queries, and related DGC tokens.
 - Each test constructs a small graphics workload, executes it through one DGC variation, and compares a host-readable result with a reference.
 - The matrix below explains which dimensions change execution and which names are only combinations of those dimensions.

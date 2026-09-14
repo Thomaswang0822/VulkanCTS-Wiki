@@ -23,7 +23,7 @@ spirv_assembly.instruction.compute.signed_int_compare
 └── uint_slessthanequal
 ```
 
-[`createSignedIntCompareGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSignedIntCompareTests.cpp#L74-L79) registers `signed_int_compare` below the compute instruction node. Its four leaves come directly from the `cases` array ([source](../../../modules/vulkan/spirv_assembly/vktSpvAsmSignedIntCompareTests.cpp#L43-L64)), and the main Vulkan mustpass inventory contains the same four paths ([mustpass entries](../../../mustpass/main/vk-default/spirv-assembly.txt#L16174-L16177)). The parent registration is enclosed by `#ifndef CTS_USES_VULKANSC`, so this family is absent from Vulkan SC builds ([parent registration](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21415-L21420)).
+[`createSignedIntCompareGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSignedIntCompareTests.cpp#L74-L79) registers `signed_int_compare` below the compute instruction node. Its four leaves come directly from the `cases` array ([`createSignedIntCompareTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSignedIntCompareTests.cpp#L43-L64)), and the main Vulkan mustpass inventory contains the same four paths ([mustpass entries](../../../mustpass/main/vk-default/spirv-assembly.txt#L16174-L16177)). The parent registration is enclosed by `#ifndef CTS_USES_VULKANSC`, so this family is absent from Vulkan SC builds ([parent registration](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21415-L21420)).
 
 ## Parameter Dimensions and Observed Values
 
@@ -102,9 +102,9 @@ This representative case does not use GLSL or HLSL. CTS supplies the shader modu
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|--------------------------------|---------------------|
-| Relation | Replaces `OpSGreaterThan` with `OpSGreaterThanEqual`, `OpSLessThan`, or `OpSLessThanEqual`. | [source evidence](../../../modules/vulkan/spirv_assembly/) |
-| Equality handling | The two `Equal` opcodes accept equal input values; strict opcodes reject them. | [source evidence](../../../modules/vulkan/spirv_assembly/) |
-| SSBO layout and dispatch | Unchanged across all four files. | [source evidence](../../../modules/vulkan/spirv_assembly/) |
+| Relation | Replaces `OpSGreaterThan` with `OpSGreaterThanEqual`, `OpSLessThan`, or `OpSLessThanEqual`. | [Relation](../../../modules/vulkan/spirv_assembly/) |
+| Equality handling | The two `Equal` opcodes accept equal input values; strict opcodes reject them. | [Equality handling](../../../modules/vulkan/spirv_assembly/) |
+| SSBO layout and dispatch | Unchanged across all four files. | [SSBO layout and dispatch](../../../modules/vulkan/spirv_assembly/) |
 
 #### SPIR-V
 
@@ -239,5 +239,5 @@ This representative case does not use GLSL or HLSL. CTS supplies the shader modu
 | Case table and Amber dispatch | [`createSignedIntCompareTests`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSignedIntCompareTests.cpp#L38-L69) | Defines the four leaves, descriptions, filenames, and non-VulkanSC guard. |
 | Representative Amber artifact | [`uint_sgreaterthan.amber`](../../../data/vulkan/amber/spirv_assembly/instruction/compute/signed_int_compare/uint_sgreaterthan.amber) | Contains the complete representative SPIR-V module, buffers, dispatch, and probe. |
 | Other Amber artifacts | [`uint_sgreaterthanequal.amber`](../../../data/vulkan/amber/spirv_assembly/instruction/compute/signed_int_compare/uint_sgreaterthanequal.amber), [`uint_slessthan.amber`](../../../data/vulkan/amber/spirv_assembly/instruction/compute/signed_int_compare/uint_slessthan.amber), [`uint_slessthanequal.amber`](../../../data/vulkan/amber/spirv_assembly/instruction/compute/signed_int_compare/uint_slessthanequal.amber) | Supply the three sibling signed relations and their exact expected vectors. |
-| Parent registration | [`vktSpvAsmInstructionTests.cpp`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21415-L21420) | Shows where the family is attached and why it is omitted for Vulkan SC. |
+| Parent registration | [parent registration](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21415-L21420) | Shows where the family is attached and why it is omitted for Vulkan SC. |
 | Mustpass inventory | [`spirv-assembly.txt`](../../../mustpass/main/vk-default/spirv-assembly.txt#L16174-L16177) | Confirms the four executable Vulkan test paths. |

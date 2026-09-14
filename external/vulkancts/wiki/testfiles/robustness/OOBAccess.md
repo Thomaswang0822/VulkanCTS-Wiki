@@ -264,5 +264,5 @@ void main (void)
 | Texel-buffer execution and checks | [`OOBBufferTestInstance::iterate()`](../../../modules/vulkan/robustness/vktRobustnessOOBAccessTests.cpp#L341-L540) | Builds the bounded view, dispatches, and validates checked robust outcomes. |
 | Storage-image support and programs | [`OOBImageTestCase`](../../../modules/vulkan/robustness/vktRobustnessOOBAccessTests.cpp#L578-L695) | Defines image requirements and generated compute shaders. |
 | Storage-image execution and checks | [`OOBImageTestInstance::iterate()`](../../../modules/vulkan/robustness/vktRobustnessOOBAccessTests.cpp#L755-L948) | Initializes, dispatches, copies back, and validates robust outcomes. |
-| Category registration | [`vktRobustnessTests.cpp`](../../../modules/vulkan/robustness/vktRobustnessTests.cpp#L96-L97) | Adds `oob_access` to the `robustness` test category. |
+| Category registration | [`createTests()`](../../../modules/vulkan/robustness/vktRobustnessTests.cpp#L96-L97) | Adds `oob_access` to the `robustness` test category. |
 | Default mustpass coverage | [`robustness.txt`](../../../mustpass/main/vk-default/robustness.txt#L13755-L13874) | Lists generated `oob_access` test paths. |

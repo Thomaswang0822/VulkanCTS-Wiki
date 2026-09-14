@@ -2,7 +2,7 @@
 
 **Core question:** Does the implementation compute `OpRawAccessChainNV` byte addresses, alignment operands, and robustness zeroing correctly when the base pointer comes from a plain `StorageBuffer`, a variable pointer, a runtime descriptor array, or a physical storage buffer address?
 
-- [vktSpvAsmRawAccessChainTests.cpp](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp) implements the `raw_access_chain` test family under `spirv_assembly.instruction.compute.raw_access_chain`.
+- [`vktSpvAsmRawAccessChainTests.cpp`](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp) implements the `raw_access_chain` test family under `spirv_assembly.instruction.compute.raw_access_chain`.
 - Each generated case authors a SPIR-V assembly compute shader directly in C++ via the `CodeGen` helper. There is no GLSL or HLSL source; the assembly is the source of truth and `initPrograms()` supplies it to the CTS SPIR-V-assembly build path for the test pipeline.
 - Each case performs a load-side `OpRawAccessChainNV` and a store-side `OpRawAccessChainNV` over a generated combination of scalar size, vector component count, alignment, padding, stride, robustness operand, memory qualifiers, buffer addressing mode, and 64-bit indexing.
 - The host pre-computes the expected output bytes with the same arithmetic and bounds-zeroing rules as the shader, then compares the output buffer byte-by-byte with `deMemCmp`.
@@ -431,16 +431,16 @@ All cases share the same final host comparison: any byte of the output buffer th
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `Parameters` struct | [vktSpvAsmRawAccessChainTests.cpp#L91-L121](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L91-L121) | Holds the generated case specification consumed by `addTest`. |
-| `BoundsCheck` enum | [vktSpvAsmRawAccessChainTests.cpp#L73-L78](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L73-L78) | `NO_BOUNDS_CHECK`, `BOUNDS_CHECK_PER_COMPONENT`, `BOUNDS_CHECK_PER_ELEMENT`. |
-| `Qualifiers` enum | [vktSpvAsmRawAccessChainTests.cpp#L80-L89](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L80-L89) | Load/store `NonWritable`/`NonReadable`/`Volatile`/`Coherent` bit flags. |
-| `addTest`: shader body generation | [vktSpvAsmRawAccessChainTests.cpp#L610-L998](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L610-L998) | Builds the SPIR-V assembly string, input/output data, and expected output via `CodeGen`. |
-| `OpRawAccessChainNV` load emission | [vktSpvAsmRawAccessChainTests.cpp#L902-L904](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L902-L904) | The load-side `OpRawAccessChainNV` instruction. |
-| `OpRawAccessChainNV` store emission | [vktSpvAsmRawAccessChainTests.cpp#L938-L953](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L938-L953) | The store-side `OpRawAccessChainNV` instruction. |
-| `CodeGen` class | [vktSpvAsmRawAccessChainTests.cpp#L516-L573](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L516-L573) | Accumulates capabilities, extensions, decorations, declarations, and body sections into the final assembly string. |
-| `GetRobustnessOperand` | [vktSpvAsmRawAccessChainTests.cpp#L575-L586](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L575-L586) | Maps `BoundsCheck` to `RobustnessPerComponentNV`/`RobustnessPerElementNV` operands. |
-| `addTests`: parameter matrix | [vktSpvAsmRawAccessChainTests.cpp#L1000-L1196](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L1000-L1196) | Iterates the full combination matrix, applies skip rules, builds case names. |
-| `checkSupport`: feature gating | [vktSpvAsmRawAccessChainTests.cpp#L448-L491](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L448-L491) | Extension and feature requirements per case. |
-| `iterate`: host-side execution and check | [vktSpvAsmRawAccessChainTests.cpp#L277-L439](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L277-L439) | Buffer creation, descriptor binding, dispatch, barrier, `deMemCmp` comparison. |
-| `initPrograms`: SPIR-V assembly registration | [vktSpvAsmRawAccessChainTests.cpp#L494-L501](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L494-L501) | Adds the assembly string to `spirvAsmSources` with `SPIRV_VERSION_1_6` target. |
-| Group factory | [vktSpvAsmRawAccessChainTests.cpp#L1200-L1207](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L1200-L1207) | Creates the `raw_access_chain` test group. |
+| `Parameters` struct | [`Parameters`](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L91-L121) | Holds the generated case specification consumed by `addTest`. |
+| `BoundsCheck` enum | [BoundsCheck enum](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L73-L78) | `NO_BOUNDS_CHECK`, `BOUNDS_CHECK_PER_COMPONENT`, `BOUNDS_CHECK_PER_ELEMENT`. |
+| `Qualifiers` enum | [`Qualifiers` enum](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L80-L89) | Load/store `NonWritable`/`NonReadable`/`Volatile`/`Coherent` bit flags. |
+| `addTest`: shader body generation | [`addTest()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L610-L998) | Builds the SPIR-V assembly string, input/output data, and expected output via `CodeGen`. |
+| `OpRawAccessChainNV` load emission | [`addTest()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L902-L904) | The load-side `OpRawAccessChainNV` instruction. |
+| `OpRawAccessChainNV` store emission | [`addTest()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L938-L953) | The store-side `OpRawAccessChainNV` instruction. |
+| `CodeGen` class | [`CodeGen` class](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L516-L573) | Accumulates capabilities, extensions, decorations, declarations, and body sections into the final assembly string. |
+| `GetRobustnessOperand` | [GetRobustnessOperand](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L575-L586) | Maps `BoundsCheck` to `RobustnessPerComponentNV`/`RobustnessPerElementNV` operands. |
+| `addTests`: parameter matrix | [`addTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L1000-L1196) | Iterates the full combination matrix, applies skip rules, builds case names. |
+| `checkSupport`: feature gating | [`SpvAsmRawAccessChainTestCase::checkSupport()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L448-L491) | Extension and feature requirements per case. |
+| `iterate`: host-side execution and check | [`SpvAsmRawAccessChainInstance::iterate()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L277-L439) | Buffer creation, descriptor binding, dispatch, barrier, `deMemCmp` comparison. |
+| `initPrograms`: SPIR-V assembly registration | [`SpvAsmRawAccessChainTestCase::initPrograms()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L494-L501) | Adds the assembly string to `spirvAsmSources` with `SPIRV_VERSION_1_6` target. |
+| Group factory | [`createRawAccessChainGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmRawAccessChainTests.cpp#L1200-L1207) | Creates the `raw_access_chain` test group. |

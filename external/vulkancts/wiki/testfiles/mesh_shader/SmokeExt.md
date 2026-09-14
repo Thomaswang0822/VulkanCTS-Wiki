@@ -401,8 +401,8 @@ void main ()
 | Partial usage generator and renderer | [partial usage](../../../modules/vulkan/mesh_shader/vktMeshShaderSmokeTestsEXT.cpp#L999-L1545) | Uses variable mesh output counts, two descriptor sets, and push constants. |
 | Shared fragment generator and renderer | [shared fragment path](../../../modules/vulkan/mesh_shader/vktMeshShaderSmokeTestsEXT.cpp#L1547-L2265) | Covers graphics pipeline libraries, shader objects, layer, primitive ID, and draw order. |
 | Depth-only generator and runner | [depth-only path](../../../modules/vulkan/mesh_shader/vktMeshShaderSmokeTestsEXT.cpp#L2267-L2543) | Generates point/triangle output and compares copied depth. |
-| Common support and build options | [vktMeshShaderUtil.cpp](../../../modules/vulkan/mesh_shader/vktMeshShaderUtil.cpp#L111-L141) | Supplies EXT feature checks and the minimum SPIR-V 1.4 mesh build target. |
-| Default mustpass coverage | [mesh-shader.txt](../../../mustpass/main/vk-default/mesh-shader.txt) | Contains the 67 exact EXT smoke leaves. |
+| Common support and build options | [Common support and build options](../../../modules/vulkan/mesh_shader/vktMeshShaderUtil.cpp#L111-L141) | Supplies EXT feature checks and the minimum SPIR-V 1.4 mesh build target. |
+| Default mustpass coverage | [mesh-shader source](../../../mustpass/main/vk-default/mesh-shader.txt) | Contains the 67 exact EXT smoke leaves. |
 | Mesh shader specification | [VK_EXT_mesh_shader](../../../../vulkan-docs/src/proposals/VK_EXT_mesh_shader.adoc) | Defines the task and mesh shader stages and their output model. |
 | Graphics pipeline library specification | [VK_EXT_graphics_pipeline_library](../../../../vulkan-docs/src/appendices/VK_EXT_graphics_pipeline_library.adoc) | Defines the library pieces and linking used by shared fragment cases. |
 | Shader object specification | [VK_EXT_shader_object](../../../../vulkan-docs/src/appendices/VK_EXT_shader_object.adoc) | Defines independently created and bound stages used by `shared_frag_shader*`. |

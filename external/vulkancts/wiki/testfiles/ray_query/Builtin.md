@@ -2,7 +2,7 @@
 
 **Core question:** Does the implementation report correct values for the registered `VK_KHR_ray_query` built-ins and traversal operations, and do the two advanced cases (a null acceleration-structure descriptor and a SPIR-V wrapper function) still produce the correct result?
 
-This page covers the `builtin` and `advanced` test families registered by [vktRayQueryBuiltinTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6291-L6492). Both families are rooted in the same implementation file.
+This page covers the `builtin` and `advanced` test families registered by [Built-in and advanced case registration](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6291-L6492). Both families are rooted in the same implementation file.
 
 - The `builtin` family iterates 24 ray-query cases, including result functions, traversal flow, and termination, each exercised across up to 12 shader stages and two geometry types.
 - The `advanced` family covers `null_as` (tracing against a null acceleration-structure descriptor) and `using_wrapper_function` (ray-query calls inside a hand-written SPIR-V wrapper function, compute only).
@@ -36,10 +36,10 @@ Each test family iterates its `TestType` values, then crosses each with shader s
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Built-in test type | `flow`, `primitiveid`, `instanceid`, `instancecustomindex`, `intersectiont`, `objectrayorigin`, `objectraydirection`, `objecttoworld`, `worldtoobject`, `getraytmin`, `getworldrayorigin`, `getworldraydirection`, `getintersectioncandidateaabbopaque`, `getintersectionfrontfaceCandidate`/`Committed`, `getintersectiongeometryindexCandidate`/`Committed`, `getintersectionbarycentricsCandidate`/`Committed`, `getintersectioninstanceshaderbindingtablerecordoffsetCandidate`/`Committed`, `rayqueryterminate`, `getintersectiontypeCandidate`/`Committed` | Selects which ray-query built-in the shader queries; this is the primary behavioral axis. | [vktRayQueryBuiltinTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6301-L6327) |
-| Advanced test type | `null_as`, `using_wrapper_function` | Selects the advanced query behavior; `using_wrapper_function` is limited to compute. | [vktRayQueryBuiltinTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6427-L6428) |
-| Shader stage | `vert`, `tesc`, `tese`, `geom`, `frag`, `comp`, `rgen`, `ahit`, `chit`, `miss`, `sect`, `call` | Selects the pipeline stage that runs the ray query; stage-specific feature support is filtered by `getPipelineCheckSupport()`. | [vktRayQueryBuiltinTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6267-L6280) |
-| Geometry type | `triangles`, `aabbs` | Selects the bottom-level acceleration structure geometry; some built-ins are filtered to one geometry type. | [vktRayQueryBuiltinTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6286-L6289) |
+| Built-in test type | `flow`, `primitiveid`, `instanceid`, `instancecustomindex`, `intersectiont`, `objectrayorigin`, `objectraydirection`, `objecttoworld`, `worldtoobject`, `getraytmin`, `getworldrayorigin`, `getworldraydirection`, `getintersectioncandidateaabbopaque`, `getintersectionfrontfaceCandidate`/`Committed`, `getintersectiongeometryindexCandidate`/`Committed`, `getintersectionbarycentricsCandidate`/`Committed`, `getintersectioninstanceshaderbindingtablerecordoffsetCandidate`/`Committed`, `rayqueryterminate`, `getintersectiontypeCandidate`/`Committed` | Selects which ray-query built-in the shader queries; this is the primary behavioral axis. | [Built-in type registration](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6301-L6327) |
+| Advanced test type | `null_as`, `using_wrapper_function` | Selects the advanced query behavior; `using_wrapper_function` is limited to compute. | [Advanced type registration](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6427-L6428) |
+| Shader stage | `vert`, `tesc`, `tese`, `geom`, `frag`, `comp`, `rgen`, `ahit`, `chit`, `miss`, `sect`, `call` | Selects the pipeline stage that runs the ray query; stage-specific feature support is filtered by `getPipelineCheckSupport()`. | [Shader stage registration](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6267-L6280) |
+| Geometry type | `triangles`, `aabbs` | Selects the bottom-level acceleration structure geometry; some built-ins are filtered to one geometry type. | [Geometry type registration](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6286-L6289) |
 
 ## Behavior Parameters
 
@@ -185,17 +185,17 @@ void main()
 #### Additional Info
 
 - `updateRayTracingGLSL()` is an identity passthrough in this CTS version, so the reconstructed GLSL above is exactly the source fed to the compiler; the `///` comments are wiki annotations added during reconstruction.
-- The compute boilerplate wrapper (`ivec3 pos = ivec3(gl_WorkGroupID)` and `ivec3 size = ivec3(gl_NumWorkGroups)`) is generated by [`ComputeConfiguration::initPrograms`](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L1003-L1036); the `flow`-specific body (`rayFlags` through `imageStore`) is generated by [`TestConfigurationFlow::getShaderBodyText`](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L1986). Other `TestType` values splice a different body into the same wrapper.
+- The compute boilerplate wrapper (`ivec3 pos = ivec3(gl_WorkGroupID)` and `ivec3 size = ivec3(gl_NumWorkGroups)`) is generated by [Compute shader wrapper generation](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L1003-L1036); the `flow`-specific body (`rayFlags` through `imageStore`) is generated by [Flow shader body generation](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L1986). Other `TestType` values splice a different body into the same wrapper.
 - `gl_RayFlagsNoOpaqueEXT` forces triangle geometry to be treated as non-opaque, so the candidate requires an explicit `rayQueryConfirmIntersectionEXT` call before it commits. This is what makes the `flow` counter test the confirm path.
 
 #### Parameter Variation Summary
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
-| `TestType` | Replaces the `flow` body with a body that calls the selected built-in (e.g. `rayQueryGetIntersectionPrimitiveIndexEXT`) and stores its return value. | [vktRayQueryBuiltinTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6301-L6327) |
-| Shader stage | Replaces the compute wrapper with a graphics or ray-tracing pipeline wrapper; the ray-query body stays the same but the stage boilerplate and resource layout differ. | [vktRayQueryBuiltinTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6267-L6280) |
-| Geometry type | Switches the bottom-level AS between triangles and AABBs; AABB candidates use `rayQueryGenerateIntersectionEXT(t)` instead of `rayQueryConfirmIntersectionEXT` in the `flow` body. | [vktRayQueryBuiltinTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6286-L6289) |
-| `using_wrapper_function` | Replaces generated GLSL with hand-written SPIR-V assembly that wraps the ray-query calls in a function; otherwise the semantics are identical. | [vktRayQueryBuiltinTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6445-L6450) |
+| `TestType` | Replaces the `flow` body with a body that calls the selected built-in (e.g. `rayQueryGetIntersectionPrimitiveIndexEXT`) and stores its return value. | [Built-in type registration](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6301-L6327) |
+| Shader stage | Replaces the compute wrapper with a graphics or ray-tracing pipeline wrapper; the ray-query body stays the same but the stage boilerplate and resource layout differ. | [Shader stage registration](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6267-L6280) |
+| Geometry type | Switches the bottom-level AS between triangles and AABBs; AABB candidates use `rayQueryGenerateIntersectionEXT(t)` instead of `rayQueryConfirmIntersectionEXT` in the `flow` body. | [Geometry type registration](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6286-L6289) |
+| `using_wrapper_function` | Replaces generated GLSL with hand-written SPIR-V assembly that wraps the ray-query calls in a function; otherwise the semantics are identical. | [Wrapper-function SPIR-V case](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6445-L6450) |
 
 #### SPIR-V
 
@@ -382,7 +382,7 @@ void main()
 - **Descriptor binding.** The result image is bound at descriptor binding 0, the TLAS (for ray-tracing pipeline cases) at binding 1, and the ray-query TLAS at binding 2. For compute cases, the ray-query TLAS is at binding 1.
 - **Dispatch.** The host dispatches or traces the selected pipeline stage. For compute, the dispatch is `8x8x1` workgroups with 1x1x1 local size, so one invocation maps to one result-image cell.
 - **Result copyback.** After the shader stores its result, the host copies the result image to the readback buffer with `vkCmdCopyImageToBuffer` and maps it.
-- **Verification.** The verification routine selected for the result shape compares the copied values with `m_expected`. [`TestConfiguration::verify`](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L1591-L1608) uses exact equality for scalar integer outputs; float, vector, and matrix configurations use their specialized fixed-point comparisons with `FIXED_POINT_ALLOWED_ERROR`. A case passes only when its verifier reports no failures.
+- **Verification.** The verification routine selected for the result shape compares the copied values with `m_expected`. [Integer result verification](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L1591-L1608) uses exact equality for scalar integer outputs; float, vector, and matrix configurations use their specialized fixed-point comparisons with `FIXED_POINT_ALLOWED_ERROR`. A case passes only when its verifier reports no failures.
 
 ## Failure Meaning
 
@@ -446,17 +446,17 @@ void main()
 
 ### Requirement-based pruning
 
-- `VK_KHR_acceleration_structure`, `VK_KHR_ray_query`, and the `rayQuery` and `accelerationStructure` feature bits are required for all cases ([vktRayQueryBuiltinTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6052-L6067)).
-- Graphics-stage variants require vertex-pipeline stores and, when selected, tessellation or geometry features ([vktRayQueryBuiltinTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L381-L404)).
-- Ray-tracing shader stages require `VK_KHR_ray_tracing_pipeline` and its feature bit ([vktRayQueryBuiltinTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L1172-L1181)).
-- The `null_as` case additionally requires `VK_EXT_robustness2` with `nullDescriptor` and `VK_KHR_buffer_device_address` ([vktRayQueryBuiltinTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6083-L6117)).
-- `using_wrapper_function` is limited to compute because the SPIR-V assembly path is registered only for `VK_SHADER_STAGE_COMPUTE_BIT` ([vktRayQueryBuiltinTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6445-L6450)).
+- `VK_KHR_acceleration_structure`, `VK_KHR_ray_query`, and the `rayQuery` and `accelerationStructure` feature bits are required for all cases ([Ray-query feature support checks](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6052-L6067)).
+- Graphics-stage variants require vertex-pipeline stores and, when selected, tessellation or geometry features ([Graphics-stage feature checks](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L381-L404)).
+- Ray-tracing shader stages require `VK_KHR_ray_tracing_pipeline` and its feature bit ([Ray-tracing pipeline support check](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L1172-L1181)).
+- The `null_as` case additionally requires `VK_EXT_robustness2` with `nullDescriptor` and `VK_KHR_buffer_device_address` ([Null-AS capability setup](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6083-L6117)).
+- `using_wrapper_function` is limited to compute because the SPIR-V assembly path is registered only for `VK_SHADER_STAGE_COMPUTE_BIT` ([Wrapper-function SPIR-V case](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6445-L6450)).
 
 ### Design-based pruning
 
 - `getintersectioncandidateaabbopaque` is run only with AABB geometry, because the candidate-AABB opaque flag is meaningful only for AABB candidates.
 - `getintersectionfrontface*` and `getintersectionbarycentrics*` are run only with triangles, because front-face and barycentric properties are triangle-specific.
-- Cases listed by the registration's `single` selector use one instance and one geometry; the remaining cases use 2 instances and 8 geometry groups so their expected values can vary across cells ([vktRayQueryBuiltinTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6345-L6368)).
+- Cases listed by the registration's `single` selector use one instance and one geometry; the remaining cases use 2 instances and 8 geometry groups so their expected values can vary across cells ([Instance and geometry group selection](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6345-L6368)).
 
 ## Key Takeaways
 
@@ -469,15 +469,15 @@ void main()
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `TestType` enum and geometry types | [vktRayQueryBuiltinTests.cpp:61](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L61) | Defines which built-in each case queries. |
-| `TestParams` and fixed-point constants | [vktRayQueryBuiltinTests.cpp:187](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L187) | Carries per-case config and the fixed-point encoding constants. |
-| `TestConfigurationFlow::getShaderBodyText` | [vktRayQueryBuiltinTests.cpp:1986](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L1986) | Representative `flow` shader body (triangles and AABBs). |
-| `TestConfiguration::verify` (int) | [vktRayQueryBuiltinTests.cpp:1591](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L1591) | Exact int32 comparison and failure counting. |
-| `TestConfigurationFloat::verify` | [vktRayQueryBuiltinTests.cpp:1649](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L1649) | Fixed-point tolerance comparison. |
-| `ComputeConfiguration::initPrograms` | [vktRayQueryBuiltinTests.cpp:1003](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L1003) | Compute shader boilerplate wrapper generation. |
-| `RayQueryBuiltinTestCase::checkSupport` | [vktRayQueryBuiltinTests.cpp:6052](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6052) | Ray-query + acceleration-structure feature gates and per-stage support. |
-| `null_as` capability setup | [vktRayQueryBuiltinTests.cpp:6083](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6083) | Robustness2 / nullDescriptor requirements for the advanced null-AS case. |
-| `createBuiltinTests` registration | [vktRayQueryBuiltinTests.cpp:6291](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6291) | 24 built-in `TestType` values crossed with stages and geometry. |
-| `createAdvancedTests` registration | [vktRayQueryBuiltinTests.cpp:6419](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6419) | `null_as` + `using_wrapper_function` advanced cases. |
-| `updateRayTracingGLSL` (identity passthrough) | [vkRayTracingUtil.hpp:111](../../../framework/vulkan/vkRayTracingUtil.hpp#L111) | Confirms the reconstructed GLSL is unmodified by the helper. |
+| `TestType` enum and geometry types | [Test-type and geometry declarations](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L61) | Defines which built-in each case queries. |
+| `TestParams` and fixed-point constants | [Test parameter structure](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L187) | Carries per-case config and the fixed-point encoding constants. |
+| `TestConfigurationFlow::getShaderBodyText` | [Flow shader body generation](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L1986) | Representative `flow` shader body (triangles and AABBs). |
+| `TestConfiguration::verify` (int) | [Integer verification entry point](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L1591) | Exact int32 comparison and failure counting. |
+| `TestConfigurationFloat::verify` | [Fixed-point verification entry point](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L1649) | Fixed-point tolerance comparison. |
+| `ComputeConfiguration::initPrograms` | [Compute shader wrapper](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L1003) | Compute shader boilerplate wrapper generation. |
+| `RayQueryBuiltinTestCase::checkSupport` | [Support-check entry point](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6052) | Ray-query + acceleration-structure feature gates and per-stage support. |
+| `null_as` capability setup | [Null-AS capability setup](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6083) | Robustness2 / nullDescriptor requirements for the advanced null-AS case. |
+| `createBuiltinTests` registration | [Built-in case registration](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6291) | 24 built-in `TestType` values crossed with stages and geometry. |
+| `createAdvancedTests` registration | [Advanced case registration](../../../modules/vulkan/ray_query/vktRayQueryBuiltinTests.cpp#L6419) | `null_as` + `using_wrapper_function` advanced cases. |
+| `updateRayTracingGLSL` (identity passthrough) | [GLSL identity helper](../../../framework/vulkan/vkRayTracingUtil.hpp#L111) | Confirms the reconstructed GLSL is unmodified by the helper. |
 | Vulkan spec: ray traversal | [raytraversal.adoc](../../../../vulkan-docs/src/chapters/raytraversal.adoc) | Candidate/committed/confirm/generate/terminate semantics. |

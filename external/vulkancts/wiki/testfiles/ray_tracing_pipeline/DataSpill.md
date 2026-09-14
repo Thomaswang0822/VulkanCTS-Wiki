@@ -46,11 +46,11 @@ The primary behavioral axis is `CallType`/`InterfaceType`, realized as the four 
 
 ### trace_ray — spill across OpTraceRayKHR
 
-The calling shader is a raygen shader. It reads `inputBuffer`, computes the SBT offset/stride/miss index from the input value, calls `OpTraceRayKHR`, then re-reads `inputBuffer` and writes `1` to `outputBuffer` when the two reads match [trace_ray call statements](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L1326-L1350). The callee is a closest-hit shader that writes `1` to `calleeBuffer`. This child has the largest leaf matrix because it covers all 21 `DataType` values across all 5 `VectorType` values where applicable.
+The calling shader is a raygen shader. It reads `inputBuffer`, computes the SBT offset/stride/miss index from the input value, calls `OpTraceRayKHR`, then re-reads `inputBuffer` and writes `1` to `outputBuffer` when the two reads match [trace-ray caller and closest-hit callee](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L1326-L1350). The callee is a closest-hit shader that writes `1` to `calleeBuffer`. This child has the largest leaf matrix because it covers all 21 `DataType` values across all 5 `VectorType` values where applicable.
 
 ### execute_callable — spill across OpExecuteCallableKHR
 
-The calling shader is a raygen shader. It reads `inputBuffer`, computes the SBT offset from the input value, calls `OpExecuteCallableKHR`, then re-reads `inputBuffer` and writes `1` to `outputBuffer` when the two reads match [execute_callable call statements](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L1352-L1374). The callee is a callable shader that writes `1` to `calleeBuffer`. No acceleration structure traversal is needed for the call itself, but the test still builds a default BLAS/TLAS because the pipeline creation path expects it.
+The calling shader is a raygen shader. It reads `inputBuffer`, computes the SBT offset from the input value, calls `OpExecuteCallableKHR`, then re-reads `inputBuffer` and writes `1` to `outputBuffer` when the two reads match [execute-callable caller and callee](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L1352-L1374). The callee is a callable shader that writes `1` to `calleeBuffer`. No acceleration structure traversal is needed for the call itself, but the test still builds a default BLAS/TLAS because the pipeline creation path expects it.
 
 ### report_intersection — spill across OpReportIntersectionKHR
 
@@ -58,11 +58,11 @@ The calling shader is an intersection shader, not a raygen shader. This is the o
 
 ### pipeline_interface — spill of interface variables
 
-This child uses a separate test class and a different spill surface. Instead of reading a storage buffer before and after the call, it writes a value to a pipeline interface variable, invokes the call, and reads the value back after the call returns [pipeline_interface GLSL](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L2205-L2461). Seven leaves cover the four interface variable kinds: `ray_payload` (ray payload across `traceRayEXT`), `callable_data` (callable data across `executeCallableEXT`), `hit_attributes` (hit attributes from intersection to closest-hit), and four `shader_record_buffer_*` leaves that test the shader record buffer survives a call return. The host checks a 6-slot storage buffer against a per-leaf expected vector.
+This child uses a separate test class and a different spill surface. Instead of reading a storage buffer before and after the call, it writes a value to a pipeline interface variable, invokes the call, and reads the value back after the call returns [pipeline-interface shader generation](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L2205-L2461). Seven leaves cover the four interface variable kinds: `ray_payload` (ray payload across `traceRayEXT`), `callable_data` (callable data across `executeCallableEXT`), `hit_attributes` (hit attributes from intersection to closest-hit), and four `shader_record_buffer_*` leaves that test the shader record buffer survives a call return. The host checks a 6-slot storage buffer against a per-leaf expected vector.
 
 ## Shader Analysis
 
-The call-type cases share one SPIR-V assembly template specialized per `DataType` and `VectorType` through `tcu::StringTemplate` [SPIR-V template](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L542-L657). The template emits the pre-call `Volatile` load, the call instruction, the post-call `Volatile` load, the equality check, and the output store. The callee shaders are inline GLSL. The `pipeline_interface` cases use inline GLSL for all stages with no SPIR-V template.
+The call-type cases share one SPIR-V assembly template specialized per `DataType` and `VectorType` through `tcu::StringTemplate` [SPIR-V template for pre-call and post-call loads](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L542-L657). The template emits the pre-call `Volatile` load, the call instruction, the post-call `Volatile` load, the equality check, and the output store. The callee shaders are inline GLSL. The `pipeline_interface` cases use inline GLSL for all stages with no SPIR-V template.
 
 One walkthrough covers the `trace_ray.int32` case because it is the simplest expression of the spill mechanism: the input is a single `int32_t` holding 37, the SBT operand computes to 0, and the closest-hit callee writes `1` to `calleeBuffer`. The other call-type cases differ only in the call instruction and the callee stage; the `pipeline_interface` cases differ in the spill surface but follow the same caller-write-callee-modify-caller-read pattern.
 
@@ -150,18 +150,18 @@ void main()
 
 #### Additional Info
 
-- The host fills `inputBuffer.val` with `37` [fillInputBuffer](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L1522-L1682), so `zero_for_callable` is `0`. The SBT offset, stride, and miss index are all 0, so the ray hits the single geometry in hit group 1 and no miss shader is bound.
+- The host fills `inputBuffer.val` with `37` [input initialization for spill checks](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L1522-L1682), so `zero_for_callable` is `0`. The SBT offset, stride, and miss index are all 0, so the ray hits the single geometry in hit group 1 and no miss shader is bound.
 - The CTS source emits the rgen as raw SPIR-V assembly with `OpLoad ... Volatile` on both the pre-call and post-call reads. The reconstructed GLSL uses the `volatile` qualifier on the buffer member, which glslang lowers to a `Volatile` member decoration on `InputBlock`. Both forms prevent the compiler from folding the two reads into one; the SPIR-V below reflects the GLSL reconstruction.
 - The chit shader does not read `inputBuffer`, so a mismatch between the two rgen reads implies the rgen's reload returned a different value than its earlier load. The callee buffer distinguishes a spill failure (outputBuffer = 0, calleeBuffer = 1) from a missed call (outputBuffer = 0, calleeBuffer = 0).
-- Vector and array cases extend the template by summing all components into `%total_sum`, subtracting the per-component constant 37, and comparing the before and after vectors with `OpAll` of a component-wise equality [vector specialization](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L1155-L1289).
+- Vector and array cases extend the template by summing all components into `%total_sum`, subtracting the per-component constant 37, and comparing the before and after vectors with `OpAll` of a component-wise equality [vector and array spill comparisons](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L1155-L1289).
 
 #### Parameter Variation Summary
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|--------------------------------------------|----------|
 | `CallType` | Swaps the call instruction (`OpTraceRayKHR`, `OpExecuteCallableKHR`, `OpReportIntersectionKHR`) and the callee stage (chit, call, ahit). The calling-shader template body for the pre-call load, post-call load, and equality check stays the same; only the entry-point stage changes (rgen for `trace_ray`/`execute_callable`, rint for `report_intersection`). | [call statements](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L1326-L1413) |
-| `DataType` | Swaps `INPUT_BUFFER_VALUE_TYPE`, the constant used in the subtraction, the conversion to `uint`, and the equality operator (`OpIEqual` for integers, `OpFOrdEqual` for floats, custom member-wise comparison for structs and samplers). | [per-DataType specialization](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L678-L996) |
-| `VectorType` | Adds component pointers, a component-wise sum, and a vector equality with `OpAll` (or per-component `OpLogicalAnd` for arrays). | [vector specialization](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L1155-L1289) |
+| `DataType` | Swaps `INPUT_BUFFER_VALUE_TYPE`, the constant used in the subtraction, the conversion to `uint`, and the equality operator (`OpIEqual` for integers, `OpFOrdEqual` for floats, custom member-wise comparison for structs and samplers). | [data-type assembly substitutions](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L678-L996) |
+| `VectorType` | Adds component pointers, a component-wise sum, and a vector equality with `OpAll` (or per-component `OpLogicalAnd` for arrays). | [vector and array spill comparisons](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L1155-L1289) |
 
 #### SPIR-V
 
@@ -462,20 +462,20 @@ All call-type cases share the same buffer setup, AS build, trace, barrier, and r
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `CallType` enum | [vktRayTracingDataSpillTests.cpp#L60-L65](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L60-L65) | Defines the three call-type values for the calling-shader cases. |
-| `DataType` enum | [vktRayTracingDataSpillTests.cpp#L68-L94](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L68-L94) | Defines the 21 data type values that vary the spilled value's representation. |
-| `VectorType` enum | [vktRayTracingDataSpillTests.cpp#L97-L104](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L97-L104) | Defines scalar, v2, v3, v4, and a5 vector widths. |
-| `InterfaceType` enum | [vktRayTracingDataSpillTests.cpp#L2130-L2139](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L2130-L2139) | Defines the seven pipeline-interface leaves. |
-| SPIR-V template body | [vktRayTracingDataSpillTests.cpp#L542-L657](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L542-L657) | Shared assembly template with pre-call load, call, post-call load, equality check. |
-| Per-DataType specialization | [vktRayTracingDataSpillTests.cpp#L678-L996](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L678-L996) | Substitutions for each DataType. |
-| Vector and array specialization | [vktRayTracingDataSpillTests.cpp#L1155-L1289](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L1155-L1289) | Component sum, vector equality with OpAll, array per-component comparison. |
-| `trace_ray` call statements | [vktRayTracingDataSpillTests.cpp#L1326-L1350](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L1326-L1350) | Emits rgen with `OpTraceRayKHR` and the GLSL closest-hit callee. |
-| `execute_callable` call statements | [vktRayTracingDataSpillTests.cpp#L1352-L1374](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L1352-L1374) | Emits rgen with `OpExecuteCallableKHR` and the GLSL callable callee. |
-| `report_intersection` call statements | [vktRayTracingDataSpillTests.cpp#L1376-L1409](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L1376-L1409) | Emits rint with `OpReportIntersectionKHR`, plus GLSL rgen and ahit. |
-| `DataSpillTestCase::checkSupport` | [vktRayTracingDataSpillTests.cpp#L476-L535](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L476-L535) | Per-data-type feature gates. |
-| `fillInputBuffer` | [vktRayTracingDataSpillTests.cpp#L1522-L1682](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L1522-L1682) | Host-side fill of inputBuffer with values summing to 37. |
-| `DataSpillTestInstance::iterate` | [vktRayTracingDataSpillTests.cpp#L1684-L2128](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L1684-L2128) | Host flow: buffer setup, AS build, pipeline, trace, copyback, pass/fail. |
-| Pipeline interface GLSL | [vktRayTracingDataSpillTests.cpp#L2205-L2461](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L2205-L2461) | Inline GLSL for all seven interface-type cases. |
-| `createSBTWithShaderRecord` | [vktRayTracingDataSpillTests.cpp#L2533-L2554](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L2533-L2554) | Fills the SBT record with `uvec4(400, 401, 402, 403)` for the shader-record-buffer cases. |
-| Pipeline interface expected values | [vktRayTracingDataSpillTests.cpp#L2815-L2854](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L2815-L2854) | Per-InterfaceType expected storage buffer contents. |
-| Registration loop | [vktRayTracingDataSpillTests.cpp#L2887-L3005](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L2887-L3005) | Builds the four direct children and their leaves. |
+| `CallType` enum | [CallType enum](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L60-L65) | Defines the three call-type values for the calling-shader cases. |
+| `DataType` enum | [DataType enum](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L68-L94) | Defines the 21 data type values that vary the spilled value's representation. |
+| `VectorType` enum | [VectorType enum](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L97-L104) | Defines scalar, v2, v3, v4, and a5 vector widths. |
+| `InterfaceType` enum | [InterfaceType enum](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L2130-L2139) | Defines the seven pipeline-interface leaves. |
+| SPIR-V template body | [SPIR-V template for pre-call and post-call loads](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L542-L657) | Shared assembly template with pre-call load, call, post-call load, equality check. |
+| Per-DataType specialization | [data-type assembly substitutions](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L678-L996) | Substitutions for each DataType. |
+| Vector and array specialization | [vector and array spill comparisons](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L1155-L1289) | Component sum, vector equality with OpAll, array per-component comparison. |
+| `trace_ray` call statements | [trace-ray caller and closest-hit callee](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L1326-L1350) | Emits rgen with `OpTraceRayKHR` and the GLSL closest-hit callee. |
+| `execute_callable` call statements | [execute-callable caller and callee](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L1352-L1374) | Emits rgen with `OpExecuteCallableKHR` and the GLSL callable callee. |
+| `report_intersection` call statements | [report-intersection caller and any-hit callee](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L1376-L1409) | Emits rint with `OpReportIntersectionKHR`, plus GLSL rgen and ahit. |
+| `DataSpillTestCase::checkSupport` | [DataSpillTestCase::checkSupport](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L476-L535) | Per-data-type feature gates. |
+| `fillInputBuffer` | [input initialization for spill checks](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L1522-L1682) | Host-side fill of inputBuffer with values summing to 37. |
+| `DataSpillTestInstance::iterate` | [DataSpillTestInstance::iterate](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L1684-L2128) | Host flow: buffer setup, AS build, pipeline, trace, copyback, pass/fail. |
+| Pipeline interface GLSL | [pipeline-interface shader generation](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L2205-L2461) | Inline GLSL for all seven interface-type cases. |
+| `createSBTWithShaderRecord` | [createSBTWithShaderRecord](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L2533-L2554) | Fills the SBT record with `uvec4(400, 401, 402, 403)` for the shader-record-buffer cases. |
+| Pipeline interface expected values | [Pipeline interface expected values](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L2815-L2854) | Per-InterfaceType expected storage buffer contents. |
+| Registration loop | [data-spill case matrix registration](../../../modules/vulkan/ray_tracing/vktRayTracingDataSpillTests.cpp#L2887-L3005) | Builds the four direct children and their leaves. |

@@ -4,7 +4,7 @@
 
 - This page covers the `renderpasses.renderpass1.multiple_subpasses_multiple_command_buffers` test family implemented in [vktRenderPassMultipleSubpassesMultipleCommandBuffersTests.cpp](../../../modules/vulkan/renderpass/vktRenderPassMultipleSubpassesMultipleCommandBuffersTests.cpp).
 - The test family registers two test case leaves, `test` and `test_general_layout`, that differ only in the image layout assigned to the color attachment across all subpasses ([L906-L907](../../../modules/vulkan/renderpass/vktRenderPassMultipleSubpassesMultipleCommandBuffersTests.cpp#L906-L907)).
-- The test renders two independent color images through the same three-subpass render pass. One instance of the render pass lives entirely in command buffer A and writes image A; another lives entirely in command buffer B and writes image B. Both command buffers are submitted together in a single `vkQueueSubmit` call ([L826-L843](../../../modules/vulkan/renderpass/vktRenderPassMultipleSubpassesMultipleCommandBuffersTests.cpp#L826-L843)).
+- The test renders two independent color images through the same three-subpass render pass. One instance of the render pass lives entirely in command buffer A and writes image A; another lives entirely in command buffer B and writes image B. Both command buffers are submitted together in a single `vkQueueSubmit` call ([submit](../../../modules/vulkan/renderpass/vktRenderPassMultipleSubpassesMultipleCommandBuffersTests.cpp#L826-L843)).
 - The core property under test is that the implementation can run the same multi-subpass render pass twice in parallel primary command buffers within one submit, respecting the subpass dependencies inside each command buffer, and produce two independently correct rendered images.
 
 ## Background Knowledge
@@ -21,7 +21,7 @@ renderpasses.renderpass1.multiple_subpasses_multiple_command_buffers
 └── test_general_layout
 ```
 
-The test family is available under `renderpass1` only. It is registered into the legacy render-pass subtree by the internal dispatcher in [vktRenderPassTests.cpp](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8501) under the `RENDERING_TYPE_RENDERPASS_LEGACY` branch, and is compiled out for Vulkan SC. The factory group is created at [vktRenderPassMultipleSubpassesMultipleCommandBuffersTests.cpp#L901-L910](../../../modules/vulkan/renderpass/vktRenderPassMultipleSubpassesMultipleCommandBuffersTests.cpp#L901-L910).
+The test family is available under `renderpass1` only. It is registered into the legacy render-pass subtree by the internal dispatcher in [Render-pass dispatcher registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8501) under the `RENDERING_TYPE_RENDERPASS_LEGACY` branch, and is compiled out for Vulkan SC. The factory group is created at [createRenderPassMultipleSubpassesMultipleCommandBuffersTests()](../../../modules/vulkan/renderpass/vktRenderPassMultipleSubpassesMultipleCommandBuffersTests.cpp#L901-L910).
 
 ## Parameter Dimensions and Observed Values
 
@@ -29,7 +29,7 @@ This test family has a small fixed configuration. The only dimension that change
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Attachment image layout | `COLOR_ATTACHMENT_OPTIMAL`, `GENERAL` | The two leaves select which layout the color attachment uses for its initial layout, all three subpass references, and the final layout. `test` uses `COLOR_ATTACHMENT_OPTIMAL`; `test_general_layout` uses `GENERAL`. | [createRenderPass](../../../modules/vulkan/renderpass/vktRenderPassMultipleSubpassesMultipleCommandBuffersTests.cpp#L189-L264), [registration](../../../modules/vulkan/renderpass/vktRenderPassMultipleSubpassesMultipleCommandBuffersTests.cpp#L906-L907) |
+| Attachment image layout | `COLOR_ATTACHMENT_OPTIMAL`, `GENERAL` | The two leaves select which layout the color attachment uses for its initial layout, all three subpass references, and the final layout. `test` uses `COLOR_ATTACHMENT_OPTIMAL`; `test_general_layout` uses `GENERAL`. | [createRenderPass](../../../modules/vulkan/renderpass/vktRenderPassMultipleSubpassesMultipleCommandBuffersTests.cpp#L189-L264), [L906-L907](../../../modules/vulkan/renderpass/vktRenderPassMultipleSubpassesMultipleCommandBuffersTests.cpp#L906-L907) |
 | Color format | `VK_FORMAT_R32G32B32A32_SFLOAT` | Fixed across both leaves. A floating-point format keeps the per-channel color comparison meaningful and avoids format-quantization noise. | [attachment description](../../../modules/vulkan/renderpass/vktRenderPassMultipleSubpassesMultipleCommandBuffersTests.cpp#L195-L205) |
 | Image size | 32 x 32 | Fixed. Small enough to keep the test fast, large enough to exercise tiled and per-subpass rendering paths. | [constants](../../../modules/vulkan/renderpass/vktRenderPassMultipleSubpassesMultipleCommandBuffersTests.cpp#L104-L106) |
 | Subpass count | 3 | Fixed. Each render pass instance advances through three subpasses that all reference the same single color attachment. | [subpass descriptions](../../../modules/vulkan/renderpass/vktRenderPassMultipleSubpassesMultipleCommandBuffersTests.cpp#L214-L231) |
@@ -145,7 +145,7 @@ Both leaves share the same two-command-buffer submission and the same three-subp
 
 ### Requirement-based pruning
 
-- The test family is available under `renderpass1` only and is compiled out for Vulkan SC through the `CTS_USES_VULKANSC` guard in the dispatcher ([vktRenderPassTests.cpp](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8501)).
+- The test family is available under `renderpass1` only and is compiled out for Vulkan SC through the `CTS_USES_VULKANSC` guard in the dispatcher ([Render-pass dispatcher registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8501)).
 - No device feature or extension beyond base Vulkan is required. The test uses only core render-pass and color-attachment functionality.
 
 ### Design-based pruning
@@ -172,5 +172,5 @@ Both leaves share the same two-command-buffer submission and the same three-subp
 | Command buffer recording | [createCommandBuffer()](../../../modules/vulkan/renderpass/vktRenderPassMultipleSubpassesMultipleCommandBuffersTests.cpp#L729-L812) | Records the two primary command buffers, each beginning, advancing, and ending the render pass. |
 | Submission and result checking | [iterate()](../../../modules/vulkan/renderpass/vktRenderPassMultipleSubpassesMultipleCommandBuffersTests.cpp#L814-L898) | Submits both command buffers, reads both images back, and compares each against its reference with `tcu::floatThresholdCompare`. |
 | Test family registration | [createRenderPassMultipleSubpassesMultipleCommandBuffersTests()](../../../modules/vulkan/renderpass/vktRenderPassMultipleSubpassesMultipleCommandBuffersTests.cpp#L901-L910) | Registers the `test` and `test_general_layout` test case leaves under `renderpass1`. |
-| Dispatcher attachment | [vktRenderPassTests.cpp#L8501](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8501) | Attaches the test family under `renderpass1` via the legacy render-pass branch. |
+| Dispatcher attachment | [register multi-subpass command-buffer tests for legacy render passes](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8501) | Attaches the test family under `renderpass1` via the legacy render-pass branch. |
 | Mustpass entry | [vk-main-2026-03-01/renderpasses.txt](../../../../../android/cts/main/vk-main-2026-03-01/renderpasses.txt) | Shows the `test_general_layout` leaf in the current main mustpass set. |

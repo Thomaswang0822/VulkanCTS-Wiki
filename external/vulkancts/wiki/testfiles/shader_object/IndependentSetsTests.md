@@ -121,11 +121,11 @@ The family uses generated stage shaders from the shared independent-sets utility
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Shader-object family registration | [vktShaderObjectIndependentSetsTests.cpp#L33-L47](../../../modules/vulkan/shader_object/vktShaderObjectIndependentSetsTests.cpp#L33-L47) | Selects the four shader-object construction forms. |
-| Case generation | [vktIndependentSetsUtil.cpp#L1880-L1995](../../../modules/vulkan/util/vktIndependentSetsUtil.cpp#L1880-L1995) | Defines construction, stage, seed, ordering, and variant paths. |
-| Support checks | [vktIndependentSetsUtil.cpp#L353-L409](../../../modules/vulkan/util/vktIndependentSetsUtil.cpp#L353-L409) | Applies feature, extension, and descriptor-set limits. |
-| Independent pipeline layouts | [vktIndependentSetsUtil.cpp#L1274-L1291](../../../modules/vulkan/util/vktIndependentSetsUtil.cpp#L1274-L1291) | Builds the union layout and independent-set flags. |
-| Stage shader layout setup | [vktIndependentSetsUtil.cpp#L1344-L1369](../../../modules/vulkan/util/vktIndependentSetsUtil.cpp#L1344-L1369) | Assigns per-stage descriptor layouts. |
-| Descriptor binding and draw | [vktIndependentSetsUtil.cpp#L1705-L1751](../../../modules/vulkan/util/vktIndependentSetsUtil.cpp#L1705-L1751) | Binds descriptors and executes the selected stage combination. |
-| Result comparison | [vktIndependentSetsUtil.cpp#L1828-L1877](../../../modules/vulkan/util/vktIndependentSetsUtil.cpp#L1828-L1877) | Compares descriptor contents with the IO buffer. |
+| Shader-object family registration | [createShaderObjectIndependentSetsTests()](../../../modules/vulkan/shader_object/vktShaderObjectIndependentSetsTests.cpp#L33-L47) | Selects the four shader-object construction forms. |
+| Case generation | [`IndependentSets::createRandomTests()`](../../../modules/vulkan/util/vktIndependentSetsUtil.cpp#L1880-L1995) | Defines construction, stage, seed, ordering, and variant paths. |
+| Support checks | [support checks](../../../modules/vulkan/util/vktIndependentSetsUtil.cpp#L353-L409) | Applies feature, extension, and descriptor-set limits. |
+| Independent pipeline layouts | [layout construction](../../../modules/vulkan/util/vktIndependentSetsUtil.cpp#L1274-L1291) | Builds the union layout and independent-set flags. |
+| Stage shader layout setup | [shader setup](../../../modules/vulkan/util/vktIndependentSetsUtil.cpp#L1344-L1369) | Assigns per-stage descriptor layouts. |
+| Descriptor binding and draw | [descriptor binding and draw](../../../modules/vulkan/util/vktIndependentSetsUtil.cpp#L1705-L1751) | Binds descriptors and executes the selected stage combination. |
+| Result comparison | [result comparison](../../../modules/vulkan/util/vktIndependentSetsUtil.cpp#L1828-L1877) | Compares descriptor contents with the IO buffer. |
 | Mustpass inventory | [m11-independent-sets.txt](../../../mustpass/main/vk-default/shader-object/m11-independent-sets.txt) | Lists the 1,440 registered paths. |

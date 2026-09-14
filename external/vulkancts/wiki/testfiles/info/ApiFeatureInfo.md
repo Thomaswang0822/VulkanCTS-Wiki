@@ -45,7 +45,7 @@ All 19 leaves, including the two dependency leaves, are registered in both packa
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
 | API scope | instance, device, device group | Chooses the Vulkan object or API level whose information is queried. | [registration builders](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L9163-L9195) |
-| Query form | enumeration, direct property query, capability check | Determines whether CTS checks list behavior, returned structure bytes, or a semantic capability rule. | [implementation ranges](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L2592-L3936) |
+| Query form | enumeration, direct property query, capability check | Determines whether CTS checks list behavior, returned structure bytes, or a semantic capability rule. | [vktApiFeatureInfo.cpp](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L2592-L3936) |
 | Package variant | Vulkan; Vulkan SC | Leaf registration is identical; only the multi-instance budget leaf adjusts its verification step in the Vulkan SC parent process. | [multi-instance SC skip](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L3805-L3812), [registration builders](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L9163-L9195) |
 | Optional support | `VK_EXT_memory_budget`; selected multi-device group | Causes the relevant optional leaf to skip when its required configuration is unavailable. | [memory-budget support check](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L596-L599), [peer memory](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L3471-L3601) |
 
@@ -152,11 +152,11 @@ These leaves do not test shader behavior. They issue host-side instance and phys
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `info` registration builders | [`vktApiFeatureInfo.cpp#L9163-L9195`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L9163-L9195) | Defines the 19 page-scope leaves, including the support-gated budget pair. |
-| Enumeration and extension checks | [`vktApiFeatureInfo.cpp#L2592-L2993`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L2592-L2993) | Implements list enumeration, dependency, entry-point, support-pairing, and obsolete-name validation. |
-| Core query checks | [`vktApiFeatureInfo.cpp#L3032-L3469`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L3032-L3469) | Implements feature, property, queue-family, and memory-property leaves. |
-| Device-group peer-memory query | [`vktApiFeatureInfo.cpp#L3471-L3601`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L3471-L3601) | Establishes support conditions and validates peer-memory flags. |
-| Memory-budget checks | [`vktApiFeatureInfo.cpp#L3603-L3865`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L3603-L3865) | Implements single-query budget validation and the cross-instance budget/usage tracking leaf. |
-| Mandatory-feature checks | [`vktApiFeatureInfo.cpp#L3874-L3936`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L3874-L3936) | Implements generated mandatory-feature checks and the Vulkan 1.4 queue condition. |
-| Category caller | [`vktInfoTests.cpp#L260-L270`](../../../modules/vulkan/vktInfoTests.cpp#L260-L270) | Adds these leaves under `info` after the local reporting cases. |
-| Vulkan and Vulkan SC mustpass scope | [`vk-default/info.txt#L1-L23`](../../../mustpass/main/vk-default/info.txt#L1-L23), [`vksc-default/info.txt#L1-L23`](../../../mustpass/main/vksc-default/info.txt#L1-L23) | Confirms both package lists carry the same 23 `info` leaves. |
+| `info` registration builders | [info registration builders](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L9163-L9195) | Defines the 19 page-scope leaves, including the support-gated budget pair. |
+| Enumeration and extension checks | [Enumeration and extension checks](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L2592-L2993) | Implements list enumeration, dependency, entry-point, support-pairing, and obsolete-name validation. |
+| Core query checks | [Core query checks](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L3032-L3469) | Implements feature, property, queue-family, and memory-property leaves. |
+| Device-group peer-memory query | [Device-group peer-memory query](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L3471-L3601) | Establishes support conditions and validates peer-memory flags. |
+| Memory-budget checks | [Memory-budget checks](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L3603-L3865) | Implements single-query budget validation and the cross-instance budget/usage tracking leaf. |
+| Mandatory-feature checks | [Mandatory-feature checks](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L3874-L3936) | Implements generated mandatory-feature checks and the Vulkan 1.4 queue condition. |
+| Category caller | [Category caller](../../../modules/vulkan/vktInfoTests.cpp#L260-L270) | Adds these leaves under `info` after the local reporting cases. |
+| Vulkan and Vulkan SC mustpass scope | [Vulkan and Vulkan SC mustpass scope](../../../mustpass/main/vk-default/info.txt#L1-L23), [Vulkan and Vulkan SC mustpass scope](../../../mustpass/main/vksc-default/info.txt#L1-L23) | Confirms both package lists carry the same 23 `info` leaves. |

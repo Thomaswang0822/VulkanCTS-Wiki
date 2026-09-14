@@ -60,7 +60,7 @@ This intermediate node writes a sample-index-weighted value for each pixel throu
 
 ### `3d`: resolving into a 3D image
 
-This intermediate node renders per-sample values into a multisampled 2D image, clears a single-sampled `64x64x8` 3D image to green, and resolves the 2D image into the first depth slice of the 3D image. CTS compares every destination slice with a host-generated reference using a per-component threshold of `0.01`: slice zero must contain the average-resolved colors and the other seven slices must retain the green clear color ([implementation](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L1397-L1861)).
+This intermediate node renders per-sample values into a multisampled 2D image, clears a single-sampled `64x64x8` 3D image to green, and resolves the 2D image into the first depth slice of the 3D image. CTS compares every destination slice with a host-generated reference using a per-component threshold of `0.01`: slice zero must contain the average-resolved colors and the other seven slices must retain the green clear color ([`vktPipelineMultisampleImageTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineMultisampleImageTests.cpp#L1397-L1861)).
 
 ## Shader Analysis
 

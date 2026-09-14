@@ -136,11 +136,11 @@ void main (void)
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---|---|---|
-| `load_from_address` | Replaces binding 0 with a buffer reference delivered through a push constant; indexing and `fwidth()` stay equivalent. | [Source](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L560-L570) |
-| `load_from_ubo` | Packs four scalar pixels per `uvec4` uniform element and selects one component before `fwidth()`. | [Source](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L571-L579) |
-| `load_from_image` | Replaces the buffer load with `imageLoad()` from an `r32ui` storage image. | [Source](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L580-L587) |
-| `load_from_texture` | Replaces the buffer load with a `usampler2D` sample at normalized fragment coordinates. | [Source](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L588-L596) |
-| `output_variables` | Uses `subpassLoad()` and coordinate arithmetic instead of `fwidth()`; Walkthrough 2 covers this separate shape. | [Source](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L597-L604) |
+| `load_from_address` | Replaces binding 0 with a buffer reference delivered through a push constant; indexing and `fwidth()` stay equivalent. | [shader](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L560-L570) |
+| `load_from_ubo` | Packs four scalar pixels per `uvec4` uniform element and selects one component before `fwidth()`. | [shader](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L571-L579) |
+| `load_from_image` | Replaces the buffer load with `imageLoad()` from an `r32ui` storage image. | [shader](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L580-L587) |
+| `load_from_texture` | Replaces the buffer load with a `usampler2D` sample at normalized fragment coordinates. | [shader](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L588-L596) |
+| `output_variables` | Uses `subpassLoad()` and coordinate arithmetic instead of `fwidth()`; Walkthrough 2 covers this separate shape. | [input-attachment shader](../../../modules/vulkan/shaderexecutor/vktShaderHelperInvocationsTests.cpp#L597-L604) |
 
 #### SPIR-V
 

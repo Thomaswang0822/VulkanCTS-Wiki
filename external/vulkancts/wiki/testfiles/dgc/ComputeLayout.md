@@ -397,7 +397,7 @@ void main (void) {
 | `LayoutTestInstance::makeIndirectCommands()` | [indirect payload encoding](../../../modules/vulkan/device_generated_commands/vktDGCComputeLayoutTests.cpp#L445-L542) | Encodes state payloads, addresses, padding, and dispatch dimensions. |
 | `LayoutTestInstance::iterate()` | [runtime execution](../../../modules/vulkan/device_generated_commands/vktDGCComputeLayoutTests.cpp#L545-L699) | Creates resources, preprocesses commands, submits work, and synchronizes readback. |
 | Result scan | [validation](../../../modules/vulkan/device_generated_commands/vktDGCComputeLayoutTests.cpp#L701-L747) | Defines expected values, diagnostics, and pass/fail behavior. |
-| `createDGCComputeLayoutTests()` | [registration](../../../modules/vulkan/device_generated_commands/vktDGCComputeLayoutTests.cpp#L752-L784) | Builds the registered NV families and `_cq` variants. |
+| `createDGCComputeLayoutTests()` | [`createDGCComputeLayoutTests()`](../../../modules/vulkan/device_generated_commands/vktDGCComputeLayoutTests.cpp#L752-L784) | Builds the registered NV families and `_cq` variants. |
 | Mustpass coverage | [`dgc.txt`](../../../mustpass/main/vk-default/dgc.txt#L4608-L4625) | Lists the exact NV compute layout paths. |
 | Vulkan DGC semantics | [Device-Generated Commands](../../../../vulkan-docs/src/chapters/device_generated_commands/generatedcommands.adoc#device-generated-commands) | Defines generated layout, preprocessing, pipeline update, and execution semantics. |
 | Vulkan dispatch semantics | [Dispatching Commands](../../../../vulkan-docs/src/chapters/dispatch.adoc#dispatching-commands) | Defines indirect dispatch dimensions and compute workgroup behavior. |

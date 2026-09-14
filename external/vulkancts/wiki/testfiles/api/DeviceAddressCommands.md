@@ -2,7 +2,7 @@
 
 **Core question:** Do the `VK_KHR_device_address_commands` entry points correctly handle buffer-device-address-based copy, vertex/index binding, and memory-range barrier operations when ranges are partially bound or when stride state crosses multiple command variants?
 
-[`vktApiDeviceAddressCommandsTests.cpp`](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L1) is the implementation source for the `api.device_address` test family. The family is registered only when `CTS_USES_VULKANSC` is not defined ([vktApiTests.cpp#L128-L137](../../../modules/vulkan/api/vktApiTests.cpp#L128-L137)).
+[`vktApiDeviceAddressCommandsTests.cpp`](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L1) is the implementation source for the `api.device_address` test family. The family is registered only when `CTS_USES_VULKANSC` is not defined ([Device-address family attachment](../../../modules/vulkan/api/vktApiTests.cpp#L128-L137)).
 
 - Test category: `api`.
 - Test family: `device_address`, created by [`createDeviceAddressCommandsTests()`](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L926-L949).
@@ -24,7 +24,7 @@ api.device_address
 └── misc
 ```
 
-The `device_address` test family is registered under the `api` test category in [`createApiTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L89-L148), inside `#ifndef CTS_USES_VULKANSC`. The only intermediate node is `misc`, created by [`new tcu::TestCaseGroup(testCtx, "misc")`](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L929-L929). The six test case leaves are added through the [`caseVect`](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L931-L938) loop and appear in the mustpass file at [`api.txt#L269223-L269228`](../../../mustpass/main/vk-default/api.txt#L267497-L267497).
+The `device_address` test family is registered under the `api` test category in [`createApiTests()`](../../../modules/vulkan/api/vktApiTests.cpp#L89-L148), inside `#ifndef CTS_USES_VULKANSC`. The only intermediate node is `misc`, created by [`new tcu::TestCaseGroup(testCtx, "misc")`](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L929-L929). The six test case leaves are added through the [`caseVect`](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L931-L938) loop and appear in the mustpass file at [Device-address mustpass cases](../../../mustpass/main/vk-default/api.txt#L267497-L267497).
 
 ## Parameter Dimensions and Observed Values
 
@@ -386,7 +386,7 @@ All leaves share a common dependency on `vkGetBufferDeviceAddress` returning cor
 - `copy_to_memory_with_unbound_ranges` and `complex_set_stride` additionally require `VK_EXT_vertex_input_dynamic_state` ([`checkSupport()` at L852-L853](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L852-L853)).
 - `memory_range_barrier` additionally requires `VK_KHR_synchronization2` ([`checkSupport()` at L854-L855](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L854-L855)).
 - The two copy leaves additionally require `DEVICE_CORE_FEATURE_SPARSE_BINDING` and `DEVICE_CORE_FEATURE_SPARSE_RESIDENCY_BUFFER` ([`checkSupport()` at L857-L862](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L857-L862)).
-- The whole `device_address` family is registered only when `CTS_USES_VULKANSC` is not defined, so Vulkan SC builds skip the family entirely ([vktApiTests.cpp#L128-L137](../../../modules/vulkan/api/vktApiTests.cpp#L128-L137)).
+- The whole `device_address` family is registered only when `CTS_USES_VULKANSC` is not defined, so Vulkan SC builds skip the family entirely ([Device-address family attachment](../../../modules/vulkan/api/vktApiTests.cpp#L128-L137)).
 
 ### Design-based pruning
 
@@ -407,16 +407,16 @@ All leaves share a common dependency on `vkGetBufferDeviceAddress` returning cor
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `createDeviceAddressCommandsTests()` | [vktApiDeviceAddressCommandsTests.cpp#L926-L949](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L926-L949) | Public entry point; creates `device_address` group and `misc` child; populates the six leaves from `caseVect`. |
-| `enum class CommandFlagTestMode` | [vktApiDeviceAddressCommandsTests.cpp#L41-L52](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L41-L52) | The six test-mode values that select the `TestInstance` subclass for each leaf. |
-| `BufferAddressCommandFlagsTestInstance::iterate()` | [vktApiDeviceAddressCommandsTests.cpp#L134-L247](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L134-L247) | Implementation of the two copy leaves; sparse-buffer setup, single-chunk binding, and byte-exact destination validation. |
-| `BufferAddressCommandFlagsTestInstance::bindBufferMemory()` | [vktApiDeviceAddressCommandsTests.cpp#L269-L324](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L269-L324) | Sparse-memory binding implementation including `m_useSingleChunk` and the second-chunk offset behavior. |
-| `VertexIndexBindingTestInstance::iterate()` | [vktApiDeviceAddressCommandsTests.cpp#L385-L562](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L385-L562) | Implementation of the three binding-command leaves; vertex/index buffer setup and image verification. |
-| `VertexIndexBindingTestInstance::drawUsingAllVertexIndexBinds()` | [vktApiDeviceAddressCommandsTests.cpp#L657-L697](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L657-L697) | `use_all_vertex_index_binds` draw sequence across three command generations. |
-| `VertexIndexBindingTestInstance::drawUsingBasicSetStride()` | [vktApiDeviceAddressCommandsTests.cpp#L579-L603](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L579-L603) | `basic_set_stride` draw sequence with the `setStride` toggle. |
-| `VertexIndexBindingTestInstance::drawUsingComplexSetStride()` | [vktApiDeviceAddressCommandsTests.cpp#L605-L655](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L605-L655) | `complex_set_stride` interleaved stride-state sequence across three command families. |
-| `MemoryRangeBarrierBetweenOperationsTestInstance::iterate()` | [vktApiDeviceAddressCommandsTests.cpp#L713-L826](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L713-L826) | Implementation of the memory-range-barrier leaf; two-dispatch compute flow with `VkMemoryRangeBarrierKHR`. |
-| `BufferAddressCommandTestCase::checkSupport()` | [vktApiDeviceAddressCommandsTests.cpp#L847-L863](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L847-L863) | Per-leaf feature requirements: `VK_KHR_device_address_commands`, `VK_EXT_vertex_input_dynamic_state`, `VK_KHR_synchronization2`, sparse core features. |
-| `BufferAddressCommandTestCase::initPrograms()` | [vktApiDeviceAddressCommandsTests.cpp#L865-L910](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L865-L910) | GLSL sources for the trivial vertex/fragment and compute shaders. |
-| `createApiTests()` registration | [vktApiTests.cpp#L136-L136](../../../modules/vulkan/api/vktApiTests.cpp#L136-L136) | Parent registration: `apiTests->addChild(createDeviceAddressCommandsTests(testCtx))`, inside `#ifndef CTS_USES_VULKANSC`. |
-| Mustpass entries | [api.txt#L269223-L269228](../../../mustpass/main/vk-default/api.txt#L267497-L267497) | The six `dEQP-VK.api.device_address.misc.*` leaves. |
+| `createDeviceAddressCommandsTests()` | [createDeviceAddressCommandsTests()](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L926-L949) | Public entry point; creates `device_address` group and `misc` child; populates the six leaves from `caseVect`. |
+| `enum class CommandFlagTestMode` | [enum class CommandFlagTestMode](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L41-L52) | The six test-mode values that select the `TestInstance` subclass for each leaf. |
+| `BufferAddressCommandFlagsTestInstance::iterate()` | [BufferAddressCommandFlagsTestInstance::iterate()](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L134-L247) | Implementation of the two copy leaves; sparse-buffer setup, single-chunk binding, and byte-exact destination validation. |
+| `BufferAddressCommandFlagsTestInstance::bindBufferMemory()` | [BufferAddressCommandFlagsTestInstance::bindBufferMemory()](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L269-L324) | Sparse-memory binding implementation including `m_useSingleChunk` and the second-chunk offset behavior. |
+| `VertexIndexBindingTestInstance::iterate()` | [VertexIndexBindingTestInstance::iterate()](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L385-L562) | Implementation of the three binding-command leaves; vertex/index buffer setup and image verification. |
+| `VertexIndexBindingTestInstance::drawUsingAllVertexIndexBinds()` | [VertexIndexBindingTestInstance::drawUsingAllVertexIndexBinds()](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L657-L697) | `use_all_vertex_index_binds` draw sequence across three command generations. |
+| `VertexIndexBindingTestInstance::drawUsingBasicSetStride()` | [VertexIndexBindingTestInstance::drawUsingBasicSetStride()](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L579-L603) | `basic_set_stride` draw sequence with the `setStride` toggle. |
+| `VertexIndexBindingTestInstance::drawUsingComplexSetStride()` | [VertexIndexBindingTestInstance::drawUsingComplexSetStride()](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L605-L655) | `complex_set_stride` interleaved stride-state sequence across three command families. |
+| `MemoryRangeBarrierBetweenOperationsTestInstance::iterate()` | [MemoryRangeBarrierBetweenOperationsTestInstance::iterate()](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L713-L826) | Implementation of the memory-range-barrier leaf; two-dispatch compute flow with `VkMemoryRangeBarrierKHR`. |
+| `BufferAddressCommandTestCase::checkSupport()` | [BufferAddressCommandTestCase::checkSupport()](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L847-L863) | Per-leaf feature requirements: `VK_KHR_device_address_commands`, `VK_EXT_vertex_input_dynamic_state`, `VK_KHR_synchronization2`, sparse core features. |
+| `BufferAddressCommandTestCase::initPrograms()` | [BufferAddressCommandTestCase::initPrograms()](../../../modules/vulkan/api/vktApiDeviceAddressCommandsTests.cpp#L865-L910) | GLSL sources for the trivial vertex/fragment and compute shaders. |
+| `createApiTests()` registration | [createApiTests() registration](../../../modules/vulkan/api/vktApiTests.cpp#L136-L136) | Parent registration: `apiTests->addChild(createDeviceAddressCommandsTests(testCtx))`, inside `#ifndef CTS_USES_VULKANSC`. |
+| Mustpass entries | [Device-address mustpass cases](../../../mustpass/main/vk-default/api.txt#L267497-L267497) | The six `dEQP-VK.api.device_address.misc.*` leaves. |

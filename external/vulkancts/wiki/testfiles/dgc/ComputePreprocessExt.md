@@ -2,7 +2,7 @@
 
 **Core question:** Does `VK_EXT_device_generated_commands` preprocess and execute generated compute commands correctly across queue, count-buffer, and state-command-buffer variants?
 
-- This page covers the implementation and registrations in [`vktDGCComputePreprocessTestsExt.cpp`](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L51-L586) for `dgc.ext.compute.preprocess`.
+- This page covers the implementation and registrations in [EXT compute preprocessing tests](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTestsExt.cpp#L51-L586) for `dgc.ext.compute.preprocess`.
 - The 18 registered test cases vary four preprocessing/execution queue methods, three count-buffer modes, and two state command buffer placements.
 - Each case prepares two generated compute sequences, preprocesses them explicitly, executes them with `isPreprocessed` set to `VK_TRUE`, and checks two host-visible output buffers.
 - The page explains the registered paths, the generated command and preprocess buffers, queue synchronization, state command buffers, and result checking.

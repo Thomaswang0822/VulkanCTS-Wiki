@@ -32,14 +32,14 @@ Each direct child is an intermediate node that owns one or two test case leaves 
 ## Parameter Dimensions and Observed Values
 
 The matrix is built from two explicit arrays in the registration loop
-[vktRayTracingTraversalControlTests.cpp#L771-L791](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L771-L791).
+[`HitShaderTestTypeData()`](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L771-L791).
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
 | `HitShaderTestType` | `isect_report_intersection`, `isect_dont_report_intersection`, `ahit_pass_through`, `ahit_ignore_intersection`, `ahit_terminate_ray` | Selects the any-hit or intersection shader body; this is the primary behavioral axis. | [hitShaderTestTypes](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L776-L782) |
 | `BottomTestType` | `triangles`, `aabbs` | Chooses fixed-function triangle intersection or procedural AABB geometry. AABB cases bind an intersection shader; triangle cases do not. | [bottomTestTypes](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L784-L791) |
 | Launch size | fixed `8 x 8` | One ray per launch invocation. Central 6x6 pixels hit the square; border pixels miss. | [TEST_WIDTH/HEIGHT](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L75-L76) |
-| Result image | fixed `8 x 8 x 2`, `r32ui` | Layer 0 carries the any-hit or miss `x` value; layer 1 carries the closest-hit `y` value. | [verifyImage](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L322-L384) |
+| Result image | fixed `8 x 8 x 2`, `r32ui` | Layer 0 carries the any-hit or miss `x` value; layer 1 carries the closest-hit `y` value. | [Result image](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L322-L384) |
 
 ## Behavior Parameters
 
@@ -68,9 +68,9 @@ The any-hit shader sets `hitValue.x = 1`, then calls `terminateRayEXT`, followed
 ## Shader Analysis
 
 The shaders are inline GLSL strings emitted by `initPrograms` with `SPIRV_VERSION_1_4`
-[vktRayTracingTraversalControlTests.cpp#L456-L591](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L456-L591).
+[`TraversalControlTestInstance()`](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L456-L591).
 Five shader-name sets are indexed by `HitShaderTestType`
-[vktRayTracingTraversalControlTests.cpp#L251-L257](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L251-L257).
+[`SingleSquareConfiguration()`](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L251-L257).
 Each set shares the same rgen, chit, and miss shaders; only the any-hit shader (and the intersection shader for AABB cases) changes.
 
 One walkthrough covers the `ahit_terminate_ray` case because `terminateRayEXT` is the most distinctive traversal-control operation and its post-terminate canary makes the pass/fail signal directly observable. The same rgen drives every case, and the chit and miss shaders are single-statement payload writes that the expected-value table already captures.
@@ -202,11 +202,11 @@ void main()
 </details>## Runtime Execution and Result Checking
 
 - **Resource setup.** The host builds one bottom-level acceleration structure containing a single square geometry. For `triangles` it is a two-triangle quad; for `aabbs` it is a single AABB covering the same area. A one-instance top-level acceleration structure wraps that BLAS
-  [initBottomAccelerationStructures](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L187-L229),
+  [`SingleSquareConfiguration()`](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L187-L229),
   [initTopAccelerationStructure](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L231-L243).
 - **Pipeline.** Three shader groups: group 0 is raygen, group 1 is the hit group (intersection for AABB plus any-hit plus closest-hit), group 2 is miss. The host builds one-entry raygen, hit, and miss shader binding tables sized to `shaderGroupHandleSize`
-  [initRayTracingShaders](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L245-L284),
-  [initShaderBindingTables](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L286-L320).
+  [`SingleSquareConfiguration()`](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L245-L284),
+  [initialize raygen, hit, and miss shader-binding tables](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L286-L320).
 - **Image clear and barrier.** The 2-layer `r32ui` storage image is cleared to `0xFF` in transfer-dst layout, then barriered to `GENERAL` with acceleration-structure read and write access before the trace
   [runTest image barriers](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L678-L695).
 - **Trace.** `cmdTraceRays` runs an `8 x 8 x 1` launch
@@ -460,7 +460,7 @@ All cases share the same image-clear, trace, copyback, and reference-comparison 
 ### Requirement-based pruning
 
 - Every case requires `VK_KHR_acceleration_structure` and `VK_KHR_ray_tracing_pipeline` device functionality, with the `rayTracingPipeline` and `accelerationStructure` feature bits enabled
-  [checkSupport](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L439-L454).
+  [`TraversalControlTestInstance()`](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L439-L454).
 - The `accelerationStructure` feature is checked as a hard error rather than `NotSupportedError` because `VK_KHR_ray_tracing_pipeline` depends on it.
 
 ### Design-based pruning
@@ -482,13 +482,13 @@ All cases share the same image-clear, trace, copyback, and reference-comparison 
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `HitShaderTestType` enum | [vktRayTracingTraversalControlTests.cpp#L59-L67](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L59-L67) | Defines the five behavior parameter values. |
-| `SingleSquareConfiguration` class | [vktRayTracingTraversalControlTests.cpp#L160-L399](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L160-L399) | Implements BLAS/TLAS, pipeline, SBT, and result verification for all cases. |
-| BLAS geometry construction | [vktRayTracingTraversalControlTests.cpp#L187-L229](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L187-L229) | Triangle square vs single AABB. |
-| Pipeline shader binding | [vktRayTracingTraversalControlTests.cpp#L245-L284](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L245-L284) | Maps each `HitShaderTestType` to its shader set and binds the three shader groups. |
-| SBT construction | [vktRayTracingTraversalControlTests.cpp#L286-L320](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L286-L320) | One-entry raygen, hit, and miss tables. |
-| `verifyImage` expected-value switch | [vktRayTracingTraversalControlTests.cpp#L322-L384](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L322-L384) | Encodes the per-case reference image semantics. |
-| `checkSupport` feature gates | [vktRayTracingTraversalControlTests.cpp#L439-L454](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L439-L454) | Requires the two KHR feature bits. |
-| `initPrograms` GLSL literals | [vktRayTracingTraversalControlTests.cpp#L456-L591](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L456-L591) | Source of the reconstructed walkthrough shaders. |
-| `runTest` host flow | [vktRayTracingTraversalControlTests.cpp#L608-L752](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L608-L752) | Resource creation, clear, trace, copyback, host invalidation. |
-| Registration loop | [vktRayTracingTraversalControlTests.cpp#L766-L813](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L766-L813) | Builds the five test case groups and their triangle/AABB leaves, applying `onlyAabbTest`. |
+| `HitShaderTestType` enum | [HitShaderTestType enum](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L59-L67) | Defines the five behavior parameter values. |
+| `SingleSquareConfiguration` class | [SingleSquareConfiguration class](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L160-L399) | Implements BLAS/TLAS, pipeline, SBT, and result verification for all cases. |
+| BLAS geometry construction | [build triangle or AABB traversal geometry](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L187-L229) | Triangle square vs single AABB. |
+| Pipeline shader binding | [select hit-shader stages and bind traversal groups](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L245-L284) | Maps each `HitShaderTestType` to its shader set and binds the three shader groups. |
+| SBT construction | [create raygen, hit, and miss SBT entries](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L286-L320) | One-entry raygen, hit, and miss tables. |
+| `verifyImage` expected-value switch | [choose expected pixels for each traversal-control case](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L322-L384) | Encodes the per-case reference image semantics. |
+| `checkSupport` feature gates | [check traversal-control ray-tracing prerequisites](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L439-L454) | Requires the two KHR feature bits. |
+| `initPrograms` GLSL literals | [initPrograms GLSL literals](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L456-L591) | Source of the reconstructed walkthrough shaders. |
+| `runTest` host flow | [runTest host flow](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L608-L752) | Resource creation, clear, trace, copyback, host invalidation. |
+| Registration loop | [Registration loop](../../../modules/vulkan/ray_tracing/vktRayTracingTraversalControlTests.cpp#L766-L813) | Builds the five test case groups and their triangle/AABB leaves, applying `onlyAabbTest`. |

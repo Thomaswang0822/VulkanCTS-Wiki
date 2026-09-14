@@ -410,10 +410,10 @@ void main(void)
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Parameter enumerations and `TestParams` | [`vktPipelineInterfaceMatchingTests.cpp#L57-L133`](../../../modules/vulkan/pipeline/vktPipelineInterfaceMatchingTests.cpp#L57-L133) | Defines the generated case dimensions. |
+| Parameter enumerations and `TestParams` | [Parameter enumerations and TestParams](../../../modules/vulkan/pipeline/vktPipelineInterfaceMatchingTests.cpp#L57-L133) | Defines the generated case dimensions. |
 | Generated input comparison | [`genInVerification()`](../../../modules/vulkan/pipeline/vktPipelineInterfaceMatchingTests.cpp#L862-L894) | Defines integer and floating-point shader-side checks. |
 | Feature and construction gates | [`InterfaceMatchingTestCase::checkSupport()`](../../../modules/vulkan/pipeline/vktPipelineInterfaceMatchingTests.cpp#L896-L946) | Applies extension and stage requirements. |
 | General result readback | [draw, copy, and selected-pixel check](../../../modules/vulkan/pipeline/vktPipelineInterfaceMatchingTests.cpp#L354-L400) | Shows the regular host-visible pass condition. |
 | Skipped-output case | [`MiscInterfaceMatchingTestCase`](../../../modules/vulkan/pipeline/vktPipelineInterfaceMatchingTests.cpp#L1071-L1249) | Generates and validates `skip_output_variable`. |
 | Registration | [`createInterfaceMatchingTests()`](../../../modules/vulkan/pipeline/vktPipelineInterfaceMatchingTests.cpp#L1254-L1357) | Registers the four direct branches. |
-| Delegated component-layout implementation | [`vktPipelineShaderComponentDecoratedLayoutMatchingTests.cpp#L1172-L1215`](../../../modules/vulkan/pipeline/vktPipelineShaderComponentDecoratedLayoutMatchingTests.cpp#L1172-L1215) | Owns the registered component-layout family. |
+| Delegated component-layout implementation | [Delegated component-layout implementation](../../../modules/vulkan/pipeline/vktPipelineShaderComponentDecoratedLayoutMatchingTests.cpp#L1172-L1215) | Owns the registered component-layout family. |

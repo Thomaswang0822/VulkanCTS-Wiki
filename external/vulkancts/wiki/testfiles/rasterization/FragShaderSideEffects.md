@@ -860,8 +860,8 @@ likely affect all cases, not just one.
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Case-type enumeration | [vktRasterizationFragShaderSideEffectsTests.cpp#L58-L70](../../../modules/vulkan/rasterization/vktRasterizationFragShaderSideEffectsTests.cpp#L58-L70) | Defines the 10 case types and their identifiers. |
-| Test parameters and depth-bounds struct | [vktRasterizationFragShaderSideEffectsTests.cpp#L81-L107](../../../modules/vulkan/rasterization/vktRasterizationFragShaderSideEffectsTests.cpp#L81-L107) | Carries `caseType`, `clearColor`, `drawColor`, `colorAtEnd`, and optional depth-bounds parameters. |
+| Case-type enumeration | [Case-type enumeration](../../../modules/vulkan/rasterization/vktRasterizationFragShaderSideEffectsTests.cpp#L58-L70) | Defines the 10 case types and their identifiers. |
+| Test parameters and depth-bounds struct | [Test parameters and depth-bounds struct](../../../modules/vulkan/rasterization/vktRasterizationFragShaderSideEffectsTests.cpp#L81-L107) | Carries `caseType`, `clearColor`, `drawColor`, `colorAtEnd`, and optional depth-bounds parameters. |
 | Feature support check | [FragSideEffectsTestCase::checkSupport()](../../../modules/vulkan/rasterization/vktRasterizationFragShaderSideEffectsTests.cpp#L162-L182) | Applies `fragmentStoresAndAtomics`, `depthBounds`, `VK_EXT_shader_demote_to_helper_invocation`, and `VK_KHR_shader_terminate_invocation` gates. |
 | Vertex shader generation | [initPrograms() vertex shader](../../../modules/vulkan/rasterization/vktRasterizationFragShaderSideEffectsTests.cpp#L197-L203) | Emits the vertex shader that places depth at the chosen mesh depth. |
 | Fragment shader generation | [initPrograms() fragment shader](../../../modules/vulkan/rasterization/vktRasterizationFragShaderSideEffectsTests.cpp#L205-L266) | Builds the per-case fragment shader with the color statement ordering and case-specific terminator/mask/test statement. |
@@ -870,6 +870,6 @@ likely affect all cases, not just one.
 | SSBO check | [iterate() SSBO scan](../../../modules/vulkan/rasterization/vktRasterizationFragShaderSideEffectsTests.cpp#L622-L636) | The primary pass condition: every SSBO entry must equal `1`. |
 | Color attachment check | [iterate() color scan](../../../modules/vulkan/rasterization/vktRasterizationFragShaderSideEffectsTests.cpp#L639-L676) | The secondary pass condition: every pixel must match an expected color. Logs an error mask on failure. |
 | Test family registration | [createFragSideEffectsTests()](../../../modules/vulkan/rasterization/vktRasterizationFragShaderSideEffectsTests.cpp#L684-L777) | Creates the root, color-order children, and case-type leaves. |
-| Mustpass evidence (vk-default) | [vk-default/rasterization.txt#L8562-L8581](../../../mustpass/main/vk-default/rasterization.txt#L8562-L8581) | Lists all 20 cases under `rasterization.frag_side_effects`. |
-| Mustpass evidence (vksc-default) | [vksc-default/rasterization.txt#L449-L468](../../../mustpass/main/vksc-default/rasterization.txt#L449-L468) | Lists the same 20 cases with the `dEQP-VKSC.` prefix. |
-| Factory declaration | [vktRasterizationFragShaderSideEffectsTests.hpp#L35](../../../modules/vulkan/rasterization/vktRasterizationFragShaderSideEffectsTests.hpp#L35) | Declares `createFragSideEffectsTests`. |
+| Mustpass evidence (vk-default) | [Mustpass evidence (vk-default)](../../../mustpass/main/vk-default/rasterization.txt#L8562-L8581) | Lists all 20 cases under `rasterization.frag_side_effects`. |
+| Mustpass evidence (vksc-default) | [Mustpass evidence (vksc-default)](../../../mustpass/main/vksc-default/rasterization.txt#L449-L468) | Lists the same 20 cases with the `dEQP-VKSC.` prefix. |
+| Factory declaration | [Factory declaration](../../../modules/vulkan/rasterization/vktRasterizationFragShaderSideEffectsTests.hpp#L35) | Declares `createFragSideEffectsTests`. |

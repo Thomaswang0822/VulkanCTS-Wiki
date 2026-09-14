@@ -264,17 +264,17 @@ void main (void) {
 
 | Entry point | Link | Why it matters |
 |---|---|---|
-| `createDisplayControlTests` | [`vktWsiDisplayControlTests.cpp#L988-L994`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L988-L994) | Registers the four test case leaves. |
-| `createWsiTests` | [`vktWsiTests.cpp#L76-L90`](../../../modules/vulkan/wsi/vktWsiTests.cpp#L76-L90) | Attaches `display_control` under the `wsi` test category. |
-| `createInstance` and `createTestDevice` | [`vktWsiDisplayControlTests.cpp#L70-L143`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L70-L143) | Defines counter-path extensions and display-ownership checks. |
+| `createDisplayControlTests` | [`createDisplayControlTests()`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L988-L994) | Registers the four test case leaves. |
+| `createWsiTests` | [`createWsiTests`](../../../modules/vulkan/wsi/vktWsiTests.cpp#L76-L90) | Attaches `display_control` under the `wsi` test category. |
+| `createInstance` and `createTestDevice` | [`createInstance` and `createTestDevice`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L70-L143) | Defines counter-path extensions and display-ownership checks. |
 | Platform `hasDisplay()` implementations | [Linux](../../../../../framework/platform/lnx/tcuLnxVulkanPlatform.cpp#L509-L539), [Android](../../../../../framework/platform/android/tcuAndroidPlatform.cpp#L412-L417), [macOS](../../../../../framework/platform/osx/tcuOSXVulkanPlatform.cpp#L150-L159), [Windows](../../../../../framework/platform/win32/tcuWin32VulkanPlatform.cpp#L318-L324) | Shows why at least one ownership-loop iteration succeeds on every current Vulkan platform. |
-| `getDisplayAndDisplayPlane` and `createSurface` | [`vktWsiDisplayControlTests.cpp#L146-L245`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L146-L245) | Selects a compatible plane and creates the direct display surface. |
-| `createSwapchainCounterConfig` and `createSwapchainConfig` | [`vktWsiDisplayControlTests.cpp#L464-L540`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L464-L540) | Enables the vblank counter and builds the fixed FIFO swapchain configuration. |
-| `render` and `iterate` | [`vktWsiDisplayControlTests.cpp#L698-L803`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L698-L803) | Shows presentation, recovery, the guarded counter query, and termination before that query. |
-| `initPrograms` | [`vktWsiDisplayControlTests.cpp#L822-L840`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L822-L840) | Generates the fixed quad shaders. |
-| `getDisplays` | [`vktWsiDisplayControlTests.cpp#L853-L887`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L853-L887) | Enumerates displays for the function cases. |
-| Power and event functions | [`vktWsiDisplayControlTests.cpp#L889-L984`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L889-L984) | Implements the command result checks and fence cleanup. |
-| Default mustpass paths | [`wsi.txt#L11515-L11518`](../../../mustpass/main/vk-default/wsi.txt#L11515-L11518) | Lists all four registered paths. |
-| Display control specification | [`wsi.adoc#L2181-L2234`](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L2181-L2234) | Defines display power control and power-state values. |
-| Surface counter specification | [`wsi.adoc#L6434-L6491`](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L6434-L6491) | Defines counter enablement, activation, and query behavior. |
-| Event fence specification | [`synchronization.adoc#L2882-L2989`](../../../../vulkan-docs/src/chapters/synchronization.adoc#L2882-L2989) | Defines device and display event fences. |
+| `getDisplayAndDisplayPlane` and `createSurface` | [`getDisplayAndDisplayPlane` and `createSurface`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L146-L245) | Selects a compatible plane and creates the direct display surface. |
+| `createSwapchainCounterConfig` and `createSwapchainConfig` | [`createSwapchainCounterConfig` and `createSwapchainConfig`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L464-L540) | Enables the vblank counter and builds the fixed FIFO swapchain configuration. |
+| `render` and `iterate` | [`render` and `iterate`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L698-L803) | Shows presentation, recovery, the guarded counter query, and termination before that query. |
+| `initPrograms` | [`SwapchainCounterTestCase::initPrograms()`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L822-L840) | Generates the fixed quad shaders. |
+| `getDisplays` | [`getDisplays()`](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L853-L887) | Enumerates displays for the function cases. |
+| Power and event functions | [Power and event functions](../../../modules/vulkan/wsi/vktWsiDisplayControlTests.cpp#L889-L984) | Implements the command result checks and fence cleanup. |
+| Default mustpass paths | [Default mustpass paths](../../../mustpass/main/vk-default/wsi.txt#L11515-L11518) | Lists all four registered paths. |
+| Display control specification | [Display control specification](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L2181-L2234) | Defines display power control and power-state values. |
+| Surface counter specification | [Surface counter specification](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L6434-L6491) | Defines counter enablement, activation, and query behavior. |
+| Event fence specification | [Event fence specification](../../../../vulkan-docs/src/chapters/synchronization.adoc#L2882-L2989) | Defines device and display event fences. |

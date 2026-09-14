@@ -20,7 +20,7 @@ dgc.nv.compute.get_info
 └── constant_pipeline_memory_requirements
 ```
 
-The root and its eight direct children are registered by [createDGCComputeGetInfoTests](../../../modules/vulkan/device_generated_commands/vktDGCComputeGetInfoTests.cpp#L382-L415). The corresponding NV paths are listed in [dgc.txt](../../../mustpass/main/vk-default/dgc.txt).
+The root and its eight direct children are registered by [createDGCComputeGetInfoTests](../../../modules/vulkan/device_generated_commands/vktDGCComputeGetInfoTests.cpp#L382-L415). The corresponding NV paths are listed in [dgc source](../../../mustpass/main/vk-default/dgc.txt).
 
 ## Parameter Dimensions and Observed Values
 
@@ -112,6 +112,6 @@ The registration table contains only the eight listed leaves. The source does no
 | Entry point | Link | Why it matters |
 |---|---|---|
 | Test registration | [createDGCComputeGetInfoTests](../../../modules/vulkan/device_generated_commands/vktDGCComputeGetInfoTests.cpp#L382-L415) | Registers `dgc.nv.compute.get_info` and all eight direct children. |
-| Compute get-info implementation | [vktDGCComputeGetInfoTests.cpp](../../../modules/vulkan/device_generated_commands/vktDGCComputeGetInfoTests.cpp#L48-L377) | Defines shader setup, support checks, queries, and comparisons. |
-| Header declaration | [vktDGCComputeGetInfoTests.hpp](../../../modules/vulkan/device_generated_commands/vktDGCComputeGetInfoTests.hpp#L29-L34) | Declares the test-group factory. |
-| Mustpass coverage | [dgc.txt](../../../mustpass/main/vk-default/dgc.txt) | Lists the NV compute get-info paths. |
+| Compute get-info implementation | [Compute memory-requirements queries and comparisons](../../../modules/vulkan/device_generated_commands/vktDGCComputeGetInfoTests.cpp#L48-L377) | Defines shader setup, support checks, queries, and comparisons. |
+| Header declaration | [`createDGCComputeGetInfoTests` declaration](../../../modules/vulkan/device_generated_commands/vktDGCComputeGetInfoTests.hpp#L29-L34) | Declares the test-group factory. |
+| Mustpass coverage | [dgc source](../../../mustpass/main/vk-default/dgc.txt) | Lists the NV compute get-info paths. |

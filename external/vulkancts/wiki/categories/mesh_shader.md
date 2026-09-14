@@ -17,7 +17,7 @@ mesh_shader
 └── ext
 ```
 
-The `nv` and `ext` branches are registered directly by [vktMeshShaderTests.cpp](../../modules/vulkan/mesh_shader/vktMeshShaderTests.cpp#L55-L85). The NV branch has seven direct families. The EXT branch has eleven direct families, including `pipeline`, which is registered by the EXT built-in implementation file.
+The `nv` and `ext` branches are registered directly by [createTests](../../modules/vulkan/mesh_shader/vktMeshShaderTests.cpp#L55-L85). The NV branch has seven direct families. The EXT branch has eleven direct families, including `pipeline`, which is registered by the EXT built-in implementation file.
 
 ## How the Families Fit Together
 
@@ -53,4 +53,4 @@ NV and EXT pages are kept separate because their shader built-ins, command entry
 
 ## Category Notes
 
-The registration-only dispatcher is represented by this gateway rather than a separate technical page. The utility helper [vktMeshShaderUtil.cpp](../../modules/vulkan/mesh_shader/vktMeshShaderUtil.cpp#L111-L139) supplies common NV and EXT support checks but does not register test cases.
+The registration-only dispatcher is represented by this gateway rather than a separate technical page. The utility helper [`vktMeshShaderUtil.cpp`](../../modules/vulkan/mesh_shader/vktMeshShaderUtil.cpp#L111-L139) supplies common NV and EXT support checks but does not register test cases.

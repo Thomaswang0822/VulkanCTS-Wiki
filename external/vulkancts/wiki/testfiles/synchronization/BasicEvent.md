@@ -100,7 +100,7 @@ The synchronization2-only `none_set_reset` cases set an ordinary event using a d
 
 ### `vertex_stage_barrier`: graphics-stage event dependency
 
-This synchronization2-only case resets an event at `ALL_COMMANDS`, inserts an execution barrier from `ALL_COMMANDS` to `VERTEX_SHADER`, then sets and waits for the event using a vertex-stage dependency. It checks successful submission completion without a shader or data comparison. Registration excludes compute and video queues ([implementation](../../../modules/vulkan/synchronization/vktSynchronizationBasicEventTests.cpp#L303-L337), [registration](../../../modules/vulkan/synchronization/vktSynchronizationBasicEventTests.cpp#L638-L641)).
+This synchronization2-only case resets an event at `ALL_COMMANDS`, inserts an execution barrier from `ALL_COMMANDS` to `VERTEX_SHADER`, then sets and waits for the event using a vertex-stage dependency. It checks successful submission completion without a shader or data comparison. Registration excludes compute and video queues ([`vertexStageBarrierCase()`](../../../modules/vulkan/synchronization/vktSynchronizationBasicEventTests.cpp#L303-L337), [registration](../../../modules/vulkan/synchronization/vktSynchronizationBasicEventTests.cpp#L638-L641)).
 
 Synchronization2 repeats each set/wait placement with `VK_EVENT_CREATE_DEVICE_ONLY_BIT`. These cases never query or modify the event from the host. Fence completion is the observable result.
 

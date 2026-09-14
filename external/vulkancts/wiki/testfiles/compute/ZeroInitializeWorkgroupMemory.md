@@ -4,7 +4,7 @@
 before any user code runs, regardless of its scalar, vector, matrix, or composite type, the workgroup dimensions, the workgroup
 size, or whether the same pipeline is dispatched repeatedly?
 
-- [vktComputeZeroInitializeWorkgroupMemoryTests.cpp](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L1382-L1424)
+- [Workgroup zero-initialization families](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L1382-L1424)
   implements the `zero_initialize_workgroup_memory` test family under `dEQP-VK.compute.pipeline.zero_initialize_workgroup_memory`.
 - The page also files the registered `max_workgroup_memory`, `types`, `composites`, `max_workgroups`, `specialize_workgroup`,
   `repeat_pipeline`, and `shared_memory_blocks` test families under the same root.
@@ -48,7 +48,7 @@ compute.pipeline.zero_initialize_workgroup_memory
 ```
 
 The `shared_memory_blocks` child is omitted under shader-object construction types because Amber cannot drive compute pipelines
-as shader objects ([vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L1413-L1420](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L1413-L1420)).
+as shader objects ([AddRepeatedPipelineTests()](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L1413-L1420)).
 
 ## Parameter Dimensions and Observed Values
 
@@ -63,7 +63,7 @@ this test.
 | Type family | `bool`, `bvec2..4`, `uint32_t`, `uvec2..4`, `int32_t`, `ivec2..4`, `uint8_t`/`int8_t`, `u8vec2..4`/`i8vec2..4`, `uint16_t`/`int16_t`, `u16vec2..4`/`i16vec2..4`, `uint64_t`/`int64_t`, `u64vec2..4`/`i64vec2..4`, `float32_t`, `f32vec2..4`, `f32mat2x2..4x4`, `float16_t`, `f16vec2..4`, `f16mat2x2..4x4`, `float64_t`, `f64vec2..4`, `f64mat2x2..4x4` | Each `types` case declares the named scalar/vector/matrix variable with `shared … = {}` and a randomized 1..16 variable count; the loop in `main()` compares each element to zero with the matching conversion. | [type list](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L446-L474), [support gates](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L329-L389) |
 | Composite feature flags | `0x0`, `0x1`, `0x2`, `0x4`, `0x8`, `0x10`, `0x1f` (encoded in `CompositeCaseDef::index`) | The `composites` definitions differ by which explicit-type feature they need; per-case support throws `NotSupportedError` when the corresponding feature is absent. | [composite features](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L552-L568) |
 | Composite shape | 11 hand-written `CompositeCaseDef` entries using `uint[…]= {}`, multi-dim arrays, structs, nested struct arrays, and a 5-level struct array | Each entry is a single generated test case; the bit-flag index selects which explicit-type features must be present. | [composite cases](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L602-L866) |
-| Intended repeat parameters | Names encode repeat count `2`, `4`, `8`, or `16`, `xSize ∈ {4, 16, 32, 64}`, and writer row `odd ∈ {0, 1}` | The registration call currently passes `odd` into the constructor's `repeat` parameter and `repeat` into its `odd` parameter. Consequently even-named cases execute zero submissions and odd-named cases one submission; no invocation writes because runtime `m_odd` is 2, 4, 8, or 16. | [constructor](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L1112-L1117), [registration](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L1335-L1358) |
+| Intended repeat parameters | Names encode repeat count `2`, `4`, `8`, or `16`, `xSize ∈ {4, 16, 32, 64}`, and writer row `odd ∈ {0, 1}` | The registration call currently passes `odd` into the constructor's `repeat` parameter and `repeat` into its `odd` parameter. Consequently even-named cases execute zero submissions and odd-named cases one submission; no invocation writes because runtime `m_odd` is 2, 4, 8, or 16. | [constructor](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L1112-L1117), [Repeated-pipeline argument ordering](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L1335-L1358) |
 | Amber workgroup shapes | `workgroup_size_128`, `workgroup_size_8x8x2`, `workgroup_size_8x2x8`, `workgroup_size_2x8x8`, `workgroup_size_8x4x4`, `workgroup_size_4x8x4`, `workgroup_size_4x4x8` | `shared_memory_blocks` runs an Amber synchronization pattern for each workgroup layout. Invocation 0 overwrites the scalar before the barrier, so these scripts check propagation of `1`, not the initial zero value. | [AddSharedMemoryTests](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L1360-L1377) |
 
 ## Behavior Parameters
@@ -74,14 +74,14 @@ parameter dimension to stress while the same core mechanism (workgroup memory mu
 ### max_workgroup_memory — Largest possible workgroup memory is zero-initialized
 
 `max_workgroup_memory` declares a `shared uvec4 wg_mem[num_elems]` whose size equals the device's `maxComputeSharedMemorySize`,
-where `num_elems = maxComputeSharedMemorySize / 16` ([vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L211-L241](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L211-L241)).
+where `num_elems = maxComputeSharedMemorySize / 16` ([`MaxWorkgroupMemoryTest()`](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L211-L241)).
 The host derives dimensions from the per-axis limits, using multiples of 13 for additional dimensions and a target capped at
 247 invocations. Each invocation walks every `uvec4` slot but records only its own flat-index slot; invocation 0 also records
 slots beyond the workgroup size. A recorded slot adds `1` when `wg_mem[i][j] == 0` and
 `0` otherwise; slots beyond the local workgroup size are recorded by the invocation whose flat local index is zero. The host expects every entry
 to equal the dispatched workgroup count `numWGX * numWGY * numWGZ`: each workgroup contributes one zero observation per slot.
 The buffer is initialized to zero before dispatch so the atomic counts start at zero
-([vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L62-L162](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L62-L162)).
+([Copyright()](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L62-L162)).
 
 ### types — Scalar/vector/matrix shape does not change the zero-init promise
 
@@ -89,7 +89,7 @@ The buffer is initialized to zero before dispatch so the atomic counts start at 
 every invocation compare each element to zero. The mapping from `wg_mem` to a uint result buffer slot uses `numElements` for
 scalars/vectors, `numRows` for matrices, and `numVariables` for the variable index. The test exports a result buffer where
 `0` means the element was zero and `1` means it was not. The host then confirms every entry is `0`
-([vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L391-L474](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L391-L474)).
+([`TypeTest()`](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L391-L474)).
 
 ### composites — Nested arrays and structs stay zero-initialized
 
@@ -97,7 +97,7 @@ scalars/vectors, `numRows` for matrices, and `numVariables` for the variable ind
 two-dimensional arrays, structs, nested struct arrays, and a 5-level struct array. Each entry also encodes a feature bit mask
 in `m_caseDef.index` that the support check maps to `shaderFloat16`, `shaderFloat64`, `shaderInt8`, `shaderInt16`, and
 `shaderInt64`. The host runs each case with shape-specific spec values such as `{16}`, `{4, 8}`, `{2, 3, 4}`, `{6, 5, 4, 3, 2}`,
-or none ([vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L476-L873](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L476-L873)).
+or none ([`main()`](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L476-L873)).
 
 ### max_workgroups — One axis pushed to the maximum dispatch count
 
@@ -105,7 +105,7 @@ or none ([vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L476-L873](../../../m
 slots before a `barrier()`. The active dispatch axis is forced to `65535` workgroups while the other two axes stay at `1`.
 After the barrier, each invocation checks the slot selected by `gl_LocalInvocationID.x % 2` and atomically adds `1` or `0` to
 its flat-local-index result entry
-([vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L875-L1001](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L875-L1001)).
+([`Se()`](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L875-L1001)).
 
 ### specialize_workgroup — Workgroup size picked at pipeline creation
 
@@ -113,7 +113,7 @@ its flat-local-index result entry
 `layout(local_size_x_id = 0, local_size_y_id = 1, local_size_z_id = 2)` together with `layout(constant_id = 0..2) const`. The
 host supplies `{WGX, WGY, WGZ}` as specialization data and discards sizes that exceed `maxComputeWorkGroupInvocations`. Each
 invocation copies its own workgroup-memory slot into the matching result buffer entry
-([vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L1003-L1107](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L1003-L1107)).
+([`if()`](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L1003-L1107)).
 
 ### repeat_pipeline — Zero-initialization holds across repeated dispatches
 
@@ -123,14 +123,14 @@ designed to submit the same command buffer `m_repeat` times and refill the resul
 However, registration calls the constructor as `(x, odd, repeat)` although its parameters are `(xSize, repeat, odd)`. Therefore
 the registered even cases submit zero times, odd cases submit once, and `m_odd` is always 2, 4, 8, or 16, so the write branch
 never executes. As implemented, this family does not exercise repeated dispatches or the intended alternating source pattern
-([vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L1109-L1358](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L1109-L1358)).
+([`main()`](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L1109-L1358)).
 
 ### shared_memory_blocks — Amber-covered workgroup shapes
 
 `shared_memory_blocks` adds non-VulkanSC, non-shader-object Amber cases that pick a different workgroup shape per case file.
 Each Amber script writes `1` from `gl_LocalInvocationIndex == 0`, executes `barrier()`, then writes the observed `wg_mem` value
 into a result buffer. The expected buffer is `1` and the result buffer is initialized to `99`. Because the shared scalar is
-overwritten before it is observed, these scripts validate visibility of the write after the barrier, not zero-initialization ([vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L1360-L1377](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L1360-L1377);
+overwritten before it is observed, these scripts validate visibility of the write after the barrier, not zero-initialization ([de::toString()](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L1360-L1377);
 [Amber workgroup_size_128.amber](../../../data/vulkan/amber/compute/zero_initialize_workgroup_memory/workgroup_size_128.amber)).
 
 ## Shader Analysis
@@ -219,11 +219,11 @@ void main() {
 
 - The host reads `properties.limits.maxComputeSharedMemorySize` and `properties.limits.maxComputeWorkGroupInvocations` to pick
   the workgroup dimensions and the `num_elems` specialization value
-  ([vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L243-L266](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L243-L266)).
+  ([`if()`](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L243-L266)).
   The shader shown here uses the source's default `num_elems = 16384 / 16`; the real run uses the device's value. The host initializes the result buffer to zero and dispatches the case's requested number of workgroups; the per-slot check
   (`0` for a non-zero value, `1` for zero) combined with `atomicAdd` guarantees that any non-zero workgroup-memory slot leaves the result
   buffer entry strictly below the expected workgroup count
-  ([vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L82-L158](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L82-L158)).
+  ([makeDescriptorBufferInfo()](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L82-L158)).
 - The Amber scripts instead overwrite the scalar with 1 before the barrier and compare every output with a reference value of
   1. Their pre-filled 99 detects missing output writes, but the scripts do not observe the scalar's initial value
   ([workgroup_size_128.amber](../../../data/vulkan/amber/compute/zero_initialize_workgroup_memory/workgroup_size_128.amber)).
@@ -235,7 +235,7 @@ void main() {
 | Workgroup dimensions (`local_size_x_id, …`) | The same `local_size_x_id = 0, local_size_y_id = 1, local_size_z_id = 2` declaration form is used for `max_workgroup_memory`, `max_workgroups`, and `specialize_workgroup`; the host overrides the specialization constants per case. | [MaxWorkgroupMemoryTest::initPrograms](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L211-L241), [MaxWorkgroupsTest::initPrograms](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L929-L965), [SpecializeWorkgroupTest::initPrograms](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L1064-L1084) |
 | Type family | `types` swaps the single `shared uvec4 wg_mem[…]` for `shared <typeName> wg_mem<k> = {};` variables and converts each element to zero before the result buffer write. | [TypeTest::initPrograms](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L391-L434) |
 | Composite shape | `composites` substitutes the per-case `typeDefinition` (one- or two-dim arrays, structs, nested struct arrays, 5-level struct array) and reads via the per-case `assignment` block; spec constants drive array sizes when needed. | [CompositeTest::initPrograms](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L570-L592), [CompositeCaseDef entries](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L602-L866) |
-| Repeat count | The shader and runtime support one writing y-row and `m_repeat` submissions, but the swapped registration arguments reduce the actual cases to zero or one submission with no writing row. | [RepeatedPipelineTest::initPrograms](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L1161-L1185), [registration](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L1335-L1358) |
+| Repeat count | The shader and runtime support one writing y-row and `m_repeat` submissions, but the swapped registration arguments reduce the actual cases to zero or one submission with no writing row. | [RepeatedPipelineTest::initPrograms](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L1161-L1185), [Repeated-pipeline argument ordering](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L1335-L1358) |
 | Workgroup size | `specialize_workgroup` keeps the same `local_size_x_id` form but reads `wg_mem` directly into the result buffer without an "unowned slot" branch. | [SpecializeWorkgroupTest::initPrograms](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L1064-L1084) |
 | Driver | `shared_memory_blocks` is a separate Amber script per workgroup shape; the script is auto-loaded by the `AddSharedMemoryTests` helper. | [AddSharedMemoryTests](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L1360-L1377), [workgroup_size_8x8x2.amber](../../../data/vulkan/amber/compute/zero_initialize_workgroup_memory/workgroup_size_8x8x2.amber) |
 
@@ -605,9 +605,9 @@ problem in the Amber driver surface. It cannot indicate a non-zero initial value
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Test category factory declaration | [vktComputeZeroInitializeWorkgroupMemoryTests.hpp#L38-L39](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.hpp#L38-L39) | Declares `createZeroInitializeWorkgroupMemoryTests`. |
+| Test category factory declaration | [Test category factory declaration](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.hpp#L38-L39) | Declares `createZeroInitializeWorkgroupMemoryTests`. |
 | Top-level group factory | [createZeroInitializeWorkgroupMemoryTests](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L1382-L1424) | Registers the seven test families under the `zero_initialize_workgroup_memory` group. |
-| Category dispatcher | [vktComputeTests.cpp#L48-L64](../../../modules/vulkan/compute/vktComputeTests.cpp#L48-L64), [vktComputeTests.cpp#L68-L85](../../../modules/vulkan/compute/vktComputeTests.cpp#L68-L85) | Mounts `zero_initialize_workgroup_memory` under the `pipeline`, `shader_object_spirv`, and `shader_object_binary` construction types. |
+| Category dispatcher | [Category dispatcher](../../../modules/vulkan/compute/vktComputeTests.cpp#L48-L64), [Category dispatcher](../../../modules/vulkan/compute/vktComputeTests.cpp#L68-L85) | Mounts `zero_initialize_workgroup_memory` under the `pipeline`, `shader_object_spirv`, and `shader_object_binary` construction types. |
 | Shared runtime helper | [runCompute](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L62-L162) | Records the result buffer, descriptor, command buffer, memory barrier, and host scan; reused by `max_workgroup_memory`, `types`, `composites`, `max_workgroups`, and `specialize_workgroup`. |
 | `max_workgroup_memory` shader | [MaxWorkgroupMemoryTest::initPrograms](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L211-L241), [MaxWorkgroupMemoryInstance::iterate](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L243-L266) | Generates the largest-possible workgroup-memory shader and the per-call workgroup-size specialization. |
 | `max_workgroup_memory` registration | [AddMaxWorkgroupMemoryTests](../../../modules/vulkan/compute/vktComputeZeroInitializeWorkgroupMemoryTests.cpp#L268-L278) | Builds the per-workgroup-count test cases. |

@@ -29,7 +29,7 @@ mesh_shader.nv.property
 └── max_mesh_total_memory_size
 ```
 
-[`createTests()`](../../../modules/vulkan/mesh_shader/vktMeshShaderTests.cpp#L55-L84) attaches the `nv` branch below `mesh_shader` and adds the property family through `createMeshShaderPropertyTests()`. That factory creates the `property` group and its nine direct leaves in [`vktMeshShaderPropertyTests.cpp`](../../../modules/vulkan/mesh_shader/vktMeshShaderPropertyTests.cpp#L669-L685). The exact full paths appear in the default mustpass file at [`mesh-shader.txt`](../../../mustpass/main/vk-default/mesh-shader.txt#L27949-L27957).
+[`createTests()`](../../../modules/vulkan/mesh_shader/vktMeshShaderTests.cpp#L55-L84) attaches the `nv` branch below `mesh_shader` and adds the property family through `createMeshShaderPropertyTests()`. That factory creates the `property` group and its nine direct leaves in [`createMeshShaderPropertyTests()`](../../../modules/vulkan/mesh_shader/vktMeshShaderPropertyTests.cpp#L669-L685). The exact full paths appear in the default mustpass file at [`mesh-shader.txt`](../../../mustpass/main/vk-default/mesh-shader.txt#L27949-L27957).
 
 ## Parameter Dimensions and Observed Values
 
@@ -323,8 +323,8 @@ All shader-backed rows also share the storage-buffer, descriptor, pipeline, sync
 | NV property registration | [`createMeshShaderPropertyTests()`](../../../modules/vulkan/mesh_shader/vktMeshShaderPropertyTests.cpp#L669-L685) | Creates the `property` family and all nine direct leaves. |
 | Property support gates | [`genericCheckSupport()`](../../../modules/vulkan/mesh_shader/vktMeshShaderPropertyTests.cpp#L94-L104), [`checkTaskMeshShaderSupportNV()`](../../../modules/vulkan/mesh_shader/vktMeshShaderUtil.cpp#L111-L124) | Requires the extension, stage features, and shader storage-write feature. |
 | Shared runtime and host validation | [`MeshShaderPropertyInstance::iterate()`](../../../modules/vulkan/mesh_shader/vktMeshShaderPropertyTests.cpp#L130-L234) | Builds resources and the pipeline, issues the draw, synchronizes, and checks `buffer[i] == i`. |
-| Draw, invocation, size, and output cases | [`vktMeshShaderPropertyTests.cpp`](../../../modules/vulkan/mesh_shader/vktMeshShaderPropertyTests.cpp#L236-L512) | Implements the first seven leaves and their generated shaders. |
-| Shared-memory generator and memory cases | [`vktMeshShaderPropertyTests.cpp`](../../../modules/vulkan/mesh_shader/vktMeshShaderPropertyTests.cpp#L514-L665) | Implements the 16 KiB task and mesh memory probes. |
+| Draw, invocation, size, and output cases | [Draw, invocation, size, and output cases](../../../modules/vulkan/mesh_shader/vktMeshShaderPropertyTests.cpp#L236-L512) | Implements the first seven leaves and their generated shaders. |
+| Shared-memory generator and memory cases | [Shared-memory generator and memory cases](../../../modules/vulkan/mesh_shader/vktMeshShaderPropertyTests.cpp#L514-L665) | Implements the 16 KiB task and mesh memory probes. |
 | NV property definitions | [`VkPhysicalDeviceMeshShaderPropertiesNV`](../../../../vulkan-docs/src/chapters/limits.adoc#L2248-L2323) | Defines each queried property's meaning and property-query mechanism. |
 | NV required minima | [`Vulkan limit requirements`](../../../../vulkan-docs/src/chapters/limits.adoc#L6858-L6868) | Gives the required values used by the test constants. |
 | Mesh task generation | [`Task Shader Output`](../../../../vulkan-docs/src/chapters/VK_NV_mesh_shader/mesh.adoc#L33-L64) | Defines `gl_TaskCountNV` and its relation to `maxTaskOutputCount`. |

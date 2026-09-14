@@ -100,8 +100,8 @@ void main (void)
 
 #### Additional Info
 
-- `PipelineCacheComputeTest::initPrograms` creates `compute_0`, `compute_1`, and `compute_2`; the worker loop cycles through those three pipeline descriptions, while this walkthrough uses `compute_0` as the primary representative shader. [Source](../../../modules/vulkan/synchronization/vktSynchronizationInternallySynchronizedObjectsTests.cpp#L1196-L1244)
-- `executeComputePipeline` binds the storage buffer at binding `0`, dispatches the selected execution count, inserts a compute-to-host barrier, and checks all 16 values for `ptr[ndx] == ndx`. [Source](../../../modules/vulkan/synchronization/vktSynchronizationInternallySynchronizedObjectsTests.cpp#L366-L446)
+- `PipelineCacheComputeTest::initPrograms` creates `compute_0`, `compute_1`, and `compute_2`; the worker loop cycles through those three pipeline descriptions, while this walkthrough uses `compute_0` as the primary representative shader. [pipeline variants and worker loop](../../../modules/vulkan/synchronization/vktSynchronizationInternallySynchronizedObjectsTests.cpp#L1196-L1244)
+- `executeComputePipeline` binds the storage buffer at binding `0`, dispatches the selected execution count, inserts a compute-to-host barrier, and checks all 16 values for `ptr[ndx] == ndx`. [dispatch, barrier, and result check](../../../modules/vulkan/synchronization/vktSynchronizationInternallySynchronizedObjectsTests.cpp#L366-L446)
 
 #### Parameter Variation Summary
 

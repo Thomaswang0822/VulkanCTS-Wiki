@@ -48,15 +48,15 @@ For typical color and packed formats (for example `r8g8b8a8_unorm`, `b8g8r8a8_sr
 
 ### Depth/stencil formats: additional `SAMPLED_IMAGE_DEPTH_COMPARISON_BIT` requirement
 
-For depth/stencil formats (for example `d16_unorm`, `d32_sfloat`, `d24_unorm_s8_uint`, `d32_sfloat_s8_uint`), `getRequiredFormatProperties` adds `VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_DEPTH_COMPARISON_BIT_KHR` to `linearTilingFeatures` and `optimalTilingFeatures` whenever the legacy query reported `VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_BIT_KHR` for that tiling. The leaf therefore requires the implementation to also report the depth-comparison bit on top of the basic sampled-image bit for these formats [`vktTestCase.cpp#L1663-L1666`](../../../modules/vulkan/vktTestCase.cpp#L1663-L1666).
+For depth/stencil formats (for example `d16_unorm`, `d32_sfloat`, `d24_unorm_s8_uint`, `d32_sfloat_s8_uint`), `getRequiredFormatProperties` adds `VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_DEPTH_COMPARISON_BIT_KHR` to `linearTilingFeatures` and `optimalTilingFeatures` whenever the legacy query reported `VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_BIT_KHR` for that tiling. The leaf therefore requires the implementation to also report the depth-comparison bit on top of the basic sampled-image bit for these formats [TestCase source lines](../../../modules/vulkan/vktTestCase.cpp#L1663-L1666).
 
 ### Extended storage formats: `*_WITHOUT_FORMAT` storage bit requirements
 
-For extended storage formats when the device exposes `shaderStorageImageReadWithoutFormat` or `shaderStorageImageWriteWithoutFormat`, `getRequiredFormatProperties` adds `VK_FORMAT_FEATURE_2_STORAGE_READ_WITHOUT_FORMAT_BIT_KHR` and/or `VK_FORMAT_FEATURE_2_STORAGE_WRITE_WITHOUT_FORMAT_BIT_KHR` to the linear and optimal tiling features whenever the format already exposes `STORAGE_IMAGE_BIT`. The leaf therefore requires the implementation to also report the corresponding without-format storage bit for these formats and tilings [`vktTestCase.cpp#L1629-L1642`](../../../modules/vulkan/vktTestCase.cpp#L1629-L1642).
+For extended storage formats when the device exposes `shaderStorageImageReadWithoutFormat` or `shaderStorageImageWriteWithoutFormat`, `getRequiredFormatProperties` adds `VK_FORMAT_FEATURE_2_STORAGE_READ_WITHOUT_FORMAT_BIT_KHR` and/or `VK_FORMAT_FEATURE_2_STORAGE_WRITE_WITHOUT_FORMAT_BIT_KHR` to the linear and optimal tiling features whenever the format already exposes `STORAGE_IMAGE_BIT`. The leaf therefore requires the implementation to also report the corresponding without-format storage bit for these formats and tilings [TestCase source lines](../../../modules/vulkan/vktTestCase.cpp#L1629-L1642).
 
 ### Non-SPIR-V-compatible formats: storage image and texel buffer implication
 
-For formats that are not in the SPIR-V compatibility table, `getRequiredFormatProperties` adds `VK_FORMAT_FEATURE_2_STORAGE_IMAGE_BIT_KHR` (for linear and optimal tiling) and `VK_FORMAT_FEATURE_2_STORAGE_TEXEL_BUFFER_BIT_KHR` (for buffer features) when the implementation already exposes `STORAGE_READ_WITHOUT_FORMAT_BIT` or `STORAGE_WRITE_WITHOUT_FORMAT_BIT` for that path. The leaf therefore requires the implementation to also report the underlying storage image or texel buffer bit whenever it reports a without-format storage bit for a non-SPIR-V-compatible format [`vktTestCase.cpp#L1645-L1662`](../../../modules/vulkan/vktTestCase.cpp#L1645-L1662).
+For formats that are not in the SPIR-V compatibility table, `getRequiredFormatProperties` adds `VK_FORMAT_FEATURE_2_STORAGE_IMAGE_BIT_KHR` (for linear and optimal tiling) and `VK_FORMAT_FEATURE_2_STORAGE_TEXEL_BUFFER_BIT_KHR` (for buffer features) when the implementation already exposes `STORAGE_READ_WITHOUT_FORMAT_BIT` or `STORAGE_WRITE_WITHOUT_FORMAT_BIT` for that path. The leaf therefore requires the implementation to also report the underlying storage image or texel buffer bit whenever it reports a without-format storage bit for a non-SPIR-V-compatible format [TestCase source lines](../../../modules/vulkan/vktTestCase.cpp#L1645-L1662).
 
 ## Shader Analysis
 
@@ -124,7 +124,7 @@ All leaves share the same superset-check mechanism in [`checkFlags()`](../../../
 
 ### Requirement-based pruning
 
-- All 368 leaves are registered only for non-VulkanSC builds: the parent `addChild(createFormatPropertiesExtendedKHRTests(testCtx))` call is wrapped in `#ifndef CTS_USES_VULKANSC` in [`vktApiTests.cpp#L123-L126`](../../../modules/vulkan/api/vktApiTests.cpp#L123-L126). The Vulkan SC profile does not include this test family.
+- All 368 leaves are registered only for non-VulkanSC builds: the parent `addChild(createFormatPropertiesExtendedKHRTests(testCtx))` call is wrapped in `#ifndef CTS_USES_VULKANSC` in [ApiTests source lines](../../../modules/vulkan/api/vktApiTests.cpp#L123-L126). The Vulkan SC profile does not include this test family.
 - [`checkSupport()`](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L39-L44) requires both `VK_KHR_format_feature_flags2` (device functionality) and `VK_KHR_get_physical_device_properties2` (instance functionality). Implementations that do not expose either extension skip every leaf in this family before any property query runs.
 - `extended_flags` additionally requires `VK_KHR_extended_flags`. No device-feature or queue-capability gate is added ([support](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L45-L54)).
 
@@ -147,13 +147,13 @@ All leaves share the same superset-check mechanism in [`checkFlags()`](../../../
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `createFormatPropertiesExtendedKHRTests()` | [vktApiFormatPropertiesExtendedKHRtests.cpp#L90-L93](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L90-L93) | Public entry point that creates the `format_feature_flags2` test family. |
-| `createTestCases()` | [vktApiFormatPropertiesExtendedKHRtests.cpp#L73-L80](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L73-L80) | Iterates the core Vulkan format enum and registers one leaf per format. |
-| `checkSupport()` | [vktApiFormatPropertiesExtendedKHRtests.cpp#L39-L44](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L39-L44) | Shared support gate requiring `VK_KHR_format_feature_flags2` and `VK_KHR_get_physical_device_properties2`. |
-| `test()` | [vktApiFormatPropertiesExtendedKHRtests.cpp#L59-L70](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L59-L70) | Per-leaf host-side flow: acquire reported and required `VkFormatProperties3`, validate the three feature sets. |
-| `checkFlags()` | [vktApiFormatPropertiesExtendedKHRtests.cpp#L46-L57](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L46-L57) | Per-feature-set superset check; computes and prints the missing mask on failure. |
-| Parent registration | [vktApiTests.cpp#L125-L125](../../../modules/vulkan/api/vktApiTests.cpp#L125-L125) | Where the `format_feature_flags2` group is attached to the `api` test category inside `#ifndef CTS_USES_VULKANSC`. |
+| `createFormatPropertiesExtendedKHRTests()` | [createFormatPropertiesExtendedKHRTests()](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L90-L93) | Public entry point that creates the `format_feature_flags2` test family. |
+| `createTestCases()` | [createTestCases()](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L73-L80) | Iterates the core Vulkan format enum and registers one leaf per format. |
+| `checkSupport()` | [checkSupport()](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L39-L44) | Shared support gate requiring `VK_KHR_format_feature_flags2` and `VK_KHR_get_physical_device_properties2`. |
+| `test()` | [test()](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L59-L70) | Per-leaf host-side flow: acquire reported and required `VkFormatProperties3`, validate the three feature sets. |
+| `checkFlags()` | [checkFlags()](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.cpp#L46-L57) | Per-feature-set superset check; computes and prints the missing mask on failure. |
+| Parent registration | [Parent registration](../../../modules/vulkan/api/vktApiTests.cpp#L125-L125) | Where the `format_feature_flags2` group is attached to the `api` test category inside `#ifndef CTS_USES_VULKANSC`. |
 | Header | [vktApiFormatPropertiesExtendedKHRtests.hpp](../../../modules/vulkan/api/vktApiFormatPropertiesExtendedKHRtests.hpp) | Public declaration of `createFormatPropertiesExtendedKHRTests()`. |
-| `Context::getFormatProperties()` | [vktTestCase.cpp#L1671-L1688](../../../modules/vulkan/vktTestCase.cpp#L1671-L1688) | Returns the implementation-reported `VkFormatProperties3` via the chained `VkFormatProperties2` query. |
-| `Context::getRequiredFormatProperties()` | [vktTestCase.cpp#L1616-L1669](../../../modules/vulkan/vktTestCase.cpp#L1616-L1669) | Builds the CTS-required `VkFormatProperties3` from the legacy query plus spec-derived implications. |
-| Mustpass entries | [api.txt#L271425-L271608](../../../mustpass/main/vk-default/api.txt#L267497-L267497) | The 368 `dEQP-VK.api.format_features.*` leaves in the canonical `api` mustpass. |
+| `Context::getFormatProperties()` | [Context::getFormatProperties()](../../../modules/vulkan/vktTestCase.cpp#L1671-L1688) | Returns the implementation-reported `VkFormatProperties3` via the chained `VkFormatProperties2` query. |
+| `Context::getRequiredFormatProperties()` | [Context::getRequiredFormatProperties()](../../../modules/vulkan/vktTestCase.cpp#L1616-L1669) | Builds the CTS-required `VkFormatProperties3` from the legacy query plus spec-derived implications. |
+| Mustpass entries | [Mustpass entries](../../../mustpass/main/vk-default/api.txt#L267497-L267497) | The 368 `dEQP-VK.api.format_features.*` leaves in the canonical `api` mustpass. |

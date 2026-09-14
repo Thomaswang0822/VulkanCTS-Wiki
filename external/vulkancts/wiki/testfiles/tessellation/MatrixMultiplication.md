@@ -306,14 +306,14 @@ void main()
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `TestType` | [`vktTessellationMatrixMultiplicationTests.cpp#L47-L51`](../../../modules/vulkan/tessellation/vktTessellationMatrixMultiplicationTests.cpp#L47-L51) | Defines the two behavior values. |
+| `TestType` | [`TestType`](../../../modules/vulkan/tessellation/vktTessellationMatrixMultiplicationTests.cpp#L47-L51) | Defines the two behavior values. |
 | Runtime setup and oracle | [`MatrixMultiplicationTestInstance::iterate()`](../../../modules/vulkan/tessellation/vktTessellationMatrixMultiplicationTests.cpp#L64-L188) | Creates resources, draws, copies, and checks every pixel. |
 | Support check | [`MatrixMultiplicationTestCase::checkSupport()`](../../../modules/vulkan/tessellation/vktTessellationMatrixMultiplicationTests.cpp#L210-L213) | Requires tessellation shader support. |
 | Shader generation | [`MatrixMultiplicationTestCase::initPrograms()`](../../../modules/vulkan/tessellation/vktTessellationMatrixMultiplicationTests.cpp#L215-L364) | Emits both matrix-control paths and their evaluation and fragment oracles. |
 | Family registration | [`createTessellationMatrixMultiplicationTests()`](../../../modules/vulkan/tessellation/vktTessellationMatrixMultiplicationTests.cpp#L368-L375) | Registers `matrix_multiplication.tesc_1` and `tesc_2`. |
 | Category attachment | [`createChildren()`](../../../modules/vulkan/tessellation/vktTessellationTests.cpp#L64-L81) | Places the family under `tessellation`. |
-| Vulkan default mustpass | [`tessellation.txt#L235-L236`](../../../mustpass/main/vk-default/tessellation.txt#L235-L236) | Confirms both Vulkan executable paths. |
-| Vulkan SC default mustpass | [`tessellation.txt#L235-L236`](../../../mustpass/main/vksc-default/tessellation.txt#L235-L236) | Confirms both Vulkan SC executable paths. |
-| Tessellation stage model | [`tessellation.adoc#tessellation`](../../../../vulkan-docs/src/chapters/tessellation.adoc#tessellation) | Defines control, tessellator, and evaluation stage sequencing. |
-| Shader interface matching | [`interfaces.adoc#interfaces-iointerfaces`](../../../../vulkan-docs/src/chapters/interfaces.adoc#interfaces-iointerfaces) | Defines matching between consecutive graphics-stage interfaces. |
-| Matrix location assignment | [`interfaces.adoc#interfaces-iointerfaces-locations`](../../../../vulkan-docs/src/chapters/interfaces.adoc#interfaces-iointerfaces-locations) | Defines consecutive location consumption by matrix columns. |
+| Vulkan default mustpass | [Vulkan default mustpass](../../../mustpass/main/vk-default/tessellation.txt#L235-L236) | Confirms both Vulkan executable paths. |
+| Vulkan SC default mustpass | [Vulkan SC default mustpass](../../../mustpass/main/vksc-default/tessellation.txt#L235-L236) | Confirms both Vulkan SC executable paths. |
+| Tessellation stage model | [tessellation.adoc](../../../../vulkan-docs/src/chapters/tessellation.adoc#tessellation) | Defines control, tessellator, and evaluation stage sequencing. |
+| Shader interface matching | [interfaces.adoc](../../../../vulkan-docs/src/chapters/interfaces.adoc#interfaces-iointerfaces) | Defines matching between consecutive graphics-stage interfaces. |
+| Matrix location assignment | [interfaces.adoc](../../../../vulkan-docs/src/chapters/interfaces.adoc#interfaces-iointerfaces-locations) | Defines consecutive location consumption by matrix columns. |

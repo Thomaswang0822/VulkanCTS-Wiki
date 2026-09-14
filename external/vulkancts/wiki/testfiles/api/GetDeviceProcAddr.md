@@ -86,11 +86,11 @@ This test does not use a shader. It exercises host-side entry-point resolution o
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `createGetDeviceProcAddrTests()` | [vktApiGetDeviceProcAddrTests.cpp#L38-L43](../../../modules/vulkan/api/vktApiGetDeviceProcAddrTests.cpp#L38-L43) | Creates the `get_device_proc_addr` test family group and delegates to the generated `.inl` registration helper. |
-| Parent registration | [vktApiTests.cpp#L128-L131](../../../modules/vulkan/api/vktApiTests.cpp#L128-L131) | Adds the family under the `api` test category, guarded by `#ifndef CTS_USES_VULKANSC`. |
-| `testGetDeviceProcAddr()` | [vkGetDeviceProcAddr.inl#L21-L1101](../../../framework/vulkan/generated/vulkan/vkGetDeviceProcAddr.inl#L21-L1101) | Implements the test logic: device creation, function-name iteration, and pass/fail decision. |
-| Device creation with no extensions | [vkGetDeviceProcAddr.inl#L43-L56](../../../framework/vulkan/generated/vulkan/vkGetDeviceProcAddr.inl#L43-L56) | `VkDeviceCreateInfo` with `enabledExtensionCount = 0u`; the precondition for every expected `NULL` return. |
-| Function-name list | [vkGetDeviceProcAddr.inl#L59-L1086](../../../framework/vulkan/generated/vulkan/vkGetDeviceProcAddr.inl#L59-L1086) | Auto-generated vector of extension and WSI entry-point names queried by the test. |
-| Per-name NULL check and pass/fail | [vkGetDeviceProcAddr.inl#L1089-L1100](../../../framework/vulkan/generated/vulkan/vkGetDeviceProcAddr.inl#L1089-L1100) | Loop body that flags non-`NULL` returns and the final pass/fail return. |
-| `addGetDeviceProcAddrTests()` | [vkGetDeviceProcAddr.inl#L1103-L1106](../../../framework/vulkan/generated/vulkan/vkGetDeviceProcAddr.inl#L1103-L1106) | Registers the `non_enabled` test case leaf under the family group. |
-| Header declaration | [vktApiGetDeviceProcAddrTests.hpp#L37](../../../modules/vulkan/api/vktApiGetDeviceProcAddrTests.hpp#L37) | Declares `createGetDeviceProcAddrTests` for the parent dispatcher. |
+| `createGetDeviceProcAddrTests()` | [createGetDeviceProcAddrTests()](../../../modules/vulkan/api/vktApiGetDeviceProcAddrTests.cpp#L38-L43) | Creates the `get_device_proc_addr` test family group and delegates to the generated `.inl` registration helper. |
+| Parent registration | [Parent registration](../../../modules/vulkan/api/vktApiTests.cpp#L128-L131) | Adds the family under the `api` test category, guarded by `#ifndef CTS_USES_VULKANSC`. |
+| `testGetDeviceProcAddr()` | [testGetDeviceProcAddr()](../../../framework/vulkan/generated/vulkan/vkGetDeviceProcAddr.inl#L21-L1101) | Implements the test logic: device creation, function-name iteration, and pass/fail decision. |
+| Device creation with no extensions | [testGetDeviceProcAddr()](../../../framework/vulkan/generated/vulkan/vkGetDeviceProcAddr.inl#L43-L56) | `VkDeviceCreateInfo` with `enabledExtensionCount = 0u`; the precondition for every expected `NULL` return. |
+| Function-name list | [testGetDeviceProcAddr()](../../../framework/vulkan/generated/vulkan/vkGetDeviceProcAddr.inl#L59-L1086) | Auto-generated vector of extension and WSI entry-point names queried by the test. |
+| Per-name NULL check and pass/fail | [testGetDeviceProcAddr()](../../../framework/vulkan/generated/vulkan/vkGetDeviceProcAddr.inl#L1089-L1100) | Loop body that flags non-`NULL` returns and the final pass/fail return. |
+| `addGetDeviceProcAddrTests()` | [testGetDeviceProcAddr()](../../../framework/vulkan/generated/vulkan/vkGetDeviceProcAddr.inl#L1103-L1106) | Registers the `non_enabled` test case leaf under the family group. |
+| Header declaration | [Header declaration](../../../modules/vulkan/api/vktApiGetDeviceProcAddrTests.hpp#L37) | Declares `createGetDeviceProcAddrTests` for the parent dispatcher. |

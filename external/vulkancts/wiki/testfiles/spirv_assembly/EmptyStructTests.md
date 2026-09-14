@@ -227,8 +227,8 @@ The observed buffers classify failures by operation shape. They do not isolate a
 
 ## Source Reference Appendix
 
-- [Implementation: `vktSpvAsmEmptyStructTests.cpp`](../../../modules/vulkan/spirv_assembly/vktSpvAsmEmptyStructTests.cpp#L39-L544)
-- [Parent registration: `vktSpvAsmInstructionTests.cpp`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21422-L21428)
+- [`vktSpvAsmEmptyStructTests.cpp`](../../../modules/vulkan/spirv_assembly/vktSpvAsmEmptyStructTests.cpp#L39-L544)
+- [`createInstructionTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21422-L21428)
 - [Default Vulkan mustpass entries](../../../mustpass/main/vk-default/spirv-assembly.txt#L1484-L1491)
 - [Vulkan SC mustpass entries](../../../mustpass/main/vksc-default/spirv-assembly.txt#L1043-L1050)
 - [SPIR-V core grammar](../../../../spirv-headers/src/include/spirv/1.0/spirv.core.grammar.json)

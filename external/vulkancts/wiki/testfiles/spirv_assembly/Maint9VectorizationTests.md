@@ -368,11 +368,11 @@ The representative module is CTS-authored SPIR-V assembly generated from the sou
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `M9V_Case::checkSupport()` | [`vktSpvAsmMaint9VectorizationTests.cpp#L282-L323`](../../../modules/vulkan/spirv_assembly/vktSpvAsmMaint9VectorizationTests.cpp#L282-L323) | Defines Vulkan version, extension, feature, and storage requirements. |
-| `M9V_Case::initPrograms()` | [`vktSpvAsmMaint9VectorizationTests.cpp#L325-L717`](../../../modules/vulkan/spirv_assembly/vktSpvAsmMaint9VectorizationTests.cpp#L325-L717) | Generates the conditional SPIR-V module and selects the `OpBit*` instruction. |
-| `genValuesForOp()` | [`vktSpvAsmMaint9VectorizationTests.cpp#L907-L951`](../../../modules/vulkan/spirv_assembly/vktSpvAsmMaint9VectorizationTests.cpp#L907-L951) | Generates operands and valid bit-field ranges. |
-| `singleBit*` reference helpers | [`vktSpvAsmMaint9VectorizationTests.cpp#L953-L999`](../../../modules/vulkan/spirv_assembly/vktSpvAsmMaint9VectorizationTests.cpp#L953-L999) | Implements bit count, reversal, insertion, and extraction rules for the host oracle. |
-| `calcOp*` reference dispatch | [`vktSpvAsmMaint9VectorizationTests.cpp#L1001-L1126`](../../../modules/vulkan/spirv_assembly/vktSpvAsmMaint9VectorizationTests.cpp#L1001-L1126) | Applies the selected reference operation to scalar or vector components. |
-| `M9V_Instance::iterate()` | [`vktSpvAsmMaint9VectorizationTests.cpp#L1137-L1285`](../../../modules/vulkan/spirv_assembly/vktSpvAsmMaint9VectorizationTests.cpp#L1137-L1285) | Allocates resources, dispatches the compute shader, and compares results. |
-| `createMaint9VectorizationTests()` | [`vktSpvAsmMaint9VectorizationTests.cpp#L1291-L1415`](../../../modules/vulkan/spirv_assembly/vktSpvAsmMaint9VectorizationTests.cpp#L1291-L1415) | Registers the five operation families and their parameter loops. |
-| Mustpass cases | [`spirv-assembly.txt#L39903-L43054`](../../../mustpass/main/vk-default/spirv-assembly.txt#L39903-L43054) | Provides the executable leaf range for `maint9_vectorization`. |
+| `M9V_Case::checkSupport()` | [`M9V_Case::checkSupport()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmMaint9VectorizationTests.cpp#L282-L323) | Defines Vulkan version, extension, feature, and storage requirements. |
+| `M9V_Case::initPrograms()` | [`M9V_Case::initPrograms()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmMaint9VectorizationTests.cpp#L325-L717) | Generates the conditional SPIR-V module and selects the `OpBit*` instruction. |
+| `genValuesForOp()` | [`genValuesForOp()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmMaint9VectorizationTests.cpp#L907-L951) | Generates operands and valid bit-field ranges. |
+| `singleBit*` reference helpers | [`singleBit*` reference helpers](../../../modules/vulkan/spirv_assembly/vktSpvAsmMaint9VectorizationTests.cpp#L953-L999) | Implements bit count, reversal, insertion, and extraction rules for the host oracle. |
+| `calcOp*` reference dispatch | [`calcOp*` reference dispatch](../../../modules/vulkan/spirv_assembly/vktSpvAsmMaint9VectorizationTests.cpp#L1001-L1126) | Applies the selected reference operation to scalar or vector components. |
+| `M9V_Instance::iterate()` | [`M9V_Instance::iterate()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmMaint9VectorizationTests.cpp#L1137-L1285) | Allocates resources, dispatches the compute shader, and compares results. |
+| `createMaint9VectorizationTests()` | [`createMaint9VectorizationTests`](../../../modules/vulkan/spirv_assembly/vktSpvAsmMaint9VectorizationTests.cpp#L1291-L1415) | Registers the five operation families and their parameter loops. |
+| Mustpass cases | [Mustpass cases](../../../mustpass/main/vk-default/spirv-assembly.txt#L39903-L43054) | Provides the executable leaf range for `maint9_vectorization`. |

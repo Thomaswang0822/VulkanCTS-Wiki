@@ -28,15 +28,15 @@ ray_tracing_pipeline.build
 └── gpu
 ```
 
-The eight direct children are registered by [createBuildTests](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L753-L798). Each child corresponds to one `(threadCount, deviceBuild)` pair: `gpu` is the only device-build child (`threadCount == 0, deviceBuild == true`); `cpu` is the host single-threaded child (`threadCount == 0, deviceBuild == false`); the `cpuht_*` children are host deferred-operation children with the named worker-thread count.
+The eight direct children are registered by [register device, host, and worker-thread build paths](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L753-L798). Each child corresponds to one `(threadCount, deviceBuild)` pair: `gpu` is the only device-build child (`threadCount == 0, deviceBuild == true`); `cpu` is the host single-threaded child (`threadCount == 0, deviceBuild == false`); the `cpuht_*` children are host deferred-operation children with the named worker-thread count.
 
 ## Parameter Dimensions and Observed Values
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| AS build path | `gpu`, `cpu`, `cpuht_1`, `cpuht_2`, `cpuht_3`, `cpuht_4`, `cpuht_8`, `cpuht_max` | Selects the acceleration structure build type and, for host builds, the deferred-host worker-thread count. This is the primary behavioral axis. | [createBuildTests](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L753-L798) |
+| AS build path | `gpu`, `cpu`, `cpuht_1`, `cpuht_2`, `cpuht_3`, `cpuht_4`, `cpuht_8`, `cpuht_max` | Selects the acceleration structure build type and, for host builds, the deferred-host worker-thread count. This is the primary behavioral axis. | [register device, host, and worker-thread build paths](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L753-L798) |
 | AS scaling level | `level_primitives`, `level_geometries`, `level_instances` | Selects which AS level receives the large count: primitives per geometry, geometries per BLAS, or instances per TLAS. The other two levels stay at the small factor. | [buildTest tests array](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L643-L644) |
-| Geometry type | `triangles`, `aabbs`, `mixed` | Selects BLAS geometry: triangle geometry only, AABB geometry only, or alternating triangle/AABB per instance. Mixed requires at least two instances so both types appear. | [TestType enum](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L61-L66) |
+| Geometry type | `triangles`, `aabbs`, `mixed` | Selects BLAS geometry: triangle geometry only, AABB geometry only, or alternating triangle/AABB per instance. Mixed requires at least two instances so both types appear. | [triangle, AABB, and mixed geometry types](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L61-L66) |
 | Size | `4`, `16`, `64`, `256`, `1024` | Base image and grid dimension squared. Drives the largest-group count as `size*size/factor/factor`. Device builds skip sizes above 256. | [buildTest sizes array](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L644) |
 | Factor | `1`, `4` | Inverse scaling: the large level gets `size*size/factor/factor`, the other two levels get `factor`. | [buildTest factors array](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L645) |
 | SPIR-V target | `spirv1.4` | All generated shaders use `vk::SPIRV_VERSION_1_4`. | [ShaderBuildOptions](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L213) |
@@ -175,9 +175,9 @@ void main()
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|-----------------------------------------|----------|
-| Build path (`gpu`, `cpu`, `cpuht_*`) | None. It changes where and how the acceleration structures are built, not the generated shader source. | [build-path registration and `CaseDef`](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L753-L798) |
-| Scaling level, size, and factor | None. These dimensions change launch dimensions and BLAS/TLAS contents; all leaves call the same shader builder. | [`buildTest`](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L641-L751) |
-| Geometry type (`triangles`, `aabbs`, `mixed`) | None in generated source. Runtime TLAS SBT record offsets select the triangle hit group or the AABB hit group that adds the intersection stage. | [TLAS instance setup](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L268-L290) and [pipeline/SBT setup](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L437-L464) |
+| Build path (`gpu`, `cpu`, `cpuht_*`) | None. It changes where and how the acceleration structures are built, not the generated shader source. | [register device, host, and worker-thread build paths](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L753-L798) |
+| Scaling level, size, and factor | None. These dimensions change launch dimensions and BLAS/TLAS contents; all leaves call the same shader builder. | [geometry scaling, sizes, and factors](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L641-L751) |
+| Geometry type (`triangles`, `aabbs`, `mixed`) | None in generated source. Runtime TLAS SBT record offsets select the triangle hit group or the AABB hit group that adds the intersection stage. | [instance geometry selection and SBT offsets](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L268-L290) and [pipeline/SBT setup](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L437-L464) |
 
 #### SPIR-V
 
@@ -480,9 +480,9 @@ void main()
 
 ### Scene construction
 
-- The host builds a set of BLAS, one per instance. Each BLAS holds `geometriesGroupCount` geometries, and each geometry holds `squaresGroupCount` primitives. Each primitive covers one pixel cell of the `width x height` image. A deterministic walk (`startPos` advanced by `(n+13) % (width*height)`) places each primitive at a cell whose linear index `n` determines its z-face sign [initBottomAccelerationStructure](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L305-L351).
+- The host builds a set of BLAS, one per instance. Each BLAS holds `geometriesGroupCount` geometries, and each geometry holds `squaresGroupCount` primitives. Each primitive covers one pixel cell of the `width x height` image. A deterministic walk (`startPos` advanced by `(n+13) % (width*height)`) places each primitive at a cell whose linear index `n` determines its z-face sign [primitive placement and hit/miss orientation](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L305-L351).
 - Triangle primitives use three vertices per cell; AABB primitives use two opposite corners [geometryData fill](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L316-L343). The `mixed` type alternates triangle and AABB per instance [triangles flag](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L281-L282).
-- A TLAS instances all BLAS with identity transforms. The instance SBT record offset is 0 for triangle instances and 1 for AABB instances, selecting the hit group with the intersection shader for AABBs [initTopAccelerationStructure](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L268-L290).
+- A TLAS instances all BLAS with identity transforms. The instance SBT record offset is 0 for triangle instances and 1 for AABB instances, selecting the hit group with the intersection shader for AABBs [instance geometry selection and SBT offsets](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L268-L290).
 
 ### Build path execution
 
@@ -498,9 +498,9 @@ void main()
 
 ### Per-pixel result check
 
-- The host scans every pixel. The expected value is `1` (any-hit) for cells whose linear index `n` is not divisible by 7, and `2` (miss) for cells where `n % 7 == 0` [validateBuffer](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L589-L627). The `n % 7 == 0` cells have z-face sign `+1`; the deterministic placement arranges them to miss the downward ray, while all other cells present a z `-1` face that the ray hits.
+- The host scans every pixel. The expected value is `1` (any-hit) for cells whose linear index `n` is not divisible by 7, and `2` (miss) for cells where `n % 7 == 0` [hit/miss comparison with AABB tolerance](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L589-L627). The `n % 7 == 0` cells have z-face sign `+1`; the deterministic placement arranges them to miss the downward ray, while all other cells present a z `-1` face that the ray hits.
 - For `triangles` geometry, a mismatched pixel always counts as a failure. For `aabbs` and `mixed` geometry, a mismatched pixel is only a failure if the observed value is not the any-hit value `1`; this tolerates implementation AABB expansion that reports a hit where the test expected a miss [AABB tolerance](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L606-L616).
-- Pass condition: `failures == 0` [iterate](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L629-L637).
+- Pass condition: `failures == 0` [build execution and failure-count verdict](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L629-L637).
 
 ## Failure Meaning
 
@@ -545,9 +545,9 @@ All leaves share the scene construction, the trace pipeline, and the per-pixel r
 
 ### Requirement-based pruning
 
-- All leaves require `VK_KHR_acceleration_structure` and `VK_KHR_ray_tracing_pipeline`, with the `rayTracingPipeline` and `accelerationStructure` feature bits set. If `accelerationStructure` is not set, the test throws `TestError` [checkSupport](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L186-L205).
+- All leaves require `VK_KHR_acceleration_structure` and `VK_KHR_ray_tracing_pipeline`, with the `rayTracingPipeline` and `accelerationStructure` feature bits set. If `accelerationStructure` is not set, the test throws `TestError` [AS build extension and feature requirements](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L186-L205).
 - Host builds (`cpu` and all `cpuht_*`) additionally require `VK_KHR_deferred_host_operations` and `accelerationStructureHostCommands`; otherwise the test throws `NotSupportedError` [host build feature gate](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L202-L208). The `gpu` path does not require these.
-- At instance time, the test checks ray tracing property limits: `maxPrimitiveCount`, `maxGeometryCount`, and `maxInstanceCount` must each cover the case's group counts, and the estimated memory allocation count (plus a 120-allocation margin) must stay under `maxMemoryAllocationCount`. Any shortfall throws `NotSupportedError` [checkSupportInInstance](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L570-L587).
+- At instance time, the test checks ray tracing property limits: `maxPrimitiveCount`, `maxGeometryCount`, and `maxInstanceCount` must each cover the case's group counts, and the estimated memory allocation count (plus a 120-allocation margin) must stay under `maxMemoryAllocationCount`. Any shortfall throws `NotSupportedError` [AS size and allocation-limit checks](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L570-L587).
 
 ### Design-based pruning
 
@@ -568,16 +568,16 @@ All leaves share the scene construction, the trace pipeline, and the per-pixel r
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `TestType` enum | [vktRayTracingBuildTests.cpp#L61-L66](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L61-L66) | Defines triangles, aabbs, mixed geometry types |
-| `CaseDef` struct | [vktRayTracingBuildTests.cpp#L68-L79](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L68-L79) | Per-case parameters including build path and worker-thread count |
-| `checkSupport` | [vktRayTracingBuildTests.cpp#L186-L205](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L186-L205) | Feature gates for acceleration structure, ray tracing pipeline, deferred host operations |
-| `initPrograms` (ahit/miss/sect/rgen) | [vktRayTracingBuildTests.cpp#L211-L261](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L211-L261) | The fixed probe shaders, including the shared rgen helper |
-| `initBottomAccelerationStructure` | [vktRayTracingBuildTests.cpp#L305-L351](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L305-L351) | Deterministic primitive placement and z-face sign rule |
-| `initTopAccelerationStructure` | [vktRayTracingBuildTests.cpp#L268-L290](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L268-L290) | TLAS instance setup and SBT record offset selection |
-| `runTest` | [vktRayTracingBuildTests.cpp#L408-L568](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L408-L568) | Build path execution, trace dispatch, and result copyback |
-| `checkSupportInInstance` | [vktRayTracingBuildTests.cpp#L570-L587](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L570-L587) | Runtime property-limit and allocation-count pruning |
-| `validateBuffer` | [vktRayTracingBuildTests.cpp#L589-L627](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L589-L627) | Per-pixel expected-value rule and AABB-expansion tolerance |
-| `iterate` | [vktRayTracingBuildTests.cpp#L629-L637](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L629-L637) | Pass/fail condition |
-| `buildTest` | [vktRayTracingBuildTests.cpp#L641-L751](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L641-L751) | Scaling-level, geometry-type, size, and factor matrix generation |
-| `createBuildTests` | [vktRayTracingBuildTests.cpp#L753-L798](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L753-L798) | Registration of the eight build-path direct children |
-| shared rgen shader helper | [vkRayTracingUtil.cpp#L118-L138](../../../framework/vulkan/vkRayTracingUtil.cpp#L118-L138) | Common ray generation shader tracing one ray per launch ID down -z |
+| `TestType` enum | [triangle, AABB, and mixed geometry types](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L61-L66) | Defines triangles, aabbs, mixed geometry types |
+| `CaseDef` struct | [CaseDef struct](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L68-L79) | Per-case parameters including build path and worker-thread count |
+| `checkSupport` | [AS build extension and feature requirements](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L186-L205) | Feature gates for acceleration structure, ray tracing pipeline, deferred host operations |
+| `initPrograms` (ahit/miss/sect/rgen) | [initPrograms (ahit/miss/sect/rgen)](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L211-L261) | The fixed probe shaders, including the shared rgen helper |
+| `initBottomAccelerationStructure` | [primitive placement and hit/miss orientation](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L305-L351) | Deterministic primitive placement and z-face sign rule |
+| `initTopAccelerationStructure` | [instance geometry selection and SBT offsets](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L268-L290) | TLAS instance setup and SBT record offset selection |
+| `runTest` | [runTest](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L408-L568) | Build path execution, trace dispatch, and result copyback |
+| `checkSupportInInstance` | [AS size and allocation-limit checks](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L570-L587) | Runtime property-limit and allocation-count pruning |
+| `validateBuffer` | [hit/miss comparison with AABB tolerance](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L589-L627) | Per-pixel expected-value rule and AABB-expansion tolerance |
+| `iterate` | [build execution and failure-count verdict](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L629-L637) | Pass/fail condition |
+| `buildTest` | [geometry scaling, sizes, and factors](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L641-L751) | Scaling-level, geometry-type, size, and factor matrix generation |
+| `createBuildTests` | [register device, host, and worker-thread build paths](../../../modules/vulkan/ray_tracing/vktRayTracingBuildTests.cpp#L753-L798) | Registration of the eight build-path direct children |
+| shared rgen shader helper | [common downward raygen shader](../../../framework/vulkan/vkRayTracingUtil.cpp#L118-L138) | Common ray generation shader tracing one ray per launch ID down -z |

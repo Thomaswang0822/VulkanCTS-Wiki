@@ -32,7 +32,7 @@ sparse_resources
 └── transfer_queue
 ```
 
-The registration-only dispatcher [`vktSparseResourcesTests.cpp`](../../modules/vulkan/sparse_resources/vktSparseResourcesTests.cpp#L45-L67) creates these direct families. The implementation-bearing families are grouped into the Level-3 pages below; the dispatcher itself has no separate technical page.
+The registration-only dispatcher [`createTests()`](../../modules/vulkan/sparse_resources/vktSparseResourcesTests.cpp#L45-L67) creates these direct families. The implementation-bearing families are grouped into the Level-3 pages below; the dispatcher itself has no separate technical page.
 
 ## How the Families Fit Together
 

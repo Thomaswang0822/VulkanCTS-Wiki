@@ -117,13 +117,13 @@ Distinguishing between a driver reporting wrong metadata and a test-environment 
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `createDeviceDrmPropertiesTests()` | [vktApiDeviceDrmPropertiesTests.cpp#L118-L121](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L118-L121) | Public entry point that creates the `device_drm_properties` test family. |
-| `createTestCases()` | [vktApiDeviceDrmPropertiesTests.cpp#L110-L114](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L110-L114) | Registers the single `drm_files_exist` test case leaf. |
-| `checkSupport()` | [vktApiDeviceDrmPropertiesTests.cpp#L47-L51](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L47-L51) | Requires `VK_EXT_physical_device_drm`. |
-| `testDeviceDrmProperties()` | [vktApiDeviceDrmPropertiesTests.cpp#L80-L108](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L80-L108) | Host-side query flow: zero the DRM struct, `0xaa`-fill `VkPhysicalDeviceProperties2`, chain via `pNext`, call `getPhysicalDeviceProperties2()`. |
-| `testFilesExist()` | [vktApiDeviceDrmPropertiesTests.cpp#L53-L78](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L53-L78) | Auto-satisfies unreported categories, enumerates DRM devices, throws `NotSupportedError` if neither resolves. |
-| `enum TestType` | [vktApiDeviceDrmPropertiesTests.cpp#L42-L45](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L42-L45) | Defines the only internal test type, `TEST_FILES_EXIST`. |
-| Parent registration | [vktApiTests.cpp#L96-L98](../../../modules/vulkan/api/vktApiTests.cpp#L96-L98) | Adds the family under `api` only for non-VulkanSC builds. |
-| Mustpass entry | [api.txt#L269229](../../../mustpass/main/vk-default/api.txt#L267497) | Registers `dEQP-VK.api.device_drm_properties.drm_files_exist` in the default `api` mustpass. |
+| `createDeviceDrmPropertiesTests()` | [createDeviceDrmPropertiesTests()](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L118-L121) | Public entry point that creates the `device_drm_properties` test family. |
+| `createTestCases()` | [createTestCases()](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L110-L114) | Registers the single `drm_files_exist` test case leaf. |
+| `checkSupport()` | [checkSupport()](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L47-L51) | Requires `VK_EXT_physical_device_drm`. |
+| `testDeviceDrmProperties()` | [testDeviceDrmProperties()](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L80-L108) | Host-side query flow: zero the DRM struct, `0xaa`-fill `VkPhysicalDeviceProperties2`, chain via `pNext`, call `getPhysicalDeviceProperties2()`. |
+| `testFilesExist()` | [testFilesExist()](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L53-L78) | Auto-satisfies unreported categories, enumerates DRM devices, throws `NotSupportedError` if neither resolves. |
+| `enum TestType` | [enum TestType](../../../modules/vulkan/api/vktApiDeviceDrmPropertiesTests.cpp#L42-L45) | Defines the only internal test type, `TEST_FILES_EXIST`. |
+| Parent registration | [Parent registration](../../../modules/vulkan/api/vktApiTests.cpp#L96-L98) | Adds the family under `api` only for non-VulkanSC builds. |
+| Mustpass entry | [Mustpass entry](../../../mustpass/main/vk-default/api.txt#L267497) | Registers `dEQP-VK.api.device_drm_properties.drm_files_exist` in the default `api` mustpass. |
 | `tcu::LibDrm` header | [tcuLibDrm.hpp](../../../../../framework/common/tcuLibDrm.hpp) | Framework helper that loads `libdrm` and exposes `getDevices()` / `findDeviceNode()`. |
-| `findDeviceNode()` | [tcuLibDrm.cpp#L111-L135](../../../../../framework/common/tcuLibDrm.cpp#L111-L135) | Stats each DRM device node and matches the reported major/minor pair against `st_rdev`. |
+| `findDeviceNode()` | [findDeviceNode()](../../../../../framework/common/tcuLibDrm.cpp#L111-L135) | Stats each DRM device node and matches the reported major/minor pair against `st_rdev`. |

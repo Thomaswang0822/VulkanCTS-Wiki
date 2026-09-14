@@ -2,7 +2,7 @@
 
 **Core question:** Does each EXT count token execute the intended number of graphics draws with the intended indexed or non-indexed arguments and state?
 
-- [vktDGCGraphicsDrawCountTestsExt.cpp](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsDrawCountTestsExt.cpp#L447-L1522) implements `dgc.ext.graphics.draw_count`.
+- [Generated draw-count execution and verification](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsDrawCountTestsExt.cpp#L447-L1522) implements `dgc.ext.graphics.draw_count`.
 - The test builds four generated-command sequences. Each sequence points to a padded array of ordinary draw structures through a `VkDrawIndirectCountIndirectCommandEXT` count record.
 - `token_draw_count` tests `VkDrawIndirectCommand`; `token_draw_indexed_count` tests `VkDrawIndexedIndirectCommand`, with an optional index-buffer token.
 - The cases cover pipeline and shader-object state, execution sets, explicit preprocessing, unordered sequences, and shader checks for draw parameters. The test validates a rendered 32 x 32 image rather than only checking command completion.

@@ -21,17 +21,17 @@ spirv_assembly.instruction.compute.opfma
 └── fp64
 ```
 
-Each width intermediate node contains `scalar`, `vec2`, `vec3`, and `vec4`. Each shape contains the rounding intermediate nodes `rtz`, `rte`, and `undef`; each of those contains `denorm_preserve`, `denorm_flush`, and `denorm_none`; every final node registers `random`, `directed`, and `float_controls`. `denorm_none` is the registered name for `DENORM_UNDEF` ([name mapping](../../../modules/vulkan/spirv_assembly/vktSpvAsmFmaTests.cpp#L54-L126), [registration](../../../modules/vulkan/spirv_assembly/vktSpvAsmFmaTests.cpp#L1191-L1235)).
+Each width intermediate node contains `scalar`, `vec2`, `vec3`, and `vec4`. Each shape contains the rounding intermediate nodes `rtz`, `rte`, and `undef`; each of those contains `denorm_preserve`, `denorm_flush`, and `denorm_none`; every final node registers `random`, `directed`, and `float_controls`. `denorm_none` is the registered name for `DENORM_UNDEF` ([name mapping](../../../modules/vulkan/spirv_assembly/vktSpvAsmFmaTests.cpp#L54-L126), [`createOpFmaComputeGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFmaTests.cpp#L1191-L1235)).
 
 ## Parameter Dimensions and Observed Values
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
 | Floating-point width | `fp16`, `fp32`, `fp64` | Chooses `OpTypeFloat 16`, `32`, or `64`, the FMA feature bit, the host reference type, and the relevant float-control properties. | [spec construction](../../../modules/vulkan/spirv_assembly/vktSpvAsmFmaTests.cpp#L939-L1000) |
-| Operand shape | `scalar`, `vec2`, `vec3`, `vec4` | Chooses one scalar operation or one vector `OpFmaKHR` with 2, 3, or 4 components. | [assembly specialization](../../../modules/vulkan/spirv_assembly/vktSpvAsmFmaTests.cpp#L228-L295), [registration](../../../modules/vulkan/spirv_assembly/vktSpvAsmFmaTests.cpp#L1203-L1206) |
+| Operand shape | `scalar`, `vec2`, `vec3`, `vec4` | Chooses one scalar operation or one vector `OpFmaKHR` with 2, 3, or 4 components. | [assembly specialization](../../../modules/vulkan/spirv_assembly/vktSpvAsmFmaTests.cpp#L228-L295), [`createOpFmaComputeGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFmaTests.cpp#L1203-L1206) |
 | Rounding mode | `rtz`, `rte`, `undef` | Requests `RoundingModeRTZ`, `RoundingModeRTE`, or leaves the mode unspecified. The verifier accepts toward-positive-infinity and toward-negative-infinity references for `undef`. | [mode mapping](../../../modules/vulkan/spirv_assembly/vktSpvAsmFmaTests.cpp#L54-L90), [reference selection](../../../modules/vulkan/spirv_assembly/vktSpvAsmFmaTests.cpp#L423-L489) |
 | Denorm mode | `denorm_preserve`, `denorm_flush`, `denorm_none` | Requests preserve or flush-to-zero behavior, or leaves denorm behavior unspecified. The verifier enumerates the permitted flushed/non-flushed input and result outcomes. | [mode mapping](../../../modules/vulkan/spirv_assembly/vktSpvAsmFmaTests.cpp#L92-L126), [allowed values](../../../modules/vulkan/spirv_assembly/vktSpvAsmFmaTests.cpp#L366-L489) |
-| Input mode | `random`, `directed`, `float_controls` | `random` supplies 768 deterministic random elements per operand buffer. `directed` uses signed special values and cancellation cases. `float_controls` uses the directed data while requesting `SignedZeroInfNanPreserve`. | [buffer selection](../../../modules/vulkan/spirv_assembly/vktSpvAsmFmaTests.cpp#L901-L931), [registration](../../../modules/vulkan/spirv_assembly/vktSpvAsmFmaTests.cpp#L1218-L1223) |
+| Input mode | `random`, `directed`, `float_controls` | `random` supplies 768 deterministic random elements per operand buffer. `directed` uses signed special values and cancellation cases. `float_controls` uses the directed data while requesting `SignedZeroInfNanPreserve`. | [buffer selection](../../../modules/vulkan/spirv_assembly/vktSpvAsmFmaTests.cpp#L901-L931), [`createOpFmaComputeGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFmaTests.cpp#L1218-L1223) |
 
 The full matrix is `3 × 4 × 3 × 3 × 3 = 324` registered test cases. Width is the primary behavioral axis because it changes the arithmetic representation, the requested FMA feature, and the optional-width support requirements. The other dimensions determine the execution-mode contract and the data path used to expose incorrect behavior.
 
@@ -267,10 +267,10 @@ No parameter combinations are removed from the registered 3 x 4 x 3 x 3 x 3 matr
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `createOpFmaComputeGroup` | [`vktSpvAsmFmaTests.cpp#L1191-L1238`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFmaTests.cpp#L1191-L1238) | Registers the complete `opfma` hierarchy and its 324 leaves. |
-| `getFmaCode` | [`vktSpvAsmFmaTests.cpp#L133-L300`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFmaTests.cpp#L133-L300) | Generates the parameterized CTS-authored SPIR-V assembly, including `OpFmaKHR`. |
-| `getRefValues` | [`vktSpvAsmFmaTests.cpp#L366-L489`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFmaTests.cpp#L366-L489) | Produces the allowed CPU reference set for rounding, denorm, and signed-zero behavior. |
-| `verifyResult` | [`vktSpvAsmFmaTests.cpp#L505-L569`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFmaTests.cpp#L505-L569) | Compares output elements with allowed references and emits mismatch diagnostics. |
-| `DirectedBuffer` | [`vktSpvAsmFmaTests.cpp#L787-L899`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFmaTests.cpp#L787-L899) | Generates special-value cross products and FMA cancellation records. |
-| `createFmaTestSpec` | [`vktSpvAsmFmaTests.cpp#L975-L1186`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFmaTests.cpp#L975-L1186) | Selects input buffers, feature/property requests, dispatch dimensions, and the specialized verifier callback. |
-| Mustpass entries | [`spirv-assembly.txt#L7620-L7943`](../../../mustpass/main/vk-default/spirv-assembly.txt#L7620-L7943) | Lists the 324 `dEQP-VK.spirv_assembly.instruction.compute.opfma.*` test paths. |
+| `createOpFmaComputeGroup` | [`createOpFmaComputeGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFmaTests.cpp#L1191-L1238) | Registers the complete `opfma` hierarchy and its 324 leaves. |
+| `getFmaCode` | [`getFmaCode`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFmaTests.cpp#L133-L300) | Generates the parameterized CTS-authored SPIR-V assembly, including `OpFmaKHR`. |
+| `getRefValues` | [allowed values](../../../modules/vulkan/spirv_assembly/vktSpvAsmFmaTests.cpp#L366-L489) | Produces the allowed CPU reference set for rounding, denorm, and signed-zero behavior. |
+| `verifyResult` | [verification](../../../modules/vulkan/spirv_assembly/vktSpvAsmFmaTests.cpp#L505-L569) | Compares output elements with allowed references and emits mismatch diagnostics. |
+| `DirectedBuffer` | [`DirectedBuffer`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFmaTests.cpp#L787-L899) | Generates special-value cross products and FMA cancellation records. |
+| `createFmaTestSpec` | [`createFmaTestSpec`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFmaTests.cpp#L975-L1186) | Selects input buffers, feature/property requests, dispatch dimensions, and the specialized verifier callback. |
+| Mustpass entries | [Mustpass entries](../../../mustpass/main/vk-default/spirv-assembly.txt#L7620-L7943) | Lists the 324 `dEQP-VK.spirv_assembly.instruction.compute.opfma.*` test paths. |

@@ -195,6 +195,6 @@ The matrix uses two representative formats and two observation paths rather than
 
 ## Source Reference Appendix
 
-- [Test implementation](../../../modules/vulkan/memory/vktMemoryOpaqueAndDmaImageTests.cpp)
+- [vktMemoryOpaqueAndDmaImageTests.cpp](../../../modules/vulkan/memory/vktMemoryOpaqueAndDmaImageTests.cpp)
 - [Memory test registration](../../../modules/vulkan/memory/vktMemoryTests.cpp)
 - [Default MUSTPASS entries](../../../mustpass/main/vk-default/memory.txt)

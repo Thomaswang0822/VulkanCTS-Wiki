@@ -2,7 +2,7 @@
 
 **Core question:** Does each EXT generated-command layout deliver the intended compute state to every indirect dispatch?
 
-- This page covers the implementation and registration in [vktDGCComputeLayoutTestsExt.cpp](../../../modules/vulkan/device_generated_commands/vktDGCComputeLayoutTestsExt.cpp#L54-L124).
+- This page covers the implementation and registration in [Compute token-layout test variants](../../../modules/vulkan/device_generated_commands/vktDGCComputeLayoutTestsExt.cpp#L54-L124).
 - The test category is `dgc.ext.compute.layout`. It combines nine `TestType` families with shader-object, queue, dynamic-layout, execution-set-layout lifetime, and descriptor-heap choices.
 - Each case generates four dispatches, writes encoded values to a storage buffer, and checks the result for every invocation.
 
@@ -27,7 +27,7 @@ dgc.ext.compute.layout
 └── execution_set_complementary_push_dispatch
 ```
 
-The registration loop appends suffixes for the Boolean dimensions described below. The complete registered paths appear in [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L50-L233), for example [the shader-object, compute-queue, dynamic-layout, descriptor-heap case](../../../mustpass/main/vk-default/dgc.txt#L226-L233).
+The registration loop appends suffixes for the Boolean dimensions described below. The complete registered paths appear in [dgc source](../../../mustpass/main/vk-default/dgc.txt#L50-L233), for example [the shader-object, compute-queue, dynamic-layout, descriptor-heap case](../../../mustpass/main/vk-default/dgc.txt#L226-L233).
 
 ## Parameter Dimensions and Observed Values
 
@@ -394,8 +394,8 @@ void main (void) {
 | `LayoutTestInstance::makeIndirectCommands()` | [indirect payload encoding](../../../modules/vulkan/device_generated_commands/vktDGCComputeLayoutTestsExt.cpp#L674-L780) | Encodes per-dispatch state and dispatch dimensions. |
 | `LayoutTestInstance::iterate()` | [runtime execution](../../../modules/vulkan/device_generated_commands/vktDGCComputeLayoutTestsExt.cpp#L835-L1102) | Creates resources, preprocesses commands, submits work, and reads back results. |
 | Result scan | [validation](../../../modules/vulkan/device_generated_commands/vktDGCComputeLayoutTestsExt.cpp#L1108-L1152) | Defines expected values and pass/fail behavior. |
-| `createDGCComputeLayoutTestsExt()` | [registration](../../../modules/vulkan/device_generated_commands/vktDGCComputeLayoutTestsExt.cpp#L1157-L1207) | Builds the nine-family matrix and suffix combinations. |
-| Mustpass coverage | [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L50-L233) | Lists the registered EXT compute layout paths. |
-| Shared DGC layout helpers | [vktDGCUtilExt.cpp](../../../modules/vulkan/device_generated_commands/vktDGCUtilExt.cpp#L661-L721) | Supplies common layout construction and token sizing behavior. |
+| `createDGCComputeLayoutTestsExt()` | [`createDGCComputeLayoutTestsExt()`](../../../modules/vulkan/device_generated_commands/vktDGCComputeLayoutTestsExt.cpp#L1157-L1207) | Builds the nine-family matrix and suffix combinations. |
+| Mustpass coverage | [dgc source](../../../mustpass/main/vk-default/dgc.txt#L50-L233) | Lists the registered EXT compute layout paths. |
+| Shared DGC layout helpers | [Layout construction and token sizing](../../../modules/vulkan/device_generated_commands/vktDGCUtilExt.cpp#L661-L721) | Supplies common layout construction and token sizing behavior. |
 | Vulkan DGC semantics | [Device-Generated Commands](../../../../vulkan-docs/src/chapters/device_generated_commands/generatedcommands.adoc#device-generated-commands) | Defines generated-command layout, preprocessing, and execution semantics. |
 | Vulkan dispatch semantics | [Dispatching Commands](../../../../vulkan-docs/src/chapters/dispatch.adoc#dispatching-commands) | Defines indirect dispatch dimensions and workgroup behavior. |

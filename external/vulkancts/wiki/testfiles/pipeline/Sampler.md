@@ -238,8 +238,8 @@ void main (void) {
 
 ## Runtime Execution and Result Checking
 
-- Generic cases construct `ImageSamplingInstanceParams` with a combined image-sampler descriptor, a view-specific subresource range, generated vertices, sampler create info, and graphics or compute execution ([source](../../../modules/vulkan/pipeline/vktPipelineSamplerTests.cpp#L289-L353)).
-- `SamplerTest::initPrograms()` emits a graphics pair or compute shader. Both sample at coordinates appropriate to the image-view type and transform sampled values into the comparison representation ([source](../../../modules/vulkan/pipeline/vktPipelineSamplerTests.cpp#L375-L508)).
+- Generic cases construct `ImageSamplingInstanceParams` with a combined image-sampler descriptor, a view-specific subresource range, generated vertices, sampler create info, and graphics or compute execution ([`vktPipelineSamplerTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineSamplerTests.cpp#L289-L353)).
+- `SamplerTest::initPrograms()` emits a graphics pair or compute shader. Both sample at coordinates appropriate to the image-view type and transform sampled values into the comparison representation ([`SamplerTest::initPrograms()`](../../../modules/vulkan/pipeline/vktPipelineSamplerTests.cpp#L375-L508)).
 - `exact_sampling` enumerates the selected formats, input content, coordinate convention, and edge offsets. A compute leaf is added only when the format is storage-compatible and the construction type permits it.
 - The LOD-limit runtime reads `maxSamplerLodBias`, creates an image with all available mip levels, clears each level to a deterministic distinct color, samples it, copies the result, and compares the one-pixel result against the expected level with threshold `0.005` ([runtime](../../../modules/vulkan/pipeline/vktPipelineSamplerTests.cpp#L2462-L2783)).
 

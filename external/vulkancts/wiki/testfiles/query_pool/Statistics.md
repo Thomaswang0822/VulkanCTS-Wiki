@@ -346,7 +346,7 @@ These are source-level matrix decisions, not missing mustpass entries. The mustp
 
 ## Source Reference Appendix
 
-- [Statistics-query implementation and generator](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L6199)
+- [vktQueryPoolStatisticsTests.cpp](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L6199)
 - [Common statistics and host-reset support checks](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L505)
 - [Query-pool construction and result helpers](../../../modules/vulkan/query_pool/vktQueryPoolStatisticsTests.cpp#L177)
 - [Canonical mustpass entries](../../../mustpass/main/vk-default/query-pool.txt)

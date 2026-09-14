@@ -16,7 +16,7 @@
 
 ## Registration Hierarchy
 
-The category root `renderpasses` is registered by `createRenderPassesTests()` in [vktTestPackage.cpp#L1354](../../../modules/vulkan/vktTestPackage.cpp#L1354). Its three rendering roots are documented as separate trees below. The direct children shown are the branches represented in the default mustpass file; the shared `suballocation`, `dedicated_allocation`, and `no_draws` branches are implemented by this page.
+The category root `renderpasses` is registered by `createRenderPassesTests()` in [Test-package category registration](../../../modules/vulkan/vktTestPackage.cpp#L1354). Its three rendering roots are documented as separate trees below. The direct children shown are the branches represented in the default mustpass file; the shared `suballocation`, `dedicated_allocation`, and `no_draws` branches are implemented by this page.
 
 ```text
 renderpasses.renderpass1
@@ -60,9 +60,9 @@ Each rendering root expands into shared and rendering-type-specific branches. Th
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| RenderingType | `RENDERING_TYPE_RENDERPASS_LEGACY`, `RENDERING_TYPE_RENDERPASS2`, `RENDERING_TYPE_DYNAMIC_RENDERING` | Selects the render-pass model exercised. Changes how the render pass object (or its absence) is created and how subpass transitions are recorded. | [vktRenderPassGroupParams.hpp#L34-L39](../../../modules/vulkan/renderpass/vktRenderPassGroupParams.hpp#L34-L39) |
-| AllocationKind | `ALLOCATION_KIND_SUBALLOCATED`, `ALLOCATION_KIND_DEDICATED` | Selects whether attachment backing memory is suballocated from a larger pool or given a dedicated allocation. Exercises `VK_KHR_dedicated_allocation`. | [vktRenderPassTests.cpp#L147-L151](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L147-L151) |
-| Command buffer mode | primary only, secondary (partial), secondary (complete) | For dynamic rendering only: whether draws go in the primary command buffer, a secondary command buffer that does not own the render-pass scope, or a secondary command buffer that completely contains `vkCmdBeginRendering`/`vkCmdEndRendering`. | [vktRenderPassGroupParams.hpp#L48-L63](../../../modules/vulkan/renderpass/vktRenderPassGroupParams.hpp#L48-L63) |
+| RenderingType | `RENDERING_TYPE_RENDERPASS_LEGACY`, `RENDERING_TYPE_RENDERPASS2`, `RENDERING_TYPE_DYNAMIC_RENDERING` | Selects the render-pass model exercised. Changes how the render pass object (or its absence) is created and how subpass transitions are recorded. | [RenderingType](../../../modules/vulkan/renderpass/vktRenderPassGroupParams.hpp#L34-L39) |
+| AllocationKind | `ALLOCATION_KIND_SUBALLOCATED`, `ALLOCATION_KIND_DEDICATED` | Selects whether attachment backing memory is suballocated from a larger pool or given a dedicated allocation. Exercises `VK_KHR_dedicated_allocation`. | [AllocationKind](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L147-L151) |
+| Command buffer mode | primary only, secondary (partial), secondary (complete) | For dynamic rendering only: whether draws go in the primary command buffer, a secondary command buffer that does not own the render-pass scope, or a secondary command buffer that completely contains `vkCmdBeginRendering`/`vkCmdEndRendering`. | [Command buffer mode](../../../modules/vulkan/renderpass/vktRenderPassGroupParams.hpp#L48-L63) |
 | Pipeline construction type | `PIPELINE_CONSTRUCTION_TYPE_MONOLITHIC`, `PIPELINE_CONSTRUCTION_TYPE_FAST_LINKED_LIBRARY` | Selects monolithic pipelines or fast-linked graphics pipeline libraries. The `graphics_pipeline_library` dynamic-rendering variant uses the latter. | [createDynamicRenderingTests](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8669-L8676) |
 | Color formats | 48 core formats plus `VK_FORMAT_A8_UNORM_KHR` | Drives the `formats` sub-variant: each format gets load-op and render-type cases, plus input-attachment self-dependency cases. | [s_coreColorFormats](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L6314-L6361) |
 | Depth/stencil formats | `D16_UNORM`, `X8_D24_UNORM_PACK32`, `D32_SFLOAT`, `D24_UNORM_S8_UINT`, `D32_SFLOAT_S8_UINT` | Used by `simple`, `formats`, and `attachment` when a depth/stencil aspect is selected. | [s_coreDepthStencilFormats](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L6363-L6367) |
@@ -539,7 +539,7 @@ Because the intermediate-node axis (`suballocation` / `dedicated_allocation` / `
 | Runtime iteration | [RenderPassTestInstance::iterate](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L5355-L5480) | Creates resources, records and submits command buffers, runs verification. |
 | Support checks | [RenderPassTestCase::checkSupport](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L5504-L5677) | Extension, feature, format, and limit gating. |
 | Allocation strategy | [AllocationKind enum](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L147-L151), [allocateImage](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L190-L210) | Suballocation versus dedicated allocation selection. |
-| Group parameters | [vktRenderPassGroupParams.hpp#L34-L63](../../../modules/vulkan/renderpass/vktRenderPassGroupParams.hpp#L34-L63) | `RenderingType`, `SynchronizationType`, and `GroupParams` shared by all renderpass tests. |
+| Group parameters | [Group parameters](../../../modules/vulkan/renderpass/vktRenderPassGroupParams.hpp#L34-L63) | `RenderingType`, `SynchronizationType`, and `GroupParams` shared by all renderpass tests. |
 | Render-pass utilities | [vktRenderPassTestsUtil.cpp](../../../modules/vulkan/renderpass/vktRenderPassTestsUtil.cpp) | `Attachment`, `Subpass`, `SubpassDependency`, `RenderPass` structs and `createRenderPass` helpers used by this file and every delegated implementation file. |
 | Mustpass entries | [renderpasses.txt](../../../mustpass/main/vk-default/renderpasses.txt) | VK default mustpass for the `renderpasses` category. |
-| Category registration | [vktTestPackage.cpp#L1354](../../../modules/vulkan/vktTestPackage.cpp#L1354) | Attaches `createRenderPassesTests` under the `renderpasses` root. |
+| Category registration | [Test-package category registration](../../../modules/vulkan/vktTestPackage.cpp#L1354) | Attaches `createRenderPassesTests` under the `renderpasses` root. |

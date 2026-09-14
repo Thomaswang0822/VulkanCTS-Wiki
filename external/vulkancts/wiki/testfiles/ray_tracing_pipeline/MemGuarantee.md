@@ -24,11 +24,11 @@ ray_tracing_pipeline.memguarantee
 └── inside
 ```
 
-Each intermediate node owns five test case leaves: `rgen`, `chit`, `miss`, `sect`, `call`. Mustpass evidence lists all 10 leaves under `dEQP-VK.ray_tracing_pipeline.memguarantee.{between,inside}.{rgen,chit,miss,sect,call}` ([ray-tracing-pipeline.txt#L13027-L13036](../../../mustpass/main/vk-default/ray-tracing-pipeline.txt#L13027-L13036)).
+Each intermediate node owns five test case leaves: `rgen`, `chit`, `miss`, `sect`, `call`. Mustpass evidence lists all 10 leaves under `dEQP-VK.ray_tracing_pipeline.memguarantee.{between,inside}.{rgen,chit,miss,sect,call}` ([Ray Tracing Pipeline](../../../mustpass/main/vk-default/ray-tracing-pipeline.txt#L13027-L13036)).
 
 ## Parameter Dimensions and Observed Values
 
-The matrix is built from two arrays in the registration loop ([vktRayTracingMemGuaranteeTests.cpp#L857-L905](../../../modules/vulkan/ray_tracing/vktRayTracingMemGuaranteeTests.cpp#L857-L905)).
+The matrix is built from two arrays in the registration loop ([memory-ordering operation and shader-stage matrix](../../../modules/vulkan/ray_tracing/vktRayTracingMemGuaranteeTests.cpp#L857-L905)).
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
@@ -52,7 +52,7 @@ The stage under test performs both writes in the same invocation: `imageStore(r)
 
 ## Shader Analysis
 
-The shaders are inline GLSL strings emitted by `initPrograms` with `SPIRV_VERSION_1_4` ([vktRayTracingMemGuaranteeTests.cpp#L301-L506](../../../modules/vulkan/ray_tracing/vktRayTracingMemGuaranteeTests.cpp#L301-L506)). The `between` and `inside` modes are encoded by three conditionally injected strings:
+The shaders are inline GLSL strings emitted by `initPrograms` with `SPIRV_VERSION_1_4` ([`RayTracingTestCase()`](../../../modules/vulkan/ray_tracing/vktRayTracingMemGuaranteeTests.cpp#L301-L506)). The `between` and `inside` modes are encoded by three conditionally injected strings:
 
 - `glslExtensions` adds `#extension GL_KHR_memory_scope_semantics : require` for `between` only.
 - `imageQualifiers` adds ` shadercallcoherent ` to the caller's image declaration for `between` only.
@@ -379,7 +379,7 @@ The test builds the selected shader-stage configuration, dispatches the ray work
 
 ### Requirement-based pruning
 
-- Every case requires `VK_KHR_acceleration_structure` and `VK_KHR_ray_tracing_pipeline` device functionality, with the `rayTracingPipeline` and `accelerationStructure` feature bits enabled ([checkSupport](../../../modules/vulkan/ray_tracing/vktRayTracingMemGuaranteeTests.cpp#L243-L258)).
+- Every case requires `VK_KHR_acceleration_structure` and `VK_KHR_ray_tracing_pipeline` device functionality, with the `rayTracingPipeline` and `accelerationStructure` feature bits enabled ([`RayTracingTestCase()`](../../../modules/vulkan/ray_tracing/vktRayTracingMemGuaranteeTests.cpp#L243-L258)).
 - The `accelerationStructure` feature is checked as a hard `TestError` rather than `NotSupportedError` because `VK_KHR_ray_tracing_pipeline` depends on it.
 - `checkSupportInInstance` also rejects cases that exceed `maxPrimitiveCount`, `maxGeometryCount`, `maxInstanceCount`, or `maxMemoryAllocationCount` ([checkSupportInInstance](../../../modules/vulkan/ray_tracing/vktRayTracingMemGuaranteeTests.cpp#L803-L824)).
 
@@ -403,11 +403,11 @@ The test builds the selected shader-stage configuration, dispatches the ray work
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `TestType` enum and `CaseDef` | [vktRayTracingMemGuaranteeTests.cpp#L54-L69](../../../modules/vulkan/ray_tracing/vktRayTracingMemGuaranteeTests.cpp#L54-L69) | Defines the two behavior parameter values and the per-case configuration. |
-| `initPrograms` shader emission | [vktRayTracingMemGuaranteeTests.cpp#L301-L506](../../../modules/vulkan/ray_tracing/vktRayTracingMemGuaranteeTests.cpp#L301-L506) | Source of the reconstructed walkthrough shaders and the `inside`/`between` conditional strings. |
-| `imageQualifiers`, `glslExtensions`, barrier strings | [vktRayTracingMemGuaranteeTests.cpp#L305-L331](../../../modules/vulkan/ray_tracing/vktRayTracingMemGuaranteeTests.cpp#L305-L331) | Encodes the `between` vs `inside` shader-level difference. |
-| `runTest` host flow | [vktRayTracingMemGuaranteeTests.cpp#L651-L801](../../../modules/vulkan/ray_tracing/vktRayTracingMemGuaranteeTests.cpp#L651-L801) | Resource creation, clear, AS build, SBT, trace, copyback, host invalidation. |
-| `iterate` pass/fail check | [vktRayTracingMemGuaranteeTests.cpp#L826-L852](../../../modules/vulkan/ray_tracing/vktRayTracingMemGuaranteeTests.cpp#L826-L852) | Encodes the `pos + 1` expected value and the failure counter. |
-| `checkSupport` feature gates | [vktRayTracingMemGuaranteeTests.cpp#L243-L258](../../../modules/vulkan/ray_tracing/vktRayTracingMemGuaranteeTests.cpp#L243-L258) | Requires the two KHR feature bits. |
-| Registration loop | [vktRayTracingMemGuaranteeTests.cpp#L855-L908](../../../modules/vulkan/ray_tracing/vktRayTracingMemGuaranteeTests.cpp#L855-L908) | Builds the two test type groups and the five stage leaves each. |
-| Mustpass evidence | [ray-tracing-pipeline.txt#L13027-L13036](../../../mustpass/main/vk-default/ray-tracing-pipeline.txt#L13027-L13036) | Lists all 10 registered leaves. |
+| `TestType` enum and `CaseDef` | [TestType enum and CaseDef](../../../modules/vulkan/ray_tracing/vktRayTracingMemGuaranteeTests.cpp#L54-L69) | Defines the two behavior parameter values and the per-case configuration. |
+| `initPrograms` shader emission | [initPrograms shader emission](../../../modules/vulkan/ray_tracing/vktRayTracingMemGuaranteeTests.cpp#L301-L506) | Source of the reconstructed walkthrough shaders and the `inside`/`between` conditional strings. |
+| `imageQualifiers`, `glslExtensions`, barrier strings | [imageQualifiers, glslExtensions, barrier strings](../../../modules/vulkan/ray_tracing/vktRayTracingMemGuaranteeTests.cpp#L305-L331) | Encodes the `between` vs `inside` shader-level difference. |
+| `runTest` host flow | [runTest host flow](../../../modules/vulkan/ray_tracing/vktRayTracingMemGuaranteeTests.cpp#L651-L801) | Resource creation, clear, AS build, SBT, trace, copyback, host invalidation. |
+| `iterate` pass/fail check | [iterate pass/fail check](../../../modules/vulkan/ray_tracing/vktRayTracingMemGuaranteeTests.cpp#L826-L852) | Encodes the `pos + 1` expected value and the failure counter. |
+| `checkSupport` feature gates | [check ray-tracing memory-guarantee prerequisites](../../../modules/vulkan/ray_tracing/vktRayTracingMemGuaranteeTests.cpp#L243-L258) | Requires the two KHR feature bits. |
+| Registration loop | [Registration loop](../../../modules/vulkan/ray_tracing/vktRayTracingMemGuaranteeTests.cpp#L855-L908) | Builds the two test type groups and the five stage leaves each. |
+| Mustpass evidence | [Mustpass evidence](../../../mustpass/main/vk-default/ray-tracing-pipeline.txt#L13027-L13036) | Lists all 10 registered leaves. |

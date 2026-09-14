@@ -2,7 +2,7 @@
 
 **Core question:** Does a mesh shader preserve the selected first- or last-vertex provoking convention for flat-shaded lines and triangles?
 
-- [`vktMeshShaderProvokingVertexTestsEXT.cpp`](../../../modules/vulkan/mesh_shader/vktMeshShaderProvokingVertexTestsEXT.cpp#L450) implements the `mesh_shader.ext.provoking_vertex` test family. It builds one mesh shader and one fragment shader, then renders either one or two array layers for each case.
+- [`createMeshShaderProvokingVertexTestsEXT()`](../../../modules/vulkan/mesh_shader/vktMeshShaderProvokingVertexTestsEXT.cpp#L450) implements the `mesh_shader.ext.provoking_vertex` test family. It builds one mesh shader and one fragment shader, then renders either one or two array layers for each case.
 - The test varies output geometry (`lines` or `triangles`) and the provoking-mode sequence (`first`, `last`, `first_last`, or `last_first`). The mode sequence determines how many pipelines and framebuffer layers the case uses.
 - The mesh shader assigns distinct flat colors to the vertices. The fragment shader writes the flat value to a 1x1 `VK_FORMAT_R8G8B8A8_UNORM` color attachment, so the readback identifies which vertex supplied the flat-shaded color.
 - The Vulkan default mustpass contains the eight registered leaves under this family: [`mesh-shader.txt`](../../../mustpass/main/vk-default/mesh-shader.txt#L2055-L2062).
@@ -386,7 +386,7 @@ All four values use the same geometry-specific colors and exact host comparison.
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Category dispatcher | [`vktMeshShaderTests.cpp#L71-L81`](../../../modules/vulkan/mesh_shader/vktMeshShaderTests.cpp#L71-L81) | Routes the EXT `provoking_vertex` factory into the `mesh_shader.ext` branch. |
+| Category dispatcher | [`createMeshShaderProvokingVertexTestsEXT`](../../../modules/vulkan/mesh_shader/vktMeshShaderTests.cpp#L71-L81) | Routes the EXT `provoking_vertex` factory into the `mesh_shader.ext` branch. |
 | Test factory and registration loops | [`createMeshShaderProvokingVertexTestsEXT`](../../../modules/vulkan/mesh_shader/vktMeshShaderProvokingVertexTestsEXT.cpp#L450-L482) | Defines the `provoking_vertex` root, `lines` and `triangles` children, four mode sequences, and eight leaves. |
 | Geometry and color data | [`Geometry`, color and position helpers](../../../modules/vulkan/mesh_shader/vktMeshShaderProvokingVertexTestsEXT.cpp#L52-L92) | Defines the two primitive shapes and the distinct values used to identify the provoking vertex. |
 | Generated GLSL | [`ProvokingVertexCase::initPrograms`](../../../modules/vulkan/mesh_shader/vktMeshShaderProvokingVertexTestsEXT.cpp#L188-L253) | Emits the fixed fragment shader and geometry-dependent EXT mesh shader. |
@@ -401,4 +401,4 @@ All four values use the same geometry-specific colors and exact host comparison.
 | Pipeline provoking mode | [`VkPipelineRasterizationProvokingVertexStateCreateInfoEXT`](../../../../vulkan-docs/src/chapters/vertexpostproc.adoc#L782-L820) | Defines the pipeline state, default mode, per-pipeline restriction, and last-mode requirement. |
 | Provoking mode values | [`VkProvokingVertexModeEXT`](../../../../vulkan-docs/src/chapters/vertexpostproc.adoc#L823-L839) | Defines first and last non-adjacency vertices. |
 | Feature semantics | [`VkPhysicalDeviceProvokingVertexFeaturesEXT`](../../../../vulkan-docs/src/chapters/features.adoc#L6084-L6124) | Defines `provokingVertexLast` and transform-feedback preservation features. |
-| vk-default coverage | [`mesh-shader.txt#L2055-L2062`](../../../mustpass/main/vk-default/mesh-shader.txt#L2055-L2062) | Lists all eight `mesh_shader.ext.provoking_vertex` leaves. |
+| vk-default coverage | [vk-default coverage](../../../mustpass/main/vk-default/mesh-shader.txt#L2055-L2062) | Lists all eight `mesh_shader.ext.provoking_vertex` leaves. |

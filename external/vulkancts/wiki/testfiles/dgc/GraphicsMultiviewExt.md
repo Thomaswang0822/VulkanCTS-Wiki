@@ -2,7 +2,7 @@
 
 **Core question:** Does device-generated graphics execution respect the selected multiview views while producing the expected color and depth for every generated draw?
 
-- This page covers the implementation in [`vktDGCGraphicsMultiviewTestsExt.cpp`](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMultiviewTestsExt.cpp#L223-L762) and its registered test family `dgc.ext.graphics.multiview`.
+- This page covers the implementation in [Generated multiview drawing and validation](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMultiviewTestsExt.cpp#L223-L762) and its registered test family `dgc.ext.graphics.multiview`.
 - The tests combine multiview rendering with device-generated commands. They vary the view mask, graphics pipeline construction, draw form, vertex and index buffer tokens, preprocessing, and dynamic rendering.
 - Each case renders four quadrants into a 2-layer, 2 by 2 color and depth image. The fragment shader writes `gl_ViewIndex` into red so the result also checks view selection.
 - The page explains the parameter matrix, host and device execution, reference-image checks, intentional pruning, and what a failure can mean.

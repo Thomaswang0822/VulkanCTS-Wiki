@@ -26,7 +26,7 @@ shader_object.misc
 └── push_const
 ```
 
-The `misc` test family is created at [createShaderObjectMiscTests](../../../modules/vulkan/shader_object/vktShaderObjectMiscTests.cpp#L3492-L3495). Its seven direct children and their exact names are registered at [blend and state registration](../../../modules/vulkan/shader_object/vktShaderObjectMiscTests.cpp#L3496-L3967), [unused-variable and tessellation registration](../../../modules/vulkan/shader_object/vktShaderObjectMiscTests.cpp#L3969-L4062), and [push-constant registration](../../../modules/vulkan/shader_object/vktShaderObjectMiscTests.cpp#L4064-L4073). The parent attaches `misc` directly under the `shader_object` test category at [vktShaderObjectTests.cpp#L61](../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L61).
+The `misc` test family is created at [createShaderObjectMiscTests](../../../modules/vulkan/shader_object/vktShaderObjectMiscTests.cpp#L3492-L3495). Its seven direct children and their exact names are registered at [blend and state registration](../../../modules/vulkan/shader_object/vktShaderObjectMiscTests.cpp#L3496-L3967), [unused-variable and tessellation registration](../../../modules/vulkan/shader_object/vktShaderObjectMiscTests.cpp#L3969-L4062), and [push-constant registration](../../../modules/vulkan/shader_object/vktShaderObjectMiscTests.cpp#L4064-L4073). The parent attaches `misc` directly under the `shader_object` test category at [`createTests()`](../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L61).
 
 ## Parameter Dimensions and Observed Values
 

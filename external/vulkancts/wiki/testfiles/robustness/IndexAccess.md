@@ -78,7 +78,7 @@ robustness.bind_index_buffer2
 └── offset_100
 ```
 
-`bind_index_buffer2` is added only outside `CTS_USES_VULKANSC`; its offset nodes expand into draw modes and `oo_*` test case leaves ([category registration](../../../modules/vulkan/robustness/vktRobustnessTests.cpp#L65-L94), [family registration](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L1116-L1205)).
+`bind_index_buffer2` is added only outside `CTS_USES_VULKANSC`; its offset nodes expand into draw modes and `oo_*` test case leaves ([Category registration](../../../modules/vulkan/robustness/vktRobustnessTests.cpp#L65-L94), [family registration](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L1116-L1205)).
 
 ## Parameter Dimensions and Observed Values
 
@@ -86,7 +86,7 @@ The added uint8/uint16 and pipeline-robustness leaves are direct test cases unde
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Test family | `index_access`, `bind_index_buffer2` | Selects out-of-bounds `firstIndex` behavior or sized-binding behavior. | [registration](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L1116-L1205) |
+| Test family | `index_access`, `bind_index_buffer2` | Selects out-of-bounds `firstIndex` behavior or sized-binding behavior. | [`BindIndexBuffer2Instance::iterate()`](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L1116-L1205) |
 | Draw mode | `draw_indexed`, `draw_indexed_indirect`, `draw_indexed_indirect_count`, `draw_multi_indexed` | Exercises equivalent indexed access through different command paths. | [`TestMode` and mode arrays](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L61-L67) |
 | Binding offset | `offset_0`, `offset_100` | Checks a binding at the buffer start and after leading index data. | [`offsets`](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L1132-L1140) |
 | Out-of-range type | `oo_none`, `oo_index`, `oo_size`, `oo_whole_size` | Selects a valid baseline or the source of the unusable index access. | [`OutOfTypes`](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L1125-L1130) |
@@ -310,5 +310,5 @@ void main(void)
 - [`DrawIndexedInstance::iterate()`](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L165-L461) — `index_access` setup, command recording, and validation.
 - [`BindIndexBuffer2Instance::iterate()`](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L892-L1228) — sized-binding setup, draws, and sampled validation.
 - [`createCmdBindIndexBuffer2Tests()` and `createIndexAccessTests()`](../../../modules/vulkan/robustness/vktRobustnessIndexAccessTests.cpp#L1116-L1205) — registered matrix.
-- [`vktRobustnessTests.cpp`](../../../modules/vulkan/robustness/vktRobustnessTests.cpp#L61-L99) — category registration and VulkanSC guard.
+- [`createTests()`](../../../modules/vulkan/robustness/vktRobustnessTests.cpp#L61-L99) — category registration and VulkanSC guard.
 - [`robustness.txt`](../../../mustpass/main/vk-default/robustness.txt#L1-L41) and [`index_access` entries](../../../mustpass/main/vk-default/robustness.txt#L13746-L13752) — default mustpass evidence.

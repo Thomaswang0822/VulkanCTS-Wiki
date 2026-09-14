@@ -909,13 +909,13 @@ The source uses fixed Amber leaves and does not add further runtime-generated ca
 
 | Topic | Source |
 |-------|--------|
-| Registration, requirements, and image parameters | [`vktTextureMultisampleTests.cpp`](../../../modules/vulkan/texture/vktTextureMultisampleTests.cpp#L38-L156) |
+| Registration, requirements, and image parameters | [Registration, requirements, and image parameters](../../../modules/vulkan/texture/vktTextureMultisampleTests.cpp#L38-L156) |
 | Texture dispatcher and Vulkan SC exclusion | [`createTextureTests`](../../../modules/vulkan/texture/vktTextureTests.cpp#L48-L67) |
 | Representative R32 atomic script | [`storage_image_r32ui.amber`](../../../data/vulkan/amber/texture/multisample/atomic/storage_image_r32ui.amber) |
 | R64 oracle defect | [`storage_image_r64ui.amber`](../../../data/vulkan/amber/texture/multisample/atomic/storage_image_r64ui.amber#L33-L70) |
 | Representative invalid-index script | [`sample_count_4.amber`](../../../data/vulkan/amber/texture/multisample/invalidsampleindex/sample_count_4.amber) |
 | Default-device robustness state | [`DeviceFeatures`](../../../framework/vulkan/vkDeviceFeatures.cpp#L210-L234) |
-| Amber execution and shader compilation | [`vktAmberTestCase.cpp`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L410-L479) |
+| Amber execution and shader compilation | [Amber execution and shader compilation](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L410-L479) |
 | Image coordinate validation | [`images.adoc`](../../../../vulkan-docs/src/chapters/images.adoc#L42-L103) |
 | Image sample operands and atomics | [`images.adoc`](../../../../vulkan-docs/src/chapters/images.adoc#L225-L263) |
 | Out-of-bounds access requirements | [`shaders.adoc`](../../../../vulkan-docs/src/chapters/shaders.adoc#L1871-L1921) |

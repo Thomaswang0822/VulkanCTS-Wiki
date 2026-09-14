@@ -2,7 +2,7 @@
 
 **Core question:** Do EXT generated draw actions consume the selected draw records and state, then produce the expected pixels for non-indexed and indexed graphics paths?
 
-- [vktDGCGraphicsDrawTestsExt.cpp](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsDrawTestsExt.cpp#L1) implements the `dgc.ext.graphics.draw` test category. Its registration function creates the `token_draw` and `token_draw_indexed` test families.
+- [Generated draw and indexed-draw tests](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsDrawTestsExt.cpp#L1) implements the `dgc.ext.graphics.draw` test category. Its registration function creates the `token_draw` and `token_draw_indexed` test families.
 - The tests exercise `VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_EXT` and `VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_INDEXED_EXT`, including simple paths without generated buffer-binding tokens and a supplemental indexed path with a host-bound index buffer.
 - The matrix combines monolithic pipelines, shader objects, graphics pipeline libraries, optional tessellation or geometry stages, execution sets, explicit preprocessing, unordered sequences, and draw-parameter checks.
 - Each main case renders a small image, copies it to host memory, and compares it with a reference derived from the generated commands.
@@ -29,7 +29,7 @@ The registration matrix is formed by nested loops in [`createDGCGraphicsDrawTest
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Draw action | `token_draw`, `token_draw_indexed`, plus `indexed_draw_without_index_buffer_token` cases | Selects non-indexed, indexed, or supplemental indexed execution. | [`TestType` and registration](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsDrawTestsExt.cpp#L212-L222), [registration](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsDrawTestsExt.cpp#L2146-L2152) |
+| Draw action | `token_draw`, `token_draw_indexed`, plus `indexed_draw_without_index_buffer_token` cases | Selects non-indexed, indexed, or supplemental indexed execution. | [`TestType` and registration](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsDrawTestsExt.cpp#L212-L222), [`createDGCGraphicsDrawTestsExt()`](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsDrawTestsExt.cpp#L2146-L2152) |
 | Pipeline or shader state | `monolithic`, `shader_objects`, `gpl_fast`, `gpl_optimized`, `gpl_mix_base_fast`, `gpl_mix_base_opt` | Selects ordinary pipelines, `VkShaderEXT` objects, or graphics pipeline library construction. | [`pipelineTypeCases`](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsDrawTestsExt.cpp#L2089-L2100) |
 | Extra stages | no suffix, `_with_tess`, `_with_geom` | Adds no stage, tessellation control/evaluation stages, or a geometry stage. | [`extraStageCases`](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsDrawTestsExt.cpp#L2079-L2087) |
 | Execution set | no suffix, `_with_execution_set` | Uses one pipeline or per-stage shader-object selection per generated sequence. | [execution-set layout](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsDrawTestsExt.cpp#L1032-L1038), [indices](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsDrawTestsExt.cpp#L1249-L1267) |

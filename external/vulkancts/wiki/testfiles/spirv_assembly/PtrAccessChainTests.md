@@ -22,7 +22,7 @@ spirv_assembly.instruction.compute.ptr_access_chain
 └── workgroup_bad_stride
 ```
 
-Both children are direct test case leaves of the `ptr_access_chain` test family; there are no intermediate nodes. The full registration is mirrored at [spirv-assembly.txt#L9963-L9964](../../../mustpass/main/vk-default/spirv-assembly.txt#L9963-L9964).
+Both children are direct test case leaves of the `ptr_access_chain` test family; there are no intermediate nodes. The full registration is mirrored at [SPIR-V assembly test registration](../../../mustpass/main/vk-default/spirv-assembly.txt#L9963-L9964).
 
 ## Parameter Dimensions and Observed Values
 
@@ -109,7 +109,7 @@ This representative case does not use GLSL or HLSL. CTS supplies the shader modu
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---|---|---|
-| Variation 1 | The `workgroup_bad_stride` case shares the entire shader body, descriptor layout, workgroup array, control barrier, and probe with the `workgroup` case. The only difference is the single decoration line:  ```text OpDecorate %_ptr_Workgroup_uint ArrayStride 8   ; workgroup_bad_stride only ```  The header comment in `workgroup_bad_stride.amber` records the intended comparison: its added `ArrayStride 8` should be ignored and should give the same results as `ArrayStride == 4`. Accordingly, its expected probe output is identical to the baseline: `1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 0`. That is the CTS-script expectation being exercised here, not proof that the decoration is normatively ignored; the applicable SPIR-V 1.4 plus workgroup-explicit-layout rule says the Base type's stride is used for explicitly laid-out Workgroup objects. | [source evidence](../../../modules/vulkan/spirv_assembly/) |
+| Variation 1 | The `workgroup_bad_stride` case shares the entire shader body, descriptor layout, workgroup array, control barrier, and probe with the `workgroup` case. The only difference is the single decoration line:  ```text OpDecorate %_ptr_Workgroup_uint ArrayStride 8   ; workgroup_bad_stride only ```  The header comment in `workgroup_bad_stride.amber` records the intended comparison: its added `ArrayStride 8` should be ignored and should give the same results as `ArrayStride == 4`. Accordingly, its expected probe output is identical to the baseline: `1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 0`. That is the CTS-script expectation being exercised here, not proof that the decoration is normatively ignored; the applicable SPIR-V 1.4 plus workgroup-explicit-layout rule says the Base type's stride is used for explicitly laid-out Workgroup objects. | [Variation 1](../../../modules/vulkan/spirv_assembly/) |
 
 #### SPIR-V
 
@@ -267,7 +267,7 @@ Both cases advertise the same requirements through [`addRequirement`](../../../m
 - `VK_KHR_workgroup_memory_explicit_layout`: required by both Amber scripts for the workgroup explicit-layout path and its `WorkgroupMemoryExplicitLayoutKHR` capability.
 - SPIR-V 1.4 with `supports_VK_KHR_spirv_1_4`: selected through [`asmOptions`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPtrAccessChainTests.cpp#L40-L41) for both Amber cases.
 
-The whole `ptr_access_chain` test family is non-VulkanSC only. The entire `createTests` body is guarded by [`#ifndef CTS_USES_VULKANSC`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPtrAccessChainTests.cpp#L37-L68), so on VulkanSC builds the group registers no cases.
+The whole `ptr_access_chain` test family is non-VulkanSC only. The entire `createTests` body is guarded by [vktSpvAsmPtrAccessChainTests.cpp](../../../modules/vulkan/spirv_assembly/vktSpvAsmPtrAccessChainTests.cpp#L37-L68), so on VulkanSC builds the group registers no cases.
 
 ### Design-based pruning
 
@@ -285,9 +285,9 @@ No design-based pruning is applied. The two registered leaves form a baseline an
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `createPtrAccessChainGroup` factory | [vktSpvAsmPtrAccessChainTests.cpp#L73-L78](../../../modules/vulkan/spirv_assembly/vktSpvAsmPtrAccessChainTests.cpp#L73-L78) | Defines the `ptr_access_chain` test family and routes it to `createTests`. |
-| `createTests` body | [vktSpvAsmPtrAccessChainTests.cpp#L35-L69](../../../modules/vulkan/spirv_assembly/vktSpvAsmPtrAccessChainTests.cpp#L35-L69) | Registers the two Amber cases, attaches feature/extension requirements, and sets SPIR-V 1.4 build options. |
-| Case array | [vktSpvAsmPtrAccessChainTests.cpp#L49-L52](../../../modules/vulkan/spirv_assembly/vktSpvAsmPtrAccessChainTests.cpp#L49-L52) | Lists the `workgroup` and `workgroup_bad_stride` basenames and their descriptions. |
+| `createPtrAccessChainGroup` factory | [`createPtrAccessChainGroup`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPtrAccessChainTests.cpp#L73-L78) | Defines the `ptr_access_chain` test family and routes it to `createTests`. |
+| `createTests` body | [`createTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPtrAccessChainTests.cpp#L35-L69) | Registers the two Amber cases, attaches feature/extension requirements, and sets SPIR-V 1.4 build options. |
+| Case array | [case array](../../../modules/vulkan/spirv_assembly/vktSpvAsmPtrAccessChainTests.cpp#L49-L52) | Lists the `workgroup` and `workgroup_bad_stride` basenames and their descriptions. |
 | Representative Amber script | [workgroup.amber](../../../data/vulkan/amber/spirv_assembly/instruction/compute/ptr_access_chain/workgroup.amber) | Baseline case carrying the embedded SPIR-V assembly, host buffers, dispatch, and probe analyzed in this page. |
 | Bad-stride Amber script | [workgroup_bad_stride.amber](../../../data/vulkan/amber/spirv_assembly/instruction/compute/ptr_access_chain/workgroup_bad_stride.amber) | Identical to the baseline except for the single `OpDecorate %_ptr_Workgroup_uint ArrayStride 8` line. |
-| Mustpass entry range | [spirv-assembly.txt#L9963-L9964](../../../mustpass/main/vk-default/spirv-assembly.txt#L9963-L9964) | Mirrors the two registered `dEQP-VK.spirv_assembly.instruction.compute.ptr_access_chain.*` case paths. |
+| Mustpass entry range | [Mustpass entry range](../../../mustpass/main/vk-default/spirv-assembly.txt#L9963-L9964) | Mirrors the two registered `dEQP-VK.spirv_assembly.instruction.compute.ptr_access_chain.*` case paths. |

@@ -28,13 +28,13 @@ ray_tracing_pipeline.large_shader_set
 └── gpu
 ```
 
-The eight direct children are registered by [createBuildLargeShaderSetTests](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L571-L655). The first loop registers `gpu` and `cpu_ht` without deferred worker threads (`workerThreadsCount == 0`). The second loop registers the `cpu_ht_*` children for host builds only, each with a named worker-thread count.
+The eight direct children are registered by [build paths and large shader-set sizes](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L571-L655). The first loop registers `gpu` and `cpu_ht` without deferred worker threads (`workerThreadsCount == 0`). The second loop registers the `cpu_ht_*` children for host builds only, each with a named worker-thread count.
 
 ## Parameter Dimensions and Observed Values
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| AS build path | `gpu`, `cpu_ht`, `cpu_ht_1`, `cpu_ht_2`, `cpu_ht_3`, `cpu_ht_4`, `cpu_ht_8`, `cpu_ht_max` | Selects the acceleration structure build type and, for host builds, the deferred-host worker-thread count. This is the primary behavioral axis. | [createBuildLargeShaderSetTests](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L571-L655) |
+| AS build path | `gpu`, `cpu_ht`, `cpu_ht_1`, `cpu_ht_2`, `cpu_ht_3`, `cpu_ht_4`, `cpu_ht_8`, `cpu_ht_max` | Selects the acceleration structure build type and, for host builds, the deferred-host worker-thread count. This is the primary behavioral axis. | [build paths and large shader-set sizes](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L571-L655) |
 | Size (shader count) | `64`, `256`, `1024`, `4096` | `size x size` launch grid and callable shader count. `size` is 8, 16, 32, or 64, so the leaf name records `size*size`. Larger sizes stress pipeline creation, SBT size, and group-handle limits. | [sizes array](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L576) |
 | SPIR-V target | `spirv1.4` | All generated shaders use `vk::SPIRV_VERSION_1_4`. | [ShaderBuildOptions](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L235) |
 
@@ -58,7 +58,7 @@ Builds both BLAS and TLAS with `VK_ACCELERATION_STRUCTURE_BUILD_TYPE_HOST_KHR` a
 
 ## Shader Analysis
 
-The rgen and callable shaders are generated inline in [RayTracingTestCase::initPrograms](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L233-L277). The rgen shader is fixed across all sizes; only the `width` literal it embeds changes. The callable shaders are generated per launch cell: one callable shader `call<shaderNdx>` for each `(x, y)`, where `shaderNdx = width * y + x`. Every `shaderNdx` whose value is divisible by 43 gets a block of dummy arithmetic work injected by [generateDummyWork](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L216-L231), which exercises a pipeline containing many callable shaders of non-trivial size rather than a uniform set of one-liners.
+The rgen and callable shaders are generated inline in [generate raygen and per-cell callable shaders](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L233-L277). The rgen shader is fixed across all sizes; only the `width` literal it embeds changes. The callable shaders are generated per launch cell: one callable shader `call<shaderNdx>` for each `(x, y)`, where `shaderNdx = width * y + x`. Every `shaderNdx` whose value is divisible by 43 gets a block of dummy arithmetic work injected by [dummy arithmetic for selected callables](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L216-L231), which exercises a pipeline containing many callable shaders of non-trivial size rather than a uniform set of one-liners.
 
 Shader code is part of the tested behavior. The rgen `executeCallableEXT(n, 0)` dispatch is what routes each launch cell to its own callable group, and the host compares the per-pixel writes against the same `(width * (y/3) + x) % 199` formula the callable shaders use. A mismatch means the SBT routing or callable execution did not reach the expected group.
 
@@ -123,7 +123,7 @@ void main()
 
 ##### Callable Shader Module
 
-Reconstructed callable GLSL for cell `(x=1, y=0)`, faithful to the per-cell generation loop in [RayTracingTestCase::initPrograms](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L254-L276) for `width == 8`. `shaderNdx == 1`, and `1 % 43 != 0`, so no dummy work is injected. Cells where `shaderNdx % 43 == 0` get the extra arithmetic block from [generateDummyWork](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L216-L231); the rest share this structure with only the embedded `x`, `y`, and `r` constants differing.
+Reconstructed callable GLSL for cell `(x=1, y=0)`, faithful to the per-cell generation loop in [RayTracingTestCase::initPrograms](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L254-L276) for `width == 8`. `shaderNdx == 1`, and `1 % 43 != 0`, so no dummy work is injected. Cells where `shaderNdx % 43 == 0` get the extra arithmetic block from [dummy arithmetic for selected callables](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L216-L231); the rest share this structure with only the embedded `x`, `y`, and `r` constants differing.
 
 ```glsl
 #version 460 core
@@ -143,7 +143,7 @@ void main()
 
 #### Additional Info
 
-- The callable shader shown is the non-dummy variant. For cells where `shaderNdx % 43 == 0`, [generateDummyWork](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L216-L231) appends up to 255 iterations of integer arithmetic on `color.b` and `color.g` before the `imageStore`, so the pipeline contains callable shaders of varying compiled size. This is why the test is a "large shader set" stress rather than a uniform callable test.
+- The callable shader shown is the non-dummy variant. For cells where `shaderNdx % 43 == 0`, [dummy arithmetic for selected callables](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L216-L231) appends up to 255 iterations of integer arithmetic on `color.b` and `color.g` before the `imageStore`, so the pipeline contains callable shaders of varying compiled size. This is why the test is a "large shader set" stress rather than a uniform callable test.
 - The rgen `width` literal is the only thing that changes across sizes: `8`, `16`, `32`, or `64`. The dispatch structure (`n = width * y + x; executeCallableEXT(n, 0)`) is identical, so the larger sizes scale the callable group count and SBT size without changing rgen logic.
 - The `topLevelAS` is bound but never traversed by a ray in this test; rgen calls a callable shader directly rather than tracing a ray. The AS exists so the descriptor set matches the pipeline layout the trace command expects.
 
@@ -152,8 +152,8 @@ void main()
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
 | Size | The rgen `width` literal changes to 8, 16, 32, or 64, and the number of generated callable shaders scales to `width*width`. The rgen dispatch structure is unchanged. | [rgen generation](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L237-L251), [callable generation loop](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L254-L276) |
-| Dummy work | Every cell with `shaderNdx % 43 == 0` gets the `generateDummyWork` arithmetic block; other cells do not. This varies callable shader size within one pipeline. | [dummyWork condition](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L258), [generateDummyWork](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L216-L231) |
-| AS build path | The rgen and callable shaders are identical for `gpu`, `cpu_ht`, and all `cpu_ht_*` values. The build path differs only on the host side. | [createBuildLargeShaderSetTests](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L571-L655) |
+| Dummy work | Every cell with `shaderNdx % 43 == 0` gets the `generateDummyWork` arithmetic block; other cells do not. This varies callable shader size within one pipeline. | [dummyWork condition](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L258), [dummy arithmetic for selected callables](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L216-L231) |
+| AS build path | The rgen and callable shaders are identical for `gpu`, `cpu_ht`, and all `cpu_ht_*` values. The build path differs only on the host side. | [build paths and large shader-set sizes](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L571-L655) |
 
 #### SPIR-V
 
@@ -301,12 +301,12 @@ void main()
 
 ### Scene construction
 
-- The host builds one BLAS with `geometriesGroupCount == 1` geometry holding `squaresGroupCount == size*size` triangle primitives. Each primitive covers one pixel cell of the `size x size` image, placed by a deterministic walk (`startPos` advanced by `(13 * (n+1)) % (size*size)`) [initBottomAccelerationStructure](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L305-L352).
-- A TLAS instances that single BLAS with an identity transform [initTopAccelerationStructure](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L284-L303). The AS is a placeholder for the descriptor set; no ray is traced against it.
+- The host builds one BLAS with `geometriesGroupCount == 1` geometry holding `squaresGroupCount == size*size` triangle primitives. Each primitive covers one pixel cell of the `size x size` image, placed by a deterministic walk (`startPos` advanced by `(13 * (n+1)) % (size*size)`) [deterministic placeholder BLAS geometry](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L305-L352).
+- A TLAS instances that single BLAS with an identity transform [single-BLAS placeholder TLAS](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L284-L303). The AS is a placeholder for the descriptor set; no ray is traced against it.
 
 ### Pipeline creation and SBT
 
-- The pipeline has one rgen group and `size*size` callable groups. [makePipeline](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L86-L106) adds the rgen at group 0 and each `call<groupNdx>` callable at group `1 + groupNdx`.
+- The pipeline has one rgen group and `size*size` callable groups. [assemble raygen and callable shader groups](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L86-L106) adds the rgen at group 0 and each `call<groupNdx>` callable at group `1 + groupNdx`.
 - Because creating a pipeline with thousands of shader modules is slow, the watchdog interval time limit is disabled before `makePipeline` and re-enabled after it [watchdog disable/enable](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L387-L393).
 - Two SBT regions are created: a rgen SBT with one entry, and a callable SBT with `callableShaderCount` entries, both using the device's `shaderGroupHandleSize` and `shaderGroupBaseAlignment` [SBT creation](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L394-L405). The miss and hit SBT regions are zeroed.
 
@@ -323,7 +323,7 @@ void main()
 
 ### Per-pixel result check
 
-- The host scans every pixel. The expected value is `(width * (y/3) + x) % 199`, the same formula the callable shaders embed [validateBuffer](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L518-L536).
+- The host scans every pixel. The expected value is `(width * (y/3) + x) % 199`, the same formula the callable shaders embed [per-pixel callable-result comparison](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L518-L536).
 - Pass condition: `failures == 0` [iterate](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L557-L567). For deferred-operation cases, the single-threaded and multi-threaded runs must both pass.
 
 ## Failure Meaning
@@ -375,9 +375,9 @@ All leaves share the large pipeline creation, the callable SBT, the scene, and t
 
 ### Requirement-based pruning
 
-- All leaves require `VK_KHR_acceleration_structure` and `VK_KHR_ray_tracing_pipeline`, with the `rayTracingPipeline` and `accelerationStructure` feature bits set. If `accelerationStructure` is not set, the test throws `TestError` [checkSupport](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L191-L205).
+- All leaves require `VK_KHR_acceleration_structure` and `VK_KHR_ray_tracing_pipeline`, with the `rayTracingPipeline` and `accelerationStructure` feature bits set. If `accelerationStructure` is not set, the test throws `TestError` [large shader-set feature requirements](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L191-L205).
 - Host builds (`cpu_ht` and all `cpu_ht_*`) additionally require `VK_KHR_deferred_host_operations` and `accelerationStructureHostCommands`; otherwise the test throws `NotSupportedError` [host build feature gate](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L207-L213). The `gpu` path does not require these.
-- At instance time, the test checks ray tracing property limits: `maxPrimitiveCount` must cover `squaresGroupCount`, and the estimated memory allocation count must stay under `maxMemoryAllocationCount`. Any shortfall throws `NotSupportedError` [checkSupportInInstance](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L495-L516).
+- At instance time, the test checks ray tracing property limits: `maxPrimitiveCount` must cover `squaresGroupCount`, and the estimated memory allocation count must stay under `maxMemoryAllocationCount`. Any shortfall throws `NotSupportedError` [large-build AS and allocation-limit checks](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L495-L516).
 
 ### Design-based pruning
 
@@ -397,15 +397,15 @@ All leaves share the large pipeline creation, the callable SBT, the scene, and t
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `CaseDef` struct | [vktRayTracingBuildLargeTests.cpp#L56-L66](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L56-L66) | Per-case parameters including build type, deferred-operation flag, and worker-thread count |
-| `generateDummyWork` | [vktRayTracingBuildLargeTests.cpp#L216-L231](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L216-L231) | Injects dummy arithmetic into `shaderNdx % 43 == 0` callable shaders |
-| `initPrograms` | [vktRayTracingBuildLargeTests.cpp#L233-L277](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L233-L277) | rgen and per-cell callable shader generation |
-| `makePipeline` | [vktRayTracingBuildLargeTests.cpp#L86-L106](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L86-L106) | Adds rgen plus N callable groups to the ray tracing pipeline |
-| `checkSupport` | [vktRayTracingBuildLargeTests.cpp#L191-L205](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L191-L205) | Feature gates for acceleration structure, ray tracing pipeline, deferred host operations |
-| `initBottomAccelerationStructure` | [vktRayTracingBuildLargeTests.cpp#L305-L352](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L305-L352) | Deterministic primitive placement for the placeholder AS |
-| `initTopAccelerationStructure` | [vktRayTracingBuildLargeTests.cpp#L284-L303](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L284-L303) | TLAS instance setup |
-| `runTest` | [vktRayTracingBuildLargeTests.cpp#L354-L493](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L354-L493) | Watchdog-managed pipeline creation, SBT, trace dispatch, and result copyback |
-| `checkSupportInInstance` | [vktRayTracingBuildLargeTests.cpp#L495-L516](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L495-L516) | Runtime property-limit and allocation-count pruning |
-| `validateBuffer` | [vktRayTracingBuildLargeTests.cpp#L518-L536](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L518-L536) | Per-pixel expected-value rule |
-| `iterate` / `iterateWithWorkers` | [vktRayTracingBuildLargeTests.cpp#L538-L567](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L538-L567) | Pass/fail condition and the single-threaded plus multi-threaded run for deferred cases |
-| `createBuildLargeShaderSetTests` | [vktRayTracingBuildLargeTests.cpp#L571-L655](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L571-L655) | Registration of the eight build-path direct children and the four-size matrix |
+| `CaseDef` struct | [CaseDef struct](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L56-L66) | Per-case parameters including build type, deferred-operation flag, and worker-thread count |
+| `generateDummyWork` | [dummy arithmetic for selected callables](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L216-L231) | Injects dummy arithmetic into `shaderNdx % 43 == 0` callable shaders |
+| `initPrograms` | [generate raygen and per-cell callable shaders](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L233-L277) | rgen and per-cell callable shader generation |
+| `makePipeline` | [assemble raygen and callable shader groups](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L86-L106) | Adds rgen plus N callable groups to the ray tracing pipeline |
+| `checkSupport` | [large shader-set feature requirements](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L191-L205) | Feature gates for acceleration structure, ray tracing pipeline, deferred host operations |
+| `initBottomAccelerationStructure` | [deterministic placeholder BLAS geometry](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L305-L352) | Deterministic primitive placement for the placeholder AS |
+| `initTopAccelerationStructure` | [single-BLAS placeholder TLAS](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L284-L303) | TLAS instance setup |
+| `runTest` | [runTest](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L354-L493) | Watchdog-managed pipeline creation, SBT, trace dispatch, and result copyback |
+| `checkSupportInInstance` | [large-build AS and allocation-limit checks](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L495-L516) | Runtime property-limit and allocation-count pruning |
+| `validateBuffer` | [per-pixel callable-result comparison](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L518-L536) | Per-pixel expected-value rule |
+| `iterate` / `iterateWithWorkers` | [iterate / iterateWithWorkers](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L538-L567) | Pass/fail condition and the single-threaded plus multi-threaded run for deferred cases |
+| `createBuildLargeShaderSetTests` | [build paths and large shader-set sizes](../../../modules/vulkan/ray_tracing/vktRayTracingBuildLargeTests.cpp#L571-L655) | Registration of the eight build-path direct children and the four-size matrix |

@@ -53,8 +53,8 @@ The [`iterate`](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResol
 Three `RESOLVE` variants extend the basic case:
 
 - **Basic**: `samples_<N>`, single layer (`baseLayer 0`), resolve into mip level 0. The default `TestConfig` uses 4 attachments at 32×32.
-- **Base layer offset**: `samples_<N>_baseLayer1`, same as basic but `baseLayer = 1`, so verification reads from a non-zero array layer. Monolithic pipeline only. ([source](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L3178-L3185))
-- **Resolve level**: `samples_<N>_resolve_level_<L>` for `L` in {2, 3, 4}, the single-sample image is a mipmap chain and the resolve targets mip level `L` (the single-sample image is allocated larger and the view bound at that level). Monolithic pipeline only. ([source](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L3187-L3202))
+- **Base layer offset**: `samples_<N>_baseLayer1`, same as basic but `baseLayer = 1`, so verification reads from a non-zero array layer. Monolithic pipeline only. ([`initTests()`](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L3178-L3185))
+- **Resolve level**: `samples_<N>_resolve_level_<L>` for `L` in {2, 3, 4}, the single-sample image is a mipmap chain and the resolve targets mip level `L` (the single-sample image is allocated larger and the view bound at that level). Monolithic pipeline only. ([`initTests()`](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L3187-L3202))
 
 The fragment shader for `RESOLVE` writes a per-format-channel-class constant (`255`/`127` for integer, `1.0` for float/fixed-point) into each color output, gated by `gl_SampleMask[0]` read from a push constant. The shader itself is trivial; the behavior under test is the resolve operation, not shader logic.
 
@@ -75,7 +75,7 @@ This shape is registered only when the secondary-command-buffer configuration ma
 
 `COMPATIBILITY` verifies that a framebuffer and pipeline created against one render pass remain valid and resolve correctly when the draw is submitted against a spec-compatible render pass. The test case leaves are `compatibility_samples_<N>`.
 
-The instance builds two compatible render passes ([source](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L1532)): `m_renderPass`, whose resolve attachment is referenced as `VK_ATTACHMENT_UNUSED`, and `m_renderPassCompatible`, whose resolve attachment is actually used. The framebuffer and pipeline are created against the unused-resolve pass, but the draw is submitted against the used-resolve pass ([submit](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L756)); the test then verifies the resolved output is correct. The compatibility property under test is that objects created against one render pass remain valid and behave correctly when used with the spec-compatible partner. It is excluded from dynamic rendering because dynamic rendering has no render-pass-compatibility concept.
+The instance builds two compatible render passes ([`vktRenderPassMultisampleResolveTests.cpp`](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L1532)): `m_renderPass`, whose resolve attachment is referenced as `VK_ATTACHMENT_UNUSED`, and `m_renderPassCompatible`, whose resolve attachment is actually used. The framebuffer and pipeline are created against the unused-resolve pass, but the draw is submitted against the used-resolve pass ([submit](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L756)); the test then verifies the resolved output is correct. The compatibility property under test is that objects created against one render pass remain valid and behave correctly when used with the spec-compatible partner. It is excluded from dynamic rendering because dynamic rendering has no render-pass-compatibility concept.
 
 ## Shader Analysis
 
@@ -152,7 +152,7 @@ void main (void)
 |---------------------|-----------------------------------------|----------|
 | Format channel class | Unsigned integer formats use `uvec4(255)`, signed integer formats use `ivec4(127)`, and floating/fixed-point formats use `vec4(1.0)`. | [channel-class specialization](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L2871-L2889) |
 | Attachment count | Basic `RESOLVE` emits four output declarations and stores; `COMPATIBILITY` emits one. The generator creates one output at each location from zero through `attachmentCount - 1`. | [output generation loop](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L2895-L2907), [registered configurations](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L3167-L3169) |
-| Sample count | The fragment source is unchanged for 2x, 4x, and 8x MSAA. The host changes the rasterization sample count and cycles a correspondingly wider runtime mask. | [sample-count registration](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L3138-L3168), [mask iteration](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L1368-L1530) |
+| Sample count | The fragment source is unchanged for 2x, 4x, and 8x MSAA. The host changes the rasterization sample count and cycles a correspondingly wider runtime mask. | [sample-count registration](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L3138-L3168), [Sample count](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L1368-L1530) |
 | Layer count | The fragment source stays unchanged. Layer counts 3 and 6 add a geometry shader that broadcasts each triangle and assigns `gl_Layer`. | [geometry-shader branch](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L2823-L2853) |
 | `MAX_ATTACHMENTS` test type | This shape replaces the mask-controlled fragment shader with two generated fragment stages: the first writes a format-specific constant to 4, 8, or 16 attachments, and the second combines pairs of resolved input attachments. | [max-attachments shader generation](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L2909-L2990) |
 
@@ -292,7 +292,7 @@ Final pass/fail is decided host-side by [`verify`](../../../modules/vulkan/rende
 
 ### Requirement-based pruning
 
-Defined in [`checkSupport`](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L2995-L3070):
+Defined in [`TestConfigType()`](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L2995-L3070):
 
 - `VK_KHR_maintenance5` is required for `VK_FORMAT_A8_UNORM_KHR`.
 - `DEVICE_CORE_FEATURE_GEOMETRY_SHADER` is required when `layerCount > 1` (layered rendering via geometry shader).
@@ -304,8 +304,8 @@ Defined in [`checkSupport`](../../../modules/vulkan/renderpass/vktRenderPassMult
 
 ### Design-based pruning
 
-- `layerCount == 6` with `sampleCount == 8` is skipped because it is too slow ([source](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L3159-L3161)).
-- When a secondary command buffer is used, `sampleCount > 2` or `layerCount > 3` combinations are skipped to reduce test volume ([source](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L3163-L3165)).
+- `layerCount == 6` with `sampleCount == 8` is skipped because it is too slow ([`initTests()`](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L3159-L3161)).
+- When a secondary command buffer is used, `sampleCount > 2` or `layerCount > 3` combinations are skipped to reduce test volume ([`initTests()`](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L3163-L3165)).
 - The `baseLayer1`, `resolve_level`, and `MAX_ATTACHMENTS`/`COMPATIBILITY` shapes are monolithic-pipeline-only or conditionally registered (see `## Behavior Parameters`); graphics pipeline library repeats only the `MAX_ATTACHMENTS` dynamic-rendering-local-read subset.
 
 ## Key Takeaways
@@ -320,12 +320,12 @@ Defined in [`checkSupport`](../../../modules/vulkan/renderpass/vktRenderPassMult
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `initTests`: registration loop | [vktRenderPassMultisampleResolveTests.cpp#L3082-L3256](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L3082-L3256) | Generates all format/sample/layer/test-type test case leaves and the `layers_<N>` intermediate nodes. |
-| `checkSupport`: feature/limit gating | [vktRenderPassMultisampleResolveTests.cpp#L2995-L3070](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L2995-L3070) | Authoritative source of requirement-based pruning. |
-| `MultisampleRenderPassTestInstance::iterate`: mask cycling | [vktRenderPassMultisampleResolveTests.cpp#L1368-L1530](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L1368-L1530) | Drives the per-mask render/resolve/verify loop and the final average check. |
-| `MultisampleRenderPassTestInstance::verify`: per-mask and average checks | [vktRenderPassMultisampleResolveTests.cpp#L1008-L1366](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L1008-L1366) | Per-channel-class comparison logic for float, fixed-point, and integer formats. |
-| `MaxAttachmenstsRenderPassTestInstance::verify`: max-attachments check | [vktRenderPassMultisampleResolveTests.cpp#L2263-L2399](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L2263-L2399) | Two-subpass output verification against the per-format reference color. |
-| `getFormatThreshold`: per-format tolerance | [vktRenderPassMultisampleResolveTests.cpp#L521-L547](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L521-L547) | Format-dependent threshold used by the float/fixed-point average comparison. |
-| `Programs::init`: shader generation | [vktRenderPassMultisampleResolveTests.cpp#L2805-L2992](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L2805-L2992) | Generates the trivial `RESOLVE`/`COMPATIBILITY` fragment shader and the two-subpass `MAX_ATTACHMENTS` shader pair. |
-| `createRenderPassMultisampleResolveTests`: top-level entry | [vktRenderPassMultisampleResolveTests.cpp#L3260-L3264](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L3260-L3264) | Creates the `multisample_resolve` test family group. |
-| Registration site in render pass suite | [vktRenderPassTests.cpp#L8566](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8566) | Adds the family under `renderpasses.<rendering_type>.suballocation`. |
+| `initTests`: registration loop | [initTests: registration loop](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L3082-L3256) | Generates all format/sample/layer/test-type test case leaves and the `layers_<N>` intermediate nodes. |
+| `checkSupport`: feature/limit gating | [check multisample resolve features and device limits](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L2995-L3070) | Authoritative source of requirement-based pruning. |
+| `MultisampleRenderPassTestInstance::iterate`: mask cycling | [render and verify successive sample masks and their average](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L1368-L1530) | Drives the per-mask render/resolve/verify loop and the final average check. |
+| `MultisampleRenderPassTestInstance::verify`: per-mask and average checks | [MultisampleRenderPassTestInstance::verify: per-mask and average checks](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L1008-L1366) | Per-channel-class comparison logic for float, fixed-point, and integer formats. |
+| `MaxAttachmenstsRenderPassTestInstance::verify`: max-attachments check | [MaxAttachmenstsRenderPassTestInstance::verify: max-attachments check](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L2263-L2399) | Two-subpass output verification against the per-format reference color. |
+| `getFormatThreshold`: per-format tolerance | [getFormatThreshold: per-format tolerance](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L521-L547) | Format-dependent threshold used by the float/fixed-point average comparison. |
+| `Programs::init`: shader generation | [Programs::init: shader generation](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L2805-L2992) | Generates the trivial `RESOLVE`/`COMPATIBILITY` fragment shader and the two-subpass `MAX_ATTACHMENTS` shader pair. |
+| `createRenderPassMultisampleResolveTests`: top-level entry | [createRenderPassMultisampleResolveTests: top-level entry](../../../modules/vulkan/renderpass/vktRenderPassMultisampleResolveTests.cpp#L3260-L3264) | Creates the `multisample_resolve` test family group. |
+| Registration site in render pass suite | [Registration site in render pass suite](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8566) | Adds the family under `renderpasses.<rendering_type>.suballocation`. |

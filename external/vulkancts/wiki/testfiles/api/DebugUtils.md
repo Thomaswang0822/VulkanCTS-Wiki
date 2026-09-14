@@ -30,11 +30,11 @@ The [factory](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L187-L215) r
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
 | Test case leaf | `long_labels_graphics`, `long_labels_transfer`, `long_labels_video_decode` | Each leaf selects a different queue family capability profile for the shared long-label stress path. | [`createDebugUtilsTests()`](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L144-L167) |
-| Required queue flags | `VK_QUEUE_GRAPHICS_BIT`, `VK_QUEUE_TRANSFER_BIT`, `VK_QUEUE_VIDEO_DECODE_BIT_KHR` | Selects which queue capability the queue family must expose. | [`vktApiDebugUtilsTests.cpp#L149-L162`](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L149-L162) |
-| Excluded queue flags | `0` for graphics; `VK_QUEUE_GRAPHICS_BIT \| VK_QUEUE_COMPUTE_BIT` for transfer and video decode | Restricts the queue family selection so transfer and video decode leaves run on non-graphics, non-compute queues when such a family exists. | [`vktApiDebugUtilsTests.cpp#L150-L161`](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L150-L161) |
-| Long label length | `64 * 1024 + 1` characters of `'x'` | One character longer than 64 KiB, intended to exceed typical fixed-size internal buffers. | [`vktApiDebugUtilsTests.cpp#L97`](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L97) |
-| Debug-utils target | buffer object name, command-buffer label, queue label | Exercises three attachment points on the same long string within a single test body. | [`vktApiDebugUtilsTests.cpp#L104-L127`](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L104-L127) |
-| Command content | `vkCmdFillBuffer` emitted only when `params.required` overlaps `VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT` | The graphics and transfer leaves record a fill command; the video decode leaf does not, because video decode queues are not in that overlap mask. | [`vktApiDebugUtilsTests.cpp#L121-L124`](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L121-L124) |
+| Required queue flags | `VK_QUEUE_GRAPHICS_BIT`, `VK_QUEUE_TRANSFER_BIT`, `VK_QUEUE_VIDEO_DECODE_BIT_KHR` | Selects which queue capability the queue family must expose. | [Required queue flags](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L149-L162) |
+| Excluded queue flags | `0` for graphics; `VK_QUEUE_GRAPHICS_BIT \| VK_QUEUE_COMPUTE_BIT` for transfer and video decode | Restricts the queue family selection so transfer and video decode leaves run on non-graphics, non-compute queues when such a family exists. | [Excluded queue flags](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L150-L161) |
+| Long label length | `64 * 1024 + 1` characters of `'x'` | One character longer than 64 KiB, intended to exceed typical fixed-size internal buffers. | [Long debug-label string](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L97) |
+| Debug-utils target | buffer object name, command-buffer label, queue label | Exercises three attachment points on the same long string within a single test body. | [Debug-utils target](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L104-L127) |
+| Command content | `vkCmdFillBuffer` emitted only when `params.required` overlaps `VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT` | The graphics and transfer leaves record a fill command; the video decode leaf does not, because video decode queues are not in that overlap mask. | [Command content](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L121-L124) |
 
 ## Behavior Parameters
 
@@ -68,14 +68,14 @@ The long-label leaves share [`testLongDebugLabelsTest()`](../../../modules/vulka
 
 The debug-marker leaf is absent from Vulkan SC builds. The numbered sequence below applies to the long-label leaves.
 
-1. Create a custom instance with `VK_EXT_debug_utils` enabled, regardless of whether validation is active, so the debug-utils entry points are present ([`vktApiDebugUtilsTests.cpp#L53-L59`](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L53-L59)).
-2. Select a queue family through `findQueueFamilyIndexWithCaps(vki, physicalDevice, params.required, params.excluded)` ([`vktApiDebugUtilsTests.cpp#L60`](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L60)). A failure here is reported by the support check, not by the test body.
+1. Create a custom instance with `VK_EXT_debug_utils` enabled, regardless of whether validation is active, so the debug-utils entry points are present ([Debug-utils instance creation](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L53-L59)).
+2. Select a queue family through `findQueueFamilyIndexWithCaps(vki, physicalDevice, params.required, params.excluded)` ([Queue-capability selection](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L60)). A failure here is reported by the support check, not by the test body.
 3. Create a device through the custom instance wrapper and use that device's driver and allocator ([setup](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L53-L76)). Local explicit SC reservation chains are no longer present in this function.
-4. Construct the long string `longName(64 * 1024 + 1, 'x')` ([`vktApiDebugUtilsTests.cpp#L97`](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L97)).
-5. Create a 1024-byte host-visible buffer with `VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT` and attach the long string as its object name through `vkSetDebugUtilsObjectNameEXT` ([`vktApiDebugUtilsTests.cpp#L99-L108`](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L99-L108)).
-6. Create a command pool with `VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT`, allocate a primary command buffer, begin recording, insert the long string as a command-buffer label through `vkCmdInsertDebugUtilsLabelEXT`, conditionally record `vkCmdFillBuffer(*testBuffer, 0, VK_WHOLE_SIZE, 1985)` when the required flag overlaps the graphics/compute/transfer mask, and end recording ([`vktApiDebugUtilsTests.cpp#L110-L125`](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L110-L125)).
-7. Insert the long string as a queue label through `vkQueueInsertDebugUtilsLabelEXT`, then submit the command buffer and wait for completion through `submitCommandsAndWait` ([`vktApiDebugUtilsTests.cpp#L127-L129`](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L127-L129)).
-8. Return `tcu::TestStatus::pass("Pass")` ([`vktApiDebugUtilsTests.cpp#L131`](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L131)).
+4. Construct the long string `longName(64 * 1024 + 1, 'x')` ([Long debug-label string](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L97)).
+5. Create a 1024-byte host-visible buffer with `VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT` and attach the long string as its object name through `vkSetDebugUtilsObjectNameEXT` ([Long buffer object name](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L99-L108)).
+6. Create a command pool with `VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT`, allocate a primary command buffer, begin recording, insert the long string as a command-buffer label through `vkCmdInsertDebugUtilsLabelEXT`, conditionally record `vkCmdFillBuffer(*testBuffer, 0, VK_WHOLE_SIZE, 1985)` when the required flag overlaps the graphics/compute/transfer mask, and end recording ([Command-buffer debug labels](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L110-L125)).
+7. Insert the long string as a queue label through `vkQueueInsertDebugUtilsLabelEXT`, then submit the command buffer and wait for completion through `submitCommandsAndWait` ([Queue label and submission](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L127-L129)).
+8. Return `tcu::TestStatus::pass("Pass")` ([Completion status](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L131)).
 
 Pass condition: every Vulkan call in the sequence returns without error and the command buffer submission completes. The body does not read back the buffer contents, does not register a `VK_EXT_debug_utils` messenger callback, and does not verify that the long string was stored, echoed, or surfaced to external tooling. A pass only confirms that the implementation accepted the long name and label strings through the recorded and submitted path.
 
@@ -116,7 +116,7 @@ Pass condition: every Vulkan call in the sequence returns without error and the 
 
 - The three long-label leaves require instance functionality `VK_EXT_debug_utils`; `debug_marker_graphics` instead requires device functionality `VK_EXT_debug_marker` ([callbacks](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L171-L183)).
 - Every leaf requires a queue family matching its required and excluded mask through `findQueueFamilyIndexWithCaps`. Devices without a dedicated transfer-only queue family skip `long_labels_transfer`; devices without a video-decode-capable queue family skip `long_labels_video_decode`.
-- The `long_labels_video_decode` leaf is omitted entirely from Vulkan SC builds by the `#ifndef CTS_USES_VULKANSC` guard at [`vktApiDebugUtilsTests.cpp#L159-L164`](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L159-L164).
+- The `long_labels_video_decode` leaf is omitted entirely from Vulkan SC builds by the `#ifndef CTS_USES_VULKANSC` guard at [Video-decode Vulkan SC exclusion](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L159-L164).
 - Both `debug_marker_graphics` and `long_labels_video_decode` are excluded from Vulkan SC ([registration](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L196-L213)).
 
 ### Design-based pruning
@@ -135,16 +135,16 @@ The family contains three long-label leaves and a separate debug-marker leaf. Ea
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `createDebugUtilsTests()` | [`vktApiDebugUtilsTests.cpp#L144-L167`](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L144-L167) | Family registration and leaf case additions. |
-| Parent attach | [`vktApiTests.cpp#L91`](../../../modules/vulkan/api/vktApiTests.cpp#L91) | Attaches the `debug_utils` family to the `api` test category. |
-| `TestParams` | [`vktApiDebugUtilsTests.cpp#L44-L48`](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L44-L48) | Holds the required and excluded queue flag mask per leaf. |
-| `testLongDebugLabelsTest()` | [`vktApiDebugUtilsTests.cpp#L50-L132`](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L50-L132) | Shared test body used by all three leaves. |
-| Long string construction | [`vktApiDebugUtilsTests.cpp#L97`](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L97) | `64 * 1024 + 1` character input string. |
-| Buffer object name | [`vktApiDebugUtilsTests.cpp#L104-L108`](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L104-L108) | `vkSetDebugUtilsObjectNameEXT` on the test buffer. |
-| Command-buffer label | [`vktApiDebugUtilsTests.cpp#L119-L125`](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L119-L125) | `vkCmdInsertDebugUtilsLabelEXT` and conditional `vkCmdFillBuffer`. |
-| Queue label | [`vktApiDebugUtilsTests.cpp#L127`](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L127) | `vkQueueInsertDebugUtilsLabelEXT` before submission. |
-| Submission and pass | [`vktApiDebugUtilsTests.cpp#L129-L131`](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L129-L131) | `submitCommandsAndWait` and unconditional pass return. |
-| `checkDebugUtilsSupport()` | [`vktApiDebugUtilsTests.cpp#L134-L140`](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L134-L140) | Extension and queue family support check; produces `NotSupportedError` skips. |
-| Vulkan SC guard | [`vktApiDebugUtilsTests.cpp#L159-L164`](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L159-L164) | Conditionally omits the `long_labels_video_decode` leaf. |
+| `createDebugUtilsTests()` | [createDebugUtilsTests()](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L144-L167) | Family registration and leaf case additions. |
+| Parent attach | [Parent attach](../../../modules/vulkan/api/vktApiTests.cpp#L91) | Attaches the `debug_utils` family to the `api` test category. |
+| `TestParams` | [TestParams](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L44-L48) | Holds the required and excluded queue flag mask per leaf. |
+| `testLongDebugLabelsTest()` | [testLongDebugLabelsTest()](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L50-L132) | Shared test body used by all three leaves. |
+| Long string construction | [Long debug-label string](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L97) | `64 * 1024 + 1` character input string. |
+| Buffer object name | [Buffer object name](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L104-L108) | `vkSetDebugUtilsObjectNameEXT` on the test buffer. |
+| Command-buffer label | [Command-buffer label](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L119-L125) | `vkCmdInsertDebugUtilsLabelEXT` and conditional `vkCmdFillBuffer`. |
+| Queue label | [Queue label](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L127) | `vkQueueInsertDebugUtilsLabelEXT` before submission. |
+| Submission and pass | [Submission and pass](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L129-L131) | `submitCommandsAndWait` and unconditional pass return. |
+| `checkDebugUtilsSupport()` | [checkDebugUtilsSupport()](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L134-L140) | Extension and queue family support check; produces `NotSupportedError` skips. |
+| Vulkan SC guard | [Video-decode Vulkan SC exclusion](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L159-L164) | Conditionally omits the `long_labels_video_decode` leaf. |
 | Debug-marker execution | [testDebugMarker](../../../modules/vulkan/api/vktApiDebugUtilsTests.cpp#L114-L168) | Names/tags a buffer and submits begin/insert/end markers without readback. |
 | Header | [`vktApiDebugUtilsTests.hpp`](../../../modules/vulkan/api/vktApiDebugUtilsTests.hpp#L1) | Declares `createDebugUtilsTests`. |

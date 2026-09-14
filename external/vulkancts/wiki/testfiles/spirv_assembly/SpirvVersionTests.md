@@ -14,7 +14,7 @@ The implementation is [`vktSpvAsmSpirvVersionTests.cpp`](../../../modules/vulkan
 
 ## Registration Hierarchy
 
-[`createSpivVersionCheckTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersionTests.cpp#L376-L403) is added to the compute instruction root and the graphics instruction root by [`vktSpvAsmInstructionTests.cpp`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21319-L21320) and [`#L21452-L21453`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21452-L21453), respectively. It is not inside a `CTS_USES_VULKANSC` exclusion.
+[`createSpivVersionCheckTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersionTests.cpp#L376-L403) is added to the compute instruction root and the graphics instruction root by [`createEarlyFragmentTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21319-L21320) and [vktSpvAsmInstructionTests.cpp](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21452-L21453), respectively. It is not inside a `CTS_USES_VULKANSC` exclusion.
 
 ```text
 spirv_assembly.instruction.compute.spirv_version
@@ -304,7 +304,7 @@ The compute registration intentionally excludes the five graphics operations, wh
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Root registrations | [`vktSpvAsmInstructionTests.cpp#L21319-L21320`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21319-L21320), [`#L21452-L21453`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21452-L21453) | Adds the family beneath compute and graphics instruction roots. |
+| Root registrations | [`createEarlyFragmentTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21319-L21320), [vktSpvAsmInstructionTests.cpp](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21452-L21453) | Adds the family beneath compute and graphics instruction roots. |
 | Graphics context | [`initGraphicsInstanceContext()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersionTests.cpp#L69-L116) | Selects a complete graphics stage set and supplies the custom arithmetic fragment. |
 | Compute assembly | [`getComputeSourceCode()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersionTests.cpp#L118-L154) | Defines the authored compute module and version-boundary declaration choice. |
 | Compute data / expected output | [`getComputeShaderSpec()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersionTests.cpp#L156-L180) | Creates 100 positive floats and their negative expected outputs. |

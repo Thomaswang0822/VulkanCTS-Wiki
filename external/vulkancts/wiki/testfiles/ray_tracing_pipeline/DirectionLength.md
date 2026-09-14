@@ -2,7 +2,7 @@
 
 **Core question:** When a ray tracing pipeline traces a ray whose direction vector is scaled and rotated, does the hit shader report the correct hit distance T, both for rays shot from outside geometry that cross it (`direction_length`) and for rays shot from inside an AABB (`inside_aabbs`)?
 
-- [vktRayTracingDirectionTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingDirectionTests.cpp) registers and implements two test families under the `ray_tracing_pipeline` test category: `direction_length` and `inside_aabbs`. Both are added by the category dispatcher in [vktRayTracingTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L91-L92).
+- [vktRayTracingDirectionTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingDirectionTests.cpp) registers and implements two test families under the `ray_tracing_pipeline` test category: `direction_length` and `inside_aabbs`. Both are added by the category dispatcher in [Category dispatcher](../../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L91-L92).
 - `direction_length` traces rays from outside a single triangle or AABB so that the ray crosses the geometry. It varies the hit stage (closest-hit, any-hit, intersection), geometry type, direction scaling factor, and rotation angle. The host compares the reported hit T against `4.0 / directionScale` within a tolerance of `0.001`.
 - `inside_aabbs` traces rays that start inside a single AABB. It varies the hit stage, ray-end type (tmax zero, inside, edge, outside), direction scaling factor, and rotation angle. The host checks that the reported hit T is exactly `0.0`.
 - Both families share one raygen shader, one miss shader, and one hit/intersection shader set. The rgen shader receives the rotated origin, the scaled and rotated direction, and the tmin/tmax pair through push constants. The page explains the two-family behavioral axis, the shared shader logic, the host-side matrix and tmin/tmax derivation, and what a failure of each family points at.
@@ -22,7 +22,7 @@ ray_tracing_pipeline
 └── inside_aabbs
 ```
 
-Both test families are direct children of the `ray_tracing_pipeline` test category. `direction_length` is registered by [createDirectionLengthTests](../../../modules/vulkan/ray_tracing/vktRayTracingDirectionTests.cpp#L681-L773) and `inside_aabbs` is registered by [createInsideAABBsTests](../../../modules/vulkan/ray_tracing/vktRayTracingDirectionTests.cpp#L775-L859). The dispatcher adds both at [vktRayTracingTests.cpp#L91-L92](../../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L91-L92). Both families appear in the default mustpass at [ray-tracing-pipeline.txt](../../../mustpass/main/vk-default/ray-tracing-pipeline.txt).
+Both test families are direct children of the `ray_tracing_pipeline` test category. `direction_length` is registered by [createDirectionLengthTests](../../../modules/vulkan/ray_tracing/vktRayTracingDirectionTests.cpp#L681-L773) and `inside_aabbs` is registered by [createInsideAABBsTests](../../../modules/vulkan/ray_tracing/vktRayTracingDirectionTests.cpp#L775-L859). The dispatcher adds both at [Category dispatcher](../../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L91-L92). Both families appear in the default mustpass at [Mustpass evidence](../../../mustpass/main/vk-default/ray-tracing-pipeline.txt).
 
 ## Parameter Dimensions and Observed Values
 
@@ -185,7 +185,7 @@ void main()
 
 - The rgen, miss, and hit shader text is identical across all cases in both families. Only the intersection shader differs: when `isec` is the test stage, it includes the output buffer write (`outBuffer.val = gl_RayTminEXT`); when it is an auxiliary shader for AABB geometry in `chit` or `ahit` cases, it omits the buffer declaration and only calls `reportIntersectionEXT(gl_RayTminEXT, 0)` ([initPrograms isecAux check](../../../modules/vulkan/ray_tracing/vktRayTracingDirectionTests.cpp#L334-L345)).
 - The miss shader writes `-10000.0f`, which would fail both families' validation: `abs(-10000.0 - distanceToEdge)` far exceeds the tolerance, and `-10000.0 != 0.0`. The miss path exists as a safety net; the host computes tmin/tmax to bracket the geometry, so a miss indicates the ray did not reach the expected hit point.
-- `updateRayTracingGLSL` is an identity helper ([vkRayTracingUtil.hpp#L111-L114](../../../framework/vulkan/vkRayTracingUtil.hpp#L111-L114)), so the reconstructed GLSL matches the generator output exactly.
+- `updateRayTracingGLSL` is an identity helper ([GLSL identity helper](../../../framework/vulkan/vkRayTracingUtil.hpp#L111-L114)), so the reconstructed GLSL matches the generator output exactly.
 - The C++ `PushConstants` struct names the third field `tmix` ([PushConstants](../../../modules/vulkan/ray_tracing/vktRayTracingDirectionTests.cpp#L295-L301)), but this is a naming typo in the host struct only; the GLSL and the memory layout use `tmin` at offset 32, and the field is populated with `tMinMax.first` at runtime.
 
 #### Parameter Variation Summary
@@ -525,16 +525,16 @@ Both families share the raygen shader, the AS build, the pipeline, the output bu
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `SpaceObjects` | [vktRayTracingDirectionTests.cpp#L81-L123](../../../modules/vulkan/ray_tracing/vktRayTracingDirectionTests.cpp#L81-L123) | Defines ray origin, direction, and geometry placement for both families |
-| `calcTminTmax` | [vktRayTracingDirectionTests.cpp#L129-L163](../../../modules/vulkan/ray_tracing/vktRayTracingDirectionTests.cpp#L129-L163) | Derives tmin/tmax from ray origin type, ray end type, and distance to edge |
-| `getScaleMatrix` / `getRotationMatrix` | [vktRayTracingDirectionTests.cpp#L166-L194](../../../modules/vulkan/ray_tracing/vktRayTracingDirectionTests.cpp#L166-L194) | Builds the scale and rotation matrices applied to the direction and instance |
-| `TestParams` | [vktRayTracingDirectionTests.cpp#L209-L249](../../../modules/vulkan/ray_tracing/vktRayTracingDirectionTests.cpp#L209-L249) | Per-case parameters including stage, geometry, scale, rotation, and ray end type |
-| `checkSupport` | [vktRayTracingDirectionTests.cpp#L287-L291](../../../modules/vulkan/ray_tracing/vktRayTracingDirectionTests.cpp#L287-L291) | Feature gates for acceleration structure and ray tracing pipeline |
-| `initPrograms` | [vktRayTracingDirectionTests.cpp#L308-L393](../../../modules/vulkan/ray_tracing/vktRayTracingDirectionTests.cpp#L308-L393) | Generates the rgen, miss, hit, and intersection shaders |
-| `iterate` | [vktRayTracingDirectionTests.cpp#L406-L638](../../../modules/vulkan/ray_tracing/vktRayTracingDirectionTests.cpp#L406-L638) | AS build, push constant setup, trace dispatch, result readback, and pass/fail check |
-| `generateScalingFactors` | [vktRayTracingDirectionTests.cpp#L643-L659](../../../modules/vulkan/ray_tracing/vktRayTracingDirectionTests.cpp#L643-L659) | Scaling factor list: 1.0 plus 5 random values in [0.5, 10.0] |
-| `generateRotationAngles` | [vktRayTracingDirectionTests.cpp#L662-L677](../../../modules/vulkan/ray_tracing/vktRayTracingDirectionTests.cpp#L662-L677) | Rotation angle list: (0, 0) plus 4 random pairs in [0, 2*pi] |
-| `createDirectionLengthTests` | [vktRayTracingDirectionTests.cpp#L681-L773](../../../modules/vulkan/ray_tracing/vktRayTracingDirectionTests.cpp#L681-L773) | Registration of the `direction_length` family tree |
-| `createInsideAABBsTests` | [vktRayTracingDirectionTests.cpp#L775-L859](../../../modules/vulkan/ray_tracing/vktRayTracingDirectionTests.cpp#L775-L859) | Registration of the `inside_aabbs` family tree |
-| Category dispatcher | [vktRayTracingTests.cpp#L91-L92](../../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L91-L92) | Adds both families to the `ray_tracing_pipeline` test category |
-| Mustpass evidence | [ray-tracing-pipeline.txt](../../../mustpass/main/vk-default/ray-tracing-pipeline.txt) | All `direction_length.*` and `inside_aabbs.*` leaves listed in the default ray-tracing-pipeline mustpass |
+| `SpaceObjects` | [`SpaceObjects`](../../../modules/vulkan/ray_tracing/vktRayTracingDirectionTests.cpp#L81-L123) | Defines ray origin, direction, and geometry placement for both families |
+| `calcTminTmax` | [`calcTminTmax`](../../../modules/vulkan/ray_tracing/vktRayTracingDirectionTests.cpp#L129-L163) | Derives tmin/tmax from ray origin type, ray end type, and distance to edge |
+| `getScaleMatrix` / `getRotationMatrix` | [`getScaleMatrix` / `getRotationMatrix`](../../../modules/vulkan/ray_tracing/vktRayTracingDirectionTests.cpp#L166-L194) | Builds the scale and rotation matrices applied to the direction and instance |
+| `TestParams` | [`TestParams`](../../../modules/vulkan/ray_tracing/vktRayTracingDirectionTests.cpp#L209-L249) | Per-case parameters including stage, geometry, scale, rotation, and ray end type |
+| `checkSupport` | [`checkSupport`](../../../modules/vulkan/ray_tracing/vktRayTracingDirectionTests.cpp#L287-L291) | Feature gates for acceleration structure and ray tracing pipeline |
+| `initPrograms` | [`initPrograms`](../../../modules/vulkan/ray_tracing/vktRayTracingDirectionTests.cpp#L308-L393) | Generates the rgen, miss, hit, and intersection shaders |
+| `iterate` | [`iterate`](../../../modules/vulkan/ray_tracing/vktRayTracingDirectionTests.cpp#L406-L638) | AS build, push constant setup, trace dispatch, result readback, and pass/fail check |
+| `generateScalingFactors` | [`generateScalingFactors`](../../../modules/vulkan/ray_tracing/vktRayTracingDirectionTests.cpp#L643-L659) | Scaling factor list: 1.0 plus 5 random values in [0.5, 10.0] |
+| `generateRotationAngles` | [`generateRotationAngles`](../../../modules/vulkan/ray_tracing/vktRayTracingDirectionTests.cpp#L662-L677) | Rotation angle list: (0, 0) plus 4 random pairs in [0, 2*pi] |
+| `createDirectionLengthTests` | [`createDirectionLengthTests`](../../../modules/vulkan/ray_tracing/vktRayTracingDirectionTests.cpp#L681-L773) | Registration of the `direction_length` family tree |
+| `createInsideAABBsTests` | [`createInsideAABBsTests`](../../../modules/vulkan/ray_tracing/vktRayTracingDirectionTests.cpp#L775-L859) | Registration of the `inside_aabbs` family tree |
+| Category dispatcher | [Category dispatcher](../../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L91-L92) | Adds both families to the `ray_tracing_pipeline` test category |
+| Mustpass evidence | [Mustpass evidence](../../../mustpass/main/vk-default/ray-tracing-pipeline.txt) | All `direction_length.*` and `inside_aabbs.*` leaves listed in the default ray-tracing-pipeline mustpass |

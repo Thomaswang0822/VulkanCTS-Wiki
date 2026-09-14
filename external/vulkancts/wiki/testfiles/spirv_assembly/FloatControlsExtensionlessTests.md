@@ -113,11 +113,11 @@ This representative case does not use GLSL or HLSL. CTS supplies the shader modu
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---|---|---|
-| Variation 1 | `OpCapability <featureName>`: one of `DenormPreserve`, `DenormFlushToZero`, `SignedZeroInfNanPreserve`, `RoundingModeRTE`, `RoundingModeRTZ`. | [source evidence](../../../modules/vulkan/spirv_assembly/) |
-| Variation 2 | `OpExecutionMode %main <featureName> <fpWideness>`: the width is 16, 32, or 64. | [source evidence](../../../modules/vulkan/spirv_assembly/) |
-| Variation 3 | The `checkSupport()` path: `VK_KHR_spirv_1_4` for `spirv1p4`, Vulkan 1.2 for `vulkan1_2`. | [source evidence](../../../modules/vulkan/spirv_assembly/) |
-| Variation 4 | The per-width feature gates: `shaderFloat16` + `VK_KHR_shader_float16_int8` for `fp16`; `shaderFloat64` for `fp64`; none for `fp32`. | [source evidence](../../../modules/vulkan/spirv_assembly/) |
-| Variation 5 | The per-width/mode property gate in `getFloatControlsProperty()`. | [source evidence](../../../modules/vulkan/spirv_assembly/) |
+| Variation 1 | `OpCapability <featureName>`: one of `DenormPreserve`, `DenormFlushToZero`, `SignedZeroInfNanPreserve`, `RoundingModeRTE`, `RoundingModeRTZ`. | [Variation 1](../../../modules/vulkan/spirv_assembly/) |
+| Variation 2 | `OpExecutionMode %main <featureName> <fpWideness>`: the width is 16, 32, or 64. | [Variation 2](../../../modules/vulkan/spirv_assembly/) |
+| Variation 3 | The `checkSupport()` path: `VK_KHR_spirv_1_4` for `spirv1p4`, Vulkan 1.2 for `vulkan1_2`. | [Variation 3](../../../modules/vulkan/spirv_assembly/) |
+| Variation 4 | The per-width feature gates: `shaderFloat16` + `VK_KHR_shader_float16_int8` for `fp16`; `shaderFloat64` for `fp64`; none for `fp32`. | [Variation 4](../../../modules/vulkan/spirv_assembly/) |
+| Variation 5 | The per-width/mode property gate in `getFloatControlsProperty()`. | [Variation 5](../../../modules/vulkan/spirv_assembly/) |
 
 #### SPIR-V
 
@@ -275,15 +275,15 @@ This representative case does not use GLSL or HLSL. CTS supplies the shader modu
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `getComputeSourceCode()` | [`vktSpvAsmFloatControlsExtensionlessTests.cpp#L51-L84`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsExtensionlessTests.cpp#L51-L84) | Builds the SPIR-V assembly string template parameterized by feature name and width. |
-| `getComputeShaderSpec()` | [`vktSpvAsmFloatControlsExtensionlessTests.cpp#L86-L112`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsExtensionlessTests.cpp#L86-L112) | Builds the 64-element random input/output buffers and wires `verifyOutput`. |
-| `getFloatControlsProperty()` | [`vktSpvAsmFloatControlsExtensionlessTests.cpp#L114-L170`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsExtensionlessTests.cpp#L114-L170) | Per-width/mode property query used to prune unsupported combinations. |
-| `SpvAsmFloatControlsExtensionlessCase::initPrograms()` | [`vktSpvAsmFloatControlsExtensionlessTests.cpp#L195-L203`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsExtensionlessTests.cpp#L195-L203) | Adds the assembly with `SpirVAsmBuildOptions(..., SPIRV_VERSION_1_4, allowSpirv14=true)`. |
-| `SpvAsmFloatControlsExtensionlessCase::checkSupport()` | [`vktSpvAsmFloatControlsExtensionlessTests.cpp#L206-L233`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsExtensionlessTests.cpp#L206-L233) | The two extensionless-path gates plus per-width feature gates. |
-| `createFloatControlsExtensionlessGroup()` | [`vktSpvAsmFloatControlsExtensionlessTests.cpp#L240-L280`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsExtensionlessTests.cpp#L240-L280) | Registers the 30 cases (2 paths × 3 widths × 5 modes). |
-| `getComputeAsmShaderPreamble()` | [`vktSpvAsmComputeShaderTestUtil.cpp#L65-L73`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderTestUtil.cpp#L65-L73) | Provides the SPIR-V preamble (capabilities, memory model, entry point, local size). |
-| `getComputeAsmCommonTypes()` | [`vktSpvAsmComputeShaderTestUtil.cpp#L82-L100`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderTestUtil.cpp#L82-L100) | Provides the common type declarations (`%f32`, `%uvec3`, etc.). |
-| `getComputeAsmInputOutputBuffer()` | [`vktSpvAsmComputeShaderTestUtil.cpp#L109-L121`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderTestUtil.cpp#L109-L121) | Provides the input/output SSBO variable declarations. |
-| `getComputeAsmInputOutputBufferTraits()` | [`vktSpvAsmComputeShaderTestUtil.cpp#L123-L133`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderTestUtil.cpp#L123-L133) | Provides the SSBO decorations (Block, DescriptorSet, Binding, ArrayStride, Offset). |
-| `verifyOutput()` | [`vktSpvAsmComputeShaderTestUtil.cpp#L135-L140`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderTestUtil.cpp#L135-L140) | Host-side pass/fail check with `epsilon = 0.001`. |
-| Mustpass entry range | [`spirv-assembly.txt#L6476-L6505`](../../../mustpass/main/vk-default/spirv-assembly.txt#L6476-L6505) | Mirrors the 30 registered `dEQP-VK.spirv_assembly.instruction.compute.float_controls_extensionless.*` case paths. |
+| `getComputeSourceCode()` | [`getComputeSourceCode()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsExtensionlessTests.cpp#L51-L84) | Builds the SPIR-V assembly string template parameterized by feature name and width. |
+| `getComputeShaderSpec()` | [`getComputeShaderSpec()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsExtensionlessTests.cpp#L86-L112) | Builds the 64-element random input/output buffers and wires `verifyOutput`. |
+| `getFloatControlsProperty()` | [`getFloatControlsProperty()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsExtensionlessTests.cpp#L114-L170) | Per-width/mode property query used to prune unsupported combinations. |
+| `SpvAsmFloatControlsExtensionlessCase::initPrograms()` | [`initPrograms()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsExtensionlessTests.cpp#L195-L203) | Adds the assembly with `SpirVAsmBuildOptions(..., SPIRV_VERSION_1_4, allowSpirv14=true)`. |
+| `SpvAsmFloatControlsExtensionlessCase::checkSupport()` | [`SpvAsmFloatControlsExtensionlessCase::checkSupport()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsExtensionlessTests.cpp#L206-L233) | The two extensionless-path gates plus per-width feature gates. |
+| `createFloatControlsExtensionlessGroup()` | [`createFloatControlsExtensionlessGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsExtensionlessTests.cpp#L240-L280) | Registers the 30 cases (2 paths × 3 widths × 5 modes). |
+| `getComputeAsmShaderPreamble()` | [preamble helper](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderTestUtil.cpp#L65-L73) | Provides the SPIR-V preamble (capabilities, memory model, entry point, local size). |
+| `getComputeAsmCommonTypes()` | [`getComputeAsmCommonTypes`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderTestUtil.cpp#L82-L100) | Provides the common type declarations (`%f32`, `%uvec3`, etc.). |
+| `getComputeAsmInputOutputBuffer()` | [`getComputeAsmInputOutputBuffer()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderTestUtil.cpp#L109-L121) | Provides the input/output SSBO variable declarations. |
+| `getComputeAsmInputOutputBufferTraits()` | [`getComputeAsmInputOutputBufferTraits`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderTestUtil.cpp#L123-L133) | Provides the SSBO decorations (Block, DescriptorSet, Binding, ArrayStride, Offset). |
+| `verifyOutput()` | [`verifyOutput()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmComputeShaderTestUtil.cpp#L135-L140) | Host-side pass/fail check with `epsilon = 0.001`. |
+| Mustpass entry range | [Mustpass entry range](../../../mustpass/main/vk-default/spirv-assembly.txt#L6476-L6505) | Mirrors the 30 registered `dEQP-VK.spirv_assembly.instruction.compute.float_controls_extensionless.*` case paths. |

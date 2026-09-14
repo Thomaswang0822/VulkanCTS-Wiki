@@ -289,7 +289,7 @@ void main() {
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Parameter definitions and helpers | [vktProtectedMemShaderImageAccessTests.cpp#L57-L295](../../../modules/vulkan/protected_memory/vktProtectedMemShaderImageAccessTests.cpp#L57-L295) | Defines access types, atomic operations, image qualifiers, and protection mode. |
+| Parameter definitions and helpers | [`vktProtectedMemShaderImageAccessTests.cpp`](../../../modules/vulkan/protected_memory/vktProtectedMemShaderImageAccessTests.cpp#L57-L295) | Defines access types, atomic operations, image qualifiers, and protection mode. |
 | Shader builder | [ImageAccessTestCase::initPrograms()](../../../modules/vulkan/protected_memory/vktProtectedMemShaderImageAccessTests.cpp#L347-L524) | Generates fragment, compute, and fixed vertex GLSL. |
 | Compute runtime | [executeComputeTest()](../../../modules/vulkan/protected_memory/vktProtectedMemShaderImageAccessTests.cpp#L574-L824) | Creates resources and descriptors, dispatches, and chooses the compute result image. |
 | Fragment runtime | [executeFragmentTest()](../../../modules/vulkan/protected_memory/vktProtectedMemShaderImageAccessTests.cpp#L826-L1208) | Creates the graphics path, draws, synchronizes, and chooses the fragment result image. |
@@ -297,7 +297,7 @@ void main() {
 | Registration and pruning | [createShaderImageAccessTests()](../../../modules/vulkan/protected_memory/vktProtectedMemShaderImageAccessTests.cpp#L1251-L1404) | Builds the exact Vulkan and Vulkan SC hierarchy. |
 | Validator shader generation | [ImageValidator::initPrograms()](../../../modules/vulkan/protected_memory/vktProtectedMemImageValidator.cpp#L47-L115) | Generates comparison and timeout-signaling shaders. |
 | Validator runtime | [ImageValidator::validateImage()](../../../modules/vulkan/protected_memory/vktProtectedMemImageValidator.cpp#L117-L264) | Binds validation resources and maps timeout to failure. |
-| Protected transfer and submission helpers | [vktProtectedMemUtils.cpp#L460-L495](../../../modules/vulkan/protected_memory/vktProtectedMemUtils.cpp#L460-L495), [vktProtectedMemUtils.cpp#L748-L839](../../../modules/vulkan/protected_memory/vktProtectedMemUtils.cpp#L748-L839) | Marks protected submissions and copies uploaded data into the target image. |
-| Protected memory specification | [memory.adoc#L5564-L5653](../../../../vulkan-docs/src/chapters/memory.adoc#L5564-L5653) | Defines protected memory, command, queue, and access rules. |
-| Pipeline access restrictions | [pipelines.adoc#L758-L763](../../../../vulkan-docs/src/chapters/pipelines.adoc#L758-L763) | Defines where protected-only and no-protected-access pipelines may be bound. |
-| Vulkan mustpass paths | [protected-memory.txt#L407-L604](../../../mustpass/main/vk-default/protected-memory.txt#L407-L604) | Lists the 198 registered Vulkan cases in this family. |
+| Protected transfer and submission helpers | [queueSubmit](../../../modules/vulkan/protected_memory/vktProtectedMemUtils.cpp#L460-L495), [`vktProtectedMemUtils.cpp`](../../../modules/vulkan/protected_memory/vktProtectedMemUtils.cpp#L748-L839) | Marks protected submissions and copies uploaded data into the target image. |
+| Protected memory specification | [`memory.adoc`](../../../../vulkan-docs/src/chapters/memory.adoc#L5564-L5653) | Defines protected memory, command, queue, and access rules. |
+| Pipeline access restrictions | [`pipelines.adoc`](../../../../vulkan-docs/src/chapters/pipelines.adoc#L758-L763) | Defines where protected-only and no-protected-access pipelines may be bound. |
+| Vulkan mustpass paths | [Vulkan mustpass paths](../../../mustpass/main/vk-default/protected-memory.txt#L407-L604) | Lists the 198 registered Vulkan cases in this family. |

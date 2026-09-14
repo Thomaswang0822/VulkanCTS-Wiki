@@ -971,7 +971,7 @@ Both ordinary replay and capture-replay stress now capture on a separate custom 
 
 - Each seed initializes a deterministic random generator and chooses 100 buffer sizes as powers of two from 4 KiB through 4 MiB.
 - The first pass creates every capture-replay buffer and memory allocation, records the buffer device address, and destroys all objects. The KHR path also records opaque buffer and memory addresses.
-- The second pass recreates buffers from index 99 down to 0. The KHR path requests the opaque addresses; the EXT path requests the old device address. There is no command buffer or shader. Any unequal device address returns `address mismatch`; otherwise the leaf passes ([stress implementation](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L1400-L1542)).
+- The second pass recreates buffers from index 99 down to 0. The KHR path requests the opaque addresses; the EXT path requests the old device address. There is no command buffer or shader. Any unequal device address returns `address mismatch`; otherwise the leaf passes ([vktBindingBufferDeviceAddressTests.cpp](../../../modules/vulkan/binding_model/vktBindingBufferDeviceAddressTests.cpp#L1400-L1542)).
 
 ### `op_access_chain` and `misc`
 

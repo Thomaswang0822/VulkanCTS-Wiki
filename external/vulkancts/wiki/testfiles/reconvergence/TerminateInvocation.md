@@ -2,16 +2,16 @@
 
 **Core question:** Do fragment invocations that execute `terminateInvocation` stop participating in later subgroup, quad, memory-access, and color-output behavior?
 
-- This page covers the `reconvergence.terminate_invocation` test family implemented and registered by [vktReconvergenceTerminateInvocationTests.cpp](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp).
+- This page covers the `reconvergence.terminate_invocation` test family implemented and registered by [`vktReconvergenceTerminateInvocationTests.cpp`](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp).
 - Four test case leaves observe termination through subgroup ballot counts, helper-invocation votes, an unreachable out-of-bounds load, and a quad-scoped vote.
 - Every case draws a full-screen triangle into a 32 by 32 color attachment. Terminated fragment invocations leave the black clear color; surviving invocations write a case-specific success color.
 - The host copies the framebuffer to a buffer and compares every pixel with a reference image.
 
 ## Background Knowledge
 
-- **Shader invocation termination.** `OpTerminateInvocation` ends the current invocation. A terminated invocation has finished executing instructions, and early fragment termination clears coverage for its samples [shaders.adoc](../../../../vulkan-docs/src/chapters/shaders.adoc#L1841-L1859), [fragops.adoc](../../../../vulkan-docs/src/chapters/fragops.adoc#L851-L857).
-- **Helper invocations.** Fragment processing may create helper invocations for derivatives and quad operations. Helpers do not contribute ordinary framebuffer results, but shader code can identify them through `gl_HelperInvocation` [shaders.adoc](../../../../vulkan-docs/src/chapters/shaders.adoc#L3728-L3753).
-- **Full quads and maximal reconvergence.** `layout(full_quads) in` requests quads that start with four active invocations. Under maximal reconvergence, helpers remain active for their quad's lifetime unless termination ends them [VK_KHR_shader_quad_control.adoc](../../../../vulkan-docs/src/proposals/VK_KHR_shader_quad_control.adoc#L87-L157), [shaders.adoc](../../../../vulkan-docs/src/chapters/shaders.adoc#L3755-L3771).
+- **Shader invocation termination.** `OpTerminateInvocation` ends the current invocation. A terminated invocation has finished executing instructions, and early fragment termination clears coverage for its samples [Shaders](../../../../vulkan-docs/src/chapters/shaders.adoc#L1841-L1859), [fragops source](../../../../vulkan-docs/src/chapters/fragops.adoc#L851-L857).
+- **Helper invocations.** Fragment processing may create helper invocations for derivatives and quad operations. Helpers do not contribute ordinary framebuffer results, but shader code can identify them through `gl_HelperInvocation` [shaders source](../../../../vulkan-docs/src/chapters/shaders.adoc#L3728-L3753).
+- **Full quads and maximal reconvergence.** `layout(full_quads) in` requests quads that start with four active invocations. Under maximal reconvergence, helpers remain active for their quad's lifetime unless termination ends them [Vk Khr Shader Quad Control](../../../../vulkan-docs/src/proposals/VK_KHR_shader_quad_control.adoc#L87-L157), [shaders source](../../../../vulkan-docs/src/chapters/shaders.adoc#L3755-L3771).
 
 ## Registration Hierarchy
 
@@ -23,15 +23,15 @@ reconvergence.terminate_invocation
 └── quad_any
 ```
 
-The implementation registers these four test case leaves directly under the `terminate_invocation` test family [registration](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L653-L675). The default mustpass list contains every path [reconvergence.txt](../../../mustpass/main/vk-default/reconvergence.txt#L3850-L3853).
+The implementation registers these four test case leaves directly under the `terminate_invocation` test family [`vktReconvergenceTerminateInvocationTests.cpp`](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L653-L675). The default mustpass list contains every path [Reconvergence](../../../mustpass/main/vk-default/reconvergence.txt#L3850-L3853).
 
 ## Parameter Dimensions and Observed Values
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Test case leaf | `bit_count`, `terminate_helpers`, `oob_read`, `quad_any` | Selects the post-termination observation and reference image. | [subcases and registration](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L55-L61), [#L653-L675](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L653-L675) |
+| Test case leaf | `bit_count`, `terminate_helpers`, `oob_read`, `quad_any` | Selects the post-termination observation and reference image. | [subcases and registration](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L55-L61), [`vktReconvergenceTerminateInvocationTests.cpp`](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L653-L675) |
 | Divisor | `2` for `bit_count`, `oob_read`, and `quad_any`; `0` for `terminate_helpers` | Divisor `2` selects even subgroup invocation IDs. Zero makes the helper case predicate depend on `gl_HelperInvocation`. | [`getDivisor`](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L67-L77) |
-| Helper built-in use | used by `terminate_helpers` and `quad_any`; absent from the other bodies | Selects helper invocations and raises the minimum API and SPIR-V target for those two cases. | [`usesHelperInvBuiltIn`](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L84-L87), [program setup](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L201-L203), [#L243-L244](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L243-L244) |
+| Helper built-in use | used by `terminate_helpers` and `quad_any`; absent from the other bodies | Selects helper invocations and raises the minimum API and SPIR-V target for those two cases. | [`usesHelperInvBuiltIn`](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L84-L87), [program setup](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L201-L203), [`vktReconvergenceTerminateInvocationTests.cpp`](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L243-L244) |
 | Maximal reconvergence | enabled only for `bit_count` and `terminate_helpers`; disabled for `oob_read` and `quad_any` | Applies the maximal-reconvergence execution mode only to the two subgroup checks that request it. | [`needsMaximalReconvergence`](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L166-L169), [shader generation](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L246-L273) |
 | Framebuffer | 32 by 32, `VK_FORMAT_R8G8B8A8_UNORM` | Encodes termination as untouched clear pixels and surviving execution as a written color. | [runtime constants](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L386-L399) |
 
@@ -417,19 +417,19 @@ void main()
 
 **Possible failure symptoms:** `bit_count` leaves blue at zero on surviving pixels because its count equation fails, or `terminate_helpers` leaves blue at zero because the later subgroup vote still sees a selected helper. The host reports mismatched pixels against the sampled-red-plus-blue reference.
 
-**Possible implementation causes:** The implementation may retain terminated invocations in subgroup ballots or votes, mishandle reconvergence around the termination branch, or lower `terminateInvocation` so later group operations still observe terminated lanes. The Vulkan specification states that `OpTerminateInvocation` ends instruction execution; maximal reconvergence keeps helpers active until termination ends them [shaders.adoc](../../../../vulkan-docs/src/chapters/shaders.adoc#L1841-L1859), [#L3755-L3771](../../../../vulkan-docs/src/chapters/shaders.adoc#L3755-L3771).
+**Possible implementation causes:** The implementation may retain terminated invocations in subgroup ballots or votes, mishandle reconvergence around the termination branch, or lower `terminateInvocation` so later group operations still observe terminated lanes. The Vulkan specification states that `OpTerminateInvocation` ends instruction execution; maximal reconvergence keeps helpers active until termination ends them [shaders source](../../../../vulkan-docs/src/chapters/shaders.adoc#L1841-L1859), [`shaders.adoc`](../../../../vulkan-docs/src/chapters/shaders.adoc#L3755-L3771).
 
 #### Post-termination storage-buffer access
 
 **Possible failure symptoms:** `oob_read` produces wrong surviving colors, fails to complete, or triggers a device error because an invocation reaches the load with `UINT32_MAX` instead of terminating first.
 
-**Possible implementation causes:** Compiler control-flow lowering, instruction scheduling, or termination handling may allow the storage-buffer load to execute for a path that has executed `terminateInvocation`. The invalid index is intentional only as unreachable code; ordinary out-of-bounds shader access has no automatic bounds guarantee [shader body](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L332-L354), [shaders.adoc](../../../../vulkan-docs/src/chapters/shaders.adoc#L1871-L1890).
+**Possible implementation causes:** Compiler control-flow lowering, instruction scheduling, or termination handling may allow the storage-buffer load to execute for a path that has executed `terminateInvocation`. The invalid index is intentional only as unreachable code; ordinary out-of-bounds shader access has no automatic bounds guarantee [shader body](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L332-L354), [shaders source](../../../../vulkan-docs/src/chapters/shaders.adoc#L1871-L1890).
 
 #### Post-termination quad participation
 
 **Possible failure symptoms:** `quad_any` writes blue to an even-x pixel if a selected non-helper invocation reaches color output, or samples the red-gradient texture on surviving odd-x pixels if the later quad vote still sees a helper; either result fails the exact zero-threshold comparison.
 
-**Possible implementation causes:** The implementation may fail to end a selected non-helper invocation before color output, keep a terminated helper active in `subgroupQuadAny`, form the active quad incorrectly after termination, or mishandle `RequireFullQuadsKHR` around a terminating branch. Quad-any evaluates its predicate over active invocations in quad scope [VK_KHR_shader_quad_control.adoc](../../../../vulkan-docs/src/proposals/VK_KHR_shader_quad_control.adoc#L94-L157).
+**Possible implementation causes:** The implementation may fail to end a selected non-helper invocation before color output, keep a terminated helper active in `subgroupQuadAny`, form the active quad incorrectly after termination, or mishandle `RequireFullQuadsKHR` around a terminating branch. Quad-any evaluates its predicate over active invocations in quad scope [VK KHR shader quad control source](../../../../vulkan-docs/src/proposals/VK_KHR_shader_quad_control.adoc#L94-L157).
 
 #### Shared rendering or readback error
 
@@ -443,12 +443,12 @@ void main()
 
 - Only `bit_count` and `terminate_helpers` require `VK_KHR_shader_maximal_reconvergence`. All leaves require fragment-stage subgroup support, `VK_SUBGROUP_FEATURE_BASIC_BIT`, and `VK_KHR_shader_quad_control` [support checks](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L196-L226).
 - `bit_count` also requires `VK_SUBGROUP_FEATURE_BALLOT_BIT`. `terminate_helpers` and `quad_any` require `VK_SUBGROUP_FEATURE_VOTE_BIT` [support checks](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L213-L223).
-- `terminate_helpers` and `quad_any` require Vulkan 1.3 and target SPIR-V 1.6 because they use `gl_HelperInvocation`. `bit_count` and `oob_read` require Vulkan 1.1 and target SPIR-V 1.3 [API and build targets](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L201-L203), [#L243-L244](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L243-L244).
+- `terminate_helpers` and `quad_any` require Vulkan 1.3 and target SPIR-V 1.6 because they use `gl_HelperInvocation`. `bit_count` and `oob_read` require Vulkan 1.1 and target SPIR-V 1.3 [API and build targets](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L201-L203), [`vktReconvergenceTerminateInvocationTests.cpp`](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L243-L244).
 - A missing requirement makes the test unsupported rather than failed.
 
 ### Design-based pruning
 
-- The implementation registers one fixed case for each observation mechanism. It does not generate a divisor, framebuffer-size, format, or shader-stage matrix [registration](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L653-L675).
+- The implementation registers one fixed case for each observation mechanism. It does not generate a divisor, framebuffer-size, format, or shader-stage matrix [Test registration](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L653-L675).
 - Divisor `2` gives the three parity-based cases a stable alternating reference pattern. `terminate_helpers` fixes the divisor at `0` because helper status supplies its predicate [`getDivisor`](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L67-L77).
 - All cases run in the fragment stage because framebuffer coverage, helper invocations, full quads, and color output provide the required observations.
 
@@ -463,15 +463,15 @@ void main()
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Factory declaration | [vktReconvergenceTerminateInvocationTests.hpp#L30-L35](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.hpp#L30-L35) | Declares `createTerminateInvocationTests`. |
-| Parent attachment | [vktReconvergenceTests.cpp#L7943-L7948](../../../modules/vulkan/reconvergence/vktReconvergenceTests.cpp#L7943-L7948) | Attaches the test family under the `reconvergence` test category. |
-| Parameters and instance selection | [vktReconvergenceTerminateInvocationTests.cpp#L55-L194](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L55-L194) | Defines subcases, fixed parameters, and result checker classes. |
-| Support checks | [vktReconvergenceTerminateInvocationTests.cpp#L196-L226](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L196-L226) | Enforces API, extension, stage, and subgroup-operation requirements. |
-| Shader generation | [vktReconvergenceTerminateInvocationTests.cpp#L228-L384](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L228-L384) | Emits the full-screen vertex shader and four fragment-shader bodies. |
-| Runtime execution | [vktReconvergenceTerminateInvocationTests.cpp#L386-L571](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L386-L571) | Creates resources, records the draw and copy, waits, and starts validation. |
-| Result checkers | [vktReconvergenceTerminateInvocationTests.cpp#L574-L648](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L574-L648) | Builds and compares the reference images. |
-| Test case registration | [vktReconvergenceTerminateInvocationTests.cpp#L653-L675](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L653-L675) | Registers `terminate_invocation` and all four leaves. |
-| Mustpass coverage | [reconvergence.txt#L3850-L3853](../../../mustpass/main/vk-default/reconvergence.txt#L3850-L3853) | Lists every complete default-mustpass path for this test family. |
-| Vulkan termination semantics | [shaders.adoc#L1841-L1859](../../../../vulkan-docs/src/chapters/shaders.adoc#L1841-L1859) | Defines when an invocation terminates. |
-| Helper and maximal-reconvergence semantics | [shaders.adoc#L3728-L3771](../../../../vulkan-docs/src/chapters/shaders.adoc#L3728-L3771) | Defines helpers and their activity under maximal reconvergence. |
-| Quad control semantics | [VK_KHR_shader_quad_control.adoc#L87-L157](../../../../vulkan-docs/src/proposals/VK_KHR_shader_quad_control.adoc#L87-L157) | Defines full quads and quad-scoped all/any behavior. |
+| Factory declaration | [`vktReconvergenceTerminateInvocationTests.hpp`](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.hpp#L30-L35) | Declares `createTerminateInvocationTests`. |
+| Parent attachment | [`vktReconvergenceTests.cpp`](../../../modules/vulkan/reconvergence/vktReconvergenceTests.cpp#L7943-L7948) | Attaches the test family under the `reconvergence` test category. |
+| Parameters and instance selection | [`vktReconvergenceTerminateInvocationTests.cpp`](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L55-L194) | Defines subcases, fixed parameters, and result checker classes. |
+| Support checks | [`vktReconvergenceTerminateInvocationTests.cpp`](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L196-L226) | Enforces API, extension, stage, and subgroup-operation requirements. |
+| Shader generation | [`vktReconvergenceTerminateInvocationTests.cpp`](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L228-L384) | Emits the full-screen vertex shader and four fragment-shader bodies. |
+| Runtime execution | [`vktReconvergenceTerminateInvocationTests.cpp`](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L386-L571) | Creates resources, records the draw and copy, waits, and starts validation. |
+| Result checkers | [`vktReconvergenceTerminateInvocationTests.cpp`](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L574-L648) | Builds and compares the reference images. |
+| Test case registration | [`vktReconvergenceTerminateInvocationTests.cpp`](../../../modules/vulkan/reconvergence/vktReconvergenceTerminateInvocationTests.cpp#L653-L675) | Registers `terminate_invocation` and all four leaves. |
+| Mustpass coverage | [Invocation-termination mustpass cases](../../../mustpass/main/vk-default/reconvergence.txt#L3850-L3853) | Lists every complete default-mustpass path for this test family. |
+| Vulkan termination semantics | [Shader invocation termination rules](../../../../vulkan-docs/src/chapters/shaders.adoc#L1841-L1859) | Defines when an invocation terminates. |
+| Helper and maximal-reconvergence semantics | [Helper and maximal-reconvergence semantics](../../../../vulkan-docs/src/chapters/shaders.adoc#L3728-L3771) | Defines helpers and their activity under maximal reconvergence. |
+| Quad control semantics | [Full-quad execution modes and quad operations](../../../../vulkan-docs/src/proposals/VK_KHR_shader_quad_control.adoc#L87-L157) | Defines full quads and quad-scoped all/any behavior. |

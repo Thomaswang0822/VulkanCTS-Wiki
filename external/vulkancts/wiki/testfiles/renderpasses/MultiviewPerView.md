@@ -22,7 +22,7 @@ renderpasses.renderpass2.multiview_per_view
 └── render_areas
 ```
 
-The same `multiview_per_view` group is attached under both the `renderpasses.renderpass2` and `renderpasses.dynamic_rendering.primary_cmd_buff` roots by [`createRenderPassMultiviewPerViewTests`](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L1833-L1885), invoked from [`vktRenderPassTests.cpp`](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8508-L8512) for renderpass2 and [`vktRenderPassTests.cpp`](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8530-L8539) for dynamic rendering. It is not registered under `renderpasses.renderpass` (legacy render pass).
+The same `multiview_per_view` group is attached under both the `renderpasses.renderpass2` and `renderpasses.dynamic_rendering.primary_cmd_buff` roots by [`createRenderPassMultiviewPerViewTests`](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L1833-L1885), invoked from [Render-pass dispatcher registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8508-L8512) for renderpass2 and [Render-pass dispatcher registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8530-L8539) for dynamic rendering. It is not registered under `renderpasses.renderpass` (legacy render pass).
 
 ## Parameter Dimensions and Observed Values
 
@@ -143,14 +143,14 @@ void main()
 
 #### Additional Info
 
-- When the build flag `USE_PER_VIEW_VIEWPORTS_EXT` is unset, the vertex shader instead enables `GL_EXT_multiview` and `GL_ARB_shader_viewport_layer_array` and writes `gl_ViewportIndex = gl_ViewIndex`, and the SPIR-V target is 1.5. That path needs Vulkan 1.2 `shaderOutputViewportIndex` and is not the representative case here [shader generation](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L224-L267).
+- When the build flag `USE_PER_VIEW_VIEWPORTS_EXT` is unset, the vertex shader instead enables `GL_EXT_multiview` and `GL_ARB_shader_viewport_layer_array` and writes `gl_ViewportIndex = gl_ViewIndex`, and the SPIR-V target is 1.5. That path needs Vulkan 1.2 `shaderOutputViewportIndex` and is not the representative case here [ViewportsCase::initPrograms](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L224-L267).
 - The host builds the expected viewport parameters from the same `DIFF_FLAGS_OFFSET`, `DIFF_FLAGS_SIZE`, and `DIFF_FLAGS_DEPTH` bits the pipeline used, so a mismatch between the shader-routed viewport and the host reference points directly at viewport routing [reference setup](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L487-L519), [host reference](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L798-L838).
 
 #### Parameter Variation Summary
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|------------------------------------------|----------|
-| Runtime/pipeline dimension | The vertex and fragment shader bodies are identical across all 72 `viewports` cases. What changes between cases is pipeline and command-buffer state: whether viewports and scissors are static, dynamic, or dynamic-with-count; which fields differ between the two views; and whether one or two subpasses are used. Those differences are exercised through `cmdSetViewport`, `cmdSetScissor`, `cmdSetViewportWithCount`, and `cmdSetScissorWithCount` before each draw, and through the static viewport and scissor arrays passed at pipeline creation [dynamic state recording](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L640-L660). | [source evidence](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L640-L660) |
+| Runtime/pipeline dimension | The vertex and fragment shader bodies are identical across all 72 `viewports` cases. What changes between cases is pipeline and command-buffer state: whether viewports and scissors are static, dynamic, or dynamic-with-count; which fields differ between the two views; and whether one or two subpasses are used. Those differences are exercised through `cmdSetViewport`, `cmdSetScissor`, `cmdSetViewportWithCount`, and `cmdSetScissorWithCount` before each draw, and through the static viewport and scissor arrays passed at pipeline creation [dynamic state recording](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L640-L660). | [`ViewportsInstance::iterate()`](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L640-L660) |
 
 #### SPIR-V
 
@@ -418,7 +418,7 @@ void main()
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|------------------------------------------|----------|
-| Runtime/pipeline dimension | The fragment shader is constant across all `render_areas` cases. The vertex shader changes only in whether it writes `gl_ViewportIndex`. The geometry shader is present only for `multi_viewport_geom`. The load-op and multi-pass dimensions do not change shader text; they change attachment setup and the host reference image. | [source evidence](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L640-L660) |
+| Runtime/pipeline dimension | The fragment shader is constant across all `render_areas` cases. The vertex shader changes only in whether it writes `gl_ViewportIndex`. The geometry shader is present only for `multi_viewport_geom`. The load-op and multi-pass dimensions do not change shader text; they change attachment setup and the host reference image. | [`ViewportsInstance::iterate()`](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L640-L660) |
 
 #### SPIR-V
 
@@ -770,13 +770,13 @@ When any requirement is not met, the case is reported as unsupported rather than
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
 | Test family registration | [createRenderPassMultiviewPerViewTests](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L1833-L1885) | Builds the `multiview_per_view` group and the `viewports` and `render_areas` children. |
-| Category attachment | [vktRenderPassTests.cpp#L8508-L8512](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8508-L8512) | Attaches the group under the `renderpass2` root. |
-| Category attachment | [vktRenderPassTests.cpp#L8530-L8539](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8530-L8539) | Attaches the group under the `dynamic_rendering.primary_cmd_buff` root. |
+| Category attachment | [register multiview-per-view tests under renderpass2](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8508-L8512) | Attaches the group under the `renderpass2` root. |
+| Category attachment | [register multiview-per-view tests for primary dynamic rendering](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8530-L8539) | Attaches the group under the `dynamic_rendering.primary_cmd_buff` root. |
 | Viewports parameters and shader generation | [ViewportsCase::initPrograms](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L224-L267) | Generates the vertex and fragment shaders for the per-view viewport family. |
 | Viewports runtime and checks | [ViewportsInstance::iterate](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L269-L859) | Runs the draw, copyback, and per-layer color and depth comparison. |
 | Render areas parameters | [RenderAreasParams](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L922-L1060) | Defines viewport types, load ops, render areas, viewports, scissors, and colors. |
 | Render areas shader generation | [RenderAreasCase::initPrograms](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L1186-L1248) | Generates the vertex, optional geometry, and fragment shaders. |
 | Per-view render area setup | [VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L1580-L1590) | Chains the per-view render areas to the render pass or rendering begin info. |
 | Render areas runtime and checks | [RenderAreasInstance::iterate](../../../modules/vulkan/renderpass/vktRenderPassMultiviewPerViewTests.cpp#L1250-L1805) | Runs the pre-RP clear, render pass, resolve, copyback, and per-layer reference comparison. |
-| Mustpass, renderpass2 root | [renderpasses.txt#L71471-L71590](../../../mustpass/main/vk-default/renderpasses.txt#L71471-L71590) | Lists the 120 renderpass2 cases for this family. |
-| Mustpass, dynamic rendering root | [renderpasses.txt#L19870-L19957](../../../mustpass/main/vk-default/renderpasses.txt#L19870-L19957) | Lists the 88 dynamic rendering primary command buffer cases. |
+| Mustpass, renderpass2 root | [Mustpass, renderpass2 root](../../../mustpass/main/vk-default/renderpasses.txt#L71471-L71590) | Lists the 120 renderpass2 cases for this family. |
+| Mustpass, dynamic rendering root | [Mustpass, dynamic rendering root](../../../mustpass/main/vk-default/renderpasses.txt#L19870-L19957) | Lists the 88 dynamic rendering primary command buffer cases. |

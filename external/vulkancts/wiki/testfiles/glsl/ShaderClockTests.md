@@ -346,7 +346,7 @@ A missing extension or feature follows the support path in `## Case Pruning` and
 | `shaderSubgroupClock` feature | `clockARB`, `clock2x32ARB` | The case throws `NotSupportedError`. |
 | `shaderDeviceClock` feature | `clockRealtimeEXT`, `clockRealtime2x32EXT` | The case throws `NotSupportedError`. |
 
-The extension requirement is unconditional. The integer feature is conditional on the 64-bit operation, and the clock feature is selected from the operation's `DEVICE` or `SUBGROUP` scope ([support implementation](../../../modules/vulkan/shaderexecutor/vktShaderClockTests.cpp#L152-L167)). These checks affect support status at runtime; they do not remove the registered leaves from the three-by-four hierarchy.
+The extension requirement is unconditional. The integer feature is conditional on the 64-bit operation, and the clock feature is selected from the operation's `DEVICE` or `SUBGROUP` scope ([vktShaderClockTests.cpp](../../../modules/vulkan/shaderexecutor/vktShaderClockTests.cpp#L152-L167)). These checks affect support status at runtime; they do not remove the registered leaves from the three-by-four hierarchy.
 
 ### Design-based pruning
 

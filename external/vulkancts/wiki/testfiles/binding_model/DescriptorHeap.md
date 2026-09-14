@@ -64,7 +64,7 @@ binding_model.descriptor_heap
 └── custom_border_color
 ```
 
-The factory registers these children in one implementation file ([factory](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L15415-L15461)). The default mustpass lists their 457 executable leaves at [`binding-model.txt#L10441-L10897`](../../../mustpass/main/vk-default/binding-model.txt#L10441-L10897). The hierarchy stays one level deep here; generated stage, descriptor-type, mapping, and stride descendants appear in the next sections.
+The factory registers these children in one implementation file ([factory](../../../modules/vulkan/binding_model/vktBindingDescriptorHeapTests.cpp#L15415-L15461)). The default mustpass lists their 457 executable leaves at [Default mustpass coverage](../../../mustpass/main/vk-default/binding-model.txt#L10441-L10897). The hierarchy stays one level deep here; generated stage, descriptor-type, mapping, and stride descendants appear in the next sections.
 
 The mustpass provides exact leaf anchors for each behavior cluster without requiring a 457-leaf inventory:
 

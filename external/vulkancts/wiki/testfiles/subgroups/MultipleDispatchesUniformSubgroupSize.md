@@ -266,13 +266,13 @@ void main()
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Category attachment | [vktSubgroupsTests.cpp#L70-L80](../../../modules/vulkan/subgroups/vktSubgroupsTests.cpp#L70-L80) | Adds the `multiple_dispatches` test family under the `subgroups` test category. |
+| Category attachment | [`createChildren()`](../../../modules/vulkan/subgroups/vktSubgroupsTests.cpp#L70-L80) | Adds the `multiple_dispatches` test family under the `subgroups` test category. |
 | Test family and leaf registration | [createMultipleDispatchesUniformSubgroupSizeTests](../../../modules/vulkan/subgroups/vktSubgroupsMultipleDispatchesUniformSubgroupSizeTests.cpp#L301-L307) | Registers the exact hierarchy documented on this page. |
 | Support gate | [MultipleDispatchesUniformSubgroupSize::checkSupport](../../../modules/vulkan/subgroups/vktSubgroupsMultipleDispatchesUniformSubgroupSizeTests.cpp#L262-L268) | Requires subgroup-size-control support. |
 | Shader builder | [MultipleDispatchesUniformSubgroupSize::initPrograms](../../../modules/vulkan/subgroups/vktSubgroupsMultipleDispatchesUniformSubgroupSizeTests.cpp#L270-L291) | Emits the compute GLSL and selects SPIR-V 1.3. |
 | Runtime setup | [MultipleDispatchesUniformSubgroupSizeInstance::iterate](../../../modules/vulkan/subgroups/vktSubgroupsMultipleDispatchesUniformSubgroupSizeTests.cpp#L61-L158) | Creates resources, descriptors, specialization data, and pipeline variants. |
 | Dispatch and validation | [MultipleDispatchesUniformSubgroupSizeInstance::iterate](../../../modules/vulkan/subgroups/vktSubgroupsMultipleDispatchesUniformSubgroupSizeTests.cpp#L160-L243) | Clears, dispatches, synchronizes, reads back, and checks results. |
-| Command scope specification | [shaders.adoc#L3104-L3127](../../../../vulkan-docs/src/chapters/shaders.adoc#L3104-L3127) | Defines the command scope created by one dispatch. |
-| `SubgroupSize` specification | [interfaces.adoc#L5199-L5231](../../../../vulkan-docs/src/chapters/interfaces.adoc#L5199-L5231) | States the varying-size range and compute command-scope uniformity rule. |
-| Varying-size stage flag | [pipelines.adoc#L1419-L1441](../../../../vulkan-docs/src/chapters/pipelines.adoc#L1419-L1441) | Defines the pipeline flag used by all variants. |
-| Default mustpass entry | [subgroups.txt#L22567](../../../mustpass/main/vk-default/subgroups.txt#L22567) | Confirms the exact executable path. |
+| Command scope specification | [Command scope specification](../../../../vulkan-docs/src/chapters/shaders.adoc#L3104-L3127) | Defines the command scope created by one dispatch. |
+| `SubgroupSize` specification | [`SubgroupSize` specification](../../../../vulkan-docs/src/chapters/interfaces.adoc#L5199-L5231) | States the varying-size range and compute command-scope uniformity rule. |
+| Varying-size stage flag | [Varying-size stage flag](../../../../vulkan-docs/src/chapters/pipelines.adoc#L1419-L1441) | Defines the pipeline flag used by all variants. |
+| Default mustpass entry | [Default mustpass entry](../../../mustpass/main/vk-default/subgroups.txt#L22567) | Confirms the exact executable path. |

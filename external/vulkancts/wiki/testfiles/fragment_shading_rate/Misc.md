@@ -350,16 +350,16 @@ void main (void) {
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Parent misc factory | [vktFragmentShadingRateTests.cpp#L514-L531](../../../modules/vulkan/fragment_shading_rate/vktFragmentShadingRateTests.cpp#L514-L531) | Creates `misc`, registers `limits` and `shading_rates`, and applies monolithic and command-buffer gating. |
-| Limit checks | [vktFragmentShadingRateTests.cpp#L45-L301](../../../modules/vulkan/fragment_shading_rate/vktFragmentShadingRateTests.cpp#L45-L301) | Checks reported fragment shading rate properties and required relationships. |
-| Rate-list checks | [vktFragmentShadingRateTests.cpp#L303-L506](../../../modules/vulkan/fragment_shading_rate/vktFragmentShadingRateTests.cpp#L303-L506) | Queries and validates `vkGetPhysicalDeviceFragmentShadingRatesKHR`. |
-| Misc registration | [vktFragmentShadingRateMiscTests.cpp#L1497-L1507](../../../modules/vulkan/fragment_shading_rate/vktFragmentShadingRateMiscTests.cpp#L1497-L1507) | Registers renderpass and dynamic-rendering miscellaneous families. |
-| Enable and disable implementation | [vktFragmentShadingRateMiscTests.cpp#L214-L542](../../../modules/vulkan/fragment_shading_rate/vktFragmentShadingRateMiscTests.cpp#L214-L542) | Builds the two-pipeline renderpass comparison. |
-| No fragment shader implementation | [vktFragmentShadingRateMiscTests.cpp#L545-L736](../../../modules/vulkan/fragment_shading_rate/vktFragmentShadingRateMiscTests.cpp#L545-L736) | Renders and checks color and depth without a fragment shader. |
-| OOB support and device setup | [vktFragmentShadingRateMiscTests.cpp#L739-L893](../../../modules/vulkan/fragment_shading_rate/vktFragmentShadingRateMiscTests.cpp#L739-L893) | Selects required robustness features and creates the custom device. |
-| OOB implementation | [vktFragmentShadingRateMiscTests.cpp#L896-L1177](../../../modules/vulkan/fragment_shading_rate/vktFragmentShadingRateMiscTests.cpp#L896-L1177) | Creates the undersized attachment, runs the shader, and checks the color result. |
-| Dynamic explicit and implicit enable | [vktFragmentShadingRateMiscTests.cpp#L1180-L1492](../../../modules/vulkan/fragment_shading_rate/vktFragmentShadingRateMiscTests.cpp#L1180-L1492) | Tests attachment presence changes with one dynamic-rendering pipeline. |
+| Parent misc factory | [Parent misc factory](../../../modules/vulkan/fragment_shading_rate/vktFragmentShadingRateTests.cpp#L514-L531) | Creates `misc`, registers `limits` and `shading_rates`, and applies monolithic and command-buffer gating. |
+| Limit checks | [Limit checks](../../../modules/vulkan/fragment_shading_rate/vktFragmentShadingRateTests.cpp#L45-L301) | Checks reported fragment shading rate properties and required relationships. |
+| Rate-list checks | [Rate-list checks](../../../modules/vulkan/fragment_shading_rate/vktFragmentShadingRateTests.cpp#L303-L506) | Queries and validates `vkGetPhysicalDeviceFragmentShadingRatesKHR`. |
+| Misc registration | [Misc registration](../../../modules/vulkan/fragment_shading_rate/vktFragmentShadingRateMiscTests.cpp#L1497-L1507) | Registers renderpass and dynamic-rendering miscellaneous families. |
+| Enable and disable implementation | [Enable and disable implementation](../../../modules/vulkan/fragment_shading_rate/vktFragmentShadingRateMiscTests.cpp#L214-L542) | Builds the two-pipeline renderpass comparison. |
+| No fragment shader implementation | [No fragment shader implementation](../../../modules/vulkan/fragment_shading_rate/vktFragmentShadingRateMiscTests.cpp#L545-L736) | Renders and checks color and depth without a fragment shader. |
+| OOB support and device setup | [OOB support and device setup](../../../modules/vulkan/fragment_shading_rate/vktFragmentShadingRateMiscTests.cpp#L739-L893) | Selects required robustness features and creates the custom device. |
+| OOB implementation | [OOB implementation](../../../modules/vulkan/fragment_shading_rate/vktFragmentShadingRateMiscTests.cpp#L896-L1177) | Creates the undersized attachment, runs the shader, and checks the color result. |
+| Dynamic explicit and implicit enable | [Dynamic explicit and implicit enable](../../../modules/vulkan/fragment_shading_rate/vktFragmentShadingRateMiscTests.cpp#L1180-L1492) | Tests attachment presence changes with one dynamic-rendering pipeline. |
 | Fragment shading rate specification | [VK_KHR_fragment_shading_rate.adoc](../../../../vulkan-docs/src/appendices/VK_KHR_fragment_shading_rate.adoc) | Defines attachment mapping, properties, available rates, and feature behavior. |
-| Robust attachment limit | [limits.adoc#L1937-L1943](../../../../vulkan-docs/src/chapters/limits.adoc#L1937-L1943) | Defines when a fragment shading rate attachment may be smaller than the render area. |
+| Robust attachment limit | [Robust attachment limit](../../../../vulkan-docs/src/chapters/limits.adoc#L1937-L1943) | Defines when a fragment shading rate attachment may be smaller than the render area. |
 | Vulkan SC mustpass | [fragment-shading-rate.txt](../../../mustpass/main/vksc-default/fragment-shading-rate.txt) | Contains the Vulkan SC renderpass2 miscellaneous registrations. |
 | Vulkan mustpass | [fragment-shading-rate.txt](../../../mustpass/main/vk-default/fragment-shading-rate.txt) | Contains the Vulkan renderpass2 and dynamic-rendering miscellaneous registrations. |

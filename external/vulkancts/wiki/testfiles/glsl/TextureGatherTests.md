@@ -99,7 +99,7 @@ This representative tests the baseline 2D floating-point gather path: four neigh
 
 #### Shader Code
 
-The fragment source is emitted by `genFragmentShaderSource()` for `sampler2D`, normal level mode, regular backing, and the first basic iteration ([`vktShaderRenderTextureGatherTests.cpp#L1691-L1763`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureGatherTests.cpp#L1691-L1763), [`genGatherFuncCall()`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureGatherTests.cpp#L1861-L2033)).
+The fragment source is emitted by `genFragmentShaderSource()` for `sampler2D`, normal level mode, regular backing, and the first basic iteration ([`vktShaderRenderTextureGatherTests.cpp`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureGatherTests.cpp#L1691-L1763), [`genGatherFuncCall()`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureGatherTests.cpp#L1861-L2033)).
 
 ```glsl
 #version 450
@@ -122,7 +122,7 @@ void main(void)
 
 #### Additional Info
 
-- `genGatherPrograms()` also emits a shared GLSL ES 3.10 pass-through vertex shader for this graphics case; it forwards position and `vec2` texture coordinates without changing the gather expression ([`vktShaderRenderTextureGatherTests.cpp#L1650-L1688`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureGatherTests.cpp#L2045-L2099)).
+- `genGatherPrograms()` also emits a shared GLSL ES 3.10 pass-through vertex shader for this graphics case; it forwards position and `vec2` texture coordinates without changing the gather expression ([`genGatherPrograms()`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureGatherTests.cpp#L2045-L2099)).
 - The instance renders a quad with four vertices and six indices into a fixed 64 × 64 result; the selected `repeat`/`mirrored_repeat` sampler state is configured host-side ([`setupDefaultInputs()`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureGatherTests.cpp#L1425-L1449), [`iterate()`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureGatherTests.cpp#L1459-L1497)).
 
 #### Parameter Variation Summary
@@ -272,15 +272,15 @@ These are registration and iteration-design choices, not runtime skips.
 
 | Entry point | Link | Why it matters |
 |---|---|---|
-| Gather enums, result types, and iteration generation | [`vktShaderRenderTextureGatherTests.cpp#L818-L1080`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureGatherTests.cpp#L818-L1080) | Defines the four operations, offset-range policy, sampler/result typing, component cases, and representative offsets. |
-| Instance initialization and runtime loop | [`vktShaderRenderTextureGatherTests.cpp#L1205-L1562`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureGatherTests.cpp#L1205-L1562) | Checks prerequisites, creates resources, runs each iteration, binds uniforms, and returns status. |
-| Software gather verification | [`vktShaderRenderTextureGatherTests.cpp#L618-L815`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureGatherTests.cpp#L618-L815), [`#L1564-L1648`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureGatherTests.cpp#L1564-L1648) | Reconstructs per-pixel gathers, comparison results, precision, ideal images, and error masks. |
-| Shader and function-call generation | [`vktShaderRenderTextureGatherTests.cpp#L1650-L2117`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureGatherTests.cpp#L1650-L2117) | Generates graphics/compute GLSL, ordinary/sparse/AMD calls, offsets, and output writes. |
-| 2D, array, and cube implementations | [`vktShaderRenderTextureGatherTests.cpp#L2119-L2739`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureGatherTests.cpp#L2119-L2739) | Defines texture data, coordinates, layer/face iteration pruning, reference views, and per-shape support checks. |
+| Gather enums, result types, and iteration generation | [Gather enums, result types, and iteration generation](../../../modules/vulkan/shaderrender/vktShaderRenderTextureGatherTests.cpp#L818-L1080) | Defines the four operations, offset-range policy, sampler/result typing, component cases, and representative offsets. |
+| Instance initialization and runtime loop | [Instance initialization and runtime loop](../../../modules/vulkan/shaderrender/vktShaderRenderTextureGatherTests.cpp#L1205-L1562) | Checks prerequisites, creates resources, runs each iteration, binds uniforms, and returns status. |
+| Software gather verification | [Software gather verification](../../../modules/vulkan/shaderrender/vktShaderRenderTextureGatherTests.cpp#L618-L815), [vktShaderRenderTextureGatherTests.cpp](../../../modules/vulkan/shaderrender/vktShaderRenderTextureGatherTests.cpp#L1564-L1648) | Reconstructs per-pixel gathers, comparison results, precision, ideal images, and error masks. |
+| Shader and function-call generation | [Shader and function-call generation](../../../modules/vulkan/shaderrender/vktShaderRenderTextureGatherTests.cpp#L1650-L2117) | Generates graphics/compute GLSL, ordinary/sparse/AMD calls, offsets, and output writes. |
+| 2D, array, and cube implementations | [2D, array, and cube implementations](../../../modules/vulkan/shaderrender/vktShaderRenderTextureGatherTests.cpp#L2119-L2739) | Defines texture data, coordinates, layer/face iteration pruning, reference views, and per-shape support checks. |
 | Family registration matrix | [`TextureGatherTests::init()`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureGatherTests.cpp#L2813-L3127) | Creates pipeline, operation, range, texture, sampler, swizzle, filter, base-level, sparse, and AMD branches. |
-| Public factory declaration and definition | [`vktShaderRenderTextureGatherTests.hpp#L23-L36`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureGatherTests.hpp#L23-L36), [`vktShaderRenderTextureGatherTests.cpp#L3131-L3134`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureGatherTests.cpp#L3131-L3134) | Exposes and constructs the `texture_gather` family. |
-| GLSL package registration | [`vktTestPackage.cpp#L1253-L1272`](../../../modules/vulkan/vktTestPackage.cpp#L1253-L1272) | Places `texture_gather` directly below `glsl`. |
-| Shared graphics/compute execution | [`vktShaderRender.cpp#L2506-L2587`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L2506-L2587) | Records draw or dispatch commands, submits work, and copies the image for verification. |
-| Shared sparse-image support | [`vktShaderRender.cpp#L1328-L1345`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L1328-L1345), [`#L1747-L1770`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L1747-L1770) | Checks sparse prerequisites and selects sparse upload behavior. |
-| Vulkan default mustpass coverage | [`vk-default/glsl.txt#L23590-L26763`](../../../mustpass/main/vk-default/glsl.txt#L23590-L26763) | Lists all 3,174 `dEQP-VK.glsl.texture_gather` leaves. |
-| Vulkan SC default mustpass coverage | [`vksc-default/glsl.txt#L20569-L22023`](../../../mustpass/main/vksc-default/glsl.txt#L20569-L22023) | Lists all 1,455 `dEQP-VKSC.glsl.texture_gather` leaves. |
+| Public factory declaration and definition | [Public factory declaration and definition](../../../modules/vulkan/shaderrender/vktShaderRenderTextureGatherTests.hpp#L23-L36), [`createTextureGatherTests()`](../../../modules/vulkan/shaderrender/vktShaderRenderTextureGatherTests.cpp#L3131-L3134) | Exposes and constructs the `texture_gather` family. |
+| GLSL package registration | [`createGlslTests()`](../../../modules/vulkan/vktTestPackage.cpp#L1253-L1272) | Places `texture_gather` directly below `glsl`. |
+| Shared graphics/compute execution | [`ShaderRenderCaseInstance::render()`](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L2506-L2587) | Records draw or dispatch commands, submits work, and copies the image for verification. |
+| Shared sparse-image support | [shared sparse checks](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L1328-L1345), [vktShaderRender.cpp](../../../modules/vulkan/shaderrender/vktShaderRender.cpp#L1747-L1770) | Checks sparse prerequisites and selects sparse upload behavior. |
+| Vulkan default mustpass coverage | [Vulkan default mustpass coverage](../../../mustpass/main/vk-default/glsl.txt#L23590-L26763) | Lists all 3,174 `dEQP-VK.glsl.texture_gather` leaves. |
+| Vulkan SC default mustpass coverage | [Vulkan SC default mustpass coverage](../../../mustpass/main/vksc-default/glsl.txt#L20569-L22023) | Lists all 1,455 `dEQP-VKSC.glsl.texture_gather` leaves. |

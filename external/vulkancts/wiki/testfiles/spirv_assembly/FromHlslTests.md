@@ -21,7 +21,7 @@ spirv_assembly.instruction.compute.hlsl_cases
 └── cbuffer_packing
 ```
 
-The page covers only the `cbuffer_packing` test case leaf under the `hlsl_cases` test family. The `instruction` and `compute` ancestors are registered by [`vktSpvAsmInstructionTests.cpp`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21426); this page does not expand them.
+The page covers only the `cbuffer_packing` test case leaf under the `hlsl_cases` test family. The `instruction` and `compute` ancestors are registered by [`createMixedRelaxedPrecisionOperandsTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21426); this page does not expand them.
 
 ## Parameter Dimensions and Observed Values
 
@@ -97,7 +97,7 @@ void main(uint3 dispatchThreadID : SV_DispatchThreadID)
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---|---|---|
-| Variation 1 | There are no shader-level parameter variants for this test family. The only registered path is `spirv_assembly.instruction.compute.hlsl_cases.cbuffer_packing`; all values above are fixed by the single registered case. | [source evidence](../../../modules/vulkan/spirv_assembly/) |
+| Variation 1 | There are no shader-level parameter variants for this test family. The only registered path is `spirv_assembly.instruction.compute.hlsl_cases.cbuffer_packing`; all values above are fixed by the single registered case. | [Variation 1](../../../modules/vulkan/spirv_assembly/) |
 
 #### SPIR-V
 
@@ -226,9 +226,9 @@ This is a single fixed test case, so the cause is direct: a failure means the im
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `Programs::init()` | [`vktSpvAsmFromHlslTests.cpp#L59-L79`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFromHlslTests.cpp#L59-L79) | Adds the HLSL compute source with `FLAG_ALLOW_SCALAR_OFFSETS`. |
-| `HlslTest::iterate()` | [`vktSpvAsmFromHlslTests.cpp#L98-L219`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFromHlslTests.cpp#L98-L219) | Allocates buffers, builds descriptors, dispatches, reads back, and checks the value. |
-| `checkSupport()` | [`vktSpvAsmFromHlslTests.cpp#L221-L224`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFromHlslTests.cpp#L221-L224) | Requires `VK_EXT_scalar_block_layout`. |
-| `createHlslComputeGroup()` | [`vktSpvAsmFromHlslTests.cpp#L228-L235`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFromHlslTests.cpp#L228-L235) | Registers the `hlsl_cases` test family and the `cbuffer_packing` leaf. |
-| `TestType` enum | [`vktSpvAsmFromHlslTests.cpp#L46-L48`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFromHlslTests.cpp#L46-L48) | Defines the only `TT_CBUFFER_PACKING` value used by this file. |
-| Parent registration | [`vktSpvAsmInstructionTests.cpp#L21426`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21426) | Adds `createHlslComputeGroup()` under `instruction.compute`. |
+| `Programs::init()` | [`Programs::init()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFromHlslTests.cpp#L59-L79) | Adds the HLSL compute source with `FLAG_ALLOW_SCALAR_OFFSETS`. |
+| `HlslTest::iterate()` | [`HlslTest::iterate()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFromHlslTests.cpp#L98-L219) | Allocates buffers, builds descriptors, dispatches, reads back, and checks the value. |
+| `checkSupport()` | [`checkSupport()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFromHlslTests.cpp#L221-L224) | Requires `VK_EXT_scalar_block_layout`. |
+| `createHlslComputeGroup()` | [`createHlslComputeGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFromHlslTests.cpp#L228-L235) | Registers the `hlsl_cases` test family and the `cbuffer_packing` leaf. |
+| `TestType` enum | [`TestType`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFromHlslTests.cpp#L46-L48) | Defines the only `TT_CBUFFER_PACKING` value used by this file. |
+| Parent registration | [`createMixedRelaxedPrecisionOperandsTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21426) | Adds `createHlslComputeGroup()` under `instruction.compute`. |

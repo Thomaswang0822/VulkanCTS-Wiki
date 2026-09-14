@@ -2,7 +2,7 @@
 
 **Core question:** Do out-of-bounds buffer references in an unexecuted shader branch remain harmless?
 
-- This page covers the `robustness.non_robust_buffer_access` test family registered by [`vktNonRobustBufferAccessTests.cpp`](../../../modules/vulkan/robustness/vktNonRobustBufferAccessTests.cpp#L39-L58).
+- This page covers the `robustness.non_robust_buffer_access` test family registered by [`createNonRobustBufferAccessTests()`](../../../modules/vulkan/robustness/vktNonRobustBufferAccessTests.cpp#L39-L58).
 - Its two Amber compute test cases alternate between branches whose executed accesses are valid while the other branch contains overflow or underflow references.
 - Each case passes only when the executed branch produces the complete expected interleaving without effects from the unexecuted references.
 
@@ -21,7 +21,7 @@ robustness.non_robust_buffer_access
 └── unexecuted_oob_underflow
 ```
 
-The two test case leaves are registered from the `nonRobustBufferAccessTests` vector and are present in the default mustpass list ([`vktNonRobustBufferAccessTests.cpp`](../../../modules/vulkan/robustness/vktNonRobustBufferAccessTests.cpp#L39-L54), [`robustness.txt`](../../../mustpass/main/vk-default/robustness.txt#L13753-L13754)).
+The two test case leaves are registered from the `nonRobustBufferAccessTests` vector and are present in the default mustpass list ([`createNonRobustBufferAccessTests()`](../../../modules/vulkan/robustness/vktNonRobustBufferAccessTests.cpp#L39-L54), [`robustness.txt`](../../../mustpass/main/vk-default/robustness.txt#L13753-L13754)).
 
 ## Parameter Dimensions and Observed Values
 
@@ -395,7 +395,7 @@ The loop swaps the valid and negative index variables after every iteration. The
 
 ### Requirement-based pruning
 
-- The C++ registration loop is excluded when `CTS_USES_VULKANSC` is defined, so these Amber test case leaves are not registered for Vulkan SC ([`vktNonRobustBufferAccessTests.cpp`](../../../modules/vulkan/robustness/vktNonRobustBufferAccessTests.cpp#L48-L55)).
+- The C++ registration loop is excluded when `CTS_USES_VULKANSC` is defined, so these Amber test case leaves are not registered for Vulkan SC ([`createNonRobustBufferAccessTests()`](../../../modules/vulkan/robustness/vktNonRobustBufferAccessTests.cpp#L48-L55)).
 - The registration file adds no explicit extension or optional-feature gate beyond the operations required by the Amber compute programs.
 
 ### Design-based pruning
@@ -413,9 +413,9 @@ The loop swaps the valid and negative index variables after every iteration. The
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Test registration and Amber mapping | [`vktNonRobustBufferAccessTests.cpp`](../../../modules/vulkan/robustness/vktNonRobustBufferAccessTests.cpp#L39-L58) | Defines the test family and maps both test case leaves to Amber files. |
-| Factory declaration | [`vktNonRobustBufferAccessTests.hpp`](../../../modules/vulkan/robustness/vktNonRobustBufferAccessTests.hpp#L31-L37) | Declares the registration entry point. |
-| Category registration | [`vktRobustnessTests.cpp`](../../../modules/vulkan/robustness/vktRobustnessTests.cpp#L84-L90) | Places the test family under `robustness`. |
+| Test registration and Amber mapping | [`createNonRobustBufferAccessTests()`](../../../modules/vulkan/robustness/vktNonRobustBufferAccessTests.cpp#L39-L58) | Defines the test family and maps both test case leaves to Amber files. |
+| Factory declaration | [Factory declaration](../../../modules/vulkan/robustness/vktNonRobustBufferAccessTests.hpp#L31-L37) | Declares the registration entry point. |
+| Category registration | [`createTests()`](../../../modules/vulkan/robustness/vktRobustnessTests.cpp#L84-L90) | Places the test family under `robustness`. |
 | Overflow Amber case | [`unexecuted_oob_overflow.amber`](../../../data/vulkan/amber/non_robust_buffer_access/unexecuted_oob_overflow.amber#L1-L105) | Defines the upper-bound shader path, resources, dispatch, and expected result. |
 | Underflow Amber case | [`unexecuted_oob_underflow.amber`](../../../data/vulkan/amber/non_robust_buffer_access/unexecuted_oob_underflow.amber#L1-L105) | Defines the negative-index shader path, resources, dispatch, and expected result. |
 | Default mustpass entries | [`robustness.txt`](../../../mustpass/main/vk-default/robustness.txt#L13753-L13754) | Confirms both registered test case paths. |

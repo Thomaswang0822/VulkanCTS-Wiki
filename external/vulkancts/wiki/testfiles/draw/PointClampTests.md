@@ -124,8 +124,8 @@ void main()
 #### Additional Info
 
 - The fragment shader stays fixed because this family has one case. It matters as the final shader stage that turns point coverage into black attachment pixels for host comparison.
-- The pipeline layout exposes no descriptor sets; its only shader-visible non-vertex-buffer resource is the four-byte vertex-stage push-constant range ([source](../../../modules/vulkan/draw/vktDrawPointClampTests.cpp#L115-L118), [pipeline layout](../../../modules/vulkan/draw/vktDrawPointClampTests.cpp#L205-L215)).
-- No explicit `ShaderBuildOptions` are attached when the GLSL sources are added, so the walkthrough uses the `SourceCollections` baseline target, SPIR-V 1.0 ([source](../../../modules/vulkan/draw/vktDrawPointClampTests.cpp#L89-L90)).
+- The pipeline layout exposes no descriptor sets; its only shader-visible non-vertex-buffer resource is the four-byte vertex-stage push-constant range ([`renderPointSizeClampTest()`](../../../modules/vulkan/draw/vktDrawPointClampTests.cpp#L115-L118), [pipeline layout](../../../modules/vulkan/draw/vktDrawPointClampTests.cpp#L205-L215)).
+- No explicit `ShaderBuildOptions` are attached when the GLSL sources are added, so the walkthrough uses the `SourceCollections` baseline target, SPIR-V 1.0 ([`createPointSizeClampProgs()`](../../../modules/vulkan/draw/vktDrawPointClampTests.cpp#L89-L90)).
 
 #### Parameter Variation Summary
 

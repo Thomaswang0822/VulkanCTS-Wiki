@@ -11,7 +11,7 @@
 
 - **`VK_ATTACHMENT_UNUSED`.** A subpass attachment reference may point at a real attachment index or carry the sentinel `VK_ATTACHMENT_UNUSED`. The sentinel tells the implementation that this reference slot is not bound to an image view for this subpass. For color references the slot at `pColorAttachments[i]` may be unused even when the framebuffer still attaches an image at that index.
 - **`vkCmdClearAttachments` and unbacked aspects.** The Vulkan specification states that if an attachment's `aspectMask` is not backed by an image view, the clear has no effect on that aspect
-  [clears.adoc](../../../../vulkan-docs/src/chapters/clears.adoc#L294-L295). This is the property the test family exercises.
+  [Clears](../../../../vulkan-docs/src/chapters/clears.adoc#L294-L295). This is the property the test family exercises.
 - **`VK_ATTACHMENT_LOAD_OP_LOAD`.** All attachments in this test use `VK_ATTACHMENT_LOAD_OP_LOAD`, so each image must already contain a defined value before the render pass instance begins. The test pre-clears every image to that initial value, which makes an illegal overwrite of an unused attachment observable on readback.
 
 ## Registration Hierarchy
@@ -21,8 +21,8 @@ renderpasses.renderpass1.suballocation.unused_clear_attachments
 ```
 
 The test family is attached to the `suballocation` group under five rendering variants of the `renderpasses` test category: `renderpass1`, `renderpass2`, and the `dynamic_rendering` sub-variants `primary_cmd_buff`, `partial_secondary_cmd_buff`, and `complete_secondary_cmd_buff`. Only the monolithic pipeline construction type registers this group; the `graphics_pipeline_library` dynamic-rendering sub-variant is gated off at the dispatcher because it uses fast-linked libraries instead
-[vktRenderPassTests.cpp#L8571-L8574](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8571-L8574). The group itself is flat: it holds leaf test cases directly with no intermediate nodes
-[vktRenderPassUnusedClearAttachmentTests.cpp#L1276](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L1276).
+[Render-pass dispatcher registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8571-L8574). The group itself is flat: it holds leaf test cases directly with no intermediate nodes
+[`createRenderPassUnusedClearAttachmentTests()`](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L1276).
 
 ## Parameter Dimensions and Observed Values
 
@@ -45,7 +45,7 @@ Each color slot is either referenced by the subpass (`colorused`) or marked `VK_
 ### `depthonly` / `stencilonly` / `depthstencil` / `nods`
 
 This dimension chooses the depth/stencil shape. `nods` means no depth/stencil attachment at all. `depthonly`, `stencilonly`, and `depthstencil` attach a depth/stencil image and clear the matching aspect (`VK_IMAGE_ASPECT_DEPTH_BIT`, `VK_IMAGE_ASPECT_STENCIL_BIT`, or both) via `getClearAspectMask`
-[vktRenderPassUnusedClearAttachmentTests.cpp#L104-L115](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L104-L115).
+[`getClearAspectMask()`](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L104-L115).
 
 ### `_used` / `_unused` for the depth/stencil slot
 
@@ -54,20 +54,20 @@ When a depth/stencil attachment exists, the same used/unused choice applies to i
 ## Shader Analysis
 
 This test family has no shader-level behavior to analyze. The vertex and fragment shaders exist only to satisfy graphics pipeline creation; the test records no draw and never runs them. Source comments state this directly
-[vktRenderPassUnusedClearAttachmentTests.cpp#L294-L333](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L294-L333).
+[`UnusedClearAttachmentTest()`](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L294-L333).
 
 ## Runtime Execution and Result Checking
 
 - Each test creates up to four `R8G8B8A8_UNORM` color images and, when the case has a depth/stencil type, one depth/stencil image in the case's format. Every image is pre-cleared to a known initial value: color `(0, 0, 0, 1)`, depth `1.0`, stencil `0`
-  [vktRenderPassUnusedClearAttachmentTests.cpp#L449-L466](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L449-L466).
+  [`UnusedClearAttachmentTestInstance::UnusedClearAttachmentTestInstance()`](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L449-L466).
 - The pre-clear uses `vkCmdClearColorImage` / `vkCmdClearDepthStencilImage` with layout transitions into `VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL` / `VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL` so the render pass can begin with `VK_ATTACHMENT_LOAD_OP_LOAD`
-  [vktRenderPassUnusedClearAttachmentTests.cpp#L541-L710](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L541-L710).
+  [`UnusedClearAttachmentTestInstance::UnusedClearAttachmentTestInstance()`](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L541-L710).
 - The render pass or dynamic rendering instance is begun, the graphics pipeline is bound, and `vkCmdClearAttachments` is recorded with one entry per attachment index (color and depth/stencil) using clear values `(1, 1, 1, 1)`, depth `0.0`, stencil `255`. No draw is issued
-  [vktRenderPassUnusedClearAttachmentTests.cpp#L887-L935](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L887-L935).
+  [`UnusedClearAttachmentTestInstance::createCommandBuffer()`](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L887-L935).
 - After submission, each color image is read back and compared against the expected reference: the clear color for used slots, the initial color for unused slots, with tolerance `0.01f`
-  [vktRenderPassUnusedClearAttachmentTests.cpp#L1124-L1164](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L1124-L1164).
+  [`UnusedClearAttachmentTestInstance::iterate()`](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L1124-L1164).
 - Depth is read back (tolerance `0.001f`) and stencil is read back (exact match) against the same used/unused reference rule
-  [vktRenderPassUnusedClearAttachmentTests.cpp#L1166-L1232](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L1166-L1232).
+  [`UnusedClearAttachmentTestInstance::iterate()`](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L1166-L1232).
 
 | Resource | Created/configured by host? | Bound to GPU? | Device access | Host readback | Role |
 |----------|-----------------------------|---------------|---------------|---------------|------|
@@ -93,11 +93,11 @@ This test family has no shader-level behavior to analyze. The vertex and fragmen
 #### Clear wrote to an attachment marked `VK_ATTACHMENT_UNUSED`
 
 **Possible failure symptoms:** The readback for an unused color or depth/stencil slot does not match the initial value. For color, a pixel differs from `(0, 0, 0, 1)` by more than `0.01f`; for depth it differs from `1.0` by more than `0.001f`; for stencil it is not exactly `0`
-[vktRenderPassUnusedClearAttachmentTests.cpp#L1131-L1162](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L1131-L1162),
-[vktRenderPassUnusedClearAttachmentTests.cpp#L1166-L1231](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L1166-L1231).
+[`UnusedClearAttachmentTestInstance::iterate()`](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L1131-L1162),
+[`UnusedClearAttachmentTestInstance::iterate()`](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L1166-L1231).
 
 **Possible implementation causes:** The Vulkan specification requires that a clear on an aspect not backed by an image view has no effect
-[clears.adoc#L294-L295](../../../../vulkan-docs/src/chapters/clears.adoc#L294-L295). A failure here points at driver or hardware handling of `vkCmdClearAttachments` that routes the clear to the framebuffer image at the cleared index even though the subpass reference is `VK_ATTACHMENT_UNUSED`, or at render pass / dynamic rendering setup that fails to record the unused reference correctly.
+[Clears](../../../../vulkan-docs/src/chapters/clears.adoc#L294-L295). A failure here points at driver or hardware handling of `vkCmdClearAttachments` that routes the clear to the framebuffer image at the cleared index even though the subpass reference is `VK_ATTACHMENT_UNUSED`, or at render pass / dynamic rendering setup that fails to record the unused reference correctly.
 
 #### Clear did not apply to a referenced attachment
 
@@ -116,24 +116,24 @@ This test family has no shader-level behavior to analyze. The vertex and fragmen
 ### Requirement-based pruning
 
 - Render pass 2 cases require `VK_KHR_create_renderpass2`; dynamic rendering cases require `VK_KHR_dynamic_rendering`
-  [vktRenderPassUnusedClearAttachmentTests.cpp#L271-L279](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L271-L279).
+  [`UnusedClearAttachmentTest()`](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L271-L279).
 - Every color, depth, and stencil format is checked with `getPhysicalDeviceImageFormatProperties` for the relevant usage flag before the case runs; unsupported formats raise `NotSupportedError` rather than failing
-  [vktRenderPassUnusedClearAttachmentTests.cpp#L253-L287](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L253-L287).
+  [`UnusedClearAttachmentTest()`](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L253-L287).
 - One dynamic-rendering secondary-command-buffer combination is skipped at registration because the spec forbids declaring a depth/stencil format in the inheritance info when the primary command buffer's rendering info supplies no depth/stencil image view
-  [vktRenderPassUnusedClearAttachmentTests.cpp#L1289-L1303](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L1289-L1303).
+  [`createRenderPassUnusedClearAttachmentTests()`](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L1289-L1303).
 
 ### Design-based pruning
 
 - The zero-color-attachment case is only generated when a depth/stencil attachment exists; a case with no attachments at all would have nothing to clear
-  [vktRenderPassUnusedClearAttachmentTests.cpp#L1308-L1312](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L1308-L1312).
+  [`createRenderPassUnusedClearAttachmentTests()`](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L1308-L1312).
 - The `DEPTH_STENCIL_NONE` type has a single format (`VK_FORMAT_UNDEFINED`) and skips the inner depth/stencil-used loop, so it generates one format pass instead of two
-  [vktRenderPassUnusedClearAttachmentTests.cpp#L1335-L1336](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L1335-L1336).
+  [`createRenderPassUnusedClearAttachmentTests()`](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L1335-L1336).
 - Color attachment counts other than `0`, `1`, and `4` are not registered; `4` already covers the guaranteed minimum `maxColorAttachments`.
 
 ## Key Takeaways
 
 - The whole test family probes one spec sentence: a clear on an aspect not backed by an image view must have no effect
-  [clears.adoc#L294-L295](../../../../vulkan-docs/src/chapters/clears.adoc#L294-L295).
+  [no-effect rule for clears without a backing image view](../../../../vulkan-docs/src/chapters/clears.adoc#L294-L295).
 - Used and unused attachments are exercised in the same render pass instance and cleared through the same `vkCmdClearAttachments` call, so a single case checks both that used slots take the clear and that unused slots do not.
 - The depth/stencil type and format dimensions vary which aspect the clear targets but do not change the core used/unused mechanism.
 - No shader runs; the shaders exist only so a graphics pipeline can be created and `vkCmdClearAttachments` can be recorded inside a render pass instance.
@@ -143,16 +143,16 @@ This test family has no shader-level behavior to analyze. The vertex and fragmen
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Dispatcher attachment (monolithic gate) | [vktRenderPassTests.cpp#L8571-L8574](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8571-L8574) | Adds the `unused_clear_attachments` group only under the monolithic pipeline construction type. |
-| Test family registration | [vktRenderPassUnusedClearAttachmentTests.cpp#L1272-L1342](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L1272-L1342) | Builds the flat leaf matrix over depth/stencil type, format, color count, and used/unused flags. |
-| Depth/stencil type and format mapping | [vktRenderPassUnusedClearAttachmentTests.cpp#L55-L151](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L55-L151) | Defines the `DepthStencilType` enum, aspect masks, and per-type format lists. |
-| Render pass creation | [vktRenderPassUnusedClearAttachmentTests.cpp#L336-L443](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L336-L443) | Builds attachment descriptions and references, marking unused slots with `VK_ATTACHMENT_UNUSED`. |
-| Clear recording | [vktRenderPassUnusedClearAttachmentTests.cpp#L869-L936](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L869-L936) | Records `vkCmdClearAttachments` for every attachment index inside the render pass instance. |
-| Dynamic rendering clear recording | [vktRenderPassUnusedClearAttachmentTests.cpp#L939-L1110](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L939-L1110) | Same clear logic for the dynamic rendering path. |
-| Result checking | [vktRenderPassUnusedClearAttachmentTests.cpp#L1112-L1235](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L1112-L1235) | Reads back color, depth, and stencil and compares against the used/unused reference values. |
-| Support checks | [vktRenderPassUnusedClearAttachmentTests.cpp#L271-L287](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L271-L287) | Requires the render pass 2 / dynamic rendering extensions and checks format support. |
-| Mustpass entries (renderpass1) | [renderpasses.txt#L47272-L47479](../../../mustpass/main/vk-default/renderpasses.txt#L47272-L47479) | 208 leaf cases under `renderpass1.suballocation.unused_clear_attachments`. |
-| Mustpass entries (renderpass2) | [renderpasses.txt#L79610-L79817](../../../mustpass/main/vk-default/renderpasses.txt#L79610-L79817) | 208 leaf cases under `renderpass2.suballocation.unused_clear_attachments`. |
-| Mustpass entries (dynamic_rendering, primary) | [renderpasses.txt#L26404-L26611](../../../mustpass/main/vk-default/renderpasses.txt#L26404-L26611) | 208 leaf cases under `dynamic_rendering.primary_cmd_buff.suballocation.unused_clear_attachments`. |
-| Mustpass entries (dynamic_rendering, partial secondary) | [renderpasses.txt#L12248-L12360](../../../mustpass/main/vk-default/renderpasses.txt#L12248-L12360) | 113 leaf cases under `dynamic_rendering.partial_secondary_cmd_buff.suballocation.unused_clear_attachments`; fewer than the others due to the registration-loop skip for the unsupported secondary-command-buffer D/S combination. |
-| Mustpass entries (dynamic_rendering, complete secondary) | [renderpasses.txt#L3139-L3346](../../../mustpass/main/vk-default/renderpasses.txt#L3139-L3346) | 208 leaf cases under `dynamic_rendering.complete_secondary_cmd_buff.suballocation.unused_clear_attachments`. |
+| Dispatcher attachment (monolithic gate) | [Dispatcher attachment (monolithic gate)](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8571-L8574) | Adds the `unused_clear_attachments` group only under the monolithic pipeline construction type. |
+| Test family registration | [`createRenderPassUnusedClearAttachmentTests()`](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L1272-L1342) | Builds the flat leaf matrix over depth/stencil type, format, color count, and used/unused flags. |
+| Depth/stencil type and format mapping | [Depth/stencil type and format mapping](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L55-L151) | Defines the `DepthStencilType` enum, aspect masks, and per-type format lists. |
+| Render pass creation | [Render pass creation](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L336-L443) | Builds attachment descriptions and references, marking unused slots with `VK_ATTACHMENT_UNUSED`. |
+| Clear recording | [Clear recording](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L869-L936) | Records `vkCmdClearAttachments` for every attachment index inside the render pass instance. |
+| Dynamic rendering clear recording | [Dynamic rendering clear recording](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L939-L1110) | Same clear logic for the dynamic rendering path. |
+| Result checking | [Result checking](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L1112-L1235) | Reads back color, depth, and stencil and compares against the used/unused reference values. |
+| Support checks | [`UnusedClearAttachmentTest::checkSupport()`](../../../modules/vulkan/renderpass/vktRenderPassUnusedClearAttachmentTests.cpp#L271-L287) | Requires the render pass 2 / dynamic rendering extensions and checks format support. |
+| Mustpass entries (renderpass1) | [Mustpass entries (renderpass1)](../../../mustpass/main/vk-default/renderpasses.txt#L47272-L47479) | 208 leaf cases under `renderpass1.suballocation.unused_clear_attachments`. |
+| Mustpass entries (renderpass2) | [Mustpass entries (renderpass2)](../../../mustpass/main/vk-default/renderpasses.txt#L79610-L79817) | 208 leaf cases under `renderpass2.suballocation.unused_clear_attachments`. |
+| Mustpass entries (dynamic_rendering, primary) | [Mustpass entries (dynamicrendering, primary)](../../../mustpass/main/vk-default/renderpasses.txt#L26404-L26611) | 208 leaf cases under `dynamic_rendering.primary_cmd_buff.suballocation.unused_clear_attachments`. |
+| Mustpass entries (dynamic_rendering, partial secondary) | [Mustpass entries (dynamicrendering, partial secondary)](../../../mustpass/main/vk-default/renderpasses.txt#L12248-L12360) | 113 leaf cases under `dynamic_rendering.partial_secondary_cmd_buff.suballocation.unused_clear_attachments`; fewer than the others due to the registration-loop skip for the unsupported secondary-command-buffer D/S combination. |
+| Mustpass entries (dynamic_rendering, complete secondary) | [Mustpass entries (dynamicrendering, complete secondary)](../../../mustpass/main/vk-default/renderpasses.txt#L3139-L3346) | 208 leaf cases under `dynamic_rendering.complete_secondary_cmd_buff.suballocation.unused_clear_attachments`. |

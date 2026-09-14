@@ -121,10 +121,10 @@ This test has no shader. It validates image metadata and physical-device sparse 
 
 | Entry point | Link | Why it matters |
 |---|---|---|
-| `ImageAlignedMipSizeCase::checkSupport` | [`vktSparseResourcesImageAlignedMipSize.cpp#L85-L107`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageAlignedMipSize.cpp#L85-L107) | Device limits, sparse image-type support, and R64 requirements. |
-| `ImageAlignedMipSizeInstance::iterate` image setup | [`vktSparseResourcesImageAlignedMipSize.cpp#L132-L186`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageAlignedMipSize.cpp#L132-L186) | Image creation parameters, format checks, mip count, and queue setup. |
-| `ImageAlignedMipSizeInstance::iterate` validation | [`vktSparseResourcesImageAlignedMipSize.cpp#L188-L240`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageAlignedMipSize.cpp#L188-L240) | Sparse requirement query and pass/fail logic. |
-| Test registration | [`vktSparseResourcesImageAlignedMipSize.cpp#L250-L285`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageAlignedMipSize.cpp#L250-L285) | Image-type, extent, format, and alignment-filter matrix. |
-| Sparse format inventory | [`vktSparseResourcesTestsUtil.cpp#L52-L118`](../../../modules/vulkan/sparse_resources/vktSparseResourcesTestsUtil.cpp#L52-L118) | Formats used by each image-type family. |
-| Image layer mapping | [`vktSparseResourcesTestsUtil.cpp#L158-L205`](../../../modules/vulkan/sparse_resources/vktSparseResourcesTestsUtil.cpp#L158-L205) | Array and cube layer handling. |
+| `ImageAlignedMipSizeCase::checkSupport` | [`ImageAlignedMipSizeCase::checkSupport()`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageAlignedMipSize.cpp#L85-L107) | Device limits, sparse image-type support, and R64 requirements. |
+| `ImageAlignedMipSizeInstance::iterate` image setup | [`ImageAlignedMipSizeInstance::iterate()`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageAlignedMipSize.cpp#L132-L186) | Image creation parameters, format checks, mip count, and queue setup. |
+| `ImageAlignedMipSizeInstance::iterate` validation | [`ImageAlignedMipSizeInstance::iterate()`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageAlignedMipSize.cpp#L188-L240) | Sparse requirement query and pass/fail logic. |
+| Test registration | [`createImageAlignedMipSizeTests()`](../../../modules/vulkan/sparse_resources/vktSparseResourcesImageAlignedMipSize.cpp#L250-L285) | Image-type, extent, format, and alignment-filter matrix. |
+| Sparse format inventory | [Sparse format inventory](../../../modules/vulkan/sparse_resources/vktSparseResourcesTestsUtil.cpp#L52-L118) | Formats used by each image-type family. |
+| Image layer mapping | [Image layer mapping](../../../modules/vulkan/sparse_resources/vktSparseResourcesTestsUtil.cpp#L158-L205) | Array and cube layer handling. |
 | Sparse mip-tail rules | [Vulkan sparse memory, Mip Tail Regions](../../../../vulkan-docs/src/chapters/sparsemem.adoc#sparsememory-miptail) | Specification background for the aligned mip-size property and mip-tail boundary. |

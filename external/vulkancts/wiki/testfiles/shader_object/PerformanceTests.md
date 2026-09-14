@@ -188,7 +188,7 @@ void main() {
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
-| Draw command form | All six draw forms use the same vertex shader. The command form changes how the host supplies the four-vertex work, not the vertex source. | [draw implementation](../../../modules/vulkan/shader_object/vktShaderObjectPerformanceTests.cpp#L300-L345) |
+| Draw command form | All six draw forms use the same vertex shader. The command form changes how the host supplies the four-vertex work, not the vertex source. | [vktShaderObjectPerformanceTests.cpp](../../../modules/vulkan/shader_object/vktShaderObjectPerformanceTests.cpp#L300-L345) |
 | Draw comparison mode | `static_pipeline`, `dynamic_pipeline`, `linked_shaders`, `binary_shaders`, and `binary_bind_shaders` use the same basic vertex shader; they change creation, binding, or pipeline state around it. | [graphics setup](../../../modules/vulkan/shader_object/vktShaderObjectPerformanceTests.cpp#L407-L496) |
 | Graphics stage availability | Tessellation and geometry stages may be added around this vertex stage when their device features are enabled. The vertex source remains unchanged. | [stage assembly](../../../modules/vulkan/shader_object/vktShaderObjectPerformanceTests.cpp#L416-L446) |
 

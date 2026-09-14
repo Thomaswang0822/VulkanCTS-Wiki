@@ -339,7 +339,7 @@ No cases are removed by test design. In particular, no `#ifndef CTS_USES_VULKANS
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Root registration | [`vktSpvAsmInstructionTests.cpp#L21428-L21519`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21428-L21519) | Adds compute and graphics groups without a Vulkan SC compile-time exclusion. |
+| Root registration | [registration calls](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21428-L21519) | Adds compute and graphics groups without a Vulkan SC compile-time exclusion. |
 | SPIR-V templates | [`CompShaderSingle` through `FragShaderVector`](../../../modules/vulkan/spirv_assembly/vktSpvAsm64bitCompareTests.cpp#L258-L994) | Defines the authored scalar/vector and compute/graphics modules. |
 | Template selection and fragments | [`SpirvTemplateManager`](../../../modules/vulkan/spirv_assembly/vktSpvAsm64bitCompareTests.cpp#L996-L1083) | Maps type and stage to templates, capabilities/types, and optional NaN declarations. |
 | Operand tables | [`DOUBLE_OPERANDS`, `INT64_OPERANDS`, `UINT64_OPERANDS`](../../../modules/vulkan/spirv_assembly/vktSpvAsm64bitCompareTests.cpp#L1133-L1159) | Defines all fixed operand pairs. |

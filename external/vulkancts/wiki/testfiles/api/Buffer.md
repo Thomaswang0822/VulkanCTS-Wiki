@@ -25,7 +25,7 @@ api.buffer
 └── invalid_buffer_features
 ```
 
-The `buffer` test family is registered by [`createBufferTests()`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L748) and attached to the `api` test category by [`vktApiTests.cpp`](../../../modules/vulkan/api/vktApiTests.cpp#L102). The four intermediate nodes are added at [`vktApiBufferTests.cpp#L753`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L753) (`suballocation`), [`vktApiBufferTests.cpp#L759`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L759) (`dedicated_alloc`), [`vktApiBufferTests.cpp#L765`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L765) (`basic`), and [`vktApiBufferTests.cpp#L782`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L782) (`invalid_buffer_features`).
+The `buffer` test family is registered by [`createBufferTests()`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L748) and attached to the `api` test category by [`vktApiTests.cpp`](../../../modules/vulkan/api/vktApiTests.cpp#L102). The four intermediate nodes are added at [`LargeBufferParameters()`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L753) (`suballocation`), [`LargeBufferParameters()`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L759) (`dedicated_alloc`), [`LargeBufferParameters()`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L765) (`basic`), and [`createBufferTests()`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L782) (`invalid_buffer_features`).
 
 ## Parameter Dimensions and Observed Values
 
@@ -33,11 +33,11 @@ The `buffer` test family is registered by [`createBufferTests()`](../../../modul
 |-----------|-------------------|----------------------|----------|
 | Allocation kind | `suballocation`, `dedicated_alloc` | Selects `BufferTestInstance` versus `DedicatedAllocationBufferTestInstance` and which requirements API is queried. | [`AllocationKind`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L49) |
 | Buffer usage flags | non-empty combinations of `transfer_src`, `transfer_dst`, `uniform_texel`, `storage_texel`, `uniform`, `storage`, `index`, `vertex`, `indirect` | Each leaf combines one or more `VkBufferUsageFlagBits`. Generated recursively so every non-empty subset appears once. | [`createBufferUsageCases()`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L589) |
-| Buffer create flags | `zero`, `binding`, `binding_residency`, `binding_aliased`, `binding_residency_aliased` (suballocation only); `zero` only (dedicated_alloc) | Sparse create-flag combinations exercise the `vkQueueBindSparse` path. Dedicated allocation excludes sparse flags by design. | [`vktApiBufferTests.cpp#L616-L625`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L616-L625) |
+| Buffer create flags | `zero`, `binding`, `binding_residency`, `binding_aliased`, `binding_residency_aliased` (suballocation only); `zero` only (dedicated_alloc) | Sparse create-flag combinations exercise the `vkQueueBindSparse` path. Dedicated allocation excludes sparse flags by design. | [Buffer create flags](../../../modules/vulkan/api/vktApiBufferTests.cpp#L616-L625) |
 | Sharing mode | `VK_SHARING_MODE_EXCLUSIVE` | Fixed across all generated cases; no concurrent-mode variants exist. | [`BufferCaseParameters`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L85) |
 | Test sizes (create-and-alloc cases) | `1`, `1181`, `15991`, `16384`, `~0ull` | Each size drives one `bufferCreateAndAllocTest` iteration. The `~0ull` value is excluded on Vulkan SC. | [`BufferTestInstance::iterate()`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L369) |
-| Large buffer size parameter | `maxBufferSize` (for `max_size`, `max_size_sparse`), `UINT64_MAX` (for `size_max_uint64`) | Drives the `basic` intermediate node; each leaf uses one value. | [`vktApiBufferTests.cpp#L768-L775`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L768-L775) |
-| Depth/stencil formats | `d16_unorm`, `d16_unorm_s8_uint`, `d24_unorm_s8_uint`, `d32_sfloat`, `d32_sfloat_s8_uint`, `s8_uint`, `x8_d24_unorm_pack32` | One leaf per format under `invalid_buffer_features`. | [`vktApiBufferTests.cpp#L785`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L785) |
+| Large buffer size parameter | `maxBufferSize` (for `max_size`, `max_size_sparse`), `UINT64_MAX` (for `size_max_uint64`) | Drives the `basic` intermediate node; each leaf uses one value. | [Large buffer size parameter](../../../modules/vulkan/api/vktApiBufferTests.cpp#L768-L775) |
+| Depth/stencil formats | `d16_unorm`, `d16_unorm_s8_uint`, `d24_unorm_s8_uint`, `d32_sfloat`, `d32_sfloat_s8_uint`, `s8_uint`, `x8_d24_unorm_pack32` | One leaf per format under `invalid_buffer_features`. | [Depth/stencil formats](../../../modules/vulkan/api/vktApiBufferTests.cpp#L785) |
 
 The full matrix produces 3076 registered test case leaves: 2555 under `suballocation` (511 non-empty usage combinations × 5 create-flag sets), 511 under `dedicated_alloc` (511 × 1), 3 under `basic`, and 7 under `invalid_buffer_features`.
 
@@ -51,7 +51,7 @@ Tests `vkCreateBuffer` followed by `vkGetBufferMemoryRequirements`, `vkAllocateM
 
 ### dedicated_alloc — Buffer creation with a dedicated allocation
 
-Tests `vkCreateBuffer` followed by `vkGetBufferMemoryRequirements2` (with `VkMemoryDedicatedRequirements` chained), `vkAllocateMemory` with a chained `VkMemoryDedicatedAllocateInfo`, and `vkBindBufferMemory`. The test instance is [`DedicatedAllocationBufferTestInstance`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L105). Two additional checks apply only on this path: a non-external buffer must not report `requiresDedicatedAllocation == VK_TRUE` ([`vktApiBufferTests.cpp#L437-L442`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L437-L442)), and `memoryTypeBits` must not be zero ([`vktApiBufferTests.cpp#L444-L445`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L444-L445)). Sparse create flags are excluded by design ([`vktApiBufferTests.cpp#L628-L629`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L628-L629)). Support is gated by [`DedicatedAllocationBuffersTestCase::checkSupport()`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L175), which requires `VK_KHR_dedicated_allocation`.
+Tests `vkCreateBuffer` followed by `vkGetBufferMemoryRequirements2` (with `VkMemoryDedicatedRequirements` chained), `vkAllocateMemory` with a chained `VkMemoryDedicatedAllocateInfo`, and `vkBindBufferMemory`. The test instance is [`DedicatedAllocationBufferTestInstance`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L105). Two additional checks apply only on this path: a non-external buffer must not report `requiresDedicatedAllocation == VK_TRUE` ([`DedicatedAllocationBufferTestInstance::bufferCreateAndAllocTest()`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L437-L442)), and `memoryTypeBits` must not be zero ([`DedicatedAllocationBufferTestInstance::bufferCreateAndAllocTest()`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L444-L445)). Sparse create flags are excluded by design ([`createBufferUsageCases()`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L628-L629)). Support is gated by [`DedicatedAllocationBuffersTestCase::checkSupport()`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L175), which requires `VK_KHR_dedicated_allocation`.
 
 ### basic — Large buffer size boundary tests
 
@@ -74,13 +74,13 @@ For each registered usage and create-flag combination, [`BufferTestInstance::ite
 For each size, the host:
 
 1. Creates a 1-byte probe buffer with the same flags to discover the supported memory type bits.
-2. Computes a clamped maximum buffer size from the memory heap size and platform memory limits, halves it, and aligns it to `memReqs.alignment` ([`vktApiBufferTests.cpp#L232-L238`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L232-L238)).
+2. Computes a clamped maximum buffer size from the memory heap size and platform memory limits, halves it, and aligns it to `memReqs.alignment` ([`DedicatedAllocationBuffersTestCase()`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L232-L238)).
 3. Clamps the requested size to that maximum and aligns it.
 4. Enters a shrink-and-retry loop driven by `shrinkBits = 4`. On each iteration:
-   - calls `vkCreateBuffer` with the current size; on failure, shrinks and retries, failing only if the size reaches alignment or zero ([`vktApiBufferTests.cpp#L243-L265`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L243-L265));
-   - calls `vkGetBufferMemoryRequirements` (or `vkGetBufferMemoryRequirements2` on the dedicated path) and checks `memReqs.size >= size`; if smaller, the case fails immediately with `"Required memory size ... smaller than the buffer's size"` ([`vktApiBufferTests.cpp#L273-L280`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L273-L280));
+   - calls `vkCreateBuffer` with the current size; on failure, shrinks and retries, failing only if the size reaches alignment or zero ([`DedicatedAllocationBuffersTestCase()`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L243-L265));
+   - calls `vkGetBufferMemoryRequirements` (or `vkGetBufferMemoryRequirements2` on the dedicated path) and checks `memReqs.size >= size`; if smaller, the case fails immediately with `"Required memory size ... smaller than the buffer's size"` ([`BufferTestInstance::bufferCreateAndAllocTest()`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L273-L280));
    - calls `vkAllocateMemory` with `memReqs.size`; on failure, shrinks and retries.
-5. Binds the memory. Non-sparse cases use `vkBindBufferMemory` ([`vktApiBufferTests.cpp#L359-L360`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L359-L360)). Sparse cases build a `VkSparseBufferMemoryBindInfo`, queue a `vkQueueBindSparse` call, and wait on a fence ([`vktApiBufferTests.cpp#L317-L358`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L317-L358)).
+5. Binds the memory. Non-sparse cases use `vkBindBufferMemory` ([`BufferTestInstance::bufferCreateAndAllocTest()`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L359-L360)). Sparse cases build a `VkSparseBufferMemoryBindInfo`, queue a `vkQueueBindSparse` call, and wait on a fence ([`BufferTestInstance::bufferCreateAndAllocTest()`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L317-L358)).
 
 The dedicated path performs two additional checks before the loop: `requiresDedicatedAllocation` must be `VK_FALSE` for the non-external buffer, and `memoryTypeBits` must not be zero. The pass condition is that every test size reaches a successful bind.
 
@@ -88,13 +88,13 @@ The dedicated path performs two additional checks before the loop: `requiresDedi
 
 For each leaf, [`testLargeBuffer()`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L680) resolves the requested size (substituting `maxBufferSize` from `VkPhysicalDeviceMaintenance4Properties` when `useMaxBufferSize` is set), clamps sparse cases to `limits.sparseAddressSpaceSize`, calls `vkCreateBuffer`, and applies the following pass/fail rules:
 
-- On `VK_SUCCESS`: reads `vkGetBufferMemoryRequirements` and passes only if `memoryRequirements.size >= params.bufferSize` ([`vktApiBufferTests.cpp#L711-L720`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L711-L720)).
-- On `VK_ERROR_OUT_OF_DEVICE_MEMORY` or `VK_ERROR_OUT_OF_HOST_MEMORY`: passes, because these are legal rejections of an oversized request ([`vktApiBufferTests.cpp#L722-L724`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L722-L724)).
-- On any other result: fails ([`vktApiBufferTests.cpp#L726`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L726)).
+- On `VK_SUCCESS`: reads `vkGetBufferMemoryRequirements` and passes only if `memoryRequirements.size >= params.bufferSize` ([`LargeBufferParameters()`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L711-L720)).
+- On `VK_ERROR_OUT_OF_DEVICE_MEMORY` or `VK_ERROR_OUT_OF_HOST_MEMORY`: passes, because these are legal rejections of an oversized request ([`LargeBufferParameters()`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L722-L724)).
+- On any other result: fails ([`LargeBufferParameters()`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L726)).
 
 ### invalid_buffer_features
 
-For each registered format, [`testDepthStencilBufferFeatures()`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L658) calls `vkGetPhysicalDeviceFormatProperties` and passes when `bufferFeatures == 0x0`; any non-zero value fails the case ([`vktApiBufferTests.cpp#L666-L669`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L666-L669)).
+For each registered format, [`testDepthStencilBufferFeatures()`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L658) calls `vkGetPhysicalDeviceFormatProperties` and passes when `bufferFeatures == 0x0`; any non-zero value fails the case ([`testDepthStencilBufferFeatures()`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L666-L669)).
 
 ## Failure Meaning
 
@@ -152,16 +152,16 @@ For each registered format, [`testDepthStencilBufferFeatures()`](../../../module
 - `dedicated_alloc` is gated by [`DedicatedAllocationBuffersTestCase::checkSupport()`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L175), which throws `NotSupportedError` when `VK_KHR_dedicated_allocation` is not supported.
 - Sparse create-flag cases under `suballocation` are gated by [`BuffersTestCase::checkSupport()`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L135): `VK_BUFFER_CREATE_SPARSE_BINDING_BIT` requires `sparseBinding`, `VK_BUFFER_CREATE_SPARSE_RESIDENCY_BIT` requires `sparseResidencyBuffer`, and `VK_BUFFER_CREATE_SPARSE_ALIASED_BIT` requires `sparseResidencyAliased`.
 - `basic.max_size` and `basic.max_size_sparse` require `VK_KHR_maintenance4` through [`checkMaintenance4Support()`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L731) because they read `VkPhysicalDeviceMaintenance4Properties::maxBufferSize`.
-- `basic.size_max_uint64` is skipped when `VK_KHR_maintenance4` is supported and `params.bufferSize > maxBufferSize`, because requesting a buffer larger than `maxBufferSize` is not legal usage ([`vktApiBufferTests.cpp#L735-L737`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L735-L737)).
+- `basic.size_max_uint64` is skipped when `VK_KHR_maintenance4` is supported and `params.bufferSize > maxBufferSize`, because requesting a buffer larger than `maxBufferSize` is not legal usage ([`LargeBufferParameters()`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L735-L737)).
 
 ### Design-based pruning
 
-- All `basic` leaves are excluded on Vulkan SC through `#ifndef CTS_USES_VULKANSC` ([`vktApiBufferTests.cpp#L766`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L766)).
-- Sparse create-flag combinations are excluded on Vulkan SC through `#ifndef CTS_USES_VULKANSC` ([`vktApiBufferTests.cpp#L618-L624`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L618-L624)).
-- The `~0ull` test size in `BufferTestInstance::iterate()` is excluded on Vulkan SC ([`vktApiBufferTests.cpp#L373-L375`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L373-L375)).
-- `dedicated_alloc` excludes sparse create flags by limiting the loop to a single `zero` create-flag entry ([`vktApiBufferTests.cpp#L628-L629`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L628-L629)).
+- All `basic` leaves are excluded on Vulkan SC through `#ifndef CTS_USES_VULKANSC` ([`LargeBufferParameters()`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L766)).
+- Sparse create-flag combinations are excluded on Vulkan SC through `#ifndef CTS_USES_VULKANSC` ([`createBufferUsageCases()`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L618-L624)).
+- The `~0ull` test size in `BufferTestInstance::iterate()` is excluded on Vulkan SC ([`BufferTestInstance::iterate()`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L373-L375)).
+- `dedicated_alloc` excludes sparse create flags by limiting the loop to a single `zero` create-flag entry ([`createBufferUsageCases()`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L628-L629)).
 - `sharingMode` is fixed to `VK_SHARING_MODE_EXCLUSIVE` for every generated case; no concurrent-mode variants exist in the matrix.
-- Usage-flag combinations are restricted to non-empty subsets; the zero-usage case is not generated ([`vktApiBufferTests.cpp#L613`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L613)).
+- Usage-flag combinations are restricted to non-empty subsets; the zero-usage case is not generated ([`createBufferUsageCases()`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L613)).
 - `basic` leaves use `VK_BUFFER_USAGE_STORAGE_BUFFER_BIT` only; the usage-flag matrix does not apply to the large-buffer path.
 
 ## Key Takeaways
@@ -176,16 +176,16 @@ For each registered format, [`testDepthStencilBufferFeatures()`](../../../module
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `createBufferTests()` | [`vktApiBufferTests.cpp#L748`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L748) | Top-level registration for the `buffer` test family; adds the four intermediate nodes. |
-| `createBufferUsageCases()` | [`vktApiBufferTests.cpp#L589`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L589) | Recursive generator for non-empty usage-flag combinations and per-usage `create` subgroups. |
-| `BufferTestInstance::iterate()` | [`vktApiBufferTests.cpp#L369`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L369) | Test size loop for `suballocation` and `dedicated_alloc` instances. |
-| `BufferTestInstance::bufferCreateAndAllocTest()` | [`vktApiBufferTests.cpp#L185`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L185) | Suballocation create-and-alloc loop, memory-requirement check, and bind path selection. |
-| `DedicatedAllocationBufferTestInstance::bufferCreateAndAllocTest()` | [`vktApiBufferTests.cpp#L389`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L389) | Dedicated-allocation create-and-alloc loop, `VkMemoryDedicatedRequirements` check, and `VkMemoryDedicatedAllocateInfo` usage. |
-| `BuffersTestCase::checkSupport()` | [`vktApiBufferTests.cpp#L135`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L135) | Sparse feature gating for `suballocation`. |
-| `DedicatedAllocationBuffersTestCase::checkSupport()` | [`vktApiBufferTests.cpp#L175`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L175) | `VK_KHR_dedicated_allocation` gating for `dedicated_alloc`. |
-| `testLargeBuffer()` | [`vktApiBufferTests.cpp#L680`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L680) | `basic` test instance function; applies the pass/fail rules for `max_size`, `max_size_sparse`, and `size_max_uint64`. |
-| `checkMaintenance4Support()` | [`vktApiBufferTests.cpp#L731`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L731) | `VK_KHR_maintenance4` gating and `maxBufferSize` legality check for `basic`. |
-| `testDepthStencilBufferFeatures()` | [`vktApiBufferTests.cpp#L658`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L658) | `invalid_buffer_features` test instance function; queries `vkGetPhysicalDeviceFormatProperties` and asserts `bufferFeatures == 0`. |
-| `AllocationKind` enum | [`vktApiBufferTests.cpp#L49`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L49) | Defines the `ALLOCATION_KIND_SUBALLOCATED` and `ALLOCATION_KIND_DEDICATED` values used by `createBufferUsageCases()`. |
-| `BufferCaseParameters` struct | [`vktApiBufferTests.cpp#L85`](../../../modules/vulkan/api/vktApiBufferTests.cpp#L85) | Per-case parameter bundle: usage flags, create flags, and sharing mode. |
-| Parent registration | [`vktApiTests.cpp#L102`](../../../modules/vulkan/api/vktApiTests.cpp#L102) | `apiTests->addChild(createBufferTests(testCtx))` attaches the `buffer` family to the `api` test category. |
+| `createBufferTests()` | [createBufferTests()](../../../modules/vulkan/api/vktApiBufferTests.cpp#L748) | Top-level registration for the `buffer` test family; adds the four intermediate nodes. |
+| `createBufferUsageCases()` | [createBufferUsageCases()](../../../modules/vulkan/api/vktApiBufferTests.cpp#L589) | Recursive generator for non-empty usage-flag combinations and per-usage `create` subgroups. |
+| `BufferTestInstance::iterate()` | [BufferTestInstance::iterate()](../../../modules/vulkan/api/vktApiBufferTests.cpp#L369) | Test size loop for `suballocation` and `dedicated_alloc` instances. |
+| `BufferTestInstance::bufferCreateAndAllocTest()` | [BufferTestInstance::bufferCreateAndAllocTest()](../../../modules/vulkan/api/vktApiBufferTests.cpp#L185) | Suballocation create-and-alloc loop, memory-requirement check, and bind path selection. |
+| `DedicatedAllocationBufferTestInstance::bufferCreateAndAllocTest()` | [DedicatedAllocationBufferTestInstance::bufferCreateAndAllocTest()](../../../modules/vulkan/api/vktApiBufferTests.cpp#L389) | Dedicated-allocation create-and-alloc loop, `VkMemoryDedicatedRequirements` check, and `VkMemoryDedicatedAllocateInfo` usage. |
+| `BuffersTestCase::checkSupport()` | [BuffersTestCase::checkSupport()](../../../modules/vulkan/api/vktApiBufferTests.cpp#L135) | Sparse feature gating for `suballocation`. |
+| `DedicatedAllocationBuffersTestCase::checkSupport()` | [DedicatedAllocationBuffersTestCase::checkSupport()](../../../modules/vulkan/api/vktApiBufferTests.cpp#L175) | `VK_KHR_dedicated_allocation` gating for `dedicated_alloc`. |
+| `testLargeBuffer()` | [testLargeBuffer()](../../../modules/vulkan/api/vktApiBufferTests.cpp#L680) | `basic` test instance function; applies the pass/fail rules for `max_size`, `max_size_sparse`, and `size_max_uint64`. |
+| `checkMaintenance4Support()` | [checkMaintenance4Support()](../../../modules/vulkan/api/vktApiBufferTests.cpp#L731) | `VK_KHR_maintenance4` gating and `maxBufferSize` legality check for `basic`. |
+| `testDepthStencilBufferFeatures()` | [testDepthStencilBufferFeatures()](../../../modules/vulkan/api/vktApiBufferTests.cpp#L658) | `invalid_buffer_features` test instance function; queries `vkGetPhysicalDeviceFormatProperties` and asserts `bufferFeatures == 0`. |
+| `AllocationKind` enum | [AllocationKind enum](../../../modules/vulkan/api/vktApiBufferTests.cpp#L49) | Defines the `ALLOCATION_KIND_SUBALLOCATED` and `ALLOCATION_KIND_DEDICATED` values used by `createBufferUsageCases()`. |
+| `BufferCaseParameters` struct | [BufferCaseParameters struct](../../../modules/vulkan/api/vktApiBufferTests.cpp#L85) | Per-case parameter bundle: usage flags, create flags, and sharing mode. |
+| Parent registration | [Parent registration](../../../modules/vulkan/api/vktApiTests.cpp#L102) | `apiTests->addChild(createBufferTests(testCtx))` attaches the `buffer` family to the `api` test category. |

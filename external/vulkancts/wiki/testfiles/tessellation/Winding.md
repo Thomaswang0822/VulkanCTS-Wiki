@@ -10,7 +10,7 @@
 ## Background Knowledge
 
 - A tessellation control or tessellation evaluation shader can request `VertexOrderCw` or `VertexOrderCcw`. Vulkan applies that order to triangles generated in `Triangles` and `Quads` modes. The order is defined in normalized tessellation domain space, not by the order in which an implementation happens to emit primitives. See [`tessellation-vertex-winding-order`](../../../../vulkan-docs/src/chapters/tessellation.adoc#tessellation-vertex-winding-order).
-- The tessellation domain origin changes the sign convention used to interpret that order. With an upper-left origin, negative signed area is counter-clockwise; with a lower-left origin, positive signed area is counter-clockwise. If the pipeline omits `VkPipelineTessellationDomainOriginStateCreateInfo`, Vulkan uses upper-left origin. See [`tessellation.adoc#tessellation-pipeline-state`](../../../../vulkan-docs/src/chapters/tessellation.adoc#tessellation-pipeline-state).
+- The tessellation domain origin changes the sign convention used to interpret that order. With an upper-left origin, negative signed area is counter-clockwise; with a lower-left origin, positive signed area is counter-clockwise. If the pipeline omits `VkPipelineTessellationDomainOriginStateCreateInfo`, Vulkan uses upper-left origin. See [tessellation.adoc](../../../../vulkan-docs/src/chapters/tessellation.adoc#tessellation-pipeline-state).
 - Vulkan classifies a polygon from its framebuffer-space area. `VK_FRONT_FACE_COUNTER_CLOCKWISE` treats positive area as front-facing, `VK_FRONT_FACE_CLOCKWISE` treats negative area as front-facing, and `VK_CULL_MODE_BACK_BIT` discards the other orientation. See [`primsrast-polygons-basic`](../../../../vulkan-docs/src/chapters/primsrast.adoc#primsrast-polygons-basic).
 
 ## Registration Hierarchy
@@ -109,7 +109,7 @@ void main (void)
 | Primitive type | Changes the evaluation layout between `triangles` and `quads`; the HLSL branch also changes `SV_DOMAINLOCATION` from `float3` to `float2`. | [`WindingTest::initPrograms()`](../../../modules/vulkan/tessellation/vktTessellationWindingTests.cpp#L265-L277) |
 | Shader language | GLSL uses the evaluation-shader layout qualifier; HLSL uses hull-shader `domain` and `outputtopology` attributes. | [`WindingTest::initPrograms()`](../../../modules/vulkan/tessellation/vktTessellationWindingTests.cpp#L227-L365) |
 | Winding | Changes `ccw` to `cw` in GLSL and selects the corresponding HLSL output topology. | [`WindingTest::initPrograms()`](../../../modules/vulkan/tessellation/vktTessellationWindingTests.cpp#L265-L277), [`getOutputTopologyName()`](../../../modules/vulkan/tessellation/vktTessellationUtil.hpp#L285-L300) |
-| Domain origin | Does not change the shader text. It changes pipeline tessellation state and the spec interpretation of the generated order. | [`WindingTestInstance::iterate()`](../../../modules/vulkan/tessellation/vktTessellationWindingTests.cpp#L447-L471), [`tessellation.adoc#tessellation-vertex-winding-order`](../../../../vulkan-docs/src/chapters/tessellation.adoc#tessellation-vertex-winding-order) |
+| Domain origin | Does not change the shader text. It changes pipeline tessellation state and the spec interpretation of the generated order. | [`WindingTestInstance::iterate()`](../../../modules/vulkan/tessellation/vktTessellationWindingTests.cpp#L447-L471), [tessellation.adoc](../../../../vulkan-docs/src/chapters/tessellation.adoc#tessellation-vertex-winding-order) |
 | `yflip` | Does not change the shader text. It changes the viewport's Y transform and the expected image orientation. | [`WindingTestInstance::iterate()`](../../../modules/vulkan/tessellation/vktTessellationWindingTests.cpp#L528-L535), [`verifyResultImage()`](../../../modules/vulkan/tessellation/vktTessellationWindingTests.cpp#L84-L194) |
 
 #### SPIR-V
@@ -248,12 +248,12 @@ void main (void)
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `verifyResultImage()` | [`vktTessellationWindingTests.cpp#L83-L193`](../../../modules/vulkan/tessellation/vktTessellationWindingTests.cpp#L83-L193) | Defines the red/white pixel contract, triangle tolerance, quad coverage, and Y-flip orientation check. |
-| `WindingTest::initPrograms()` | [`vktTessellationWindingTests.cpp#L227-L365`](../../../modules/vulkan/tessellation/vktTessellationWindingTests.cpp#L227-L365) | Generates the GLSL and HLSL program stages and varies the winding representation. |
-| `WindingTestInstance::iterate()` | [`vktTessellationWindingTests.cpp#L406-L572`](../../../modules/vulkan/tessellation/vktTessellationWindingTests.cpp#L406-L572) | Creates the pipelines, records the draw/copy flow, and invokes image verification. |
-| `populateWindingGroup()` | [`vktTessellationWindingTests.cpp#L582-L604`](../../../modules/vulkan/tessellation/vktTessellationWindingTests.cpp#L582-L604) | Produces the primitive, language, winding, and Y-flip matrix. |
-| `createWindingTests()` | [`vktTessellationWindingTests.cpp#L610-L624`](../../../modules/vulkan/tessellation/vktTessellationWindingTests.cpp#L610-L624) | Registers the three domain-origin intermediate nodes. |
-| Tessellator vertex winding order | [`tessellation.adoc#tessellation-vertex-winding-order`](../../../../vulkan-docs/src/chapters/tessellation.adoc#tessellation-vertex-winding-order) | Specifies `VertexOrderCw`/`VertexOrderCcw` and the origin-dependent area sign. |
-| Tessellation domain origin | [`tessellation.adoc#tessellation-pipeline-state`](../../../../vulkan-docs/src/chapters/tessellation.adoc#tessellation-pipeline-state) | Specifies explicit origins and the upper-left default. |
-| Polygon facing and culling | [`primsrast.adoc#primsrast-polygons-basic`](../../../../vulkan-docs/src/chapters/primsrast.adoc#primsrast-polygons-basic) | Specifies framebuffer-space facing, `frontFace`, and `cullMode`. |
-| Mustpass matrix | [`tessellation.txt#L1056-L1103`](../../../mustpass/main/vk-default/tessellation.txt#L1056-L1103) | Confirms the registered winding case coverage. |
+| `verifyResultImage()` | [`verifyResultImage()`](../../../modules/vulkan/tessellation/vktTessellationWindingTests.cpp#L83-L193) | Defines the red/white pixel contract, triangle tolerance, quad coverage, and Y-flip orientation check. |
+| `WindingTest::initPrograms()` | [`WindingTest::initPrograms()`](../../../modules/vulkan/tessellation/vktTessellationWindingTests.cpp#L227-L365) | Generates the GLSL and HLSL program stages and varies the winding representation. |
+| `WindingTestInstance::iterate()` | [`WindingTestInstance::iterate()`](../../../modules/vulkan/tessellation/vktTessellationWindingTests.cpp#L406-L572) | Creates the pipelines, records the draw/copy flow, and invokes image verification. |
+| `populateWindingGroup()` | [`populateWindingGroup()`](../../../modules/vulkan/tessellation/vktTessellationWindingTests.cpp#L582-L604) | Produces the primitive, language, winding, and Y-flip matrix. |
+| `createWindingTests()` | [`createWindingTests()`](../../../modules/vulkan/tessellation/vktTessellationWindingTests.cpp#L610-L624) | Registers the three domain-origin intermediate nodes. |
+| Tessellator vertex winding order | [tessellation.adoc](../../../../vulkan-docs/src/chapters/tessellation.adoc#tessellation-vertex-winding-order) | Specifies `VertexOrderCw`/`VertexOrderCcw` and the origin-dependent area sign. |
+| Tessellation domain origin | [tessellation.adoc](../../../../vulkan-docs/src/chapters/tessellation.adoc#tessellation-pipeline-state) | Specifies explicit origins and the upper-left default. |
+| Polygon facing and culling | [primsrast.adoc](../../../../vulkan-docs/src/chapters/primsrast.adoc#primsrast-polygons-basic) | Specifies framebuffer-space facing, `frontFace`, and `cullMode`. |
+| Mustpass matrix | [Mustpass matrix](../../../mustpass/main/vk-default/tessellation.txt#L1056-L1103) | Confirms the registered winding case coverage. |

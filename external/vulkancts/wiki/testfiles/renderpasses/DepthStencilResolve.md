@@ -122,7 +122,7 @@ Representative path:
 dEQP-VK.renderpasses.renderpass2.depth_stencil_resolve.image_2d_32_32.samples_4.d32_sfloat_s8_uint.depth_average_stencil_zero_testing_depth
 ```
 
-mustpass: [renderpasses.txt#L58951](../../../mustpass/main/vk-default/renderpasses.txt#L58951).
+mustpass: [Renderpasses](../../../mustpass/main/vk-default/renderpasses.txt#L58951).
 
 | Parameter choice | Meaning in this representative case |
 |------------------|-------------------------------------|

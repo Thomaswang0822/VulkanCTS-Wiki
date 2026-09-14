@@ -23,13 +23,13 @@ ray_tracing_pipeline.barycentric_coordinates
 └── chit
 ```
 
-The three direct children are registered by [createBarycentricCoordinatesTests](../../../modules/vulkan/ray_tracing/vktRayTracingBarycentricCoordinatesTests.cpp#L498-L512). Each child is one `BarycentricCoordinatesCase` with a distinct `TestCaseRT` value and a deterministic seed. The dispatcher at [createTests](../../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L93) adds the `barycentric_coordinates` group as a child of the `ray_tracing_pipeline` test category. All three leaves appear in the mustpass at [ray-tracing-pipeline.txt](../../../mustpass/main/vk-default/ray-tracing-pipeline.txt).
+The three direct children are registered by [register hit-stage and termination variants](../../../modules/vulkan/ray_tracing/vktRayTracingBarycentricCoordinatesTests.cpp#L498-L512). Each child is one `BarycentricCoordinatesCase` with a distinct `TestCaseRT` value and a deterministic seed. The dispatcher at [attach the barycentric-coordinate test family](../../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L93) adds the `barycentric_coordinates` group as a child of the `ray_tracing_pipeline` test category. All three leaves appear in the mustpass at [ray-tracing-pipeline.txt](../../../mustpass/main/vk-default/ray-tracing-pipeline.txt).
 
 ## Parameter Dimensions and Observed Values
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Hit shader configuration (test case leaf) | `chit`, `ahit`, `ahitTerminate` | Selects which shader stage reports the barycentric attribute and whether `terminateRayEXT` is exercised. This is the primary behavioral axis. | [createBarycentricCoordinatesTests](../../../modules/vulkan/ray_tracing/vktRayTracingBarycentricCoordinatesTests.cpp#L506-L509) |
+| Hit shader configuration (test case leaf) | `chit`, `ahit`, `ahitTerminate` | Selects which shader stage reports the barycentric attribute and whether `terminateRayEXT` is exercised. This is the primary behavioral axis. | [closest-hit, any-hit, and termination cases](../../../modules/vulkan/ray_tracing/vktRayTracingBarycentricCoordinatesTests.cpp#L506-L509) |
 | Seed | `1614343620u`, `1614343621u`, `1614343622u` | Each leaf gets a deterministic seed (`seed++`) that drives `de::Random` ray direction generation. The seed varies per leaf but does not change what is being tested. | [seed assignment](../../../modules/vulkan/ray_tracing/vktRayTracingBarycentricCoordinatesTests.cpp#L505-L509) |
 | Ray count | 20 (`kNumRays`) | Fixed across all leaves. The first three rays target near-vertex barycentric coordinates; the remaining 17 are generated randomly while avoiding zero weights. | [kNumRays](../../../modules/vulkan/ray_tracing/vktRayTracingBarycentricCoordinatesTests.cpp#L84) |
 | Coordinate threshold | `0.001f` (`kThreshold`) | Fixed tolerance for the x and y barycentric comparisons. The z and w components are checked exactly. | [kThreshold](../../../modules/vulkan/ray_tracing/vktRayTracingBarycentricCoordinatesTests.cpp#L81-L83) |
@@ -40,11 +40,11 @@ The primary behavioral axis is the hit shader configuration, which is the test c
 
 ### chit - closest-hit shader reports barycentrics
 
-The closest-hit shader reads `hitAttributeEXT vec2 baryCoord` and writes `baryCoord` into the output storage buffer at the x and y components of the ray's slot. The host compares those x and y values against the coordinates it computed for the same ray direction, within `kThreshold`. This leaf verifies that the pipeline reports correct barycentric attributes through the closest-hit path. Only the closest-hit stage is added to the pipeline for this case ([getUsedStages](../../../modules/vulkan/ray_tracing/vktRayTracingBarycentricCoordinatesTests.cpp#L65-L76) returns `CLOSEST_HIT_BIT_KHR`).
+The closest-hit shader reads `hitAttributeEXT vec2 baryCoord` and writes `baryCoord` into the output storage buffer at the x and y components of the ray's slot. The host compares those x and y values against the coordinates it computed for the same ray direction, within `kThreshold`. This leaf verifies that the pipeline reports correct barycentric attributes through the closest-hit path. Only the closest-hit stage is added to the pipeline for this case ([select hit stages for each barycentric case](../../../modules/vulkan/ray_tracing/vktRayTracingBarycentricCoordinatesTests.cpp#L65-L76) returns `CLOSEST_HIT_BIT_KHR`).
 
 ### ahit - any-hit shader reports barycentrics
 
-The same shader text that the `chit` leaf uses is registered as an any-hit shader instead of a closest-hit shader ([initPrograms](../../../modules/vulkan/ray_tracing/vktRayTracingBarycentricCoordinatesTests.cpp#L204-L206)). The any-hit shader writes `baryCoord` to the x and y components. Because the geometry uses `VK_GEOMETRY_NO_DUPLICATE_ANY_HIT_INVOCATION_BIT_KHR` and there is one triangle, the any-hit shader runs once for the single candidate hit, which is then accepted as the closest hit. The host applies the same x and y comparison as `chit`. This leaf verifies barycentric reporting through the any-hit path. The z component stays at its cleared zero value.
+The same shader text that the `chit` leaf uses is registered as an any-hit shader instead of a closest-hit shader ([reuse barycentric code as any-hit](../../../modules/vulkan/ray_tracing/vktRayTracingBarycentricCoordinatesTests.cpp#L204-L206)). The any-hit shader writes `baryCoord` to the x and y components. Because the geometry uses `VK_GEOMETRY_NO_DUPLICATE_ANY_HIT_INVOCATION_BIT_KHR` and there is one triangle, the any-hit shader runs once for the single candidate hit, which is then accepted as the closest hit. The host applies the same x and y comparison as `chit`. This leaf verifies barycentric reporting through the any-hit path. The z component stays at its cleared zero value.
 
 ### ahitTerminate - any-hit shader conditionally terminates, closest-hit reports barycentrics
 
@@ -52,7 +52,7 @@ This leaf uses both a closest-hit shader and a separate any-hit shader. The clos
 
 ## Shader Analysis
 
-Shader code is part of the tested behavior. The shaders are generated in [initPrograms](../../../modules/vulkan/ray_tracing/vktRayTracingBarycentricCoordinatesTests.cpp#L129-L216) from C++ string streams, with explicit `vk::ShaderBuildOptions` targeting SPIR-V 1.4. The three leaves share the same raygen, miss, and closest-hit shader text; they differ only in which hit shader is registered. The representative walkthrough below uses the `ahitTerminate` case because it is the only leaf that exercises `terminateRayEXT` and the z-marker validation, and it includes both the closest-hit and any-hit shaders.
+Shader code is part of the tested behavior. The shaders are generated in [barycentric reporting and termination shaders](../../../modules/vulkan/ray_tracing/vktRayTracingBarycentricCoordinatesTests.cpp#L129-L216) from C++ string streams, with explicit `vk::ShaderBuildOptions` targeting SPIR-V 1.4. The three leaves share the same raygen, miss, and closest-hit shader text; they differ only in which hit shader is registered. The representative walkthrough below uses the `ahitTerminate` case because it is the only leaf that exercises `terminateRayEXT` and the z-marker validation, and it includes both the closest-hit and any-hit shaders.
 
 ### Representative Shader Walkthrough 1
 
@@ -182,7 +182,7 @@ void main()
 
 #### Additional Info
 
-- The closest-hit shader text is identical across all three leaves; only its registration stage differs. In `chit` and `ahitTerminate` it is added as `ClosestHitSource`; in `ahit` the same text is added as `AnyHitSource` ([initPrograms](../../../modules/vulkan/ray_tracing/vktRayTracingBarycentricCoordinatesTests.cpp#L201-L213)). It stays fixed in structure and varies only in stage binding.
+- The closest-hit shader text is identical across all three leaves; only its registration stage differs. In `chit` and `ahitTerminate` it is added as `ClosestHitSource`; in `ahit` the same text is added as `AnyHitSource` ([bind shared hit code to the selected stage](../../../modules/vulkan/ray_tracing/vktRayTracingBarycentricCoordinatesTests.cpp#L201-L213)). It stays fixed in structure and varies only in stage binding.
 - The `0.5` store after `terminateRayEXT` is dead code. The reconstructed SPIR-V ends the true branch with `OpTerminateRayKHR`, so the `0.5` store is eliminated and never executes. The host accordingly expects z=`0.999` for every ray, confirming the any-hit shader ran; per the `OpTerminateRayKHR` semantics, the terminated candidate is accepted as the hit and the closest-hit shader still writes `baryCoord.xy`.
 - `updateRayTracingGLSL` is an identity helper ([vkRayTracingUtil.hpp](../../../framework/vulkan/vkRayTracingUtil.hpp#L111-L114)), so the reconstructed GLSL matches the generator output exactly.
 
@@ -190,7 +190,7 @@ void main()
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
-| Hit shader configuration | `chit` registers the shared shader text as a closest-hit shader only; `ahit` registers it as an any-hit shader only; `ahitTerminate` registers it as a closest-hit shader plus the separate `ahitTerminate` any-hit shader. The raygen and miss shaders are fixed across all leaves. | [initPrograms](../../../modules/vulkan/ray_tracing/vktRayTracingBarycentricCoordinatesTests.cpp#L201-L213) |
+| Hit shader configuration | `chit` registers the shared shader text as a closest-hit shader only; `ahit` registers it as an any-hit shader only; `ahitTerminate` registers it as a closest-hit shader plus the separate `ahitTerminate` any-hit shader. The raygen and miss shaders are fixed across all leaves. | [bind shared hit code to the selected stage](../../../modules/vulkan/ray_tracing/vktRayTracingBarycentricCoordinatesTests.cpp#L201-L213) |
 
 #### SPIR-V
 
@@ -532,7 +532,7 @@ All three leaves share the acceleration structure, ray direction generation, pip
 
 ### Requirement-based pruning
 
-- All three leaves require `VK_KHR_acceleration_structure` and `VK_KHR_ray_tracing_pipeline` device functionality, checked in [checkSupport](../../../modules/vulkan/ray_tracing/vktRayTracingBarycentricCoordinatesTests.cpp#L123-L127). No cases register if either extension is unsupported.
+- All three leaves require `VK_KHR_acceleration_structure` and `VK_KHR_ray_tracing_pipeline` device functionality, checked in [barycentric ray-tracing extension requirements](../../../modules/vulkan/ray_tracing/vktRayTracingBarycentricCoordinatesTests.cpp#L123-L127). No cases register if either extension is unsupported.
 - No additional feature bits, formats, or limits are queried beyond the two KHR extensions.
 
 ### Design-based pruning
@@ -552,10 +552,10 @@ All three leaves share the acceleration structure, ray direction generation, pip
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `createBarycentricCoordinatesTests` | [vktRayTracingBarycentricCoordinatesTests.cpp#L498-L512](../../../modules/vulkan/ray_tracing/vktRayTracingBarycentricCoordinatesTests.cpp#L498-L512) | Registration of the `barycentric_coordinates` group and its three leaves |
-| `initPrograms` | [vktRayTracingBarycentricCoordinatesTests.cpp#L129-L216](../../../modules/vulkan/ray_tracing/vktRayTracingBarycentricCoordinatesTests.cpp#L129-L216) | Generates the raygen, miss, closest-hit, and any-hit-terminate shaders per `TestCaseRT` |
-| `iterate` | [vktRayTracingBarycentricCoordinatesTests.cpp#L259-L494](../../../modules/vulkan/ray_tracing/vktRayTracingBarycentricCoordinatesTests.cpp#L259-L494) | Host-side AS build, ray generation, dispatch, copyback, and result comparison |
-| `getUsedStages` | [vktRayTracingBarycentricCoordinatesTests.cpp#L65-L76](../../../modules/vulkan/ray_tracing/vktRayTracingBarycentricCoordinatesTests.cpp#L65-L76) | Maps each `TestCaseRT` to its shader stage flags |
-| `checkSupport` | [vktRayTracingBarycentricCoordinatesTests.cpp#L123-L127](../../../modules/vulkan/ray_tracing/vktRayTracingBarycentricCoordinatesTests.cpp#L123-L127) | Requires `VK_KHR_acceleration_structure` and `VK_KHR_ray_tracing_pipeline` |
-| Category dispatcher | [vktRayTracingTests.cpp#L93](../../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L93) | `createBarycentricCoordinatesTests` is added to the `ray_tracing_pipeline` test category |
+| `createBarycentricCoordinatesTests` | [register hit-stage and termination variants](../../../modules/vulkan/ray_tracing/vktRayTracingBarycentricCoordinatesTests.cpp#L498-L512) | Registration of the `barycentric_coordinates` group and its three leaves |
+| `initPrograms` | [barycentric reporting and termination shaders](../../../modules/vulkan/ray_tracing/vktRayTracingBarycentricCoordinatesTests.cpp#L129-L216) | Generates the raygen, miss, closest-hit, and any-hit-terminate shaders per `TestCaseRT` |
+| `iterate` | [iterate](../../../modules/vulkan/ray_tracing/vktRayTracingBarycentricCoordinatesTests.cpp#L259-L494) | Host-side AS build, ray generation, dispatch, copyback, and result comparison |
+| `getUsedStages` | [select hit stages for each barycentric case](../../../modules/vulkan/ray_tracing/vktRayTracingBarycentricCoordinatesTests.cpp#L65-L76) | Maps each `TestCaseRT` to its shader stage flags |
+| `checkSupport` | [barycentric ray-tracing extension requirements](../../../modules/vulkan/ray_tracing/vktRayTracingBarycentricCoordinatesTests.cpp#L123-L127) | Requires `VK_KHR_acceleration_structure` and `VK_KHR_ray_tracing_pipeline` |
+| Category dispatcher | [attach the barycentric-coordinate test family](../../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L93) | `createBarycentricCoordinatesTests` is added to the `ray_tracing_pipeline` test category |
 | Mustpass evidence | [ray-tracing-pipeline.txt](../../../mustpass/main/vk-default/ray-tracing-pipeline.txt) | All three `barycentric_coordinates.*` leaves listed in the default ray-tracing-pipeline mustpass |

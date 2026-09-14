@@ -22,7 +22,7 @@ api.tooling_info
 └── validate_tools_properties
 ```
 
-The test family has no intermediate nodes; [`createTestCases()`](../../../modules/vulkan/api/vktApiToolingInfoTests.cpp#L250-L254) registers both test case leaves directly under `tooling_info`. The parent dispatcher attaches `tooling_info` to the `api` test category only inside `#ifndef CTS_USES_VULKANSC` ([vktApiTests.cpp#L123-L126](../../../modules/vulkan/api/vktApiTests.cpp#L123-L126)).
+The test family has no intermediate nodes; [`createTestCases()`](../../../modules/vulkan/api/vktApiToolingInfoTests.cpp#L250-L254) registers both test case leaves directly under `tooling_info`. The parent dispatcher attaches `tooling_info` to the `api` test category only inside `#ifndef CTS_USES_VULKANSC` ([ApiTests source lines](../../../modules/vulkan/api/vktApiTests.cpp#L123-L126)).
 
 ## Parameter Dimensions and Observed Values
 
@@ -97,7 +97,7 @@ Final pass/fail: each leaf returns `tcu::TestStatus::pass` only if every checked
 ### Requirement-based pruning
 
 - Both test case leaves require `VK_EXT_tooling_info` device functionality, enforced by [`checkSupport()`](../../../modules/vulkan/api/vktApiToolingInfoTests.cpp#L56-L59). Implementations without the extension skip the entire test family.
-- VulkanSC builds exclude the test family: the parent dispatcher attaches `tooling_info` to the `api` test category only inside `#ifndef CTS_USES_VULKANSC` ([vktApiTests.cpp#L123-L126](../../../modules/vulkan/api/vktApiTests.cpp#L123-L126)).
+- VulkanSC builds exclude the test family: the parent dispatcher attaches `tooling_info` to the `api` test category only inside `#ifndef CTS_USES_VULKANSC` ([ApiTests source lines](../../../modules/vulkan/api/vktApiTests.cpp#L123-L126)).
 - `validate_getter` executes the half-size array case only when `toolCount > 1`; an implementation reporting zero or one tool does not exercise that branch ([L150](../../../modules/vulkan/api/vktApiToolingInfoTests.cpp#L150)).
 
 ### Design-based pruning
@@ -116,11 +116,11 @@ Final pass/fail: each leaf returns `tcu::TestStatus::pass` only if every checked
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `createToolingInfoTests()` | [vktApiToolingInfoTests.cpp#L258-L261](../../../modules/vulkan/api/vktApiToolingInfoTests.cpp#L258-L261) | Public entry point that creates the `tooling_info` test group. |
-| `createTestCases()` | [vktApiToolingInfoTests.cpp#L250-L254](../../../modules/vulkan/api/vktApiToolingInfoTests.cpp#L250-L254) | Registers the two test case leaves and binds them to their implementations. |
-| `checkSupport()` | [vktApiToolingInfoTests.cpp#L56-L59](../../../modules/vulkan/api/vktApiToolingInfoTests.cpp#L56-L59) | Shared support check requiring `VK_EXT_tooling_info`. |
-| `validateGetter()` | [vktApiToolingInfoTests.cpp#L61-L179](../../../modules/vulkan/api/vktApiToolingInfoTests.cpp#L61-L179) | Implementation of the `validate_getter` leaf. |
-| `validateToolsProperties()` | [vktApiToolingInfoTests.cpp#L181-L248](../../../modules/vulkan/api/vktApiToolingInfoTests.cpp#L181-L248) | Implementation of the `validate_tools_properties` leaf. |
-| `validateToolPurposeFlagBits()` | [vktApiToolingInfoTests.cpp#L47-L54](../../../modules/vulkan/api/vktApiToolingInfoTests.cpp#L47-L54) | Helper that checks `purposes` against the valid `VkToolPurposeFlagBitsEXT` set. |
-| Parent dispatcher guard | [vktApiTests.cpp#L123-L126](../../../modules/vulkan/api/vktApiTests.cpp#L123-L126) | Wraps `tooling_info` registration in `#ifndef CTS_USES_VULKANSC`, confirming the non-VulkanSC scope. |
+| `createToolingInfoTests()` | [createToolingInfoTests()](../../../modules/vulkan/api/vktApiToolingInfoTests.cpp#L258-L261) | Public entry point that creates the `tooling_info` test group. |
+| `createTestCases()` | [createTestCases()](../../../modules/vulkan/api/vktApiToolingInfoTests.cpp#L250-L254) | Registers the two test case leaves and binds them to their implementations. |
+| `checkSupport()` | [checkSupport()](../../../modules/vulkan/api/vktApiToolingInfoTests.cpp#L56-L59) | Shared support check requiring `VK_EXT_tooling_info`. |
+| `validateGetter()` | [validateGetter()](../../../modules/vulkan/api/vktApiToolingInfoTests.cpp#L61-L179) | Implementation of the `validate_getter` leaf. |
+| `validateToolsProperties()` | [validateToolsProperties()](../../../modules/vulkan/api/vktApiToolingInfoTests.cpp#L181-L248) | Implementation of the `validate_tools_properties` leaf. |
+| `validateToolPurposeFlagBits()` | [validateToolPurposeFlagBits()](../../../modules/vulkan/api/vktApiToolingInfoTests.cpp#L47-L54) | Helper that checks `purposes` against the valid `VkToolPurposeFlagBitsEXT` set. |
+| Parent dispatcher guard | [Parent dispatcher guard](../../../modules/vulkan/api/vktApiTests.cpp#L123-L126) | Wraps `tooling_info` registration in `#ifndef CTS_USES_VULKANSC`, confirming the non-VulkanSC scope. |
 | Header | [vktApiToolingInfoTests.hpp](../../../modules/vulkan/api/vktApiToolingInfoTests.hpp#L1) | Declares `createToolingInfoTests()`. |

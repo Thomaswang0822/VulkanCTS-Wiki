@@ -2,7 +2,7 @@
 
 **Core question:** Does conditional rendering control EXT device-generated graphics commands at execution and preprocessing boundaries?
 
-- This page covers `dgc.ext.graphics.conditional_rendering`, implemented by [vktDGCGraphicsConditionalTestsExt.cpp](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsConditionalTestsExt.cpp#L506-L553).
+- This page covers `dgc.ext.graphics.conditional_rendering`, implemented by [Conditional generated-draw case registration](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsConditionalTestsExt.cpp#L506-L553).
 - The `general` test family varies pipeline binding, sequence-count input, the predicate value, and inversion. The `preprocess` family checks the same predicate outcomes when preprocessing and execution use separate command buffers.
 - Each case generates a full-screen triangle draw whose fragment shader writes a blue push-constant color. The host compares a 1x1 attachment with blue or the black clear color.
 
@@ -203,11 +203,11 @@ void main (void) {
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `createDGCGraphicsConditionalTestsExt` | [registration](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsConditionalTestsExt.cpp#L506-L553) | Registers `general` and `preprocess` and builds their exact case names. |
+| `createDGCGraphicsConditionalTestsExt` | [`createDGCGraphicsConditionalTestsExt()`](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsConditionalTestsExt.cpp#L506-L553) | Registers `general` and `preprocess` and builds their exact case names. |
 | `fullScreenTrianglePrograms` | [shader generators](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsConditionalTestsExt.cpp#L94-L127) | Generates the vertex and fragment programs. |
 | `conditionalDispatchRun` | [general runtime](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsConditionalTestsExt.cpp#L159-L350) | Creates resources, executes generated commands, and checks the image. |
 | `conditionalPreprocessRun` | [preprocess runtime](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsConditionalTestsExt.cpp#L353-L502) | Separates preprocessing and execution and checks the same output contract. |
 | `IndirectCommandsLayoutBuilderExt` and `PreprocessBufferExt` | [DGC helpers](../../../modules/vulkan/device_generated_commands/vktDGCUtilExt.hpp#L199-L327) | Build the token layout and preprocess storage used by the tests. |
 | Conditional rendering semantics | [drawing conditional rendering](../../../../vulkan-docs/src/chapters/drawing.adoc#drawing-conditional-rendering) | Defines zero/nonzero predicates and inversion. |
 | DGC preprocessing semantics | [generated commands](../../../../vulkan-docs/src/chapters/device_generated_commands/generatedcommands.adoc#device-generated-commands) | Defines preprocessing and synchronization requirements. |
-| Mustpass coverage | [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L470-L489) | Lists the registered graphics conditional cases. |
+| Mustpass coverage | [dgc source](../../../mustpass/main/vk-default/dgc.txt#L470-L489) | Lists the registered graphics conditional cases. |

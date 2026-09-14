@@ -2,7 +2,7 @@
 
 **Core question:** Does `VK_KHR_ray_tracing_pipeline` traversal report exactly one hit (no cracks, no duplicates) when a ray passes through a shared edge or shared vertex between adjacent triangles in a fan or closed-fan arrangement?
 
-This page covers one test family registered from [vktRayTracingWatertightnessTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L872-L938):
+This page covers one test family registered from [watertightness case registration](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L872-L938):
 
 - `watertightness` registers twelve direct children: ten numbered groups `0` through `9`, plus `closedFan` and `closedFan2`.
 - The ten numbered groups generate random recursive fan triangulations and fire one downward ray per pixel through the fan. They detect cracks (misses) but not duplicates, because the any-hit shader uses non-atomic `imageStore`.
@@ -40,11 +40,11 @@ Each numbered child `0` through `9` is a group containing eight test case leaves
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Test variant | `0`, `1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`, `9`, `closedFan`, `closedFan2` | Selects fan topology and detection mechanism. `0-9` use a random recursive fan with `imageStore` (crack detection only). `closedFan` and `closedFan2` use a closed fan with `imageAtomicAdd` (crack and duplicate detection). | [vktRayTracingWatertightnessTests.cpp#L872-L938](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L872-L938) |
-| Triangle count | `4`, `16`, `64`, `256`, `1024`, `4096`, `16384`, `65536` (numbered groups); `4`, `16`, `64`, `256`, `1024` (closed fan) | Number of triangles in the fan. More triangles means more shared edges and vertices, increasing watertightness stress. The closed fan variants stop at `1024` because the regular fan geometry does not benefit from larger counts. | [vktRayTracingWatertightnessTests.cpp#L882-L883](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L882-L883), [vktRayTracingWatertightnessTests.cpp#L907](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L907) |
-| Random seed | `5 * testNdx + 11 * size + baseSeed` (numbered groups only) | Controls the recursive fan triangulation. Ten numbered groups give ten different triangulations per triangle count. | [vktRayTracingWatertightnessTests.cpp#L890-L891](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L890-L891) |
-| BLAS topology | single BLAS, N geometries (`closedFan`); N BLASes, one geometry each (`closedFan2`) | Changes how triangles are organized in the acceleration structure. `closedFan` exercises one instance with multiple geometries. `closedFan2` exercises multiple instances with one geometry each. | [vktRayTracingWatertightnessTests.cpp#L601-L639](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L601-L639) |
-| Result z built-in | `gl_PrimitiveID` (`closedFan`), `gl_GeometryIndexEXT` (`closedFan2`) | Selects which ray tracing built-in identifies the hit slot in the result image z dimension. Both report zero in their respective topologies. | [vktRayTracingWatertightnessTests.cpp#L337](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L337) |
+| Test variant | `0`, `1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`, `9`, `closedFan`, `closedFan2` | Selects fan topology and detection mechanism. `0-9` use a random recursive fan with `imageStore` (crack detection only). `closedFan` and `closedFan2` use a closed fan with `imageAtomicAdd` (crack and duplicate detection). | [random and closed-fan variants](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L872-L938) |
+| Triangle count | `4`, `16`, `64`, `256`, `1024`, `4096`, `16384`, `65536` (numbered groups); `4`, `16`, `64`, `256`, `1024` (closed fan) | Number of triangles in the fan. More triangles means more shared edges and vertices, increasing watertightness stress. The closed fan variants stop at `1024` because the regular fan geometry does not benefit from larger counts. | [random-fan triangle counts](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L882-L883), [closed-fan triangle counts](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L907) |
+| Random seed | `5 * testNdx + 11 * size + baseSeed` (numbered groups only) | Controls the recursive fan triangulation. Ten numbered groups give ten different triangulations per triangle count. | [triangulation seed calculation](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L890-L891) |
+| BLAS topology | single BLAS, N geometries (`closedFan`); N BLASes, one geometry each (`closedFan2`) | Changes how triangles are organized in the acceleration structure. `closedFan` exercises one instance with multiple geometries. `closedFan2` exercises multiple instances with one geometry each. | [single- and multi-BLAS fan layouts](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L601-L639) |
+| Result z built-in | `gl_PrimitiveID` (`closedFan`), `gl_GeometryIndexEXT` (`closedFan2`) | Selects which ray tracing built-in identifies the hit slot in the result image z dimension. Both report zero in their respective topologies. | [hit-slot built-in selection](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L337) |
 
 ## Behavior Parameters
 
@@ -54,7 +54,7 @@ The primary behavioral axis is the test variant: the direct child of `watertight
 
 The host builds a single bottom-level acceleration structure containing one geometry with N triangles. The triangles come from recursive random splitting: the test starts with a unit square split into two triangles, then repeatedly picks a random triangle, adds a vertex inside it, and splits it into three. The `pointInTriangle2D` and `pointFits` checks reject degenerate splits that would produce inconsistent winding or vertices too close to the longest side.
 
-The raygen shader is the common helper [`getCommonRayGenerationShader`](../../../framework/vulkan/vkRayTracingUtil.cpp#L118-L138). It fires one ray per launch invocation from `((x + 0.5) / width, (y + 0.5) / height, 0.0)` in direction `(0, 0, -1)`, with `tmax = 9.0`. The launch size is `256 x 256`.
+The raygen shader is the common helper [downward raygen shader](../../../framework/vulkan/vkRayTracingUtil.cpp#L118-L138). It fires one ray per launch invocation from `((x + 0.5) / width, (y + 0.5) / height, 0.0)` in direction `(0, 0, -1)`, with `tmax = 9.0`. The launch size is `256 x 256`.
 
 The any-hit shader does `imageStore(result, ivec2(gl_LaunchIDEXT.xy), uvec4(1,0,0,1))`. The miss shader does `imageStore(result, ivec2(gl_LaunchIDEXT.xy), uvec4(2,0,0,1))`. The host checks the first `squaresGroupCount` pixels and requires each to equal `1`. A value of `2` means the ray missed a triangle in the fan, indicating a crack. Because `imageStore` is non-atomic, duplicate hits overwrite with the same value `1` and are invisible to the host. This variant detects cracks only.
 
@@ -120,9 +120,9 @@ The shader source and stage-specific declarations for the representative case ar
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|----------------------------------------|----------|
-| Test variant | Selects the legacy random fan, the single-BLAS closed fan, or the multi-BLAS closed fan. | [test registration](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L872-L938) |
-| Result write | Changes between `imageStore` for legacy cases and `imageAtomicAdd` for closed-fan cases. | [shader setup](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L717-L820) |
-| Geometry partition | `closedFan2` distributes one triangle per BLAS and uses `gl_GeometryIndexEXT`; `closedFan` keeps geometries in one BLAS. | [closed-fan construction](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L620-L711) |
+| Test variant | Selects the legacy random fan, the single-BLAS closed fan, or the multi-BLAS closed fan. | [fan variant registration](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L872-L938) |
+| Result write | Changes between `imageStore` for legacy cases and `imageAtomicAdd` for closed-fan cases. | [fan result-write variants](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L717-L820) |
+| Geometry partition | `closedFan2` distributes one triangle per BLAS and uses `gl_GeometryIndexEXT`; `closedFan` keeps geometries in one BLAS. | [closed-fan geometry partitioning](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L620-L711) |
 
 #### SPIR-V
 
@@ -401,15 +401,15 @@ Result checking in `iterate`:
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `CaseDef` struct | [vktRayTracingWatertightnessTests.cpp#L56-L66](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L56-L66) | Per-case parameters: width, height, squares/instances/geometry counts, seed, depth, useManyGeometries. |
-| `pointInTriangle2D` and `pointFits` | [vktRayTracingWatertightnessTests.cpp#L109-L160](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L109-L160) | Host-side geometry validation used during recursive fan triangulation to avoid degenerate splits. |
-| `makePipeline` | [vktRayTracingWatertightnessTests.cpp#L180-L198](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L180-L198) | Builds the ray tracing pipeline with one raygen, one miss, and one or more any-hit hit groups. |
-| `RayTracingTestCase::checkSupport` | [vktRayTracingWatertightnessTests.cpp#L284-L314](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L284-L314) | Feature and image format support checks. |
-| `RayTracingTestCase::initPrograms` | [vktRayTracingWatertightnessTests.cpp#L316-L443](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L316-L443) | Generates `ahit`, `miss`, and `rgen` shaders for both `useClosedFan` values. |
-| `initBottomAccelerationStructure` (legacy fan) | [vktRayTracingWatertightnessTests.cpp#L472-L550](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L472-L550) | Recursive random fan triangulation from a unit square. |
-| `initBottomAccelerationStructures` (closed fan) | [vktRayTracingWatertightnessTests.cpp#L552-L644](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L552-L644) | Closed fan construction and the `useManyGeometries` switch between one BLAS and N BLASes. |
-| `runTest` | [vktRayTracingWatertightnessTests.cpp#L646-L795](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L646-L795) | Pipeline, AS, image, SBT setup, descriptor update, `cmdTraceRays`, copyback. |
-| `checkSupportInInstance` | [vktRayTracingWatertightnessTests.cpp#L797-L818](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L797-L818) | Runtime primitive, geometry, instance, and allocation limit checks. |
-| `iterate` validation | [vktRayTracingWatertightnessTests.cpp#L820-L868](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L820-L868) | Host-side pass, fail, and quality-warning decision for both variants. |
-| `createWatertightnessTests` registration | [vktRayTracingWatertightnessTests.cpp#L872-L938](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L872-L938) | Registers the ten numbered groups plus `closedFan` and `closedFan2` with their size sweeps. |
-| Common raygen shader helper | [vkRayTracingUtil.cpp#L118-L138](../../../framework/vulkan/vkRayTracingUtil.cpp#L118-L138) | Returns the standard downward-firing raygen shader used by the numbered groups. |
+| `CaseDef` struct | [fan dimensions and topology parameters](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L56-L66) | Per-case parameters: width, height, squares/instances/geometry counts, seed, depth, useManyGeometries. |
+| `pointInTriangle2D` and `pointFits` | [reject degenerate triangle splits](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L109-L160) | Host-side geometry validation used during recursive fan triangulation to avoid degenerate splits. |
+| `makePipeline` | [raygen, miss, and any-hit groups](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L180-L198) | Builds the ray tracing pipeline with one raygen, one miss, and one or more any-hit hit groups. |
+| `RayTracingTestCase::checkSupport` | [ray-tracing and image-format requirements](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L284-L314) | Feature and image format support checks. |
+| `RayTracingTestCase::initPrograms` | [random- and closed-fan shaders](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L316-L443) | Generates `ahit`, `miss`, and `rgen` shaders for both `useClosedFan` values. |
+| `initBottomAccelerationStructure` (legacy fan) | [recursive random-fan triangulation](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L472-L550) | Recursive random fan triangulation from a unit square. |
+| `initBottomAccelerationStructures` (closed fan) | [closed-fan BLAS construction](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L552-L644) | Closed fan construction and the `useManyGeometries` switch between one BLAS and N BLASes. |
+| `runTest` | [trace and read back fan intersections](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L646-L795) | Pipeline, AS, image, SBT setup, descriptor update, `cmdTraceRays`, copyback. |
+| `checkSupportInInstance` | [geometry and allocation limit checks](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L797-L818) | Runtime primitive, geometry, instance, and allocation limit checks. |
+| `iterate` validation | [classify misses and duplicate hits](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L820-L868) | Host-side pass, fail, and quality-warning decision for both variants. |
+| `createWatertightnessTests` registration | [register fan variants and size sweeps](../../../modules/vulkan/ray_tracing/vktRayTracingWatertightnessTests.cpp#L872-L938) | Registers the ten numbered groups plus `closedFan` and `closedFan2` with their size sweeps. |
+| Common raygen shader helper | [common downward raygen shader](../../../framework/vulkan/vkRayTracingUtil.cpp#L118-L138) | Returns the standard downward-firing raygen shader used by the numbered groups. |

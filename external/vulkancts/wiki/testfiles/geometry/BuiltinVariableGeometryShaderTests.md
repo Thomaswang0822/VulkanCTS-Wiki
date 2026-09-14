@@ -83,7 +83,7 @@ emitted triangle shape and placement the observable signal.
 This leaf checks that `gl_PrimitiveID` remains consistent across tessellation-control, tessellation-evaluation, and geometry
 stages. The shaders pass the ID through flat varyings, while the geometry shader writes `gl_PrimitiveID = gl_PrimitiveIDIn`.
 A 32x32 RGBA8 image is copied back and checked pixel-by-pixel: the three ID channels must match, alpha must be 255, and the IDs
-must not all be zero. It requires geometry-shader and tessellation-shader core features ([implementation and support](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L17-L272),
+must not all be zero. It requires geometry-shader and tessellation-shader core features ([vktGeometryBuiltinVariableGeometryShaderTests.cpp](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L17-L272),
 [registration](../../../modules/vulkan/geometry/vktGeometryBuiltinVariableGeometryShaderTests.cpp#L704-L709)).
 
 The shared point, line, and attribute data come from
