@@ -88,10 +88,10 @@ void main(void)
 
 #### SPIR-V
 
-- Source: `vktMemoryOpaqueAndDmaImageTests.cpp`, `initPrograms()`
-- Stage: Fragment
-- Status: Validated with `glslangValidator -V` and `spirv-dis`
-- Target SPIRV version: 1.0
+- Status: generated and validated
+- Source: reconstructed `GLSL` from this walkthrough
+- Stage: `frag`
+- Target SPIRV version: `spirv1.0`
 
 <details>
 <summary>Click to expand SPIRV asm code</summary>
@@ -100,11 +100,52 @@ void main(void)
 ; SPIR-V
 ; Version: 1.0
 ; Generator: Khronos Glslang Reference Front End; 11
-; Bound: 24
+; Bound: 27
 ; Schema: 0
                OpCapability Shader
           %1 = OpExtInstImport "GLSL.std.450"
                OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %main "main" %gl_FragCoord %outColor
+               OpExecutionMode %main OriginUpperLeft
+               OpSource GLSL 460
+               OpName %main "main"
+               OpName %coords "coords"
+               OpName %gl_FragCoord "gl_FragCoord"
+               OpName %outColor "outColor"
+               OpName %img "img"
+               OpDecorate %gl_FragCoord BuiltIn FragCoord
+               OpDecorate %outColor Location 0
+               OpDecorate %img Binding 0
+               OpDecorate %img DescriptorSet 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v2float = OpTypeVector %float 2
+%_ptr_Function_v2float = OpTypePointer Function %v2float
+    %v4float = OpTypeVector %float 4
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%gl_FragCoord = OpVariable %_ptr_Input_v4float Input
+   %float_64 = OpConstant %float 64
+         %16 = OpConstantComposite %v2float %float_64 %float_64
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+   %outColor = OpVariable %_ptr_Output_v4float Output
+         %20 = OpTypeImage %float 2D 0 0 0 1 Unknown
+         %21 = OpTypeSampledImage %20
+%_ptr_UniformConstant_21 = OpTypePointer UniformConstant %21
+        %img = OpVariable %_ptr_UniformConstant_21 UniformConstant
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+     %coords = OpVariable %_ptr_Function_v2float Function
+         %13 = OpLoad %v4float %gl_FragCoord
+         %14 = OpVectorShuffle %v2float %13 %13 0 1
+         %17 = OpFDiv %v2float %14 %16
+               OpStore %coords %17
+         %24 = OpLoad %21 %img
+         %25 = OpLoad %v2float %coords
+         %26 = OpImageSampleImplicitLod %v4float %24 %25
+               OpStore %outColor %26
+               OpReturn
+               OpFunctionEnd
 ```
 
 </details>
