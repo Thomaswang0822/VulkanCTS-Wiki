@@ -293,14 +293,14 @@ A cross-cutting cause shared by every readOp: the `optypeimage_mismatch` subtree
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `isValidTestCase()` | [`vktSpvAsmImageSamplerTests.cpp#L90-L163`](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L90-L163) | Defines valid descriptor, instruction, function-routing, and Dref combinations. |
-| `getImageReadOpStr()` | [`vktSpvAsmImageSamplerTests.cpp#L630-L652`](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L630-L652) | Emits the five image-read instruction forms and the compute `Nontemporal` operand. |
-| `getImageSamplerTypeStr()` | [`vktSpvAsmImageSamplerTests.cpp#L663-L727`](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L663-L727) | Builds `OpTypeImage`, sampler, combined-image, and descriptor-variable declarations. |
-| `addComputeImageSamplerTest()` | [`vktSpvAsmImageSamplerTests.cpp#L788-L1028`](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L788-L1028) | Generates compute assembly, resources, SPIR-V versions, and custom verification. |
-| `generateGraphicsImageSamplerSource()` | [`vktSpvAsmImageSamplerTests.cpp#L1030-L1152`](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L1030-L1152) | Produces graphics assembly fragments and coordinate/output logic. |
-| `verifyDepthCompareResult()` | [`vktSpvAsmImageSamplerTests.cpp#L1154-L1181`](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L1154-L1181) | Implements the Dref result oracle. |
-| `addGraphicsImageSamplerTest()` | [`vktSpvAsmImageSamplerTests.cpp#L1183-L1334`](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L1183-L1334) | Registers graphics stages, features, resources, and read operations. |
-| Default mustpass entries | [`spirv-assembly.txt#L6516-L37210`](../../../mustpass/main/vk-default/spirv-assembly.txt#L6516-L37210) | Contains 2,934 `image_sampler` leaves: 816 compute and 2,118 graphics. |
-| Vulkan SC mustpass entries | [`spirv-assembly.txt#L4090-L19147`](../../../mustpass/main/vksc-default/spirv-assembly.txt#L4090-L19147) | Mirrors the same 2,934-leaf image-sampler registration inventory. |
+| `isValidTestCase()` | [filter](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L90-L163) | Defines valid descriptor, instruction, function-routing, and Dref combinations. |
+| `getImageReadOpStr()` | [`getImageReadOpStr()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L630-L652) | Emits the five image-read instruction forms and the compute `Nontemporal` operand. |
+| `getImageSamplerTypeStr()` | [`getImageSamplerTypeStr()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L663-L727) | Builds `OpTypeImage`, sampler, combined-image, and descriptor-variable declarations. |
+| `addComputeImageSamplerTest()` | [`addComputeImageSamplerTest()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L788-L1028) | Generates compute assembly, resources, SPIR-V versions, and custom verification. |
+| `generateGraphicsImageSamplerSource()` | [`generateGraphicsImageSamplerSource()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L1030-L1152) | Produces graphics assembly fragments and coordinate/output logic. |
+| `verifyDepthCompareResult()` | [`verifyDepthCompareResult()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L1154-L1181) | Implements the Dref result oracle. |
+| `addGraphicsImageSamplerTest()` | [`addGraphicsImageSamplerTest()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmImageSamplerTests.cpp#L1183-L1334) | Registers graphics stages, features, resources, and read operations. |
+| Default mustpass entries | [Default mustpass entries](../../../mustpass/main/vk-default/spirv-assembly.txt#L6516-L37210) | Contains 2,934 `image_sampler` leaves: 816 compute and 2,118 graphics. |
+| Vulkan SC mustpass entries | [Vulkan SC mustpass entries](../../../mustpass/main/vksc-default/spirv-assembly.txt#L4090-L19147) | Mirrors the same 2,934-leaf image-sampler registration inventory. |
 | SPIR-V image access rules | [Vulkan image interfaces](../../../../vulkan-docs/src/chapters/interfaces.adoc#L1239-L1278) | Grounds image-type and descriptor compatibility claims. |
 | SPIR-V image read semantics | [Vulkan SPIR-V image access](../../../../vulkan-docs/src/chapters/images.adoc#L198-L222) | Grounds `OpImageRead` coordinate and read claims. |

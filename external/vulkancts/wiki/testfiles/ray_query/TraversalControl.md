@@ -2,7 +2,7 @@
 
 **Core question:** Does the implementation correctly commit, generate, or skip candidate intersections during inline ray-query traversal, producing the right committed-type enum and hit/miss pattern on the result image for every shader stage that can host a ray query?
 
-This page covers the `traversal_control` test family registered by [vktRayQueryTraversalControlTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L2061-L2167).
+This page covers the `traversal_control` test family registered by [Traversal-control case registration](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L2061-L2167).
 
 - Each case traces one ray per cell from an 8x8 grid against a single BLAS (triangles or AABBs) inside a TLAS with one instance.
 - The shader runs the inline ray query under one of 12 stages (vert, tesc, tese, geom, frag, comp, rgen, isect, ahit, chit, miss, call) and writes two layers of a 3D R32_UINT result image: layer 0 holds the committed-intersection enum the shader observed; layer 1 holds a 1 if a candidate was found.
@@ -45,10 +45,10 @@ Each intermediate node registers the `generate_intersection` and `skip_intersect
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Shader-source pipeline | graphics, compute, ray-tracing | Selects pipeline construction, descriptor binding count, and verification matrix. | [vktRayQueryTraversalControlTests.cpp:1895-L1907](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L1895-L1907) |
-| Shader-source stage | vert, tesc, tese, geom, frag, comp, rgen, isect, ahit, chit, miss, call | Selects which stage runs the inline ray query and which verifyImage overload builds the reference image. | [vktRayQueryTraversalControlTests.cpp:2066-L2120](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L2066-L2120) |
-| Shader test type | generate_intersection, skip_intersection | Selects which traversal-control call (or omission) the shader issues; this is the behavioral axis. | [vktRayQueryTraversalControlTests.cpp:2122-L2129](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L2122-L2129) |
-| Bottom test type | triangles, aabbs | Selects the BLAS geometry and which commit call is legal. | [vktRayQueryTraversalControlTests.cpp:2131-L2138](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L2131-L2138) |
+| Shader-source pipeline | graphics, compute, ray-tracing | Selects pipeline construction, descriptor binding count, and verification matrix. | [Pipeline configuration selection](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L1895-L1907) |
+| Shader-source stage | vert, tesc, tese, geom, frag, comp, rgen, isect, ahit, chit, miss, call | Selects which stage runs the inline ray query and which verifyImage overload builds the reference image. | [Shader-stage registration](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L2066-L2120) |
+| Shader test type | generate_intersection, skip_intersection | Selects which traversal-control call (or omission) the shader issues; this is the behavioral axis. | [Shader test-type registration](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L2122-L2129) |
+| Bottom test type | triangles, aabbs | Selects the BLAS geometry and which commit call is legal. | [Bottom-geometry registration](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L2131-L2138) |
 
 ## Behavior Parameters
 
@@ -153,9 +153,9 @@ void main()
 
 #### Additional Info
 
-- The shader body is the verbatim `STT_GENERATE_INTERSECTION` fragment for `BTT_TRIANGLES` emitted by [`initPrograms`](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L1348-L1874), spliced into the standard compute wrapper at [vktRayQueryTraversalControlTests.cpp:1624-L1646](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L1624-L1646). `updateRayTracingGLSL()` is an identity passthrough in this CTS version and is not applied to compute.
-- The compute dispatch is `width x height x 1 = 8 x 8 x 1` ([vktRayQueryTraversalControlTests.cpp:802](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L802)).
-- Expected per-cell value pairs come from `ComputeConfiguration::verifyImage` ([vktRayQueryTraversalControlTests.cpp:805-L874](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L805-L874)): interior cells `(1..6, 1..6)` get `hitValue = (1, 1)`; border cells get `(0, 0)`. The comparison uses `tcu::intThresholdCompare` with threshold `UVec4(0)` (exact equality on each layer).
+- The shader body is the verbatim `STT_GENERATE_INTERSECTION` fragment for `BTT_TRIANGLES` emitted by [Traversal-control shader generation](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L1348-L1874), spliced into the standard compute wrapper at [Compute wrapper generation](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L1624-L1646). `updateRayTracingGLSL()` is an identity passthrough in this CTS version and is not applied to compute.
+- The compute dispatch is `width x height x 1 = 8 x 8 x 1` ([Compute dispatch](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L802)).
+- Expected per-cell value pairs come from `ComputeConfiguration::verifyImage` ([Compute reference-image verification](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L805-L874)): interior cells `(1..6, 1..6)` get `hitValue = (1, 1)`; border cells get `(0, 0)`. The comparison uses `tcu::intThresholdCompare` with threshold `UVec4(0)` (exact equality on each layer).
 - The same logic, with `BTT_AABBS` instead of `BTT_TRIANGLES`, uses `rayQueryGenerateIntersectionEXT(rq, 0.5)` instead of `rayQueryConfirmIntersectionEXT(rq)` and reports `hitValue.x == 2` (`CommittedIntersectionGeneratedEXT`).
 - The `STT_SKIP_INTERSECTION` variants keep the candidate-observation branch but call neither `rayQueryConfirmIntersectionEXT` nor `rayQueryGenerateIntersectionEXT`; on those paths the shader still sets `hitValue.y = 1` when a candidate was found but leaves `hitValue.x == 0` (`CommittedIntersectionNoneEXT`).
 - The graphics and ray-tracing stages share the same per-(bottom, test) ray-query body fragments; only the stage wrapper around them changes.
@@ -164,10 +164,10 @@ void main()
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
-| `ShaderSourcePipeline` / `ShaderSourceType` | Replaces the compute wrapper with a graphics stage wrapper (vert/tesc/tese/geom/frag) or a ray-tracing pipeline wrapper (rgen/isect/ahit/chit/miss/call); each variant produces a different reference image in its `verifyImage` overload but uses the same ray-query body fragment. | [vktRayQueryTraversalControlTests.cpp:1438-L1874](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L1438-L1874) |
-| `BottomTestType` | Switches the BLAS geometry between triangles and AABBs and switches the commit call from `rayQueryConfirmIntersectionEXT` to `rayQueryGenerateIntersectionEXT(rq, 0.5)`. | [vktRayQueryTraversalControlTests.cpp:1353-L1436](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L1353-L1436) |
-| `ShaderTestType` | `skip_intersection` keeps the candidate-observation branch but removes both commit calls, so `hitValue.x` stays at `0` regardless of geometry. | [vktRayQueryTraversalControlTests.cpp:1353-L1436](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L1353-L1436) |
-| Dispatch coverage | For ray-tracing stages the same shader body fragment runs inside the matching stage of a `traceRayEXT` launch; the `verifyImage` overload expects a four-quadrant hit/miss pattern in the 8x8 reference image. | [vktRayQueryTraversalControlTests.cpp:1123-L1244](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L1123-L1244) |
+| `ShaderSourcePipeline` / `ShaderSourceType` | Replaces the compute wrapper with a graphics stage wrapper (vert/tesc/tese/geom/frag) or a ray-tracing pipeline wrapper (rgen/isect/ahit/chit/miss/call); each variant produces a different reference image in its `verifyImage` overload but uses the same ray-query body fragment. | [Pipeline-specific shader wrappers](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L1438-L1874) |
+| `BottomTestType` | Switches the BLAS geometry between triangles and AABBs and switches the commit call from `rayQueryConfirmIntersectionEXT` to `rayQueryGenerateIntersectionEXT(rq, 0.5)`. | [Triangle and AABB commit variants](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L1353-L1436) |
+| `ShaderTestType` | `skip_intersection` keeps the candidate-observation branch but removes both commit calls, so `hitValue.x` stays at `0` regardless of geometry. | [Triangle and AABB commit variants](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L1353-L1436) |
+| Dispatch coverage | For ray-tracing stages the same shader body fragment runs inside the matching stage of a `traceRayEXT` launch; the `verifyImage` overload expects a four-quadrant hit/miss pattern in the 8x8 reference image. | [Ray-tracing dispatch verification](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L1123-L1244) |
 
 #### SPIR-V
 
@@ -316,14 +316,14 @@ void main()
 
 - **Resource setup.** The host allocates a 3D `R32_UINT` image sized `width = height = 8, depth = 2` and a host-visible readback buffer. The image is cleared to `0xFF` in the graphics and ray-tracing paths; the compute path keeps the clear-and-reset to compare against the layered reference.
 - **Acceleration structure.** A BLAS with one geometry is built: two triangles forming the interior `(1..width-1, 1..height-1)` quad for `BTT_TRIANGLES`, or a single AABB covering the same region for `BTT_AABBS`. The TLAS holds one instance. The test reuses a separate second TLAS for ray-tracing stages so the inline ray query can trace against a distinct AS while `traceRayEXT` walks the first.
-- **Descriptor binding.** For graphics and compute the result image is at binding 0 and the TLAS at binding 1 ([vktRayQueryTraversalControlTests.cpp:741-L743](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L741-L743), [vktRayQueryTraversalControlTests.cpp:251-L255](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L251-L255)). For ray tracing the result image is at b0, the regular TLAS at b1, and the ray-query TLAS at b2 ([vktRayQueryTraversalControlTests.cpp:935-L939](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L935-L939)).
+- **Descriptor binding.** For graphics and compute the result image is at binding 0 and the TLAS at binding 1 ([Compute descriptor binding](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L741-L743), [Graphics descriptor binding](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L251-L255)). For ray tracing the result image is at b0, the regular TLAS at b1, and the ray-query TLAS at b2 ([Ray-tracing descriptor binding](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L935-L939)).
 - **Dispatch.** Compute dispatches `8x8x1`; the graphics case draws four vertices; the ray-tracing case uses `cmdTraceRays(width=8, height=8, depth=1)`.
 - **Result copyback.** After the pipeline command, the host records `vkCmdCopyImageToBuffer` for the full `8x8x2` image extent into the readback buffer, then awaits with a `TRANSFER -> HOST` memory barrier before mapping the buffer.
 - **Verification.** Each `verifyImage` overload constructs an `8x8x2` reference image by:
 
-  - setting per-stage hit/miss tokens (e.g. `(1,0,0,0)` for `rayQueryConfirmIntersectionEXT`, `(2,0,0,0)` for `rayQueryGenerateIntersectionEXT`, `(3,0,0,0)` for a fixed closest-hit payload, `(4,0,0,0)` for the miss payload or ahit-without-confirm path), and clearing border cells to `(0,0,0,0)` for graphics stages or to a per-stage miss pattern for ray-tracing stages ([vktRayQueryTraversalControlTests.cpp:580-L690](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L580-L690), [L805-L874](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L805-L874), [L1123-L1244](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L1123-L1244));
+  - setting per-stage hit/miss tokens (e.g. `(1,0,0,0)` for `rayQueryConfirmIntersectionEXT`, `(2,0,0,0)` for `rayQueryGenerateIntersectionEXT`, `(3,0,0,0)` for a fixed closest-hit payload, `(4,0,0,0)` for the miss payload or ahit-without-confirm path), and clearing border cells to `(0,0,0,0)` for graphics stages or to a per-stage miss pattern for ray-tracing stages ([Graphics reference-image verification](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L580-L690), [Compute reference-image verification](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L805-L874), [Ray-tracing dispatch verification](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L1123-L1244));
   - calling `tcu::intThresholdCompare` with threshold `UVec4(0)` (exact equality on each layer).
-- **Pass condition.** Comparison reports no failure; otherwise the instance returns `tcu::TestStatus::fail("Fail")` ([vktRayQueryTraversalControlTests.cpp:2054-L2056](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L2054-L2056)).
+- **Pass condition.** Comparison reports no failure; otherwise the instance returns `tcu::TestStatus::fail("Fail")` ([Pass/fail result](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L2054-L2056)).
 
 ### Per-stage verification summary
 
@@ -368,11 +368,11 @@ void main()
 
 ### Requirement-based pruning
 
-- All cases require `VK_KHR_acceleration_structure` with `accelerationStructure` and `VK_KHR_ray_query` with `rayQuery` feature bits ([vktRayQueryTraversalControlTests.cpp:1297-L1310](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L1297-L1310)).
-- Tessellation-control and tessellation-evaluation stages require `VkPhysicalDeviceFeatures2.tessellationShader` ([vktRayQueryTraversalControlTests.cpp:1314-L1317](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L1314-L1317)).
-- Geometry stage requires `VkPhysicalDeviceFeatures2.geometryShader` ([vktRayQueryTraversalControlTests.cpp:1319-L1320](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L1319-L1320)).
-- Vertex, tessellation-control, tessellation-evaluation, and geometry stages require `DEVICE_CORE_FEATURE_VERTEX_PIPELINE_STORES_AND_ATOMICS` because they `imageStore` from graphics stages ([vktRayQueryTraversalControlTests.cpp:1322-L1332](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L1322-L1332)).
-- Ray-generation, intersection, any-hit, closest-hit, miss, and callable stages require `VK_KHR_ray_tracing_pipeline` with `rayTracingPipeline` feature bit ([vktRayQueryTraversalControlTests.cpp:1334-L1345](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L1334-L1345)).
+- All cases require `VK_KHR_acceleration_structure` with `accelerationStructure` and `VK_KHR_ray_query` with `rayQuery` feature bits ([Ray-query support checks](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L1297-L1310)).
+- Tessellation-control and tessellation-evaluation stages require `VkPhysicalDeviceFeatures2.tessellationShader` ([Tessellation feature check](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L1314-L1317)).
+- Geometry stage requires `VkPhysicalDeviceFeatures2.geometryShader` ([Geometry feature check](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L1319-L1320)).
+- Vertex, tessellation-control, tessellation-evaluation, and geometry stages require `DEVICE_CORE_FEATURE_VERTEX_PIPELINE_STORES_AND_ATOMICS` because they `imageStore` from graphics stages ([Graphics storage-image feature check](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L1322-L1332)).
+- Ray-generation, intersection, any-hit, closest-hit, miss, and callable stages require `VK_KHR_ray_tracing_pipeline` with `rayTracingPipeline` feature bit ([Ray-tracing pipeline feature check](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L1334-L1345)).
 
 ### Design-based pruning
 
@@ -391,14 +391,14 @@ void main()
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `TestParams`, enums, constants | [vktRayQueryTraversalControlTests.cpp:61-L98](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L61-L98) | Per-case parameters, source-pipeline, source-type, shader-test-type, bottom-type. |
-| `GraphicsConfiguration::initConfiguration` | [vktRayQueryTraversalControlTests.cpp:244-L543](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L244-L543) | Graphics pipeline and framebuffer creation; per-stage wrapper selection. |
-| `GraphicsConfiguration::verifyImage` | [vktRayQueryTraversalControlTests.cpp:580-L690](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L580-L690) | Reference image generator and `intThresholdCompare` for graphics stages. |
-| `ComputeConfiguration::initConfiguration` / `verifyImage` | [vktRayQueryTraversalControlTests.cpp:734-L803](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L734-L803), [L805-L874](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L805-L874) | Compute pipeline and reference image generator. |
-| `RayTracingConfiguration::initConfiguration` / `verifyImage` | [vktRayQueryTraversalControlTests.cpp:927-L1013](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L927-L1013), [L1123-L1244](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L1123-L1244) | Ray-tracing pipeline construction and four-quadrant verification. |
-| `initPrograms` | [vktRayQueryTraversalControlTests.cpp:1348-L1874](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L1348-L1874) | Per-stage shader wrappers; the four per-(bottom,test) ray-query bodies are spliced into each. |
-| Per-(bottom,test) ray-query bodies | [vktRayQueryTraversalControlTests.cpp:1353-L1436](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L1353-L1436) | The traversal-control body fragments. |
-| `RayQueryTraversalControlTestCase::checkSupport` | [vktRayQueryTraversalControlTests.cpp:1297-L1346](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L1297-L1346) | Feature gates and per-stage support gating. |
-| `iterate` | [vktRayQueryTraversalControlTests.cpp:1891-L2057](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L1891-L2057) | Image / buffer allocation, AS build, dispatch/draw/trace, copy-back, verification. |
-| `createTraversalControlTests` | [vktRayQueryTraversalControlTests.cpp:2061-L2167](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L2061-L2167) | Top-level registration: `traversal_control.<shader_source>.<test_type>.<bottom_type>`. |
+| `TestParams`, enums, constants | [Traversal-control enums and image size](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L61-L98) | Per-case parameters, source-pipeline, source-type, shader-test-type, bottom-type. |
+| `GraphicsConfiguration::initConfiguration` | [Graphics configuration](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L244-L543) | Graphics pipeline and framebuffer creation; per-stage wrapper selection. |
+| `GraphicsConfiguration::verifyImage` | [Graphics reference-image verification](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L580-L690) | Reference image generator and `intThresholdCompare` for graphics stages. |
+| `ComputeConfiguration::initConfiguration` / `verifyImage` | [Compute pipeline setup and dispatch](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L734-L803), [Compute reference-image verification](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L805-L874) | Compute pipeline and reference image generator. |
+| `RayTracingConfiguration::initConfiguration` / `verifyImage` | [Ray-tracing pipeline and SBT setup](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L927-L1013), [Ray-tracing dispatch verification](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L1123-L1244) | Ray-tracing pipeline construction and four-quadrant verification. |
+| `initPrograms` | [Traversal-control shader generation](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L1348-L1874) | Per-stage shader wrappers; the four per-(bottom,test) ray-query bodies are spliced into each. |
+| Per-(bottom,test) ray-query bodies | [Triangle and AABB commit variants](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L1353-L1436) | The traversal-control body fragments. |
+| `RayQueryTraversalControlTestCase::checkSupport` | [Traversal-control support entry point](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L1297-L1346) | Feature gates and per-stage support gating. |
+| `iterate` | [Traversal-control execution and verification](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L1891-L2057) | Image / buffer allocation, AS build, dispatch/draw/trace, copy-back, verification. |
+| `createTraversalControlTests` | [Traversal-control case registration](../../../modules/vulkan/ray_query/vktRayQueryTraversalControlTests.cpp#L2061-L2167) | Top-level registration: `traversal_control.<shader_source>.<test_type>.<bottom_type>`. |
 | Vulkan spec: ray query traversal | [raytraversal.adoc](../../../../vulkan-docs/src/chapters/raytraversal.adoc) | Triangle confirmation, AABB generation, and candidate-discard semantics. |

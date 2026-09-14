@@ -132,11 +132,11 @@ dEQP-VK.query_pool.maintenance7.query_32b_wrap_required
 
 | Topic | Source |
 |---|---|
-| Query-family registration | [`vktQueryPoolTests.cpp#L42-L55`](../../../modules/vulkan/query_pool/vktQueryPoolTests.cpp#L42-L55) |
-| Test case construction | [`vktQueryMaintenance7Tests.cpp#L228-L237`](../../../modules/vulkan/query_pool/vktQueryMaintenance7Tests.cpp#L228-L237) |
-| Support and capability setup | [`vktQueryMaintenance7Tests.cpp#L176-L225`](../../../modules/vulkan/query_pool/vktQueryMaintenance7Tests.cpp#L176-L225) |
-| Timestamp setup and command recording | [`vktQueryMaintenance7Tests.cpp#L58-L115`](../../../modules/vulkan/query_pool/vktQueryMaintenance7Tests.cpp#L58-L115) |
-| Result retrieval and validation | [`vktQueryMaintenance7Tests.cpp#L121-L173`](../../../modules/vulkan/query_pool/vktQueryMaintenance7Tests.cpp#L121-L173) |
-| Vulkan query result width and overflow rules | [`queries.adoc#L1272-L1291`](../../../../vulkan-docs/src/chapters/queries.adoc#L1272-L1291) |
-| `maintenance7` feature semantics | [`features.adoc#L6903-L6937`](../../../../vulkan-docs/src/chapters/features.adoc#L6903-L6937) |
-| Mustpass coverage | [`query-pool.txt#L47-L48`](../../../mustpass/main/vk-default/query-pool.txt#L47-L48) |
+| Query-family registration | [`createChildren()` query-family registration](../../../modules/vulkan/query_pool/vktQueryPoolTests.cpp#L42-L55) |
+| Test case construction | [`createQueryMaintenance7Tests()`](../../../modules/vulkan/query_pool/vktQueryMaintenance7Tests.cpp#L228-L237) |
+| Support and capability setup | [`Maintenance7QueryFeatureTestCase` support and instance setup](../../../modules/vulkan/query_pool/vktQueryMaintenance7Tests.cpp#L176-L225) |
+| Timestamp setup and command recording | [Timestamp setup and command recording](../../../modules/vulkan/query_pool/vktQueryMaintenance7Tests.cpp#L58-L115) |
+| Result retrieval and validation | [Result retrieval and validation](../../../modules/vulkan/query_pool/vktQueryMaintenance7Tests.cpp#L121-L173) |
+| Vulkan query result width and overflow rules | [32-bit query result overflow rules](../../../../vulkan-docs/src/chapters/queries.adoc#L1272-L1291) |
+| `maintenance7` feature semantics | [`maintenance7` feature requirements](../../../../vulkan-docs/src/chapters/features.adoc#L6903-L6937) |
+| Mustpass coverage | [Maintenance7 query-overflow mustpass cases](../../../mustpass/main/vk-default/query-pool.txt#L47-L48) |

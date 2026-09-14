@@ -2,7 +2,7 @@
 
 **Core question:** Does `vkQueueBindSparse` preserve the requested semaphore and fence dependencies on sparse-binding queues?
 
-- This page covers the implementation in [`vktSparseResourcesQueueBindSparseTests.cpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesQueueBindSparseTests.cpp#L54-L61), registered as `sparse_resources.queue_bind` ([registration](../../../modules/vulkan/sparse_resources/vktSparseResourcesQueueBindSparseTests.cpp#L500-L505)).
+- This page covers the implementation in [`vktSparseResourcesQueueBindSparseTests.cpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesQueueBindSparseTests.cpp#L54-L61), registered as `sparse_resources.queue_bind` ([`createQueueBindSparseTests()`](../../../modules/vulkan/sparse_resources/vktSparseResourcesQueueBindSparseTests.cpp#L500-L505)).
 - The 18 test case leaves vary queue count, wait and signal semaphore counts, fence use, and whether the call is empty.
 - The `VkBindSparseInfo` objects contain no buffer or image bindings. The tests isolate queue submission and synchronization behavior rather than sparse memory mapping.
 - The page describes the registered matrix, the host-side submission sequence, and what each failure says about the tested dependency.

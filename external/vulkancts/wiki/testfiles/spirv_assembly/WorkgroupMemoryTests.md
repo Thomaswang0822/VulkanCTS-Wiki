@@ -2,7 +2,7 @@
 
 **Core question:** Can all invocations in one compute workgroup exchange scalar values through `Workgroup` memory after the shader issues the authored SPIR-V memory and control barriers?
 
-- This page covers the `workgroup_memory` test family implemented by [`vktSpvAsmWorkgroupMemoryTests.cpp`](../../../modules/vulkan/spirv_assembly/vktSpvAsmWorkgroupMemoryTests.cpp#L141-L261).
+- This page covers the `workgroup_memory` test family implemented by [`addComputeWorkgroupMemoryTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmWorkgroupMemoryTests.cpp#L141-L261).
 - Every test case specializes one SPIR-V assembly template for a scalar type. Each invocation copies one input value to `sharedData`, synchronizes, then reads the value written at the reversed local index.
 - The host expects the output storage buffer to equal the input buffer in reverse order. The 11 test case leaves vary the scalar type and feature requirements, while keeping the workgroup exchange protocol fixed.
 
@@ -29,7 +29,7 @@ spirv_assembly.instruction.compute.workgroup_memory
 └── uint8
 ```
 
-The parent compute registration attaches this test family under `spirv_assembly.instruction.compute` ([registration](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21415)). The main Vulkan mustpass list contains all 11 leaves ([mustpass entries](../../../mustpass/main/vk-default/spirv-assembly.txt#L19887-L19897)).
+The parent compute registration attaches this test family under `spirv_assembly.instruction.compute` ([`createMixedRelaxedPrecisionOperandsTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21415)). The main Vulkan mustpass list contains all 11 leaves ([mustpass entries](../../../mustpass/main/vk-default/spirv-assembly.txt#L19887-L19897)).
 
 ## Parameter Dimensions and Observed Values
 

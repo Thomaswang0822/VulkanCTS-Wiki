@@ -2,15 +2,15 @@
 
 **Core question:** Do generated mesh-task draws consume the selected command and shader state, then produce the expected image or storage-buffer values?
 
-- [`vktDGCGraphicsMeshTestsExt.cpp`](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMeshTestsExt.cpp#L1) implements `dgc.ext.graphics.mesh` and registers the direct test families `token_draw`, `token_draw_count`, `misc`, and `conditional_rendering`.
+- [Generated mesh-draw tests](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMeshTestsExt.cpp#L1) implements `dgc.ext.graphics.mesh` and registers the direct test families `token_draw`, `token_draw_count`, `misc`, and `conditional_rendering`.
 - `token_draw` uses `VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_EXT`; `token_draw_count` uses `VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_COUNT_EXT`.
 - The regular cases generate a 32 by 32 image from per-pixel triangles. The `misc` cases either write integer results without a fragment shader or stress large sequence counts.
 - The matrix varies pipeline construction, task shaders, execution sets, explicit preprocessing, sequence order, and direct versus count-form draws. The host checks the rendered image or copied storage-buffer data.
 
 ## Background Knowledge
 
-- A mesh shader workgroup emits vertices and primitives directly. An optional task shader runs first and calls `EmitMeshTasksEXT` to create mesh workgroups. Without a task shader, the draw launches mesh workgroups directly. See [mesh.adoc](../../../../vulkan-docs/src/chapters/VK_NV_mesh_shader/mesh.adoc).
-- A DGC layout places state tokens before an action token. The mesh action tokens consume `VkDrawMeshTasksIndirectCommandEXT`, or a count record that points to mesh draw records. Explicit preprocessing uses `vkCmdPreprocessGeneratedCommandsEXT` before `vkCmdExecuteGeneratedCommandsEXT`; separate command buffers need an explicit synchronization barrier. See [generatedcommands.adoc](../../../../vulkan-docs/src/chapters/device_generated_commands/generatedcommands.adoc#indirectmdslayout).
+- A mesh shader workgroup emits vertices and primitives directly. An optional task shader runs first and calls `EmitMeshTasksEXT` to create mesh workgroups. Without a task shader, the draw launches mesh workgroups directly. See [mesh source](../../../../vulkan-docs/src/chapters/VK_NV_mesh_shader/mesh.adoc).
+- A DGC layout places state tokens before an action token. The mesh action tokens consume `VkDrawMeshTasksIndirectCommandEXT`, or a count record that points to mesh draw records. Explicit preprocessing uses `vkCmdPreprocessGeneratedCommandsEXT` before `vkCmdExecuteGeneratedCommandsEXT`; separate command buffers need an explicit synchronization barrier. See [generatedcommands source](../../../../vulkan-docs/src/chapters/device_generated_commands/generatedcommands.adoc#indirectmdslayout).
 - `taskPayloadSharedEXT` carries data from a task shader to its mesh workgroups. It is shader-local payload storage, not a host-created descriptor resource.
 
 ## Registration Hierarchy
@@ -31,7 +31,7 @@ The registration loops in [`createDGCGraphicsMeshTestsExt`](../../../modules/vul
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |---|---|---|---|
-| Direct test family | `token_draw`, `token_draw_count`, `misc`, `conditional_rendering` | Selects the mesh action, count-form action, supporting paths, or delegated conditional rendering. | [registration](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMeshTestsExt.cpp#L2320-L2424), [mustpass](../../../mustpass/main/vk-default/dgc.txt#L1788-L2095) |
+| Direct test family | `token_draw`, `token_draw_count`, `misc`, `conditional_rendering` | Selects the mesh action, count-form action, supporting paths, or delegated conditional rendering. | [`createDGCGraphicsMeshTestsExt()`](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMeshTestsExt.cpp#L2320-L2424), [mustpass](../../../mustpass/main/vk-default/dgc.txt#L1788-L2095) |
 | Draw form | `token_draw`, `token_draw_count` | Direct cases use eight generated sequences. Count-form cases group the eight direct draws into four indirect draw sequences, each with its own count record and indirect mesh-draw records. | [draw type and registration](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMeshTestsExt.cpp#L159-L163), [count buffers](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMeshTestsExt.cpp#L791-L819) |
 | Pipeline construction | `monolithic`, `shader_objects`, `gpl_fast`, `gpl_optimized`, `gpl_mix_base_fast`, `gpl_mix_base_opt` | Selects a monolithic pipeline, shader objects, or graphics pipeline library construction. The mix forms alternate fast and optimized library construction per sequence. | [pipeline cases](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMeshTestsExt.cpp#L165-L208), [pipeline setup](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMeshTestsExt.cpp#L935-L999) |
 | Task shader | no suffix, `_with_task_shader` | Uses direct mesh workgroup indexing or task payload indexing. | [task parameter](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMeshTestsExt.cpp#L218-L306), [shader generation](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMeshTestsExt.cpp#L449-L559) |
@@ -498,7 +498,7 @@ void main() {
 
 **Possible failure symptoms:** A `conditional_rendering` case produces output when the condition should suppress generated work, or suppresses work when the condition should allow it. The exact conditional path determines whether the output is a color or buffer mismatch.
 
-**Possible implementation causes:** The delegated implementation may mishandle condition state, the generated mesh action, preprocessing, or their required synchronization. Inspect [`vktDGCGraphicsMeshConditionalTestsExt.cpp`](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMeshConditionalTestsExt.cpp#L1-L718) for that family's case-specific mapping.
+**Possible implementation causes:** The delegated implementation may mishandle condition state, the generated mesh action, preprocessing, or their required synchronization. Inspect [Conditional mesh-draw execution and verification](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMeshConditionalTestsExt.cpp#L1-L718) for that family's case-specific mapping.
 
 ## Case Pruning
 
@@ -538,5 +538,5 @@ void main() {
 | Many-sequence path | [`manySequencesRun`](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMeshTestsExt.cpp#L2090-L2316) | Tests `64`, `1024`, `8192`, and `131072` sequences and checks one counter per sequence. |
 | Registration | [`createDGCGraphicsMeshTestsExt`](../../../modules/vulkan/device_generated_commands/vktDGCGraphicsMeshTestsExt.cpp#L2320-L2424) | Registers the four direct children and exact variant-construction loops. |
 | Mustpass evidence | [mesh paths in `dgc.txt`](../../../mustpass/main/vk-default/dgc.txt#L1788-L2095) | Records all 308 registered paths. |
-| Mesh shader semantics | [mesh.adoc](../../../../vulkan-docs/src/chapters/VK_NV_mesh_shader/mesh.adoc) | Defines task and mesh workgroup behavior and emitted primitives. |
-| DGC layout semantics | [generatedcommands.adoc](../../../../vulkan-docs/src/chapters/device_generated_commands/generatedcommands.adoc#indirectmdslayout) | Defines mesh action tokens, explicit preprocessing, synchronization, and sequence ordering. |
+| Mesh shader semantics | [mesh source](../../../../vulkan-docs/src/chapters/VK_NV_mesh_shader/mesh.adoc) | Defines task and mesh workgroup behavior and emitted primitives. |
+| DGC layout semantics | [generatedcommands source](../../../../vulkan-docs/src/chapters/device_generated_commands/generatedcommands.adoc#indirectmdslayout) | Defines mesh action tokens, explicit preprocessing, synchronization, and sequence ordering. |

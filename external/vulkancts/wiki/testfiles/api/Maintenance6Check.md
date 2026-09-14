@@ -2,7 +2,7 @@
 
 **Core question:** Does the implementation's reported `maxCombinedImageSamplerDescriptorCount` from `VK_KHR_maintenance6` bound every per-format `combinedImageSamplerDescriptorCount` reported for YCbCr and related formats?
 
-- [vktApiMaintenance6Check.cpp](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp) implements the `api.maintenance6_check` test family, registered under the `api` test category by [vktApiTests.cpp#L131](../../../modules/vulkan/api/vktApiTests.cpp#L131).
+- [vktApiMaintenance6Check.cpp](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp) implements the `api.maintenance6_check` test family, registered under the `api` test category by [ApiTests source lines](../../../modules/vulkan/api/vktApiTests.cpp#L131).
 - The test family registers exactly one CTS test case leaf, `maintenance6_properties`, behind `#ifndef CTS_USES_VULKANSC`.
 - The test queries two device properties and compares them: `VkPhysicalDeviceMaintenance6PropertiesKHR::maxCombinedImageSamplerDescriptorCount`, and the per-format `VkSamplerYcbcrConversionImageFormatProperties::combinedImageSamplerDescriptorCount` for every format in three YCbCr-related format ranges.
 - Passing requires every per-format value to be less than or equal to the maintenance6 limit. The test is purely host-side; no shaders, pipelines, or GPU work are involved.
@@ -104,14 +104,14 @@ Because `api.maintenance6_check.maintenance6_properties` is a single fixed case 
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Test family registration | [vktApiTests.cpp#L131](../../../modules/vulkan/api/vktApiTests.cpp#L131) | Attaches `maintenance6_check` as a child of the `api` test category. |
-| Test family factory | [vktApiMaintenance6Check.cpp#L142-L149](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L142-L149) | Creates the `maintenance6_check` group and adds the `maintenance6_properties` test case leaf. |
-| Header declaration | [vktApiMaintenance6Check.hpp#L38](../../../modules/vulkan/api/vktApiMaintenance6Check.hpp#L38) | Declares `createMaintenance6Tests`. |
-| Test case leaf class | [vktApiMaintenance6Check.cpp#L117-L138](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L117-L138) | `Maintenance6MaxCombinedImageSamplerDescriptorCountTestCase` registers the `maintenance6_properties` name and gates support on `VK_KHR_maintenance6`. |
-| Test instance | [vktApiMaintenance6Check.cpp#L52-L115](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L52-L115) | Queries the maintenance6 properties, iterates the format ranges, and applies the pass/fail rule. |
-| Maintenance6 limit query | [vktApiMaintenance6Check.cpp#L63-L66](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L63-L66) | Reads `maxCombinedImageSamplerDescriptorCount` through `getPhysicalDeviceProperties2`. |
-| Format ranges | [vktApiMaintenance6Check.cpp#L68-L81](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L68-L81) | Defines the three YCbCr-related format ranges scanned by the test. |
-| Per-format descriptor count query | [vktApiMaintenance6Check.cpp#L90-L99](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L90-L99) | Chains `VkSamplerYcbcrConversionImageFormatProperties` and calls `getPhysicalDeviceImageFormatProperties2` per format. |
-| Pass/fail comparison | [vktApiMaintenance6Check.cpp#L100-L113](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L100-L113) | Fails on the first per-format value exceeding the limit, otherwise passes. |
-| Non-VulkanSC guard | [vktApiMaintenance6Check.cpp#L39](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L39) | The file is compiled only when `CTS_USES_VULKANSC` is not defined. |
-| Mustpass entry | [api.txt#L327291](../../../mustpass/main/vk-default/api.txt#L267497) | The single `dEQP-VK.api.maintenance6_check.maintenance6_properties` line. |
+| Test family registration | [Test family registration](../../../modules/vulkan/api/vktApiTests.cpp#L131) | Attaches `maintenance6_check` as a child of the `api` test category. |
+| Test family factory | [Test family factory](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L142-L149) | Creates the `maintenance6_check` group and adds the `maintenance6_properties` test case leaf. |
+| Header declaration | [Header declaration](../../../modules/vulkan/api/vktApiMaintenance6Check.hpp#L38) | Declares `createMaintenance6Tests`. |
+| Test case leaf class | [Test case leaf class](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L117-L138) | `Maintenance6MaxCombinedImageSamplerDescriptorCountTestCase` registers the `maintenance6_properties` name and gates support on `VK_KHR_maintenance6`. |
+| Test instance | [Test instance](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L52-L115) | Queries the maintenance6 properties, iterates the format ranges, and applies the pass/fail rule. |
+| Maintenance6 limit query | [Maintenance6 limit query](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L63-L66) | Reads `maxCombinedImageSamplerDescriptorCount` through `getPhysicalDeviceProperties2`. |
+| Format ranges | [Format ranges](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L68-L81) | Defines the three YCbCr-related format ranges scanned by the test. |
+| Per-format descriptor count query | [Per-format descriptor count query](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L90-L99) | Chains `VkSamplerYcbcrConversionImageFormatProperties` and calls `getPhysicalDeviceImageFormatProperties2` per format. |
+| Pass/fail comparison | [Pass/fail comparison](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L100-L113) | Fails on the first per-format value exceeding the limit, otherwise passes. |
+| Non-VulkanSC guard | [Non-VulkanSC guard](../../../modules/vulkan/api/vktApiMaintenance6Check.cpp#L39) | The file is compiled only when `CTS_USES_VULKANSC` is not defined. |
+| Mustpass entry | [Mustpass entry](../../../mustpass/main/vk-default/api.txt#L267497) | The single `dEQP-VK.api.maintenance6_check.maintenance6_properties` line. |

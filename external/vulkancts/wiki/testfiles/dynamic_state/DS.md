@@ -150,12 +150,12 @@ All cases follow the same host-side flow through the shared base harness:
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Test family registration | [vktDynamicStateDSTests.cpp#L1274-L1321](../../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L1274-L1321) | Registers all behavior groups and their mesh variants in the `init()` loop. |
+| Test family registration | [`DynamicStateDSTests::init()`](../../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L1274-L1321) | Registers all behavior groups and their mesh variants in the `init()` loop. |
 | Shared base harness | [DepthStencilBaseCase](../../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L62) | Provides resource setup, render pass, dynamic state helpers, and the `iterate()` override point. |
-| DepthBoundsParamTestInstance | [vktDynamicStateDSTests.cpp#L504-L628](../../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L504-L628) | Implements `depth_bounds_1`. |
-| DepthBoundsTestInstance | [vktDynamicStateDSTests.cpp#L630-L891](../../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L630-L891) | Implements `depth_bounds_2` with a pre-filled depth buffer. |
-| StencilParamsBasicTestInstance | [vktDynamicStateDSTests.cpp#L893-L1039](../../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L893-L1039) | Implements `stencil_params_basic_1` and `stencil_params_basic_2`. |
-| StencilParamsAdvancedTestInstance | [vktDynamicStateDSTests.cpp#L1109-L1244](../../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L1109-L1244) | Implements `stencil_params_advanced`. |
-| Support checks | [vktDynamicStateDSTests.cpp#L1246-L1257](../../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L1246-L1257) | Depth bounds and mesh shader feature checks. |
+| DepthBoundsParamTestInstance | [DepthBoundsParamTestInstance](../../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L504-L628) | Implements `depth_bounds_1`. |
+| DepthBoundsTestInstance | [DepthBoundsTestInstance](../../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L630-L891) | Implements `depth_bounds_2` with a pre-filled depth buffer. |
+| StencilParamsBasicTestInstance | [StencilParamsBasicTestInstance](../../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L893-L1039) | Implements `stencil_params_basic_1` and `stencil_params_basic_2`. |
+| StencilParamsAdvancedTestInstance | [StencilParamsAdvancedTestInstance](../../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L1109-L1244) | Implements `stencil_params_advanced`. |
+| Support checks | [Support checks](../../../modules/vulkan/dynamic_state/vktDynamicStateDSTests.cpp#L1246-L1257) | Depth bounds and mesh shader feature checks. |
 | Shared base class | [DynamicStateBaseClass](../../../modules/vulkan/dynamic_state/vktDynamicStateBaseClass.hpp#L43) | Base class used by `DepthBoundsTestInstance` and the mesh descriptor path. |
 | Test case utilities | [vktDynamicStateTestCaseUtil.hpp](../../../modules/vulkan/dynamic_state/vktDynamicStateTestCaseUtil.hpp#L1) | Instance factory and shader map helpers. |

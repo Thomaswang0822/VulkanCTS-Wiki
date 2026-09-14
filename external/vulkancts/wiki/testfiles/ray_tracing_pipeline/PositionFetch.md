@@ -23,7 +23,7 @@ ray_tracing_pipeline.position_fetch
 └── gpu_built
 ```
 
-The two direct children are registered by [createPositionFetchTests](../../../modules/vulkan/ray_tracing/vktRayTracingPositionFetchTests.cpp#L529-L609). Below each build type, the registration loop adds 15 vertex format groups, each containing two leaves (`NoFlags`, `instance_transform`). The full leaf set appears in the default mustpass at [ray-tracing-pipeline.txt](../../../mustpass/main/vk-default/ray-tracing-pipeline.txt). The category dispatcher at [vktRayTracingTests.cpp#L98](../../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L98) adds `position_fetch` to the `ray_tracing_pipeline` test category.
+The two direct children are registered by [createPositionFetchTests](../../../modules/vulkan/ray_tracing/vktRayTracingPositionFetchTests.cpp#L529-L609). Below each build type, the registration loop adds 15 vertex format groups, each containing two leaves (`NoFlags`, `instance_transform`). The full leaf set appears in the default mustpass at [Mustpass evidence](../../../mustpass/main/vk-default/ray-tracing-pipeline.txt). The category dispatcher at [Category dispatcher](../../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L98) adds `position_fetch` to the `ray_tracing_pipeline` test category.
 
 ## Parameter Dimensions and Observed Values
 
@@ -633,12 +633,12 @@ Both build types share the shader code, descriptor setup, ray origin, expected-v
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `TestParams` and `TestFlagBits` | [vktRayTracingPositionFetchTests.cpp#L55-L75](../../../modules/vulkan/ray_tracing/vktRayTracingPositionFetchTests.cpp#L55-L75) | Defines the per-case parameter struct, flag bits, and the seed derivation. |
-| `checkSupport` | [vktRayTracingPositionFetchTests.cpp#L113-L138](../../../modules/vulkan/ray_tracing/vktRayTracingPositionFetchTests.cpp#L113-L138) | Gates on the three KHR extensions, the position-fetch feature bit, host-commands for CPU build, and vertex format support. |
-| `initPrograms` | [vktRayTracingPositionFetchTests.cpp#L140-L223](../../../modules/vulkan/ray_tracing/vktRayTracingPositionFetchTests.cpp#L140-L223) | Generates the rgen, miss, ah, and ch shader strings. Identical for all 60 cases. |
-| `iterate` AS build | [vktRayTracingPositionFetchTests.cpp#L236-L324](../../../modules/vulkan/ray_tracing/vktRayTracingPositionFetchTests.cpp#L236-L324) | Builds BLAS with 1 or 4 geometries, sets `ALLOW_DATA_ACCESS_KHR`, applies instance transform, builds TLAS. |
-| `iterate` pipeline and trace | [vktRayTracingPositionFetchTests.cpp#L416-L480](../../../modules/vulkan/ray_tracing/vktRayTracingPositionFetchTests.cpp#L416-L480) | Builds pipeline with `geometryCount` hit groups, dispatches `vkCmdTraceRaysKHR` with `numRays=1`. |
-| `iterate` verification | [vktRayTracingPositionFetchTests.cpp#L490-L522](../../../modules/vulkan/ray_tracing/vktRayTracingPositionFetchTests.cpp#L490-L522) | Reads back 6 vec4, compares with `dot(diff,diff) < 1e-5` tolerance. |
-| `createPositionFetchTests` registration | [vktRayTracingPositionFetchTests.cpp#L529-L609](../../../modules/vulkan/ray_tracing/vktRayTracingPositionFetchTests.cpp#L529-L609) | Registers `cpu_built`/`gpu_built`, 15 vertex formats, and `NoFlags`/`instance_transform` leaves. |
-| Category dispatcher | [vktRayTracingTests.cpp#L98](../../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L98) | Adds `position_fetch` to the `ray_tracing_pipeline` test category. |
-| Mustpass evidence | [ray-tracing-pipeline.txt](../../../mustpass/main/vk-default/ray-tracing-pipeline.txt) | All 60 leaves listed in the default ray-tracing-pipeline mustpass. |
+| `TestParams` and `TestFlagBits` | [`TestParams` and `TestFlagBits`](../../../modules/vulkan/ray_tracing/vktRayTracingPositionFetchTests.cpp#L55-L75) | Defines the per-case parameter struct, flag bits, and the seed derivation. |
+| `checkSupport` | [`checkSupport`](../../../modules/vulkan/ray_tracing/vktRayTracingPositionFetchTests.cpp#L113-L138) | Gates on the three KHR extensions, the position-fetch feature bit, host-commands for CPU build, and vertex format support. |
+| `initPrograms` | [`initPrograms`](../../../modules/vulkan/ray_tracing/vktRayTracingPositionFetchTests.cpp#L140-L223) | Generates the rgen, miss, ah, and ch shader strings. Identical for all 60 cases. |
+| `iterate` AS build | [`iterate` AS build](../../../modules/vulkan/ray_tracing/vktRayTracingPositionFetchTests.cpp#L236-L324) | Builds BLAS with 1 or 4 geometries, sets `ALLOW_DATA_ACCESS_KHR`, applies instance transform, builds TLAS. |
+| `iterate` pipeline and trace | [`iterate` pipeline and trace](../../../modules/vulkan/ray_tracing/vktRayTracingPositionFetchTests.cpp#L416-L480) | Builds pipeline with `geometryCount` hit groups, dispatches `vkCmdTraceRaysKHR` with `numRays=1`. |
+| `iterate` verification | [`iterate` verification](../../../modules/vulkan/ray_tracing/vktRayTracingPositionFetchTests.cpp#L490-L522) | Reads back 6 vec4, compares with `dot(diff,diff) < 1e-5` tolerance. |
+| `createPositionFetchTests` registration | [`createPositionFetchTests` registration](../../../modules/vulkan/ray_tracing/vktRayTracingPositionFetchTests.cpp#L529-L609) | Registers `cpu_built`/`gpu_built`, 15 vertex formats, and `NoFlags`/`instance_transform` leaves. |
+| Category dispatcher | [Category dispatcher](../../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L98) | Adds `position_fetch` to the `ray_tracing_pipeline` test category. |
+| Mustpass evidence | [Mustpass evidence](../../../mustpass/main/vk-default/ray-tracing-pipeline.txt) | All 60 leaves listed in the default ray-tracing-pipeline mustpass. |

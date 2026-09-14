@@ -24,7 +24,7 @@ dgc.ext.compute.get_info
 └── constant_cmd_memory_requirements_max_sequence_count
 ```
 
-The root is attached to the EXT compute branch by [vktDGCTests.cpp](../../../modules/vulkan/device_generated_commands/vktDGCTests.cpp#L95-L101). The five direct children come from the factory in [vktDGCComputeGetInfoTestsExt.cpp](../../../modules/vulkan/device_generated_commands/vktDGCComputeGetInfoTestsExt.cpp#L256-L280) and appear in [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L45-L49).
+The root is attached to the EXT compute branch by [EXT compute-family registration](../../../modules/vulkan/device_generated_commands/vktDGCTests.cpp#L95-L101). The five direct children come from the factory in [Memory-requirements case factory](../../../modules/vulkan/device_generated_commands/vktDGCComputeGetInfoTestsExt.cpp#L256-L280) and appear in [dgc source](../../../mustpass/main/vk-default/dgc.txt#L45-L49).
 
 ## Parameter Dimensions and Observed Values
 
@@ -147,6 +147,6 @@ The test never submits generated commands or a dispatch. The shader therefore su
 | Memory-requirements input wrapper | [DGCMemReqsInfo](../../../modules/vulkan/device_generated_commands/vktDGCUtilExt.cpp#L252-L286) | Builds the EXT query structure and its optional `pNext` metadata. |
 | Memory-requirements query wrapper | [getGeneratedCommandsMemoryRequirementsExt](../../../modules/vulkan/device_generated_commands/vktDGCUtilExt.cpp#L354-L360) | Calls `getGeneratedCommandsMemoryRequirementsEXT` and returns `VkMemoryRequirements`. |
 | EXT compute support | [checkDGCExtComputeSupport](../../../modules/vulkan/device_generated_commands/vktDGCUtilExt.cpp#L44-L75) | Applies extension, compute-stage, and pipeline-binding support checks. |
-| EXT utility declarations | [vktDGCUtilExt.hpp](../../../modules/vulkan/device_generated_commands/vktDGCUtilExt.hpp#L42-L53) | Declares the support types used by the test factory. |
-| Category registration | [vktDGCTests.cpp](../../../modules/vulkan/device_generated_commands/vktDGCTests.cpp#L73-L122) | Places `get_info` under `dgc.ext.compute`. |
-| vk-default mustpass paths | [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L45-L49) | Lists the five registered EXT compute get-info paths. |
+| EXT utility declarations | [DGC compute support-type declarations](../../../modules/vulkan/device_generated_commands/vktDGCUtilExt.hpp#L42-L53) | Declares the support types used by the test factory. |
+| Category registration | [NV and EXT compute-family registration](../../../modules/vulkan/device_generated_commands/vktDGCTests.cpp#L72-L120) | Places `get_info` under `dgc.ext.compute`. |
+| vk-default mustpass paths | [dgc source](../../../mustpass/main/vk-default/dgc.txt#L45-L49) | Lists the five registered EXT compute get-info paths. |

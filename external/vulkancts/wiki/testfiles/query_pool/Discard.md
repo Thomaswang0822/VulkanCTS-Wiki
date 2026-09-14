@@ -274,7 +274,7 @@ The factory does not remove combinations of the four ordinary axes. It registers
 
 | Entry point | Link | Why it matters |
 |---|---|---|
-| Parameter and test-instance definitions | [`vktQueryPoolDiscardTests.cpp#L48-L99`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L48-L99) | Defines the four behavior dimensions and resources. |
+| Parameter and test-instance definitions | [Parameter and test-instance definitions](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L48-L99) | Defines the four behavior dimensions and resources. |
 | Render pass construction | [`createRenderPass()`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L101-L266) | Shows single-sample and four-sample resolve attachments. |
 | Pipeline construction | [`createPipeline()`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L268-L329) | Shows depth state, alpha-to-coverage, and dynamic state. |
 | Draw and validation flow | [`iterate()`](../../../modules/vulkan/query_pool/vktQueryPoolDiscardTests.cpp#L331-L455) | Records the query and draw, copies the image, and checks both results. |

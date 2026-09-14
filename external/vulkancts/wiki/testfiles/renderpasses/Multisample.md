@@ -6,7 +6,7 @@
   [vktRenderPassMultisampleTests.cpp](../../../modules/vulkan/renderpass/vktRenderPassMultisampleTests.cpp).
 - The test family registers 57 format-named intermediate nodes plus one `separate_stencil_usage` intermediate node under
   `multisample`, attached to the `suballocation` group at
-  [vktRenderPassTests.cpp#L8560](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8560).
+  [Render-pass dispatcher registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8560).
 - For every supported color, depth-only, stencil-only, and depth-stencil format, the test renders a per-sample-distinct
   pattern into a multisample attachment, then reads each sample back with a multisample input attachment in a follow-up
   subpass, resolves it to a single-sample image, and compares it against an XOR-based reference computed on the host.
@@ -99,7 +99,7 @@ The `multisample` test family is created by
 Its format-named intermediate nodes are added in
 [`initTests()`](../../../modules/vulkan/renderpass/vktRenderPassMultisampleTests.cpp#L2427-L2550), and the
 `separate_stencil_usage` node is attached at the end of that same function
-([vktRenderPassMultisampleTests.cpp#L2456-L2508](../../../modules/vulkan/renderpass/vktRenderPassMultisampleTests.cpp#L2456-L2508)).
+([`initTests()`](../../../modules/vulkan/renderpass/vktRenderPassMultisampleTests.cpp#L2456-L2508)).
 Each format-named node expands to `samples_<N>` test case leaves for N in {2, 4, 8, 16, 32}; the
 `separate_stencil_usage` node expands to `<format>/samples_<N>/test_depth` and `test_stencil` leaves.
 
@@ -634,13 +634,13 @@ Result checking happens per sample in
 the host recomputes the same XOR-based reference the shader used, then compares the readback buffer against it:
 
 - **Depth** uses `tcu::floatThresholdCompare` with a threshold of `1.0f / 1024.0f`
-  ([vktRenderPassMultisampleTests.cpp#L1702-L1747](../../../modules/vulkan/renderpass/vktRenderPassMultisampleTests.cpp#L1702-L1747)).
+  ([`vktRenderPassMultisampleTests.cpp`](../../../modules/vulkan/renderpass/vktRenderPassMultisampleTests.cpp#L1702-L1747)).
 - **Stencil** uses an exact integer comparison
-  ([vktRenderPassMultisampleTests.cpp#L1724-L1747](../../../modules/vulkan/renderpass/vktRenderPassMultisampleTests.cpp#L1724-L1747)).
+  ([`MultisampleRenderPassTestInstance::verifyResult()`](../../../modules/vulkan/renderpass/vktRenderPassMultisampleTests.cpp#L1724-L1747)).
 - **Color** dispatches on `tcu::TextureChannelClass`: unsigned and signed integer formats use exact
   `tcu::intThresholdCompare` with a zero threshold; floating-point formats use `tcu::floatUlpThresholdCompare` allowing
   64 ULP; fixed-point formats use `tcu::floatThresholdCompare` allowing four times the minimum presentable difference
-  ([vktRenderPassMultisampleTests.cpp#L1749-L1930](../../../modules/vulkan/renderpass/vktRenderPassMultisampleTests.cpp#L1749-L1930)).
+  ([`MultisampleRenderPassTestInstance::verifyResult()`](../../../modules/vulkan/renderpass/vktRenderPassMultisampleTests.cpp#L1749-L1930)).
   sRGB formats are compared in sRGB space.
 - Any per-sample mismatch is recorded through `m_resultCollector.fail("Compare failed for sample " + ...)`, and the
   case returns the aggregated status.
@@ -753,4 +753,4 @@ reordered. Source-level investigation is needed before attributing these to driv
 | Shader generation | [Programs::init](../../../modules/vulkan/renderpass/vktRenderPassMultisampleTests.cpp#L1938-L2326) | Generates `quad-vert`, `quad-frag`, and `quad-split-frag` per format class. |
 | Feature / support checks | [checkSupport](../../../modules/vulkan/renderpass/vktRenderPassMultisampleTests.cpp#L2328-L2380) | Extension and limit gating per rendering type. |
 | Result verification | [verifyResult](../../../modules/vulkan/renderpass/vktRenderPassMultisampleTests.cpp#L1679-L1934) | Per-sample host comparison and tolerance selection. |
-| Attachment to category | [vktRenderPassTests.cpp#L8560](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8560) | Where `multisample` is attached under `suballocation`. |
+| Attachment to category | [Attachment to category](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8560) | Where `multisample` is attached under `suballocation`. |

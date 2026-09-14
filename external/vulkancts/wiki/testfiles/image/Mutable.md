@@ -152,8 +152,8 @@ void main(void)
 
 #### Additional Info
 
-- The download compute shader varies with image type and view-format class: this case uses two `rgba8 image2D` resources, while array cases use `image2DArray`/`ivec3` and integer formats use signed or unsigned image types. It matters because it transports the value observed through the mutable view into a non-mutable image that can be copied to the host ([source](../../../modules/vulkan/image/vktImageMutableTests.cpp#L469-L500)).
-- The host dispatches both shaders as 32×32×1. Before the download dispatch, it makes the upload shader write visible to shader reads and transitions both storage images to `VK_IMAGE_LAYOUT_GENERAL`; afterward it copies the output image to the host buffer ([source](../../../modules/vulkan/image/vktImageMutableTests.cpp#L1627-L1666)).
+- The download compute shader varies with image type and view-format class: this case uses two `rgba8 image2D` resources, while array cases use `image2DArray`/`ivec3` and integer formats use signed or unsigned image types. It matters because it transports the value observed through the mutable view into a non-mutable image that can be copied to the host ([`initPrograms()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L469-L500)).
+- The host dispatches both shaders as 32×32×1. Before the download dispatch, it makes the upload shader write visible to shader reads and transitions both storage images to `VK_IMAGE_LAYOUT_GENERAL`; afterward it copies the output image to the host buffer ([`UploadDownloadExecutor::downloadLoad()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L1627-L1666)).
 
 #### Parameter Variation Summary
 
@@ -410,12 +410,12 @@ Identical formats are deliberately excluded. Resolve and load-op-clear leaves ar
 
 | Topic | Source |
 |---|---|
-| Case definitions, colors, formats, pair filter | [`vktImageMutableTests.cpp#L78-L303`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L78-L303) |
+| Case definitions, colors, formats, pair filter | [Case definitions, colors, formats, pair filter](../../../modules/vulkan/image/vktImageMutableTests.cpp#L78-L303) |
 | Generated draw/store/load/texture shaders | [`initPrograms()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L364-L539) |
 | Image creation and optional format list | [`makeImage()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L541-L574) |
 | Expected-image generation and route usage | [`generateExpectedImage()` / `getImageUsageForTestCase()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L819-L895) |
 | Ordinary executor and comparison | [`run()` / `testMutable()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L1082-L1814) and [`testMutable()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L1766-L1814) |
 | Support and ordinary registration | [`checkSupport()` / `createImageMutableTests()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L1774-L1987) |
 | Mutable swapchain setup, execution, registration | [`makeSwapchain()` / `testSwapchainMutable()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L2208-L2377) and [`createSwapchainImageMutableTests()`](../../../modules/vulkan/image/vktImageMutableTests.cpp#L2390-L2457) |
-| Parent registration | [`vktImageTests.cpp#L61-L100`](../../../modules/vulkan/image/vktImageTests.cpp#L61-L100) |
+| Parent registration | [`createChildren()`](../../../modules/vulkan/image/vktImageTests.cpp#L61-L100) |
 | Default mustpass inventory | [`image/mutable.txt`](../../../mustpass/main/vk-default/image/mutable.txt) |

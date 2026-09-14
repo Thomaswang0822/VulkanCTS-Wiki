@@ -2,7 +2,7 @@
 
 **Core question:** Does NV device-generated compute command execution preserve correctness across repeated sequences, pipeline replay, and scratch-space use?
 
-- [`vktDGCComputeMiscTests.cpp`](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTests.cpp#L53-L83) generates and implements the `dgc.nv.compute.misc` test family.
+- [NV miscellaneous compute tests](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTests.cpp#L53-L83) generates and implements the `dgc.nv.compute.misc` test family.
 - The family covers twelve `execute_many_*` variants, `full_replay`, and `scratch_space`.
 - The tests exercise repeated one-sequence executions, capture/replay of an indirect pipeline address, and a register-heavy direct-SPIR-V compute pipeline.
 - This page documents the registered matrix, generated shader, command-stream and preprocess handling, result checks, and failure meaning.
@@ -34,7 +34,7 @@ dgc.nv.compute.misc
 └── scratch_space
 ```
 
-The category root is attached by [`createTests()`](../../../modules/vulkan/device_generated_commands/vktDGCTests.cpp#L73-L94). The fourteen direct children are created by [`createDGCComputeMiscTests()`](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTests.cpp#L733-L757) and listed in [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L4626-L4639).
+The category root is attached by [`createTests()`](../../../modules/vulkan/device_generated_commands/vktDGCTests.cpp#L72-L93). The fourteen direct children are created by [`createDGCComputeMiscTests()`](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTests.cpp#L733-L757) and listed in [dgc source](../../../mustpass/main/vk-default/dgc.txt#L4626-L4639).
 
 ## Parameter Dimensions and Observed Values
 
@@ -254,12 +254,12 @@ void main (void) { atomicAdd(outputBuffer.values[pc.valueIndex], 1u); }
 
 | Topic | Source link | Why it matters |
 |---|---|---|
-| Registration and generated GLSL | [`vktDGCComputeMiscTests.cpp#L53-L96`](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTests.cpp#L53-L96) | Defines parameters, support gates, and generated shader text. |
-| Repeated execution | [`vktDGCComputeMiscTests.cpp#L98-L291`](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTests.cpp#L98-L291) | Builds resources and streams, partitions preprocess memory, submits, and checks `64`. |
-| Capture/replay | [`vktDGCComputeMiscTests.cpp#L294-L458`](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTests.cpp#L294-L458) | Captures and reuses the indirect pipeline address and checks two outputs. |
-| Scratch-space case | [`vktDGCComputeMiscTests.cpp#L460-L728`](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTests.cpp#L460-L728) | Loads direct SPIR-V, submits through two queue paths, and checks four references. |
-| Test registration | [`vktDGCComputeMiscTests.cpp#L733-L757`](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTests.cpp#L733-L757) | Creates all fourteen direct children under `misc`. |
-| Category routing | [`vktDGCTests.cpp#L72-L93`](../../../modules/vulkan/device_generated_commands/vktDGCTests.cpp#L72-L93) | Places the group under `dgc.nv.compute.misc`. |
-| Mustpass coverage | [`dgc.txt#L4626-L4639`](../../../mustpass/main/vk-default/dgc.txt#L4626-L4639) | Lists the registered NV miscellaneous cases. |
+| Registration and generated GLSL | [Parameters, support checks, and shader generation](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTests.cpp#L53-L96) | Defines parameters, support gates, and generated shader text. |
+| Repeated execution | [Repeated generated-command execution](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTests.cpp#L98-L291) | Builds resources and streams, partitions preprocess memory, submits, and checks `64`. |
+| Capture/replay | [Indirect pipeline address capture and replay](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTests.cpp#L294-L458) | Captures and reuses the indirect pipeline address and checks two outputs. |
+| Scratch-space case | [Scratch-space execution and verification](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTests.cpp#L460-L728) | Loads direct SPIR-V, submits through two queue paths, and checks four references. |
+| Test registration | [`createDGCComputeMiscTests`](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTests.cpp#L733-L757) | Creates all fourteen direct children under `misc`. |
+| Category routing | [NV compute-family registration](../../../modules/vulkan/device_generated_commands/vktDGCTests.cpp#L72-L93) | Places the group under `dgc.nv.compute.misc`. |
+| Mustpass coverage | [Mustpass coverage](../../../mustpass/main/vk-default/dgc.txt#L4626-L4639) | Lists the registered NV miscellaneous cases. |
 | DGC semantics | [device-generated commands](../../../../vulkan-docs/src/chapters/device_generated_commands/generatedcommands.adoc#device-generated-commands) | Defines indirect layouts, preprocessing, and compute-command requirements. |
 | Synchronization semantics | [synchronization access types](../../../../vulkan-docs/src/chapters/synchronization.adoc#synchronization-access-types) | Grounds shader-write and host-read ordering. |

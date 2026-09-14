@@ -455,14 +455,14 @@ void main (void)
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `CaseType` and `CaseDefinition` | [`vktTessellationCommonEdgeTests.cpp#L60-L74`](../../../modules/vulkan/tessellation/vktTessellationCommonEdgeTests.cpp#L60-L74) | Defines primitive, spacing, and basic/precise parameters. |
-| `verifyResult()` | [`vktTessellationCommonEdgeTests.cpp#L76-L105`](../../../modules/vulkan/tessellation/vktTessellationCommonEdgeTests.cpp#L76-L105) | Defines the central crop and exact black-pixel failure rule. |
-| `initPrograms()` | [`vktTessellationCommonEdgeTests.cpp#L107-L241`](../../../modules/vulkan/tessellation/vktTessellationCommonEdgeTests.cpp#L107-L241) | Generates all four stages, edge levels, interpolation, qualifiers, colors, and the parity amplifier. |
-| Grid and index generation | [`vktTessellationCommonEdgeTests.cpp#L257-L328`](../../../modules/vulkan/tessellation/vktTessellationCommonEdgeTests.cpp#L257-L328) | Creates adjacent patches and the case-type-dependent local ordering. |
-| Resource and pipeline setup | [`vktTessellationCommonEdgeTests.cpp#L330-L403`](../../../modules/vulkan/tessellation/vktTessellationCommonEdgeTests.cpp#L330-L403) | Defines the combined input buffer, render target, readback buffer, and pipeline. |
-| Draw, copy, and result | [`vktTessellationCommonEdgeTests.cpp#L405-L480`](../../../modules/vulkan/tessellation/vktTessellationCommonEdgeTests.cpp#L405-L480) | Records the indexed draw, image copy, host readback, and final status. |
-| `createCommonEdgeTests()` | [`vktTessellationCommonEdgeTests.cpp#L494-L518`](../../../modules/vulkan/tessellation/vktTessellationCommonEdgeTests.cpp#L494-L518) | Registers the 12-leaf matrix. |
-| Primitive and spacing names | [`vktTessellationUtil.hpp#L239-L310`](../../../modules/vulkan/tessellation/vktTessellationUtil.hpp#L239-L310) | Maps source enums to exact GLSL and registered-name tokens. |
-| Tessellator spacing | [`tessellation.adoc#tessellation-tessellator-spacing`](../../../../vulkan-docs/src/chapters/tessellation.adoc#tessellation-tessellator-spacing) | Specifies equal and fractional edge subdivision behavior. |
-| SPIR-V operation precision | [`spirvenv.adoc#spirvenv-op-prec`](../../../../vulkan-docs/src/appendices/spirvenv.adoc#spirvenv-op-prec) | Specifies the effect of `NoContraction` on operation rearrangement. |
-| Default mustpass entries | [`tessellation.txt#L1-L12`](../../../mustpass/main/vk-default/tessellation.txt#L1-L12) | Confirms all registered leaf paths. |
+| `CaseType` and `CaseDefinition` | [`CaseType` and `CaseDefinition`](../../../modules/vulkan/tessellation/vktTessellationCommonEdgeTests.cpp#L60-L74) | Defines primitive, spacing, and basic/precise parameters. |
+| `verifyResult()` | [`verifyResult()`](../../../modules/vulkan/tessellation/vktTessellationCommonEdgeTests.cpp#L76-L105) | Defines the central crop and exact black-pixel failure rule. |
+| `initPrograms()` | [`initPrograms()`](../../../modules/vulkan/tessellation/vktTessellationCommonEdgeTests.cpp#L107-L241) | Generates all four stages, edge levels, interpolation, qualifiers, colors, and the parity amplifier. |
+| Grid and index generation | [`test()`](../../../modules/vulkan/tessellation/vktTessellationCommonEdgeTests.cpp#L257-L328) | Creates adjacent patches and the case-type-dependent local ordering. |
+| Resource and pipeline setup | [`test()`](../../../modules/vulkan/tessellation/vktTessellationCommonEdgeTests.cpp#L330-L403) | Defines the combined input buffer, render target, readback buffer, and pipeline. |
+| Draw, copy, and result | [`test()`](../../../modules/vulkan/tessellation/vktTessellationCommonEdgeTests.cpp#L405-L480) | Records the indexed draw, image copy, host readback, and final status. |
+| `createCommonEdgeTests()` | [`createCommonEdgeTests()`](../../../modules/vulkan/tessellation/vktTessellationCommonEdgeTests.cpp#L494-L518) | Registers the 12-leaf matrix. |
+| Primitive and spacing names | [Primitive and spacing names](../../../modules/vulkan/tessellation/vktTessellationUtil.hpp#L239-L310) | Maps source enums to exact GLSL and registered-name tokens. |
+| Tessellator spacing | [tessellation.adoc](../../../../vulkan-docs/src/chapters/tessellation.adoc#tessellation-tessellator-spacing) | Specifies equal and fractional edge subdivision behavior. |
+| SPIR-V operation precision | [spirvenv.adoc](../../../../vulkan-docs/src/appendices/spirvenv.adoc#spirvenv-op-prec) | Specifies the effect of `NoContraction` on operation rearrangement. |
+| Default mustpass entries | [Default mustpass entries](../../../mustpass/main/vk-default/tessellation.txt#L1-L12) | Confirms all registered leaf paths. |

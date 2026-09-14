@@ -10,7 +10,7 @@
 ## Background Knowledge
 
 - **Ray tracing property structs.** `VK_KHR_acceleration_structure` introduces `VkPhysicalDeviceAccelerationStructurePropertiesKHR`, and `VK_KHR_ray_tracing_pipeline` introduces `VkPhysicalDeviceRayTracingPipelinePropertiesKHR`. Both are queried through `vkGetPhysicalDeviceProperties2` with the corresponding `pNext` chain entry. The Vulkan spec sets required minimum (and in some cases maximum) values for each reported field.
-- **`makeRayTracingProperties`.** The CTS helper at [vkRayTracingUtil.cpp#L5045-L5049](../../../framework/vulkan/vkRayTracingUtil.cpp#L5045-L5049) returns a `RayTracingProperties` wrapper whose constructor fetches each property struct through a separate `vkGetPhysicalDeviceProperties2` call with that struct chained via `pNext` ([RayTracingPropertiesKHR constructor](../../../framework/vulkan/vkRayTracingUtil.cpp#L5037-L5043)). Each getter on the wrapper returns one field from those structs.
+- **`makeRayTracingProperties`.** The CTS helper at [`makeRayTracingProperties`](../../../framework/vulkan/vkRayTracingUtil.cpp#L5045-L5049) returns a `RayTracingProperties` wrapper whose constructor fetches each property struct through a separate `vkGetPhysicalDeviceProperties2` call with that struct chained via `pNext` ([RayTracingPropertiesKHR constructor](../../../framework/vulkan/vkRayTracingUtil.cpp#L5037-L5043)). Each getter on the wrapper returns one field from those structs.
 - **Spec-required bounds.** The test encodes the spec's required lower or upper bound for each property as a constant and compares the reported value against it. A reported value outside that bound is a conformance failure independent of any actual ray tracing work.
 
 ## Registration Hierarchy
@@ -21,7 +21,7 @@ ray_tracing_pipeline.limits
 └── ray_tracing_props
 ```
 
-The two direct children are registered by [createLimitsTests](../../../modules/vulkan/ray_tracing/vktRayTracingLimitsTests.cpp#L277-L285). Each child is one `RayTracingLimitsTest` instance parameterized by a `PropertyType` value. The dispatcher at [vktRayTracingTests.cpp#L101](../../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L101) adds the `limits` group as a child of the `ray_tracing_pipeline` test category. Both leaves appear in the mustpass at [ray-tracing-pipeline.txt#L12609-L12610](../../../mustpass/main/vk-default/ray-tracing-pipeline.txt#L12609-L12610).
+The two direct children are registered by [createLimitsTests](../../../modules/vulkan/ray_tracing/vktRayTracingLimitsTests.cpp#L277-L285). Each child is one `RayTracingLimitsTest` instance parameterized by a `PropertyType` value. The dispatcher at [Category dispatcher](../../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L101) adds the `limits` group as a child of the `ray_tracing_pipeline` test category. Both leaves appear in the mustpass at [Mustpass evidence](../../../mustpass/main/vk-default/ray-tracing-pipeline.txt#L12609-L12610).
 
 ## Parameter Dimensions and Observed Values
 
@@ -117,12 +117,12 @@ Both leaves share the property-fetch helper and the per-iteration loop. A failur
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `PropertyType` enum | [vktRayTracingLimitsTests.cpp#L42-L46](../../../modules/vulkan/ray_tracing/vktRayTracingLimitsTests.cpp#L42-L46) | Selects which property struct's fields are validated |
-| `RayTracingLimitsTest::checkSupport` | [vktRayTracingLimitsTests.cpp#L71-L78](../../../modules/vulkan/ray_tracing/vktRayTracingLimitsTests.cpp#L71-L78) | Per-leaf KHR extension requirement gate |
-| `RayTracingLimitsTestInstance::iterate` | [vktRayTracingLimitsTests.cpp#L103-L268](../../../modules/vulkan/ray_tracing/vktRayTracingLimitsTests.cpp#L103-L268) | Property fetch, per-field range checks, and pass/fail condition |
-| accel_struct range checks | [vktRayTracingLimitsTests.cpp#L115-L195](../../../modules/vulkan/ray_tracing/vktRayTracingLimitsTests.cpp#L115-L195) | The eight `VkPhysicalDeviceAccelerationStructurePropertiesKHR` field bounds |
-| ray_tracing range checks | [vktRayTracingLimitsTests.cpp#L197-L264](../../../modules/vulkan/ray_tracing/vktRayTracingLimitsTests.cpp#L197-L264) | The eight `VkPhysicalDeviceRayTracingPipelinePropertiesKHR` field bounds |
-| `createLimitsTests` | [vktRayTracingLimitsTests.cpp#L277-L285](../../../modules/vulkan/ray_tracing/vktRayTracingLimitsTests.cpp#L277-L285) | Registration of the `limits` group and its two leaves |
-| Category dispatcher | [vktRayTracingTests.cpp#L101](../../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L101) | `createLimitsTests` is added to the `ray_tracing_pipeline` test category |
-| `makeRayTracingProperties` | [vkRayTracingUtil.cpp#L5045-L5049](../../../framework/vulkan/vkRayTracingUtil.cpp#L5045-L5049) | Wrapper that fetches both ray-tracing property structs in its constructor |
-| Mustpass evidence | [ray-tracing-pipeline.txt#L12609-L12610](../../../mustpass/main/vk-default/ray-tracing-pipeline.txt#L12609-L12610) | Both `limits.*` leaves listed in the default ray-tracing-pipeline mustpass |
+| `PropertyType` enum | [`PropertyType` enum](../../../modules/vulkan/ray_tracing/vktRayTracingLimitsTests.cpp#L42-L46) | Selects which property struct's fields are validated |
+| `RayTracingLimitsTest::checkSupport` | [`RayTracingLimitsTest::checkSupport`](../../../modules/vulkan/ray_tracing/vktRayTracingLimitsTests.cpp#L71-L78) | Per-leaf KHR extension requirement gate |
+| `RayTracingLimitsTestInstance::iterate` | [`RayTracingLimitsTestInstance::iterate`](../../../modules/vulkan/ray_tracing/vktRayTracingLimitsTests.cpp#L103-L268) | Property fetch, per-field range checks, and pass/fail condition |
+| accel_struct range checks | [accel_struct range checks](../../../modules/vulkan/ray_tracing/vktRayTracingLimitsTests.cpp#L115-L195) | The eight `VkPhysicalDeviceAccelerationStructurePropertiesKHR` field bounds |
+| ray_tracing range checks | [ray_tracing range checks](../../../modules/vulkan/ray_tracing/vktRayTracingLimitsTests.cpp#L197-L264) | The eight `VkPhysicalDeviceRayTracingPipelinePropertiesKHR` field bounds |
+| `createLimitsTests` | [`createLimitsTests`](../../../modules/vulkan/ray_tracing/vktRayTracingLimitsTests.cpp#L277-L285) | Registration of the `limits` group and its two leaves |
+| Category dispatcher | [Category dispatcher](../../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L101) | `createLimitsTests` is added to the `ray_tracing_pipeline` test category |
+| `makeRayTracingProperties` | [`makeRayTracingProperties`](../../../framework/vulkan/vkRayTracingUtil.cpp#L5045-L5049) | Wrapper that fetches both ray-tracing property structs in its constructor |
+| Mustpass evidence | [Mustpass evidence](../../../mustpass/main/vk-default/ray-tracing-pipeline.txt#L12609-L12610) | Both `limits.*` leaves listed in the default ray-tracing-pipeline mustpass |

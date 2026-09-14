@@ -352,11 +352,11 @@ The final comparison identifies the sample-count behavior and mismatching layer/
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `checkRequirements` | [`vktPipelineMultisampleShaderFragmentMaskTests.cpp#L326-L363`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L326-L363) | Extension, sample-count, feature, and construction checks. |
-| Shader generation | [`initPrograms#L365-L570`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L384-L590) | Emits draw, FMASK, and ordinary-fetch shaders. |
-| Input-attachment path | [`drawAndSampleInputAttachment#L599-L912`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L619-L931) | Runs draw and FMASK fetch in dependent subpasses. |
-| Compute and comparison flow | [`test#L1214-L1318`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L1233-L1335) | Creates resources, runs both paths, and compares samples. |
-| Matrix registration | [`createShaderFragmentMaskTestsInGroup#L1326-L1389`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L1343-L1406) | Defines sample, source, format, and extent values. |
-| Extension registration | [`createMultisampleShaderFragmentMaskTests#L1393-L1401`](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L1410-L1419) | Creates the `shader_fragment_mask` test family. |
-| Extension semantics | [`VK_AMD_shader_fragment_mask.adoc#L21-L38`](../../../../vulkan-docs/src/appendices/VK_AMD_shader_fragment_mask.adoc#L21-L38) | Defines mask fields and fragment fetch operations. |
-| Extension example | [`VK_AMD_shader_fragment_mask.adoc#L46-L82`](../../../../vulkan-docs/src/appendices/VK_AMD_shader_fragment_mask.adoc#L46-L82) | Shows image, array, and subpass-input forms. |
+| `checkRequirements` | [checkRequirements](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L326-L363) | Extension, sample-count, feature, and construction checks. |
+| Shader generation | [vktPipelineMultisampleShaderFragmentMaskTests.cpp](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L384-L590) | Emits draw, FMASK, and ordinary-fetch shaders. |
+| Input-attachment path | [vktPipelineMultisampleShaderFragmentMaskTests.cpp](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L619-L931) | Runs draw and FMASK fetch in dependent subpasses. |
+| Compute and comparison flow | [vktPipelineMultisampleShaderFragmentMaskTests.cpp](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L1233-L1335) | Creates resources, runs both paths, and compares samples. |
+| Matrix registration | [vktPipelineMultisampleShaderFragmentMaskTests.cpp](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L1343-L1406) | Defines sample, source, format, and extent values. |
+| Extension registration | [vktPipelineMultisampleShaderFragmentMaskTests.cpp](../../../modules/vulkan/pipeline/vktPipelineMultisampleShaderFragmentMaskTests.cpp#L1410-L1419) | Creates the `shader_fragment_mask` test family. |
+| Extension semantics | [Extension semantics](../../../../vulkan-docs/src/appendices/VK_AMD_shader_fragment_mask.adoc#L21-L38) | Defines mask fields and fragment fetch operations. |
+| Extension example | [Extension example](../../../../vulkan-docs/src/appendices/VK_AMD_shader_fragment_mask.adoc#L46-L82) | Shows image, array, and subpass-input forms. |

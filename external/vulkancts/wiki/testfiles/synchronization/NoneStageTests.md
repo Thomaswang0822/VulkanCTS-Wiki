@@ -121,9 +121,9 @@ void main(void)
 
 #### Additional Info
 
-- `NoneStageTestInstance` selects `VK_FORMAT_R8G8B8A8_UNORM`, `VK_IMAGE_ASPECT_COLOR_BIT`, and color-attachment output for this color-only pair; the source sets `m_writeFragShaderName` to `frag-color` and uses a sampled reference image ([source](../../../modules/vulkan/synchronization/vktSynchronizationNoneStageTests.cpp#L289-L352)).
-- The descriptor is a combined image sampler at binding 0, with nearest filtering and clamp-to-edge addressing; the read path likewise binds the transitioned image using the selected readable layout ([source](../../../modules/vulkan/synchronization/vktSynchronizationNoneStageTests.cpp#L632-L657), [descriptor setup](../../../modules/vulkan/synchronization/vktSynchronizationNoneStageTests.cpp#L880-L893)).
-- The vertex buffer contains four fullscreen positions, so both pipeline draws use four vertices and cover the 32 × 32 render area ([source](../../../modules/vulkan/synchronization/vktSynchronizationNoneStageTests.cpp#L437-L448), [draw sequence](../../../modules/vulkan/synchronization/vktSynchronizationNoneStageTests.cpp#L957-L974)).
+- `NoneStageTestInstance` selects `VK_FORMAT_R8G8B8A8_UNORM`, `VK_IMAGE_ASPECT_COLOR_BIT`, and color-attachment output for this color-only pair; the source sets `m_writeFragShaderName` to `frag-color` and uses a sampled reference image ([color attachment setup](../../../modules/vulkan/synchronization/vktSynchronizationNoneStageTests.cpp#L289-L352)).
+- The descriptor is a combined image sampler at binding 0, with nearest filtering and clamp-to-edge addressing; the read path likewise binds the transitioned image using the selected readable layout ([sampler and image descriptor setup](../../../modules/vulkan/synchronization/vktSynchronizationNoneStageTests.cpp#L632-L657), [descriptor setup](../../../modules/vulkan/synchronization/vktSynchronizationNoneStageTests.cpp#L880-L893)).
+- The vertex buffer contains four fullscreen positions, so both pipeline draws use four vertices and cover the 32 × 32 render area ([fullscreen draw geometry](../../../modules/vulkan/synchronization/vktSynchronizationNoneStageTests.cpp#L437-L448), [draw sequence](../../../modules/vulkan/synchronization/vktSynchronizationNoneStageTests.cpp#L957-L974)).
 
 #### Parameter Variation Summary
 

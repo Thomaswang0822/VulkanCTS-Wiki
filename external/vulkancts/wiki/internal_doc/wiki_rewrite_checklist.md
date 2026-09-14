@@ -11,9 +11,9 @@ A category is **done** when its `testfiles/<category>/` subdirectory contains at
 - [x] 1. info — 2 (UB: 1)
 - [x] 2. api — 52 (UB: 11)
 - [x] 3. memory — 14 (UB: 11)
-- [x] 4. pipeline — 62 (UB: 62)
+- [x] 4. pipeline — 63 (UB: 62)
 - [x] 5. binding_model — 15 (UB: 15)
-- [x] 6. spirv_assembly — 40 (UB: 27)
+- [x] 6. spirv_assembly — 41 (UB: 27)
 - [x] 7. glsl — 23 (UB: 0)
 - [x] 8. renderpasses — 29 (UB: 0)
 - [x] 9. ubo — 1 (UB: 1)
@@ -56,7 +56,7 @@ A category is **done** when its `testfiles/<category>/` subdirectory contains at
 - [x] 46. mesh_shader — 16 (UB: 11)
 - [x] 47. depth — 1
 - [x] 48. video — 6 (UB: 6)
-- [x] 49. shader_object — 10 (UB: 8)
+- [x] 49. shader_object — 11 (UB: 8)
 - [x] 50. dgc — 26 (UB: 22)
 - [x] 51. cooperative_vector — 3
 - [x] 52. tensor — 7

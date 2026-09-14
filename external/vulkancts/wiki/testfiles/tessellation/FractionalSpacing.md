@@ -276,6 +276,6 @@ void main (void)
 | Shader generation | [`initPrograms()`](../../../modules/vulkan/tessellation/vktTessellationFractionalSpacingTests.cpp#L427-L559) | Emits GLSL and HLSL programs for both spacing modes. |
 | Runtime and readback | [`test()`](../../../modules/vulkan/tessellation/vktTessellationFractionalSpacingTests.cpp#L561-L744) | Creates resources, draws every level, and runs both verification phases. |
 | Registration | [`createFractionalSpacingTests()`](../../../modules/vulkan/tessellation/vktTessellationFractionalSpacingTests.cpp#L763-L777) | Registers the four leaves. |
-| CTS clamping and rounding helpers | [`vktTessellationUtil.cpp#L364-L407`](../../../modules/vulkan/tessellation/vktTessellationUtil.cpp#L364-L407) | Implements the reference lower bounds and parity rounding. |
-| Mustpass coverage | [`tessellation.txt#L13-L16`](../../../mustpass/main/vk-default/tessellation.txt#L13-L16) | Lists all four registered paths. |
-| Tessellator spacing rules | [`tessellation.adoc#tessellation-tessellator-spacing`](../../../../vulkan-docs/src/chapters/tessellation.adoc#tessellation-tessellator-spacing) | Specifies fractional clamping, rounding, segment lengths, symmetry, and consistency. |
+| CTS clamping and rounding helpers | [CTS clamping and rounding helpers](../../../modules/vulkan/tessellation/vktTessellationUtil.cpp#L364-L407) | Implements the reference lower bounds and parity rounding. |
+| Mustpass coverage | [Mustpass coverage](../../../mustpass/main/vk-default/tessellation.txt#L13-L16) | Lists all four registered paths. |
+| Tessellator spacing rules | [tessellation.adoc](../../../../vulkan-docs/src/chapters/tessellation.adoc#tessellation-tessellator-spacing) | Specifies fractional clamping, rounding, segment lengths, symmetry, and consistency. |

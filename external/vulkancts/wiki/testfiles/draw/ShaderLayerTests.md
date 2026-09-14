@@ -160,7 +160,7 @@ void main(void)
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|-----------------------------------------|----------|
-| `numLayers` | The tessellation-control and tessellation-evaluation source is unchanged. The host emits the corresponding patch data, and `gl_PrimitiveID / 2` maps the resulting pairs of triangles to the available array layers. | [Test registration](../../../modules/vulkan/draw/vktDrawShaderLayerTests.cpp#L1019-L1047), [tessellation program generation](../../../modules/vulkan/draw/vktDrawShaderLayerTests.cpp#L393-L479) |
+| `numLayers` | The tessellation-control and tessellation-evaluation source is unchanged. The host emits the corresponding patch data, and `gl_PrimitiveID / 2` maps the resulting pairs of triangles to the available array layers. | [`createShaderLayerTests()`](../../../modules/vulkan/draw/vktDrawShaderLayerTests.cpp#L1019-L1047), [tessellation program generation](../../../modules/vulkan/draw/vktDrawShaderLayerTests.cpp#L393-L479) |
 | `renderpass` versus dynamic rendering | The shader is unchanged; the selected command-recording path changes how the same layered attachment is begun and submitted. | [Renderer draw](../../../modules/vulkan/draw/vktDrawShaderLayerTests.cpp#L674-L752) |
 | `tessellation_shader` versus `vertex_shader` | The Layer write moves from vertex processing (`gl_VertexIndex / 6`) to tessellation evaluation (`gl_PrimitiveID / 2`), with the tessellation path adding fixed control/evaluation stages. | [Vertex programs](../../../modules/vulkan/draw/vktDrawShaderLayerTests.cpp#L349-L391), [tessellation programs](../../../modules/vulkan/draw/vktDrawShaderLayerTests.cpp#L393-L479) |
 

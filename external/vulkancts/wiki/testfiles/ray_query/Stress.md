@@ -2,7 +2,7 @@
 
 **Core question:** Does inline ray-query traversal report the correct primitive ID and hit `t` for each of 60000 rays fired into a sequence of triangles or AABBs when run from 12 shader-stage configurations across graphics, compute, and ray tracing pipelines, and does a thirteenth `traceRayEXT` control report the expected hit `t`?
 
-This page covers the `stress` test family registered by [vktRayQueryStressTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryStressTests.cpp#L474-L575).
+This page covers the `stress` test family registered by [Stress-case registration](../../../modules/vulkan/ray_query/vktRayQueryStressTests.cpp#L474-L575).
 
 - The family registers 13 shader source types as direct children: 5 graphics-stage configurations, 1 compute configuration, 6 ray-query configurations in ray tracing shader stages, and 1 ray-generation `traceRayEXT` control. Each child fans out into `triangles` and `aabbs` leaves, for 26 test cases total.
 - The host builds 60000 primitives at successively increasing z-values, with the xy shape rotating through three orientations. Ray `i` starts at `(centroid_x, centroid_y, z_i - epsilon)` and travels along `+z` to hit primitive `i`.
@@ -43,12 +43,12 @@ Each direct child is an intermediate node that fans out into `triangles` and `aa
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Shader source type | 13 values (see hierarchy) | Selects which shader stage hosts the ray query and which pipeline dispatches it. | [vktRayQueryStressTests.cpp:481-L536](../../../modules/vulkan/ray_query/vktRayQueryStressTests.cpp#L481-L536) |
-| Geometry type | `triangles`, `aabbs` | Selects BLAS geometry. Triangles exercise `rayQueryConfirmIntersectionEXT`; AABBs exercise `rayQueryGenerateIntersectionEXT`. | [vktRayQueryStressTests.cpp:542-L545](../../../modules/vulkan/ray_query/vktRayQueryStressTests.cpp#L542-L545) |
-| Scene size | `STRESS_NUM_LEVELS = 20000`, `STRESS_NUM_PRIMS_PER_LEVELS = 3` | 60000 primitives; despite the constant names, `z` increases after every primitive rather than once per three-primitive level. | [vktRayQueryStressTests.cpp:313-L318](../../../modules/vulkan/ray_query/vktRayQueryStressTests.cpp#L313-L318), [L331-L387](../../../modules/vulkan/ray_query/vktRayQueryStressTests.cpp#L331-L387) |
-| Ray count | 60000 (RT pipelines) or 65536 (non-RT, rounded to a power of two whose exponent is even) | Non-RT pipelines round up for workgroup dispatch. The host verifies the first 60000 results. | [vktRayQueryStressTests.cpp:560-L566](../../../modules/vulkan/ray_query/vktRayQueryStressTests.cpp#L560-L566) |
-| Ray flags | `0` (`gl_RayFlagsNoneEXT`) | No flags set; triangles are opaque, no culling. | [vktRayQueryStressTests.cpp:555](../../../modules/vulkan/ray_query/vktRayQueryStressTests.cpp#L555) |
-| Hit T tolerance | `0.2` | Host accepts result `y` within 0.2 of expected. AABBs generate at `t = epsilon = 0.1` but expected is `0.0`; triangles generate at `epsilon` and expected is `epsilon`. | [vktRayQueryStressTests.cpp:448](../../../modules/vulkan/ray_query/vktRayQueryStressTests.cpp#L448) |
+| Shader source type | 13 values (see hierarchy) | Selects which shader stage hosts the ray query and which pipeline dispatches it. | [Shader-source type registration](../../../modules/vulkan/ray_query/vktRayQueryStressTests.cpp#L481-L536) |
+| Geometry type | `triangles`, `aabbs` | Selects BLAS geometry. Triangles exercise `rayQueryConfirmIntersectionEXT`; AABBs exercise `rayQueryGenerateIntersectionEXT`. | [Geometry type registration](../../../modules/vulkan/ray_query/vktRayQueryStressTests.cpp#L542-L545) |
+| Scene size | `STRESS_NUM_LEVELS = 20000`, `STRESS_NUM_PRIMS_PER_LEVELS = 3` | 60000 primitives; despite the constant names, `z` increases after every primitive rather than once per three-primitive level. | [Stress-scene size constants](../../../modules/vulkan/ray_query/vktRayQueryStressTests.cpp#L313-L318), [Staircase geometry construction](../../../modules/vulkan/ray_query/vktRayQueryStressTests.cpp#L331-L387) |
+| Ray count | 60000 (RT pipelines) or 65536 (non-RT, rounded to a power of two whose exponent is even) | Non-RT pipelines round up for workgroup dispatch. The host verifies the first 60000 results. | [Ray-count sizing](../../../modules/vulkan/ray_query/vktRayQueryStressTests.cpp#L560-L566) |
+| Ray flags | `0` (`gl_RayFlagsNoneEXT`) | No flags set; triangles are opaque, no culling. | [Zero-initialized query parameters](../../../modules/vulkan/ray_query/vktRayQueryStressTests.cpp#L555) |
+| Hit T tolerance | `0.2` | Host accepts result `y` within 0.2 of expected. AABBs generate at `t = epsilon = 0.1` but expected is `0.0`; triangles generate at `epsilon` and expected is `epsilon`. | [Hit-distance tolerance check](../../../modules/vulkan/ray_query/vktRayQueryStressTests.cpp#L448) |
 
 ## Behavior Parameters
 
@@ -169,7 +169,7 @@ void main() {
 
 #### Additional Info
 
-- The shader template is generated by `generateRayQueryShaders` in [vkRayTracingUtil.cpp:5124](../../../framework/vulkan/vkRayTracingUtil.cpp#L5124). The compute template wraps the ray-query body with the `Ray` and `ResultType` structs, the descriptor bindings, and the index computation.
+- The shader template is generated by `generateRayQueryShaders` in [Ray-query shader template generation](../../../framework/vulkan/vkRayTracingUtil.cpp#L5124). The compute template wraps the ray-query body with the `Ray` and `ResultType` structs, the descriptor bindings, and the index computation.
 - `MAX_T_VALUE * 2 = 20000000.0` is the sentinel for "no committed hit." If the ray query reports no committed intersection, `x` and `y` stay at the sentinel and the host's primitive-ID check fails.
 - The shader handles both triangle and AABB candidates in the same body. For the `triangles` leaf, the triangle branch fires. For the `aabbs` leaf, the AABB branch fires.
 - For AABBs, the shader computes `t = primitiveId - ray.pos.z`. Since `ray.pos.z = z - epsilon` and `primitiveId = z` (each primitive sits at `z = its index`), `t = epsilon = 0.1`. The host expects `y = 0.0` for AABBs, so the 0.2 tolerance covers this `epsilon` gap.
@@ -179,10 +179,10 @@ void main() {
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|------------------------|----------|
-| `aabbs` geometry | Same shader binary. The AABB branch fires; `rayQueryGenerateIntersectionEXT` commits at `t = epsilon`. | [vktRayQueryStressTests.cpp:380](../../../modules/vulkan/ray_query/vktRayQueryStressTests.cpp#L380) |
-| Graphics pipeline stages | Different shader template per stage (vert, tesc, tese, geom, frag). Same ray-query body. Result written via `imageStore`. | [vkRayTracingUtil.cpp:5229-L5451](../../../framework/vulkan/vkRayTracingUtil.cpp#L5229-L5451) |
-| Ray tracing pipeline stages | Different shader template per stage (rgen, isect, ahit, chit, miss, call). Ray-query body runs in the user-supplied stage. | [vkRayTracingUtil.cpp:5452-L5666](../../../framework/vulkan/vkRayTracingUtil.cpp#L5452-L5666) |
-| `rgen_rt_shader` | Different ray-query body: uses `traceRayEXT` against `scene`. No `rayQueryEXT` variable. | [vktRayQueryStressTests.cpp:238-L254](../../../modules/vulkan/ray_query/vktRayQueryStressTests.cpp#L238-L254) |
+| `aabbs` geometry | Same shader binary. The AABB branch fires; `rayQueryGenerateIntersectionEXT` commits at `t = epsilon`. | [AABB expected result](../../../modules/vulkan/ray_query/vktRayQueryStressTests.cpp#L380) |
+| Graphics pipeline stages | Different shader template per stage (vert, tesc, tese, geom, frag). Same ray-query body. Result written via `imageStore`. | [Graphics-stage shader templates](../../../framework/vulkan/vkRayTracingUtil.cpp#L5229-L5451) |
+| Ray tracing pipeline stages | Different shader template per stage (rgen, isect, ahit, chit, miss, call). Ray-query body runs in the user-supplied stage. | [Ray-tracing-stage shader templates](../../../framework/vulkan/vkRayTracingUtil.cpp#L5452-L5666) |
+| `rgen_rt_shader` | Different ray-query body: uses `traceRayEXT` against `scene`. No `rayQueryEXT` variable. | [Ray-generation traceRay path](../../../modules/vulkan/ray_query/vktRayQueryStressTests.cpp#L238-L254) |
 
 #### SPIR-V
 
@@ -532,13 +532,13 @@ A failure across all 13 children is consistent with shared infrastructure such a
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Constants and structs | [vktRayQueryStressTests.cpp:46-L84](../../../modules/vulkan/ray_query/vktRayQueryStressTests.cpp#L46-L84) | `MAX_T_VALUE`, `STRESS_NUM_LEVELS`, `STRESS_NUM_PRIMS_PER_LEVELS`, `TestType`, `StressTestParams`, `ResultData`. |
-| `checkSupport` | [vktRayQueryStressTests.cpp:128-L185](../../../modules/vulkan/ray_query/vktRayQueryStressTests.cpp#L128-L185) | Feature gates and ray-size limit. |
-| `initPrograms` | [vktRayQueryStressTests.cpp:187-L258](../../../modules/vulkan/ray_query/vktRayQueryStressTests.cpp#L187-L258) | Builds the ray-query body and delegates to `generateRayQueryShaders`. |
-| `iterate` | [vktRayQueryStressTests.cpp:273-L470](../../../modules/vulkan/ray_query/vktRayQueryStressTests.cpp#L273-L470) | Staircase construction, ray generation, dispatch, copyback, and the 0.2-tolerance check. |
-| `createRayQueryStressTests` registration | [vktRayQueryStressTests.cpp:474-L575](../../../modules/vulkan/ray_query/vktRayQueryStressTests.cpp#L474-L575) | Iterates 13 shader source types and 2 geometry types; adjusts ray size for non-RT pipelines. |
-| `generateRayQueryShaders` | [vkRayTracingUtil.cpp:5124-L5672](../../../framework/vulkan/vkRayTracingUtil.cpp#L5124-L5672) | Per-pipeline shader templates that wrap the ray-query body. |
-| `rayQueryComputeTestSetup` | [vkRayTracingUtil.hpp:2086](../../../framework/vulkan/vkRayTracingUtil.hpp#L2086) | Compute dispatch and result copyback. |
-| `rayQueryGraphicsTestSetup` | [vkRayTracingUtil.hpp:2225](../../../framework/vulkan/vkRayTracingUtil.hpp#L2225) | Graphics dispatch and result copyback. |
-| `rayQueryRayTracingTestSetup` | [vkRayTracingUtil.hpp:1758](../../../framework/vulkan/vkRayTracingUtil.hpp#L1758) | Ray tracing dispatch and result copyback. |
+| Constants and structs | [Stress constants and data structures](../../../modules/vulkan/ray_query/vktRayQueryStressTests.cpp#L46-L84) | `MAX_T_VALUE`, `STRESS_NUM_LEVELS`, `STRESS_NUM_PRIMS_PER_LEVELS`, `TestType`, `StressTestParams`, `ResultData`. |
+| `checkSupport` | [Stress support checks](../../../modules/vulkan/ray_query/vktRayQueryStressTests.cpp#L128-L185) | Feature gates and ray-size limit. |
+| `initPrograms` | [Stress shader initialization](../../../modules/vulkan/ray_query/vktRayQueryStressTests.cpp#L187-L258) | Builds the ray-query body and delegates to `generateRayQueryShaders`. |
+| `iterate` | [Stress execution and verification](../../../modules/vulkan/ray_query/vktRayQueryStressTests.cpp#L273-L470) | Staircase construction, ray generation, dispatch, copyback, and the 0.2-tolerance check. |
+| `createRayQueryStressTests` registration | [Stress-case registration](../../../modules/vulkan/ray_query/vktRayQueryStressTests.cpp#L474-L575) | Iterates 13 shader source types and 2 geometry types; adjusts ray size for non-RT pipelines. |
+| `generateRayQueryShaders` | [Ray-query shader template generator](../../../framework/vulkan/vkRayTracingUtil.cpp#L5124-L5672) | Per-pipeline shader templates that wrap the ray-query body. |
+| `rayQueryComputeTestSetup` | [Compute ray-query test setup](../../../framework/vulkan/vkRayTracingUtil.hpp#L2086) | Compute dispatch and result copyback. |
+| `rayQueryGraphicsTestSetup` | [Graphics ray-query test setup](../../../framework/vulkan/vkRayTracingUtil.hpp#L2225) | Graphics dispatch and result copyback. |
+| `rayQueryRayTracingTestSetup` | [Ray-tracing ray-query test setup](../../../framework/vulkan/vkRayTracingUtil.hpp#L1758) | Ray tracing dispatch and result copyback. |
 | Vulkan spec: ray traversal | [raytraversal.adoc](../../../../vulkan-docs/src/chapters/raytraversal.adoc) | Ray query built-in semantics. |

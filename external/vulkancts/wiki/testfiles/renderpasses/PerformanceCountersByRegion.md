@@ -20,7 +20,7 @@ renderpasses.renderpass1.performance_counters_by_region
 └── r8g8b8a8_unorm
 ```
 
-The tree shows the `renderpass1` representative root. The same family is registered under `renderpasses.renderpass2.performance_counters_by_region` and under each `renderpasses.dynamic_rendering.*.performance_counters_by_region` root. Under each root, the single `r8g8b8a8_unorm` format node holds two leaves: `layers_1` and `layers_2` ([registration loop](../../../modules/vulkan/renderpass/vktRenderPassPerformanceCountersByRegionTests.cpp#L1581-L1606)). The family is non-SC and is guarded by `#ifndef CTS_USES_VULKANSC`.
+The tree shows the `renderpass1` representative root. The same family is registered under `renderpasses.renderpass2.performance_counters_by_region` and under each `renderpasses.dynamic_rendering.*.performance_counters_by_region` root. Under each root, the single `r8g8b8a8_unorm` format node holds two leaves: `layers_1` and `layers_2` ([`initTests`](../../../modules/vulkan/renderpass/vktRenderPassPerformanceCountersByRegionTests.cpp#L1581-L1606)). The family is non-SC and is guarded by `#ifndef CTS_USES_VULKANSC`.
 
 ## Parameter Dimensions and Observed Values
 

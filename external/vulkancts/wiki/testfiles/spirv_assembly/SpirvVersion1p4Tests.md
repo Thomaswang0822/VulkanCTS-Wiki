@@ -36,7 +36,7 @@ spirv_assembly.instruction.spirv1p4
 └── wrap
 ```
 
-All 13 direct children of `spirv1p4` are test families registered by [`createSpirvVersion1p4Group()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L124-L409). [`vktSpvAsmInstructionTests.cpp`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21538) attaches that group below the instruction root.
+All 13 direct children of `spirv1p4` are test families registered by [`createSpirvVersion1p4Group()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L124-L409). [`createSpirvVersion1p4Group`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21538) attaches that group below the instruction root.
 
 ### Registered-leaf and mustpass reconciliation
 
@@ -374,7 +374,7 @@ This representative case does not use GLSL or HLSL. CTS supplies the shader modu
 
 ### Requirement-based pruning
 
-- All cases require `VK_KHR_spirv_1_4`. Devices without the extension cannot run any case in this file. The C++ comment at [`vktSpvAsmSpirvVersion1p4Tests.cpp#L93-L106`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L93-L106) notes that `VK_KHR_spirv_1_4` requires Vulkan 1.1, so several promoted extensions (`VK_KHR_storage_buffer_storage_class`, `VK_KHR_variable_pointers`) do not need explicit test requirements because they are core in Vulkan 1.1. Feature bits may still be optional.
+- All cases require `VK_KHR_spirv_1_4`. Devices without the extension cannot run any case in this file. The C++ comment at [`addTestsForAmberFiles()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L93-L106) notes that `VK_KHR_spirv_1_4` requires Vulkan 1.1, so several promoted extensions (`VK_KHR_storage_buffer_storage_class`, `VK_KHR_variable_pointers`) do not need explicit test requirements because they are core in Vulkan 1.1. Feature bits may still be optional.
 - The pointer families add `VariablePointerFeatures.variablePointersStorageBuffer` (`Varptr_ssbo`) and `VariablePointerFeatures.variablePointers` (`Varptr_full`). Devices without these features skip the corresponding cases.
 - The `opselect/wg_*` cases add `VK_KHR_workgroup_memory_explicit_layout` (`Varptr_full_explicitLayout`). Devices without the extension skip those two cases.
 - The `entrypoint/geom_*` cases add `Features.geometryShader`; the `entrypoint/tess_*` cases add `Features.tessellationShader`. Devices without those features skip the corresponding cases.
@@ -401,24 +401,24 @@ This representative case does not use GLSL or HLSL. CTS supplies the shader modu
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Instruction-root registration | [`vktSpvAsmInstructionTests.cpp#L21538`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21538) | Attaches `spirv1p4` below the instruction root. |
-| `createSpirvVersion1p4Group()` | [`vktSpvAsmSpirvVersion1p4Tests.cpp#L124-L409`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L124-L409) | Top-level group creation; defines all 13 subgroups and their case lists. |
-| `addTestsForAmberFiles()` | [`vktSpvAsmSpirvVersion1p4Tests.cpp#L75-L120`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L75-L120) | Amber test factory: adds `VK_KHR_spirv_1_4`, sets SPIR-V 1.4 build options, registers each case. Wrapped in `#ifndef CTS_USES_VULKANSC`. |
-| `Case` and `CaseGroup` structs | [`vktSpvAsmSpirvVersion1p4Tests.cpp#L44-L73`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L44-L73) | Carrier for the per-subgroup basename list and per-case requirements. |
-| Feature requirement vectors | [`vktSpvAsmSpirvVersion1p4Tests.cpp#L133-L156`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L133-L156) | `Geom`, `Tess`, `Varptr_ssbo`, `Varptr_full`, `Varptr_full_explicitLayout`, `Int16`, `Int16_storage`, `Int64` definitions. |
-| `opcopylogical` case list | [`vktSpvAsmSpirvVersion1p4Tests.cpp#L160-L183`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L160-L183) | 11 `OpCopyLogical` cases. |
-| `opptrdiff` case list | [`vktSpvAsmSpirvVersion1p4Tests.cpp#L185-L196`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L185-L196) | 5 `OpPtrDiff` cases. |
-| `opptrequal` case list | [`vktSpvAsmSpirvVersion1p4Tests.cpp#L198-L223`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L198-L223) | 12 `OpPtrEqual` cases. |
-| `opptrnotequal` case list | [`vktSpvAsmSpirvVersion1p4Tests.cpp#L225-L250`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L225-L250) | 12 `OpPtrNotEqual` cases. |
-| `opcopymemory` case list | [`vktSpvAsmSpirvVersion1p4Tests.cpp#L252-L259`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L252-L259) | 3 `OpCopyMemory` access-operand cases. |
-| `uniformid` case list | [`vktSpvAsmSpirvVersion1p4Tests.cpp#L261-L272`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L261-L272) | 5 `UniformId` cases. |
-| `nonwritable` case list | [`vktSpvAsmSpirvVersion1p4Tests.cpp#L274-L285`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L274-L285) | 5 `NonWritable` on Function/Private cases. |
-| `entrypoint` case list | [`vktSpvAsmSpirvVersion1p4Tests.cpp#L287-L327`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L287-L327) | 19 entry-point interface cases across 6 stages; Workgroup is compute-only. |
-| `hlsl_functionality1` case list | [`vktSpvAsmSpirvVersion1p4Tests.cpp#L329-L337`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L329-L337) | 3 `CounterBuffer` / `OpDecorateString` / `OpMemberDecorateString` cases. |
-| `loop_control` case list | [`vktSpvAsmSpirvVersion1p4Tests.cpp#L339-L351`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L339-L351) | 5 SPIR-V 1.4 loop control hint cases. |
-| `opselect` case list | [`vktSpvAsmSpirvVersion1p4Tests.cpp#L353-L379`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L353-L379) | 12 `OpSelect` cases (scalar, vector, composite, pointer). |
-| `uconvert` case list | [`vktSpvAsmSpirvVersion1p4Tests.cpp#L381-L399`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L381-L399) | 8 `UConvert` in `OpSpecConstantOp` cases. |
-| `wrap` case list | [`vktSpvAsmSpirvVersion1p4Tests.cpp#L401-L407`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L401-L407) | 2 `NoSignedWrap` / `NoUnsignedWrap` cases. |
+| Instruction-root registration | [`createSpirvVersion1p4Group`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21538) | Attaches `spirv1p4` below the instruction root. |
+| `createSpirvVersion1p4Group()` | [`createSpirvVersion1p4Group()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L124-L409) | Top-level group creation; defines all 13 subgroups and their case lists. |
+| `addTestsForAmberFiles()` | [`addTestsForAmberFiles()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L75-L120) | Amber test factory: adds `VK_KHR_spirv_1_4`, sets SPIR-V 1.4 build options, registers each case. Wrapped in `#ifndef CTS_USES_VULKANSC`. |
+| `Case` and `CaseGroup` structs | [`Case` and `CaseGroup` structs](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L44-L73) | Carrier for the per-subgroup basename list and per-case requirements. |
+| Feature requirement vectors | [`createSpirvVersion1p4Group()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L133-L156) | `Geom`, `Tess`, `Varptr_ssbo`, `Varptr_full`, `Varptr_full_explicitLayout`, `Int16`, `Int16_storage`, `Int64` definitions. |
+| `opcopylogical` case list | [`opcopylogical`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L160-L183) | 11 `OpCopyLogical` cases. |
+| `opptrdiff` case list | [`opptrdiff`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L185-L196) | 5 `OpPtrDiff` cases. |
+| `opptrequal` case list | [`opptrequal`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L198-L223) | 12 `OpPtrEqual` cases. |
+| `opptrnotequal` case list | [`opptrnotequal`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L225-L250) | 12 `OpPtrNotEqual` cases. |
+| `opcopymemory` case list | [`opcopymemory`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L252-L259) | 3 `OpCopyMemory` access-operand cases. |
+| `uniformid` case list | [`uniformid`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L261-L272) | 5 `UniformId` cases. |
+| `nonwritable` case list | [`nonwritable`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L274-L285) | 5 `NonWritable` on Function/Private cases. |
+| `entrypoint` case list | [`entrypoint`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L287-L327) | 19 entry-point interface cases across 6 stages; Workgroup is compute-only. |
+| `hlsl_functionality1` case list | [`hlsl_functionality1`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L329-L337) | 3 `CounterBuffer` / `OpDecorateString` / `OpMemberDecorateString` cases. |
+| `loop_control` case list | [`loop_control`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L339-L351) | 5 SPIR-V 1.4 loop control hint cases. |
+| `opselect` case list | [`opselect`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L353-L379) | 12 `OpSelect` cases (scalar, vector, composite, pointer). |
+| `uconvert` case list | [`uconvert`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L381-L399) | 8 `UConvert` in `OpSpecConstantOp` cases. |
+| `wrap` case list | [`wrap`](../../../modules/vulkan/spirv_assembly/vktSpvAsmSpirvVersion1p4Tests.cpp#L401-L407) | 2 `NoSignedWrap` / `NoUnsignedWrap` cases. |
 | Representative Amber script | [`opselect/scalar_select.amber`](../../../data/vulkan/amber/spirv_assembly/instruction/spirv1p4/opselect/scalar_select.amber) | Smallest representative walkthrough; embeds SPIR-V assembly for `OpSelect` on scalars. |
 | OpCopyLogical UBO→SSBO Amber | [`opcopylogical/ubo_to_ssbo.amber`](../../../data/vulkan/amber/spirv_assembly/instruction/spirv1p4/opcopylogical/ubo_to_ssbo.amber) | Demonstrates layout conversion through `OpCopyLogical`. |
 | NoSignedWrap Amber | [`wrap/no_signed_wrap.amber`](../../../data/vulkan/amber/spirv_assembly/instruction/spirv1p4/wrap/no_signed_wrap.amber) | Demonstrates integer wrap decoration. |

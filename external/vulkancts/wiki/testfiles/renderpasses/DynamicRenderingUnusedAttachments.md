@@ -6,9 +6,9 @@
   [vktDynamicRenderingUnusedAttachmentsTests.cpp](../../../modules/vulkan/renderpass/vktDynamicRenderingUnusedAttachmentsTests.cpp).
 - The family is registered under the `renderpasses` test category, attached to two
   dynamic-rendering intermediate nodes: `primary_cmd_buff`
-  ([vktRenderPassTests.cpp#L8534](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8534)) and
+  ([Render-pass dispatcher registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8534)) and
   `partial_secondary_cmd_buff`
-  ([vktRenderPassTests.cpp#L8543](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8543)). It is
+  ([Render-pass dispatcher registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8543)). It is
   excluded from Vulkan SC builds.
 - The family exercises `VK_EXT_dynamic_rendering_unused_attachments`, which lifts the
   `VK_KHR_dynamic_rendering` requirement that the render pass instance and every bound pipeline agree on
@@ -56,9 +56,9 @@ renderpasses.dynamic_rendering.primary_cmd_buff.unused_attachments
 The `unused_attachments` test family is created by
 [createDynamicRenderingUnusedAttachmentsTests](../../../modules/vulkan/renderpass/vktDynamicRenderingUnusedAttachmentsTests.cpp#L1593-L1807),
 which is called once with `useSecondaries = false` for the `primary_cmd_buff` intermediate node
-([vktRenderPassTests.cpp#L8534](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8534)) and once with
+([Render-pass dispatcher registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8534)) and once with
 `useSecondaries = true` for the `partial_secondary_cmd_buff` intermediate node
-([vktRenderPassTests.cpp#L8543](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8543)). The same six intermediate
+([Render-pass dispatcher registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8543)). The same six intermediate
 nodes appear identically under both parents; the only difference is that the `partial_secondary_cmd_buff` variants record
 draw commands inside a secondary command buffer using
 `VK_RENDERING_CONTENTS_SECONDARY_COMMAND_BUFFERS_BIT`. The family is not registered under
@@ -424,7 +424,7 @@ would produce the wrong depth value. This is a dynamic depth-test-enable handlin
 - The `misc` intermediate node with `dynamicDepthEnable = true` requires `VK_EXT_extended_dynamic_state`
   ([usedThenUnusedCheckSupport](../../../modules/vulkan/renderpass/vktDynamicRenderingUnusedAttachmentsTests.cpp#L1146-L1152)).
 - The whole family is excluded from Vulkan SC builds (`#ifndef CTS_USES_VULKANSC` around the dynamic-rendering registration
-  block in [vktRenderPassTests.cpp#L8521-L8548](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8521-L8548)).
+  block in [Render-pass dispatcher registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8521-L8548)).
 
 ### Design-based pruning
 
@@ -455,7 +455,7 @@ would produce the wrong depth value. This is a dynamic depth-test-enable handlin
 - The family is registered under `primary_cmd_buff` and `partial_secondary_cmd_buff` but not under
   `complete_secondary_cmd_buff` or `graphics_pipeline_library`, because the registration is gated on monolithic pipeline
   construction and the partial-secondary path
-  ([vktRenderPassTests.cpp#L8530-L8546](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8530-L8546)).
+  ([Render-pass dispatcher registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8530-L8546)).
 
 ## Key Takeaways
 
@@ -480,11 +480,11 @@ would produce the wrong depth value. This is a dynamic depth-test-enable handlin
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Test family factory | [vktDynamicRenderingUnusedAttachmentsTests.cpp#L1593-L1807](../../../modules/vulkan/renderpass/vktDynamicRenderingUnusedAttachmentsTests.cpp#L1593-L1807) | Creates the `unused_attachments` group and its six intermediate nodes; enumerates the parameter matrices. |
-| Test parameters and name synthesis | [vktDynamicRenderingUnusedAttachmentsTests.cpp#L101-L336](../../../modules/vulkan/renderpass/vktDynamicRenderingUnusedAttachmentsTests.cpp#L101-L336) | Owns the `TestParams` struct, mask-to-format and mask-to-view helpers, and the leaf name string. |
-| Shader generation | [vktDynamicRenderingUnusedAttachmentsTests.cpp#L376-L487](../../../modules/vulkan/renderpass/vktDynamicRenderingUnusedAttachmentsTests.cpp#L376-L487) | Emits the vertex and fragment shaders, including the dual SPIR-V 1.0 / 1.5 vertex modules and the per-case fragment output declarations. |
-| Support checks | [vktDynamicRenderingUnusedAttachmentsTests.cpp#L489-L534](../../../modules/vulkan/renderpass/vktDynamicRenderingUnusedAttachmentsTests.cpp#L489-L534) | Extension, feature, and limit gates; multiview and vertex-layer support. |
-| Instance iterate and verification | [vktDynamicRenderingUnusedAttachmentsTests.cpp#L536-L1138](../../../modules/vulkan/renderpass/vktDynamicRenderingUnusedAttachmentsTests.cpp#L536-L1138) | Image creation, layout transitions, render pass recording, copyback, and the color/depth/stencil comparisons. |
-| `misc` intermediate node | [vktDynamicRenderingUnusedAttachmentsTests.cpp#L1140-L1587](../../../modules/vulkan/renderpass/vktDynamicRenderingUnusedAttachmentsTests.cpp#L1140-L1587) | The two-pass used-then-unused case, including the dynamic depth-enable path. |
-| Group attachment | [vktRenderPassTests.cpp#L8534](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8534), [vktRenderPassTests.cpp#L8543](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8543) | Adds the family under the `primary_cmd_buff` and `partial_secondary_cmd_buff` dynamic-rendering intermediate nodes. |
+| Test family factory | [build unused-attachment groups and parameter matrices](../../../modules/vulkan/renderpass/vktDynamicRenderingUnusedAttachmentsTests.cpp#L1593-L1807) | Creates the `unused_attachments` group and its six intermediate nodes; enumerates the parameter matrices. |
+| Test parameters and name synthesis | [Test parameters and name synthesis](../../../modules/vulkan/renderpass/vktDynamicRenderingUnusedAttachmentsTests.cpp#L101-L336) | Owns the `TestParams` struct, mask-to-format and mask-to-view helpers, and the leaf name string. |
+| Shader generation | [`DynamicUnusedAttachmentsCase::initPrograms()`](../../../modules/vulkan/renderpass/vktDynamicRenderingUnusedAttachmentsTests.cpp#L376-L487) | Emits the vertex and fragment shaders, including the dual SPIR-V 1.0 / 1.5 vertex modules and the per-case fragment output declarations. |
+| Support checks | [Support checks](../../../modules/vulkan/renderpass/vktDynamicRenderingUnusedAttachmentsTests.cpp#L489-L534) | Extension, feature, and limit gates; multiview and vertex-layer support. |
+| Instance iterate and verification | [Instance iterate and verification](../../../modules/vulkan/renderpass/vktDynamicRenderingUnusedAttachmentsTests.cpp#L536-L1138) | Image creation, layout transitions, render pass recording, copyback, and the color/depth/stencil comparisons. |
+| `misc` intermediate node | [misc intermediate node](../../../modules/vulkan/renderpass/vktDynamicRenderingUnusedAttachmentsTests.cpp#L1140-L1587) | The two-pass used-then-unused case, including the dynamic depth-enable path. |
+| Group attachment | [Render-pass dispatcher registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8534), [Render-pass dispatcher registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8543) | Adds the family under the `primary_cmd_buff` and `partial_secondary_cmd_buff` dynamic-rendering intermediate nodes. |
 | Mustpass entries | [renderpasses.txt](../../../mustpass/main/vk-default/renderpasses.txt) | Lists all `dEQP-VK.renderpasses.dynamic_rendering.{primary_cmd_buff,partial_secondary_cmd_buff}.unused_attachments.*` leaves. |

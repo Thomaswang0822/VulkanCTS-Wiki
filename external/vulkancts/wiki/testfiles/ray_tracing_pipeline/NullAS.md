@@ -21,7 +21,7 @@ ray_tracing_pipeline.null_as
 └── test
 ```
 
-The two direct children are registered by [createNullAccelerationStructureTests](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L753-L766). `test` is a `RayTracingTestCase` with an 8x8 dispatch; `mixed_dispatches` is a `RayTracingDescriptorTestCase` with no `CaseDef` parameters.
+The two direct children are registered by [`main()`](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L753-L766). `test` is a `RayTracingTestCase` with an 8x8 dispatch; `mixed_dispatches` is a `RayTracingDescriptorTestCase` with no `CaseDef` parameters.
 
 ## Parameter Dimensions and Observed Values
 
@@ -97,7 +97,7 @@ void main()
 
 #### Additional Info
 
-- The reconstructed rgen source comes from [`getCommonRayGenerationShader`](../../../framework/vulkan/vkRayTracingUtil.cpp#L118-L138), selected by [`RayTracingTestCase::initPrograms`](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L313-L318).
+- The reconstructed rgen source comes from [`getCommonRayGenerationShader()`](../../../framework/vulkan/vkRayTracingUtil.cpp#L118-L138), selected by [`RayTracingTestCase::initPrograms`](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L313-L318).
 
 #### Parameter Variation Summary
 
@@ -220,10 +220,10 @@ void main()
 
 ### `test` leaf
 
-- A custom device is created with `VK_KHR_ray_tracing_pipeline`, `VK_KHR_acceleration_structure`, `VK_KHR_buffer_device_address`, `VK_KHR_deferred_host_operations`, `VK_EXT_descriptor_indexing`, `VK_KHR_spirv_1_4`, `VK_KHR_shader_float_controls`, and `VK_KHR_robustness2` (or `VK_EXT_robustness2`). The custom device explicitly disables `robustBufferAccess`, `robustBufferAccess2`, and `robustImageAccess2` so only `nullDescriptor` is exercised [DeviceHelper](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L169-L231).
+- A custom device is created with `VK_KHR_ray_tracing_pipeline`, `VK_KHR_acceleration_structure`, `VK_KHR_buffer_device_address`, `VK_KHR_deferred_host_operations`, `VK_EXT_descriptor_indexing`, `VK_KHR_spirv_1_4`, `VK_KHR_shader_float_controls`, and `VK_KHR_robustness2` (or `VK_EXT_robustness2`). The custom device explicitly disables `robustBufferAccess`, `robustBufferAccess2`, and `robustImageAccess2` so only `nullDescriptor` is exercised [`DeviceHelper()`](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L169-L231).
 - The descriptor set layout has two bindings: binding 0 is a storage image (`r32ui` 2D image, 8x8), binding 1 is `VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR`. The descriptor write for binding 1 sets `pAccelerationStructures` to a pointer to `VK_NULL_HANDLE` [descriptor update](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L488-L500).
 - The result image is cleared to `(5,5,5,255)` and transitioned to `GENERAL` before the trace. `cmdTraceRays` dispatches `8 x 8 x 1` rays. A `SHADER_WRITE` to `TRANSFER_READ` barrier, `cmdCopyImageToBuffer`, and a `TRANSFER_WRITE` to `HOST_READ` barrier move the image into a host-visible buffer [runTest](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L466-L523).
-- The host scans every pixel and counts failures against the expected value `4` [validateBuffer](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L528-L545). Pass condition: `failures == 0`.
+- The host scans every pixel and counts failures against the expected value `4` [check every null-AS output pixel against value four](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L528-L545). Pass condition: `failures == 0`.
 
 ### `mixed_dispatches` leaf
 
@@ -259,7 +259,7 @@ void main()
 
 ### Requirement-based pruning
 
-- The `test` leaf requires `VK_KHR_ray_tracing_pipeline`, `VK_KHR_acceleration_structure`, `VK_KHR_deferred_host_operations`, `VK_KHR_buffer_device_address`, and `VK_KHR_robustness2` (or `VK_EXT_robustness2`). The `rayTracingPipeline` feature bit and the `nullDescriptor` feature bit must both be set, otherwise the test throws `NotSupportedError` [checkSupport](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L278-L311).
+- The `test` leaf requires `VK_KHR_ray_tracing_pipeline`, `VK_KHR_acceleration_structure`, `VK_KHR_deferred_host_operations`, `VK_KHR_buffer_device_address`, and `VK_KHR_robustness2` (or `VK_EXT_robustness2`). The `rayTracingPipeline` feature bit and the `nullDescriptor` feature bit must both be set, otherwise the test throws `NotSupportedError` [`RayTracingTestCase()`](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L278-L311).
 - The `mixed_dispatches` leaf requires `VK_KHR_acceleration_structure` and `VK_KHR_ray_tracing_pipeline` [checkSupport](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L707-L711).
 
 ### Design-based pruning
@@ -278,13 +278,13 @@ void main()
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `CaseDef` struct | [vktRayTracingNullASTests.cpp#L56-L60](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L56-L60) | Per-case width and height for the `test` leaf |
-| `DeviceHelper` constructor | [vktRayTracingNullASTests.cpp#L169-L231](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L169-L231) | Custom device with robustness2 enabled and other robustness2 access features disabled |
-| `RayTracingTestCase::checkSupport` | [vktRayTracingNullASTests.cpp#L278-L311](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L278-L311) | Feature gates for the `test` leaf, including `nullDescriptor` |
-| `RayTracingTestCase::initPrograms` | [vktRayTracingNullASTests.cpp#L313-L388](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L313-L388) | rgen, ahit, chit, miss, and sect shaders for the `test` leaf |
-| `runTest` (null AS trace) | [vktRayTracingNullASTests.cpp#L395-L526](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L395-L526) | Null AS descriptor write, image clear, trace dispatch, and copyback |
-| `validateBuffer` | [vktRayTracingNullASTests.cpp#L528-L545](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L528-L545) | Per-pixel expected-value `4` check for the `test` leaf |
-| `RayTracingDescriptorTestInstance::iterate` | [vktRayTracingNullASTests.cpp#L572-L689](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L572-L689) | `mixed_dispatches` execution: dual pipelines, dual descriptor sets, four alternating dispatches, four-section result check |
-| `RayTracingDescriptorTestCase::initPrograms` | [vktRayTracingNullASTests.cpp#L713-L747](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L713-L747) | rgen and compute shaders for `mixed_dispatches`, specialized with `singleDispatchCount=16` |
-| `createNullAccelerationStructureTests` | [vktRayTracingNullASTests.cpp#L753-L766](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L753-L766) | Registration of the `null_as` group and its two children |
-| shared rgen shader helper | [vkRayTracingUtil.cpp#L118-L138](../../../framework/vulkan/vkRayTracingUtil.cpp#L118-L138) | `getCommonRayGenerationShader` used by the `test` leaf's rgen |
+| `CaseDef` struct | [CaseDef struct](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L56-L60) | Per-case width and height for the `test` leaf |
+| `DeviceHelper` constructor | [create a device with null-descriptor robustness settings](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L169-L231) | Custom device with robustness2 enabled and other robustness2 access features disabled |
+| `RayTracingTestCase::checkSupport` | [check null-descriptor and ray-tracing feature support](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L278-L311) | Feature gates for the `test` leaf, including `nullDescriptor` |
+| `RayTracingTestCase::initPrograms` | [RayTracingTestCase::initPrograms](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L313-L388) | rgen, ahit, chit, miss, and sect shaders for the `test` leaf |
+| `runTest` (null AS trace) | [runTest (null AS trace)](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L395-L526) | Null AS descriptor write, image clear, trace dispatch, and copyback |
+| `validateBuffer` | [require the null-AS result value in every pixel](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L528-L545) | Per-pixel expected-value `4` check for the `test` leaf |
+| `RayTracingDescriptorTestInstance::iterate` | [RayTracingDescriptorTestInstance::iterate](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L572-L689) | `mixed_dispatches` execution: dual pipelines, dual descriptor sets, four alternating dispatches, four-section result check |
+| `RayTracingDescriptorTestCase::initPrograms` | [RayTracingDescriptorTestCase::initPrograms](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L713-L747) | rgen and compute shaders for `mixed_dispatches`, specialized with `singleDispatchCount=16` |
+| `createNullAccelerationStructureTests` | [register null-acceleration-structure cases](../../../modules/vulkan/ray_tracing/vktRayTracingNullASTests.cpp#L753-L766) | Registration of the `null_as` group and its two children |
+| shared rgen shader helper | [generate the common raygen shader for null-AS tracing](../../../framework/vulkan/vkRayTracingUtil.cpp#L118-L138) | `getCommonRayGenerationShader` used by the `test` leaf's rgen |

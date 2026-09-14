@@ -4,13 +4,13 @@
 
 - This page covers the `tensor.dimension_query` test family created by [createDimensionQueryTests](../../../modules/vulkan/tensor/vktTensorDimensionQuery.cpp#L293-L300).
 - The family creates rank-1 through rank-5 tensors, queries every dimension in a one-invocation compute shader, and compares the returned `uint` values with the tensor dimensions supplied at creation.
-- The registered matrix crosses five shapes, eight integer formats, and both `VK_TENSOR_TILING_LINEAR_ARM` and `VK_TENSOR_TILING_OPTIMAL_ARM`. The default mustpass contains the resulting 80 cases at [tensor.txt#L761-L840](../../../mustpass/main/vk-default/tensor.txt#L761-L840).
+- The registered matrix crosses five shapes, eight integer formats, and both `VK_TENSOR_TILING_LINEAR_ARM` and `VK_TENSOR_TILING_OPTIMAL_ARM`. The default mustpass contains the resulting 80 cases at [dimension_query default mustpass cases](../../../mustpass/main/vk-default/tensor.txt#L761-L840).
 - The page explains the generated `tensorSizeARM` shader, compute-stage support gates, descriptor and output-buffer setup, host readback, result checking, and the cases that the test prunes before execution.
 
 ## Background Knowledge
 
 - **Tensor rank and shape.** Rank is the number of tensor dimensions. The shape stores the size of each dimension in index order, so shape `{2, 1}` has dimension 0 of size 2 and dimension 1 of size 1. The shader's tensor type rank and the created tensor's dimension count must agree.
-- **Tensor query semantics.** `tensorSizeARM` maps to the SPIR-V `OpTensorQuerySizeARM` operation. The operation queries the size of the tensor descriptor that a shader tensor operation would access; it does not read tensor element contents. The specification describes this operation in [tensorops.adoc#L231-L239](../../../../vulkan-docs/src/chapters/VK_ARM_tensors/tensorops.adoc#L231-L239).
+- **Tensor query semantics.** `tensorSizeARM` maps to the SPIR-V `OpTensorQuerySizeARM` operation. The operation queries the size of the tensor descriptor that a shader tensor operation would access; it does not read tensor element contents. The specification describes this operation in [OpTensorQuerySizeARM descriptor-size query semantics](../../../../vulkan-docs/src/chapters/VK_ARM_tensors/tensorops.adoc#L231-L239).
 
 ## Registration Hierarchy
 
@@ -115,9 +115,9 @@ void main()
 
 #### Additional Info
 
-- The generator uses `getTensorFormat(tensorFormat)` for the tensor element type and uses the input rank as the second `tensorARM` type argument [vktTensorQueryDimensionsShaders.cpp#L40-L51](../../../modules/vulkan/tensor/shaders/vktTensorQueryDimensionsShaders.cpp#L40-L51).
-- The loop emits exactly one statement for each index in `[0, rank)`, so this case has no tensor element-coordinate calculation [vktTensorQueryDimensionsShaders.cpp#L57-L60](../../../modules/vulkan/tensor/shaders/vktTensorQueryDimensionsShaders.cpp#L57-L60).
-- The source collection adds the generated text as the `comp` program, which the test turns into a compute shader module [vktTensorDimensionQuery.cpp#L263-L267](../../../modules/vulkan/tensor/vktTensorDimensionQuery.cpp#L263-L267).
+- The generator uses `getTensorFormat(tensorFormat)` for the tensor element type and uses the input rank as the second `tensorARM` type argument [getTensorFormat mapping and tensorARM rank declaration](../../../modules/vulkan/tensor/shaders/vktTensorQueryDimensionsShaders.cpp#L40-L51).
+- The loop emits exactly one statement for each index in `[0, rank)`, so this case has no tensor element-coordinate calculation [tensorSizeARM statement generation for each dimension](../../../modules/vulkan/tensor/shaders/vktTensorQueryDimensionsShaders.cpp#L57-L60).
+- The source collection adds the generated text as the `comp` program, which the test turns into a compute shader module [initPrograms registration of the generated comp shader](../../../modules/vulkan/tensor/vktTensorDimensionQuery.cpp#L263-L267).
 
 #### Parameter Variation Summary
 
@@ -204,12 +204,12 @@ void main()
 
 ## Runtime Execution and Result Checking
 
-- The test builds a `VkTensorDescriptionARM` with the selected tiling, format, dimensions, computed linear strides when applicable, and `VK_TENSOR_USAGE_SHADER_BIT_ARM`; it then creates a `TensorWithMemory` and a tensor view [vktTensorDimensionQuery.cpp#L100-L106](../../../modules/vulkan/tensor/vktTensorDimensionQuery.cpp#L100-L106).
-- It allocates a host-visible storage buffer sized as `rank * sizeof(uint32_t)`, clears its slots, and flushes the allocation before device use [vktTensorDimensionQuery.cpp#L108-L123](../../../modules/vulkan/tensor/vktTensorDimensionQuery.cpp#L108-L123).
-- Descriptor binding 0 contains the `VK_DESCRIPTOR_TYPE_TENSOR_ARM` tensor view. Binding 1 contains the `VK_DESCRIPTOR_TYPE_STORAGE_BUFFER` result buffer. Both bindings are visible to the compute stage [vktTensorDimensionQuery.cpp#L125-L153](../../../modules/vulkan/tensor/vktTensorDimensionQuery.cpp#L125-L153).
-- The test creates a compute pipeline from the generated `comp` module, binds the descriptor set, and dispatches exactly `1, 1, 1`. The single invocation executes every generated query statement [vktTensorDimensionQuery.cpp#L155-L184](../../../modules/vulkan/tensor/vktTensorDimensionQuery.cpp#L155-L184).
-- A buffer barrier changes visibility from `VK_ACCESS_SHADER_WRITE_BIT` at `VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT` to `VK_ACCESS_HOST_READ_BIT` at `VK_PIPELINE_STAGE_HOST_BIT`. The test submits the command buffer and waits before reading [vktTensorDimensionQuery.cpp#L178-L193](../../../modules/vulkan/tensor/vktTensorDimensionQuery.cpp#L178-L193).
-- The host invalidates the allocation, scans every result slot, and compares it with the corresponding `m_dimensions` entry. The first mismatch returns failure with its index, expected value, and actual buffer value; a complete match returns `pass("Tensor test succeeded")` [vktTensorDimensionQuery.cpp#L196-L218](../../../modules/vulkan/tensor/vktTensorDimensionQuery.cpp#L196-L218).
+- The test builds a `VkTensorDescriptionARM` with the selected tiling, format, dimensions, computed linear strides when applicable, and `VK_TENSOR_USAGE_SHADER_BIT_ARM`; it then creates a `TensorWithMemory` and a tensor view [makeTensorDescription, TensorWithMemory, and tensor-view creation](../../../modules/vulkan/tensor/vktTensorDimensionQuery.cpp#L100-L106).
+- It allocates a host-visible storage buffer sized as `rank * sizeof(uint32_t)`, clears its slots, and flushes the allocation before device use [rank-sized result buffer allocation, clearing, and flushAlloc](../../../modules/vulkan/tensor/vktTensorDimensionQuery.cpp#L108-L123).
+- Descriptor binding 0 contains the `VK_DESCRIPTOR_TYPE_TENSOR_ARM` tensor view. Binding 1 contains the `VK_DESCRIPTOR_TYPE_STORAGE_BUFFER` result buffer. Both bindings are visible to the compute stage [compute-stage tensor and storage-buffer descriptor bindings](../../../modules/vulkan/tensor/vktTensorDimensionQuery.cpp#L125-L153).
+- The test creates a compute pipeline from the generated `comp` module, binds the descriptor set, and dispatches exactly `1, 1, 1`. The single invocation executes every generated query statement [comp pipeline creation and cmdDispatch of one workgroup](../../../modules/vulkan/tensor/vktTensorDimensionQuery.cpp#L155-L184).
+- A buffer barrier changes visibility from `VK_ACCESS_SHADER_WRITE_BIT` at `VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT` to `VK_ACCESS_HOST_READ_BIT` at `VK_PIPELINE_STAGE_HOST_BIT`. The test submits the command buffer and waits before reading [compute-to-host buffer barrier and submitCommandsAndWait](../../../modules/vulkan/tensor/vktTensorDimensionQuery.cpp#L178-L193).
+- The host invalidates the allocation, scans every result slot, and compares it with the corresponding `m_dimensions` entry. The first mismatch returns failure with its index, expected value, and actual buffer value; a complete match returns `pass("Tensor test succeeded")` [invalidateAlloc and per-dimension comparison with m_dimensions](../../../modules/vulkan/tensor/vktTensorDimensionQuery.cpp#L196-L218).
 
 ## Failure Meaning
 
@@ -261,18 +261,18 @@ Format and tiling are crossed with every shape. A failure restricted to one form
 
 ### Requirement-based pruning
 
-- The test requires the `VK_ARM_tensors` device functionality [vktTensorDimensionQuery.cpp#L238-L241](../../../modules/vulkan/tensor/vktTensorDimensionQuery.cpp#L238-L241).
-- It skips a case when the selected rank exceeds `maxTensorDimensionCount` [vktTensorDimensionQuery.cpp#L242-L245](../../../modules/vulkan/tensor/vktTensorDimensionQuery.cpp#L242-L245).
-- It requires the `shaderTensorAccess` feature and compute-stage support in `shaderTensorSupportedStages` [vktTensorDimensionQuery.cpp#L247-L255](../../../modules/vulkan/tensor/vktTensorDimensionQuery.cpp#L247-L255).
-- It requires the selected format and tiling to advertise `VK_FORMAT_FEATURE_2_TENSOR_SHADER_BIT_ARM` [vktTensorDimensionQuery.cpp#L257-L260](../../../modules/vulkan/tensor/vktTensorDimensionQuery.cpp#L257-L260). The helper checks the corresponding optimal- or linear-tiling tensor feature flags [vktTensorTestsUtil.cpp#L341-L363](../../../modules/vulkan/tensor/vktTensorTestsUtil.cpp#L341-L363).
+- The test requires the `VK_ARM_tensors` device functionality [checkSupport requirement for VK_ARM_tensors](../../../modules/vulkan/tensor/vktTensorDimensionQuery.cpp#L238-L241).
+- It skips a case when the selected rank exceeds `maxTensorDimensionCount` [maxTensorDimensionCount rank-limit check](../../../modules/vulkan/tensor/vktTensorDimensionQuery.cpp#L242-L245).
+- It requires the `shaderTensorAccess` feature and compute-stage support in `shaderTensorSupportedStages` [shader tensor access and compute-stage support checks](../../../modules/vulkan/tensor/vktTensorDimensionQuery.cpp#L247-L255).
+- It requires the selected format and tiling to advertise `VK_FORMAT_FEATURE_2_TENSOR_SHADER_BIT_ARM` [VK_FORMAT_FEATURE_2_TENSOR_SHADER_BIT_ARM format/tiling gate](../../../modules/vulkan/tensor/vktTensorDimensionQuery.cpp#L257-L260). The helper checks the corresponding optimal- or linear-tiling tensor feature flags [formatSupportTensorFlags selection of optimal or linear feature flags](../../../modules/vulkan/tensor/vktTensorTestsUtil.cpp#L341-L363).
 
 These checks remove cases that the current implementation cannot legally or meaningfully execute. They are support skips, not passing results.
 
 ### Design-based pruning
 
-- The family uses the fixed shapes `{1}`, `{2, 1}`, `{4, 2, 1}`, `{8, 4, 2, 1}`, and `{4, 8, 16, 2, 1}` rather than generating arbitrary dimension values [vktTensorDimensionQuery.cpp#L275-L278](../../../modules/vulkan/tensor/vktTensorDimensionQuery.cpp#L275-L278).
+- The family uses the fixed shapes `{1}`, `{2, 1}`, `{4, 2, 1}`, `{8, 4, 2, 1}`, and `{4, 8, 16, 2, 1}` rather than generating arbitrary dimension values [testDimensions fixed shapes for ranks 1 through 5](../../../modules/vulkan/tensor/vktTensorDimensionQuery.cpp#L275-L278).
 - It tests both supported tensor tilings and all eight integer formats returned by `getAllTestFormats`, but it does not add non-packed stride variants, tensor element initialization, or non-compute shader stages. Those omissions follow the query test's purpose: the generated shader reads descriptor sizes and writes them to a buffer.
-- The dispatch is fixed at one workgroup of one invocation because the shader has no per-element workload. The invocation writes all rank results sequentially, so additional invocations would duplicate the same query work rather than test another behavior [vktTensorQueryDimensionsShaders.cpp#L49-L60](../../../modules/vulkan/tensor/shaders/vktTensorQueryDimensionsShaders.cpp#L49-L60).
+- The dispatch is fixed at one workgroup of one invocation because the shader has no per-element workload. The invocation writes all rank results sequentially, so additional invocations would duplicate the same query work rather than test another behavior [single-invocation shader layout and sequential tensorSizeARM queries](../../../modules/vulkan/tensor/shaders/vktTensorQueryDimensionsShaders.cpp#L49-L60).
 
 ## Key Takeaways
 
@@ -286,12 +286,12 @@ These checks remove cases that the current implementation cannot legally or mean
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `createTests` | [vktTensorTests.cpp#L37-L49](../../../modules/vulkan/tensor/vktTensorTests.cpp#L37-L49) | Adds `dimension_query` as a direct child of the `tensor` test category. |
-| `createDimensionQueryTests` | [vktTensorDimensionQuery.cpp#L293-L300](../../../modules/vulkan/tensor/vktTensorDimensionQuery.cpp#L293-L300) | Registers the `dimension_query` test family. |
-| `addDimensionQueriesTestCases` | [vktTensorDimensionQuery.cpp#L275-L289](../../../modules/vulkan/tensor/vktTensorDimensionQuery.cpp#L275-L289) | Defines the complete shape, format, and tiling matrix. |
-| `genShaderQueryDimensions` | [vktTensorQueryDimensionsShaders.cpp#L40-L65](../../../modules/vulkan/tensor/shaders/vktTensorQueryDimensionsShaders.cpp#L40-L65) | Generates the rank-specific compute GLSL. |
-| `TensorDimensionQueriesTestCase::checkSupport` | [vktTensorDimensionQuery.cpp#L238-L261](../../../modules/vulkan/tensor/vktTensorDimensionQuery.cpp#L238-L261) | Implements extension, rank, feature, stage, and format/tiling gates. |
-| `TensorDimensionsQueriesTestInstance::iterate` | [vktTensorDimensionQuery.cpp#L92-L218](../../../modules/vulkan/tensor/vktTensorDimensionQuery.cpp#L92-L218) | Creates resources, dispatches the shader, synchronizes, reads back, and checks results. |
-| `getAllTestFormats` | [vktTensorTestsUtil.cpp#L48-L56](../../../modules/vulkan/tensor/vktTensorTestsUtil.cpp#L48-L56) | Supplies the eight formats crossed with each shape and tiling. |
-| Tensor query specification | [tensorops.adoc#L231-L239](../../../../vulkan-docs/src/chapters/VK_ARM_tensors/tensorops.adoc#L231-L239) | Defines the semantics of `OpTensorQuerySizeARM`. |
-| Default mustpass | [tensor.txt#L761-L840](../../../mustpass/main/vk-default/tensor.txt#L761-L840) | Lists the 80 dimension-query cases. |
+| `createTests` | [createTests registration of dimension_query under tensor](../../../modules/vulkan/tensor/vktTensorTests.cpp#L37-L49) | Adds `dimension_query` as a direct child of the `tensor` test category. |
+| `createDimensionQueryTests` | [createDimensionQueryTests family registration](../../../modules/vulkan/tensor/vktTensorDimensionQuery.cpp#L293-L300) | Registers the `dimension_query` test family. |
+| `addDimensionQueriesTestCases` | [addDimensionQueriesTestCases shape, format, and tiling matrix](../../../modules/vulkan/tensor/vktTensorDimensionQuery.cpp#L275-L289) | Defines the complete shape, format, and tiling matrix. |
+| `genShaderQueryDimensions` | [genShaderQueryDimensions rank-specific compute GLSL generation](../../../modules/vulkan/tensor/shaders/vktTensorQueryDimensionsShaders.cpp#L40-L65) | Generates the rank-specific compute GLSL. |
+| `TensorDimensionQueriesTestCase::checkSupport` | [TensorDimensionQueriesTestCase::checkSupport execution requirements](../../../modules/vulkan/tensor/vktTensorDimensionQuery.cpp#L238-L261) | Implements extension, rank, feature, stage, and format/tiling gates. |
+| `TensorDimensionsQueriesTestInstance::iterate` | [TensorDimensionsQueriesTestInstance::iterate dispatch, readback, and validation](../../../modules/vulkan/tensor/vktTensorDimensionQuery.cpp#L92-L218) | Creates resources, dispatches the shader, synchronizes, reads back, and checks results. |
+| `getAllTestFormats` | [getAllTestFormats eight integer tensor formats](../../../modules/vulkan/tensor/vktTensorTestsUtil.cpp#L48-L56) | Supplies the eight formats crossed with each shape and tiling. |
+| Tensor query specification | [OpTensorQuerySizeARM specification of descriptor-size queries](../../../../vulkan-docs/src/chapters/VK_ARM_tensors/tensorops.adoc#L231-L239) | Defines the semantics of `OpTensorQuerySizeARM`. |
+| Default mustpass | [default mustpass list of 80 dimension-query cases](../../../mustpass/main/vk-default/tensor.txt#L761-L840) | Lists the 80 dimension-query cases. |

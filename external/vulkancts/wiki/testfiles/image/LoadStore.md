@@ -27,7 +27,7 @@ image
 └── load_store_lod
 ```
 
-[`createChildren()`](../../../modules/vulkan/image/vktImageTests.cpp#L61-L99) adds the families below `image`; their factories are in [`vktImageLoadStoreTests.cpp#L3408-L3975`](../../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L3408-L3975). `nontemporal_operand` is not registered in Vulkan SC builds.
+[`createChildren()`](../../../modules/vulkan/image/vktImageTests.cpp#L61-L99) adds the families below `image`; their factories are in [Factories](../../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L3408-L3975). `nontemporal_operand` is not registered in Vulkan SC builds.
 
 ## Parameter Dimensions and Observed Values
 
@@ -44,7 +44,7 @@ image
 | Device-scope consumer | `comp_comp`, `comp_draw`; draw excludes 3D | [Factory](../../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L3921-L3975) |
 | AMD LOD | `with_format` and `without_format`, optimal-tiled non-buffer shapes, six mip levels | [Factory](../../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L3665-L3728) |
 
-Depth-only ordinary leaves are intentionally formatless, optimal-tiled, and limited to 2D or 2D-array shapes. The formatted branch is disabled because the source does not substitute a different SPIR-V image format for a depth format. [Source](../../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L3467-L3498), [load/store equivalent](../../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L3621-L3650)
+Depth-only ordinary leaves are intentionally formatless, optimal-tiled, and limited to 2D or 2D-array shapes. The formatted branch is disabled because the source does not substitute a different SPIR-V image format for a depth format. [`vktImageLoadStoreTests.cpp`](../../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L3467-L3498), [load/store equivalent](../../../modules/vulkan/image/vktImageLoadStoreTests.cpp#L3621-L3650)
 
 ## Behavior Parameters
 

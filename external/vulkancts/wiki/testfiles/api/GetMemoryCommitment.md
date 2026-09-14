@@ -22,7 +22,7 @@ api.get_memory_commitment
 └── memory_commitment_allocate_only
 ```
 
-The test family has no intermediate nodes; [createMemoryCommitmentTests()](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L478-L495) registers both test case leaves directly under `get_memory_commitment`. The parent dispatcher attaches `get_memory_commitment` to the `api` test category unconditionally at [vktApiTests.cpp#L115](../../../modules/vulkan/api/vktApiTests.cpp#L115), with no VulkanSC guard.
+The test family has no intermediate nodes; [createMemoryCommitmentTests()](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L478-L495) registers both test case leaves directly under `get_memory_commitment`. The parent dispatcher attaches `get_memory_commitment` to the `api` test category unconditionally at [ApiTests source lines](../../../modules/vulkan/api/vktApiTests.cpp#L115), with no VulkanSC guard.
 
 ## Parameter Dimensions and Observed Values
 
@@ -100,7 +100,7 @@ The `memory_commitment_allocate_only` leaf logs `Warning: Memory commitment not 
 ### Requirement-based pruning
 
 - Both test case leaves require at least one memory type that supports `VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT`. Implementations without such a memory type skip the entire test family with `NotSupportedError` ([L139-L140](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L139-L140), [L375-L376](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L375-L376)). This is common on desktop GPUs that do not expose lazy memory types.
-- The parent dispatcher registers the test family unconditionally for both Vulkan and VulkanSC builds; it does not guard `createMemoryCommitmentTests` with `#ifndef CTS_USES_VULKANSC` ([vktApiTests.cpp#L115](../../../modules/vulkan/api/vktApiTests.cpp#L115)).
+- The parent dispatcher registers the test family unconditionally for both Vulkan and VulkanSC builds; it does not guard `createMemoryCommitmentTests` with `#ifndef CTS_USES_VULKANSC` ([ApiTests source lines](../../../modules/vulkan/api/vktApiTests.cpp#L115)).
 
 ### Design-based pruning
 
@@ -120,10 +120,10 @@ The `memory_commitment_allocate_only` leaf logs `Warning: Memory commitment not 
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `createMemoryCommitmentTests()` | [vktApiGetMemoryCommitment.cpp#L479-L496](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L479-L496) | Public entry point that creates the `get_memory_commitment` test family and registers both test case leaves. |
-| `MemoryCommitmentTestInstance::iterate()` | [vktApiGetMemoryCommitment.cpp#L113-L332](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L113-L332) | Implementation of the `memory_commitment` leaf: image creation, binding, pipeline build, render pass, and commitment checks. |
-| `MemoryCommitmentAllocateOnlyTestInstance::iterate()` | [vktApiGetMemoryCommitment.cpp#L362-L408](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L362-L408) | Implementation of the `memory_commitment_allocate_only` leaf: randomized allocation loop and commitment upper-bound check. |
-| `isDeviceMemoryCommitmentOk()` | [vktApiGetMemoryCommitment.cpp#L447-L477](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L447-L477) | Helper used by `memory_commitment` that allocates a fresh lazy memory object and checks commitment against `memoryRequirements.size`. |
-| `initPrograms()` | [vktApiGetMemoryCommitment.cpp#L410-L428](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L410-L428) | Generates the vertex and fragment shaders used by `memory_commitment`'s graphics pipeline. |
-| Parent registration | [vktApiTests.cpp#L115](../../../modules/vulkan/api/vktApiTests.cpp#L115) | Adds `get_memory_commitment` to the `api` test category, unconditionally for Vulkan and VulkanSC. |
+| `createMemoryCommitmentTests()` | [createMemoryCommitmentTests()](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L479-L496) | Public entry point that creates the `get_memory_commitment` test family and registers both test case leaves. |
+| `MemoryCommitmentTestInstance::iterate()` | [MemoryCommitmentTestInstance::iterate()](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L113-L332) | Implementation of the `memory_commitment` leaf: image creation, binding, pipeline build, render pass, and commitment checks. |
+| `MemoryCommitmentAllocateOnlyTestInstance::iterate()` | [MemoryCommitmentAllocateOnlyTestInstance::iterate()](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L362-L408) | Implementation of the `memory_commitment_allocate_only` leaf: randomized allocation loop and commitment upper-bound check. |
+| `isDeviceMemoryCommitmentOk()` | [isDeviceMemoryCommitmentOk()](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L447-L477) | Helper used by `memory_commitment` that allocates a fresh lazy memory object and checks commitment against `memoryRequirements.size`. |
+| `initPrograms()` | [initPrograms()](../../../modules/vulkan/api/vktApiGetMemoryCommitment.cpp#L410-L428) | Generates the vertex and fragment shaders used by `memory_commitment`'s graphics pipeline. |
+| Parent registration | [Parent registration](../../../modules/vulkan/api/vktApiTests.cpp#L115) | Adds `get_memory_commitment` to the `api` test category, unconditionally for Vulkan and VulkanSC. |
 | Header | [vktApiGetMemoryCommitment.hpp](../../../modules/vulkan/api/vktApiGetMemoryCommitment.hpp#L1) | Declares `createMemoryCommitmentTests` for the parent dispatcher. |

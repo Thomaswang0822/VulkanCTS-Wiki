@@ -2,7 +2,7 @@
 
 **Core question:** Does `VK_KHR_ray_query` traversal report a hit `t` that matches the host-computed expected distance when the host scales the direction vector and rotates the scene, and does it produce a zero result for rays that start inside an AABB across several `tmax` windows?
 
-This page covers the `direction_length` and `inside_aabbs` test families registered by [vktRayQueryDirectionTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L546-L683). Both families live in one source file because they share the same compute shader, the same host-side BLAS/TLAS build path, and the same push-constant layout.
+This page covers the `direction_length` and `inside_aabbs` test families registered by [Direction and inside-AABB case registration](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L546-L683). Both families live in one source file because they share the same compute shader, the same host-side BLAS/TLAS build path, and the same push-constant layout.
 
 - `direction_length` shoots rays from outside the geometry, scales the ray direction vector by factors in `[0.5, 10.0]`, rotates the scene by random X/Y angles, and verifies the reported hit `t` equals `4.0 / scale` within `kDefaultTolerance = 0.001`.
 - `inside_aabbs` shoots rays from `(0, 0, 1)` inside an AABB spanning `z = 0` through `z = 5`, sweeps four `tmax` windows (`tmax_zero`, `inside`, `edge`, `outside`), and verifies the shader-reported value equals `0.0`.
@@ -32,13 +32,13 @@ Both families are direct children of the `ray_query` test category. Each family 
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Test family | `direction_length`, `inside_aabbs` | Selects the host-side verification routine and the ray origin type. `direction_length` shoots from outside and checks `t`; `inside_aabbs` shoots from inside and checks for a zero result. | [vktRayQueryDirectionTests.cpp:546-L683](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L546-L683) |
-| Geometry type | `triangles`, `aabbs` | Selects BLAS geometry in `direction_length`. Triangles exercise `rayQueryGetIntersectionTEXT`; AABBs exercise the `pc.tmin` storage path. | [vktRayQueryDirectionTests.cpp:552-L558](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L552-L558) |
-| Scaling factor | `1.0` plus 5 random values in `[0.5, 10.0]` | Scales only the ray direction vector. The scene is not scaled. Because `t` is parametric along the supplied direction, the expected hit value is `4.0 / scale`. The host fixes the seed per family so the factors reproduce. | [vktRayQueryDirectionTests.cpp:507-L524](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L507-L524) |
-| Rotation angles | `(0.0, 0.0)` plus 4 random `(x, y)` pairs in `[0, 2π]` | Rotates the scene with the TLAS instance matrix and applies the same rotation to the ray origin and direction. Rotation changes orientation, not the direction's scale. Each case combines one rotation pair with one scaling factor. | [vktRayQueryDirectionTests.cpp:527-L542](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L527-L542) |
-| Ray end type | `tmax_zero`, `inside`, `edge`, `outside` | Sets `tmax` in `inside_aabbs` to `0.0`, `distanceToEdge / 2`, `distanceToEdge`, or `distanceToEdge + 1.0`. | [vktRayQueryDirectionTests.cpp:622-L631](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L622-L631) |
-| `useArraysOfPointers` | `true`/`false`, alternating by `caseCounter % 2` | Toggles the TLAS array-of-pointers instance path in `direction_length`. | [vktRayQueryDirectionTests.cpp:597](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L597) |
-| `updateMatrixAfterBuild` | `true`/`false`, alternating by `caseCounter % 3` | In `direction_length`, when true the host builds the TLAS with identity, then calls `updateInstanceMatrix` before submit. | [vktRayQueryDirectionTests.cpp:599](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L599) |
+| Test family | `direction_length`, `inside_aabbs` | Selects the host-side verification routine and the ray origin type. `direction_length` shoots from outside and checks `t`; `inside_aabbs` shoots from inside and checks for a zero result. | [Direction and inside-AABB case registration](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L546-L683) |
+| Geometry type | `triangles`, `aabbs` | Selects BLAS geometry in `direction_length`. Triangles exercise `rayQueryGetIntersectionTEXT`; AABBs exercise the `pc.tmin` storage path. | [Registered geometry types](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L552-L558) |
+| Scaling factor | `1.0` plus 5 random values in `[0.5, 10.0]` | Scales only the ray direction vector. The scene is not scaled. Because `t` is parametric along the supplied direction, the expected hit value is `4.0 / scale`. The host fixes the seed per family so the factors reproduce. | [Direction scale generation](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L507-L524) |
+| Rotation angles | `(0.0, 0.0)` plus 4 random `(x, y)` pairs in `[0, 2π]` | Rotates the scene with the TLAS instance matrix and applies the same rotation to the ray origin and direction. Rotation changes orientation, not the direction's scale. Each case combines one rotation pair with one scaling factor. | [Rotation angle generation](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L527-L542) |
+| Ray end type | `tmax_zero`, `inside`, `edge`, `outside` | Sets `tmax` in `inside_aabbs` to `0.0`, `distanceToEdge / 2`, `distanceToEdge`, or `distanceToEdge + 1.0`. | [Registered ray end types](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L622-L631) |
+| `useArraysOfPointers` | `true`/`false`, alternating by `caseCounter % 2` | Toggles the TLAS array-of-pointers instance path in `direction_length`. | [Alternating pointer-array instances](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L597) |
+| `updateMatrixAfterBuild` | `true`/`false`, alternating by `caseCounter % 3` | In `direction_length`, when true the host builds the TLAS with identity, then calls `updateInstanceMatrix` before submit. | [Instance matrix update selection](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L599) |
 
 ## Behavior Parameters
 
@@ -133,8 +133,8 @@ void main()
 
 #### Additional Info
 
-- `updateRayTracingGLSL()` is an identity passthrough in this CTS version ([vkRayTracingUtil.hpp:111](../../../framework/vulkan/vkRayTracingUtil.hpp#L111)), so the reconstructed GLSL is the GLSL the host feeds to `glslangValidator`. The shader build options target `SPIRV_VERSION_1_4` ([vktRayQueryDirectionTests.cpp:281](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L281)).
-- The host-side `PushConstants` struct names the third field `tmix` ([vktRayQueryDirectionTests.cpp:270](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L270)). The shader names it `tmin`. Both occupy the same `std430` offset, so the value passed by the host reaches `pc.tmin` in the shader without reinterpretation.
+- `updateRayTracingGLSL()` is an identity passthrough in this CTS version ([GLSL identity helper](../../../framework/vulkan/vkRayTracingUtil.hpp#L111)), so the reconstructed GLSL is the GLSL the host feeds to `glslangValidator`. The shader build options target `SPIRV_VERSION_1_4` ([SPIR-V build options](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L281)).
+- The host-side `PushConstants` struct names the third field `tmix` ([Host minimum-distance field](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L270)). The shader names it `tmin`. Both occupy the same `std430` offset, so the value passed by the host reaches `pc.tmin` in the shader without reinterpretation.
 - The shader uses the candidate state (`false` argument) for both `rayQueryGetIntersectionTypeEXT` and `rayQueryGetIntersectionTEXT`. With `gl_RayFlagsNoneEXT` and a single piece of opaque geometry, the candidate auto-commits on `proceed`, so candidate `t` and committed `t` are equal at the iteration that fires.
 - The `-10000.0f` initializer is the no-candidate sentinel. If a ray misses every piece of geometry, the sentinel reaches the output buffer and the host's tolerance check fails with a large delta.
 
@@ -142,10 +142,10 @@ void main()
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
-| `aabbs` geometry | Same shader binary. The AABB branch fires; `outVal = pc.tmin`. The host verifies that the absolute difference between `pc.tmin` and `distanceToEdge` is at most `kDefaultTolerance` because `pc.tmin = max(distanceToEdge - margin, 0.0)`. | [vktRayQueryDirectionTests.cpp:311-L313](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L311-L313), [L137](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L137) |
-| `inside_aabbs` family | Same shader binary. The host sets `tmin = 0.0`, so `outVal = 0.0` for AABB candidates. The host verifies `bufferValue == 0.0`. | [vktRayQueryDirectionTests.cpp:141-L160](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L141-L160), [L491-L500](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L491-L500) |
-| Scaling factor | Same shader binary. `pc.direction` is pre-scaled by the host; the reported `t` scales inversely. | [vktRayQueryDirectionTests.cpp:450](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L450) |
-| Rotation angles | Same shader binary. `pc.origin` and `pc.direction` are pre-rotated by the host. The TLAS instance matrix carries the same rotation. | [vktRayQueryDirectionTests.cpp:449-L450](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L449-L450) |
+| `aabbs` geometry | Same shader binary. The AABB branch fires; `outVal = pc.tmin`. The host verifies that the absolute difference between `pc.tmin` and `distanceToEdge` is at most `kDefaultTolerance` because `pc.tmin = max(distanceToEdge - margin, 0.0)`. | [AABB candidate output](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L311-L313), [Outside-ray interval calculation](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L137) |
+| `inside_aabbs` family | Same shader binary. The host sets `tmin = 0.0`, so `outVal = 0.0` for AABB candidates. The host verifies `bufferValue == 0.0`. | [Inside-ray interval calculation](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L141-L160), [Inside-AABB zero-result check](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L491-L500) |
+| Scaling factor | Same shader binary. `pc.direction` is pre-scaled by the host; the reported `t` scales inversely. | [Direction scaling and rotation](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L450) |
+| Rotation angles | Same shader binary. `pc.origin` and `pc.direction` are pre-rotated by the host. The TLAS instance matrix carries the same rotation. | [Ray origin and direction transforms](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L449-L450) |
 
 #### SPIR-V
 
@@ -297,11 +297,11 @@ void main()
 
 ## Runtime Execution and Result Checking
 
-- **Geometry setup.** The host builds one BLAS with either a triangle at `z = 5`, an outside-ray AABB collapsed to the plane at `z = 5`, or an inside-ray AABB spanning `z = 0` through `z = 5`. One TLAS instance wraps the BLAS. The instance transform is the rotation matrix; the host uses identity at build time when the case enables `updateMatrixAfterBuild`, then swaps in the real matrix before submit ([vktRayQueryDirectionTests.cpp:353-L378](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L353-L378)). The host applies the selected direction scale only to the ray direction; it does not scale the BLAS geometry.
-- **Push constants.** The host computes `rotatedOrigin = origin * rotationMatrix`, `finalDirection = direction * scaleMatrix * rotationMatrix`, `distanceToEdge = 4.0 / directionScale`, and `tmin/tmax` from `calcTminTmax`. These reach the shader as a single `PushConstants` struct ([vktRayQueryDirectionTests.cpp:448-L458](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L448-L458)).
-- **Dispatch.** A single `1x1x1` compute dispatch runs one shader invocation against the TLAS ([vktRayQueryDirectionTests.cpp:465](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L465)).
-- **Result copyback.** The host records a `SHADER_WRITE -> HOST_READ` memory barrier before `endCommandBuffer`. After `submitCommandsAndWait`, the host invalidates the allocation and copies one `float` from the buffer ([vktRayQueryDirectionTests.cpp:468-L478](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L468-L478)).
-- **Verification.** For `CROSS` (the `direction_length` family), the host requires `|bufferValue - distanceToEdge| <= kDefaultTolerance = 0.001`. For all `inside_aabbs` ray end types, the host requires `bufferValue == 0.0` ([vktRayQueryDirectionTests.cpp:480-L500](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L480-L500)).
+- **Geometry setup.** The host builds one BLAS with either a triangle at `z = 5`, an outside-ray AABB collapsed to the plane at `z = 5`, or an inside-ray AABB spanning `z = 0` through `z = 5`. One TLAS instance wraps the BLAS. The instance transform is the rotation matrix; the host uses identity at build time when the case enables `updateMatrixAfterBuild`, then swaps in the real matrix before submit ([BLAS build and instance matrix update](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L353-L378)). The host applies the selected direction scale only to the ray direction; it does not scale the BLAS geometry.
+- **Push constants.** The host computes `rotatedOrigin = origin * rotationMatrix`, `finalDirection = direction * scaleMatrix * rotationMatrix`, `distanceToEdge = 4.0 / directionScale`, and `tmin/tmax` from `calcTminTmax`. These reach the shader as a single `PushConstants` struct ([Ray push-constant preparation](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L448-L458)).
+- **Dispatch.** A single `1x1x1` compute dispatch runs one shader invocation against the TLAS ([Single-invocation dispatch](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L465)).
+- **Result copyback.** The host records a `SHADER_WRITE -> HOST_READ` memory barrier before `endCommandBuffer`. After `submitCommandsAndWait`, the host invalidates the allocation and copies one `float` from the buffer ([Output synchronization and readback](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L468-L478)).
+- **Verification.** For `CROSS` (the `direction_length` family), the host requires `|bufferValue - distanceToEdge| <= kDefaultTolerance = 0.001`. For all `inside_aabbs` ray end types, the host requires `bufferValue == 0.0` ([Distance and zero-result verification](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L480-L500)).
 - **Pass condition.** The instance returns `tcu::TestStatus::pass("Pass")` when the verification holds.
 
 ## Failure Meaning
@@ -338,12 +338,12 @@ void main()
 
 ### Requirement-based pruning
 
-- Cases require `VK_KHR_acceleration_structure` and `VK_KHR_ray_query` device extensions ([vktRayQueryDirectionTests.cpp:258-L262](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L258-L262)).
+- Cases require `VK_KHR_acceleration_structure` and `VK_KHR_ray_query` device extensions ([Required device extensions](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L258-L262)).
 - The dispatch runs compute, not a ray-tracing pipeline; the test does not require `rayTracingPipeline`.
 
 ### Design-based pruning
 
-- `inside_aabbs` uses AABB geometry and no triangles. The `SpaceObjects` constructor asserts that `RayOriginType::INSIDE` requires `VK_GEOMETRY_TYPE_AABBS_KHR` ([vktRayQueryDirectionTests.cpp:93](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L93)). Triangle geometry has no defined inside-outside test for a ray that starts on its surface, so the inside path is AABB-only by design.
+- `inside_aabbs` uses AABB geometry and no triangles. The `SpaceObjects` constructor asserts that `RayOriginType::INSIDE` requires `VK_GEOMETRY_TYPE_AABBS_KHR` ([Inside-ray geometry restriction](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L93)). Triangle geometry has no defined inside-outside test for a ray that starts on its surface, so the inside path is AABB-only by design.
 - `direction_length` pins the ray end type to `CROSS`. Each family tests one property; `CROSS` covers the outside-in traversal path that respects direction length, and `inside_aabbs` covers the inside-out path on its own.
 - `inside_aabbs` pins `useArraysOfPointers` and `updateMatrixAfterBuild` to `false`. Those toggles exist to exercise TLAS build variants for the outside path; the inside path focuses on `tmax` window coverage.
 
@@ -358,13 +358,13 @@ void main()
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `SpaceObjects` constructor | [vktRayQueryDirectionTests.cpp:87-L110](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L87-L110) | Geometry placement for outside (triangle/AABB) and inside (AABB only) ray origins. |
-| `calcTminTmax` | [vktRayQueryDirectionTests.cpp:129-L163](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L129-L163) | Computes `tmin/tmax` from `rayOriginType`, `rayEndType`, and `distanceToEdge`. |
-| `getScaleMatrix`, `getRotationMatrix`, `toTransformMatrixKHR` | [vktRayQueryDirectionTests.cpp:166-L207](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L166-L207) | Host-side matrices applied to the direction and the TLAS instance. |
-| `DirectionTestCase::checkSupport` | [vktRayQueryDirectionTests.cpp:258-L262](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L258-L262) | Acceleration-structure and ray-query feature gates. |
-| `DirectionTestCase::initPrograms` (compute shader) | [vktRayQueryDirectionTests.cpp:279-L319](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L279-L319) | The single GLSL compute shader shared by every case. |
-| `DirectionTestInstance::iterate` | [vktRayQueryDirectionTests.cpp:332-L503](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L332-L503) | BLAS/TLAS build, push-constant setup, dispatch, copyback, and verification. |
-| `createDirectionLengthTests` registration | [vktRayQueryDirectionTests.cpp:546-L615](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L546-L615) | Registers `direction_length` with `triangles`/`aabbs`, scaling, and rotation. |
-| `createInsideAABBsTests` registration | [vktRayQueryDirectionTests.cpp:617-L683](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L617-L683) | Registers `inside_aabbs` with four ray end types, scaling, and rotation. |
-| `updateRayTracingGLSL` (identity passthrough) | [vkRayTracingUtil.hpp:111](../../../framework/vulkan/vkRayTracingUtil.hpp#L111) | Confirms the helper does not modify the reconstructed GLSL. |
+| `SpaceObjects` constructor | [Ray and geometry placement](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L87-L110) | Geometry placement for outside (triangle/AABB) and inside (AABB only) ray origins. |
+| `calcTminTmax` | [Ray interval calculation](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L129-L163) | Computes `tmin/tmax` from `rayOriginType`, `rayEndType`, and `distanceToEdge`. |
+| `getScaleMatrix`, `getRotationMatrix`, `toTransformMatrixKHR` | [Scale and rotation matrix helpers](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L166-L207) | Host-side matrices applied to the direction and the TLAS instance. |
+| `DirectionTestCase::checkSupport` | [Required device extensions](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L258-L262) | Acceleration-structure and ray-query feature gates. |
+| `DirectionTestCase::initPrograms` (compute shader) | [Shared direction-query shader](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L279-L319) | The single GLSL compute shader shared by every case. |
+| `DirectionTestInstance::iterate` | [Query execution and verification](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L332-L503) | BLAS/TLAS build, push-constant setup, dispatch, copyback, and verification. |
+| `createDirectionLengthTests` registration | [Direction-length case registration](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L546-L615) | Registers `direction_length` with `triangles`/`aabbs`, scaling, and rotation. |
+| `createInsideAABBsTests` registration | [Inside-AABB case registration](../../../modules/vulkan/ray_query/vktRayQueryDirectionTests.cpp#L617-L683) | Registers `inside_aabbs` with four ray end types, scaling, and rotation. |
+| `updateRayTracingGLSL` (identity passthrough) | [GLSL identity helper](../../../framework/vulkan/vkRayTracingUtil.hpp#L111) | Confirms the helper does not modify the reconstructed GLSL. |
 | Vulkan spec: ray traversal | [raytraversal.adoc](../../../../vulkan-docs/src/chapters/raytraversal.adoc) | Parametric `t` and candidate intersection semantics. |

@@ -2,7 +2,7 @@
 
 **Core question:** Does `vkCmdClearAttachments` execute exactly when conditional rendering permits it, across primary, secondary, inherited, and nested command-buffer paths?
 
-- This page covers the `conditional_rendering.clear_attachments` test family implemented in [vktConditionalClearAttachmentTests.cpp](../../../modules/vulkan/conditional_rendering/vktConditionalClearAttachmentTests.cpp).
+- This page covers the `conditional_rendering.clear_attachments` test family implemented in [`vktConditionalClearAttachmentTests.cpp`](../../../modules/vulkan/conditional_rendering/vktConditionalClearAttachmentTests.cpp).
 - Each registered condition-data child contains one `clear_attachments` test case leaf. The implementation skips rows whose `clearInRenderPass` flag is true, leaving 60 mustpass leaves for this family.
 - Conditional cases clear a full color attachment to blue inside a conditional rendering block; the four `no_condition_*` rows execute the same clear unconditionally. Setup first clears the same image to black, so a permitted clear and a suppressed clear produce distinct readback images.
 - The condition data varies the predicate value and inversion, condition-buffer memory, command-buffer location, inheritance, and nested secondary execution. The host compares the submitted image against an all-blue or all-black reference.
@@ -338,7 +338,7 @@ void main() {
 | Support gating | [`checkSupport()`](../../../modules/vulkan/conditional_rendering/vktConditionalClearAttachmentTests.cpp#L251-L256) | Runs at test-creation time through the registration factory before the instance constructor. |
 | `ConditionalClearAttachmentTest` construction | [constructor](../../../modules/vulkan/conditional_rendering/vktConditionalClearAttachmentTests.cpp#L69-L84) | Initializes the draw base and allocates secondary command buffers. |
 | `ConditionalClearAttachmentTest::iterate()` | [execution and validation](../../../modules/vulkan/conditional_rendering/vktConditionalClearAttachmentTests.cpp#L86-L249) | Records the render pass and conditional clear paths, submits work, and checks the image. |
-| `ConditionalClearAttachmentTests::init()` | [registration](../../../modules/vulkan/conditional_rendering/vktConditionalClearAttachmentTests.cpp#L269-L290) | Creates the condition-data children, skips render-pass-clear rows, and adds each `clear_attachments` leaf. |
+| `ConditionalClearAttachmentTests::init()` | [`ConditionalClearAttachmentTests::init()`](../../../modules/vulkan/conditional_rendering/vktConditionalClearAttachmentTests.cpp#L269-L290) | Creates the condition-data children, skips render-pass-clear rows, and adds each `clear_attachments` leaf. |
 | `ConditionalData` and `s_testsData` | [shared condition table](../../../modules/vulkan/conditional_rendering/vktConditionalRenderingTestUtil.hpp#L38-L144) | Defines the matrix fields and the 60 rows used by this family. |
 | `checkConditionalRenderingCapabilities()` | [feature checks](../../../modules/vulkan/conditional_rendering/vktConditionalRenderingTestUtil.cpp#L35-L57) | Gates extension, inherited, nested, and maintenance requirements. |
 | `createConditionalRenderingBuffer()` | [condition-buffer setup](../../../modules/vulkan/conditional_rendering/vktConditionalRenderingTestUtil.cpp#L69-L121) | Implements host-visible and device-local condition-buffer paths. |

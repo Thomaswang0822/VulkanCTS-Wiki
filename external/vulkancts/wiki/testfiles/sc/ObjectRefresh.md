@@ -8,7 +8,7 @@
 - The two command cases create a set of Vulkan objects, keep only reported types with live handles, record either one-entry lists or one compact list, and submit the command buffer.
 - The cases report API and command-stream success. They do not read an object back, dispatch the compute pipeline, or compare a rendered or buffer result.
 
-The SC root registers this family through [`createChildren()`](../../../modules/vulkan/sc/vktSafetyCriticalTests.cpp#L45-L56). The default SC mustpass file lists the three executable paths at [`sc.txt#L145-L147`](../../../mustpass/main/vksc-default/sc.txt#L145-L147).
+The SC root registers this family through [`createChildren()`](../../../modules/vulkan/sc/vktSafetyCriticalTests.cpp#L45-L56). The default SC mustpass file lists the three executable paths at [Sc](../../../mustpass/main/vksc-default/sc.txt#L145-L147).
 
 ## Background Knowledge
 
@@ -27,7 +27,7 @@ sc.object_refresh
 └── refresh_all_objects
 ```
 
-`createObjectRefreshTests()` constructs the group and registers the three leaves at [`vktObjectRefreshTests.cpp#L377-L388`](../../../modules/vulkan/sc/vktObjectRefreshTests.cpp#L377-L388).
+`createObjectRefreshTests()` constructs the group and registers the three leaves at [`createObjectRefreshTests()`](../../../modules/vulkan/sc/vktObjectRefreshTests.cpp#L377-L388).
 
 ## Parameter Dimensions and Observed Values
 
@@ -60,7 +60,7 @@ The sentinel catches an unwritten returned slot, but a different unexpected enum
 
 ### `refresh_individual_objects` — record one-entry lists
 
-The case queries the complete refreshable-type list, creates its representative objects, and maps object types to live handles or zero. It skips types absent from the device list and types whose local handle is zero. For each remaining entry it records a `VkRefreshObjectKHR` in a list with `objectCount == 1`, then records a pipeline barrier ([`vktObjectRefreshTests.cpp#L294-L320`](../../../modules/vulkan/sc/vktObjectRefreshTests.cpp#L294-L320)).
+The case queries the complete refreshable-type list, creates its representative objects, and maps object types to live handles or zero. It skips types absent from the device list and types whose local handle is zero. For each remaining entry it records a `VkRefreshObjectKHR` in a list with `objectCount == 1`, then records a pipeline barrier ([`refreshObjects()`](../../../modules/vulkan/sc/vktObjectRefreshTests.cpp#L294-L320)).
 
 ### `refresh_all_objects` — record one filtered batch
 
@@ -76,12 +76,12 @@ No shader participates. The refresh cases create or enumerate Vulkan objects and
 
 ## Runtime Execution and Result Checking
 
-- Every leaf requires `VK_KHR_object_refresh` through `checkRefreshSupport()` ([`vktObjectRefreshTests.cpp#L360-L373`](../../../modules/vulkan/sc/vktObjectRefreshTests.cpp#L360-L373)).
-- Each refresh case performs a null-output query and a full data query. A failed query or zero reported count raises `NotSupportedError` ([`vktObjectRefreshTests.cpp#L95-L110`](../../../modules/vulkan/sc/vktObjectRefreshTests.cpp#L95-L110)).
-- The setup creates a command pool and primary command buffer, fence, semaphore, event, occlusion query pool, host-visible buffer and buffer view, sampler, sampler YCbCr conversion, image and image view, shader module, render pass, framebuffer, read-only application-storage pipeline cache, pipeline layout, compute pipeline, descriptor pool, descriptor-set layout, and descriptor set ([`vktObjectRefreshTests.cpp#L112-L256`](../../../modules/vulkan/sc/vktObjectRefreshTests.cpp#L112-L256)).
-- `objectHandlesMap` stores live handles for created objects and zero for types such as instance, physical device, device, queue, command buffer, surface, swapchain, display, display mode, and debug messenger ([`vktObjectRefreshTests.cpp#L258-L289`](../../../modules/vulkan/sc/vktObjectRefreshTests.cpp#L258-L289)).
-- The command buffer records refresh commands followed by a `VkMemoryBarrier` from `VK_ACCESS_TRANSFER_WRITE_BIT` to `VK_ACCESS_MEMORY_READ_BIT`, ends, and submits to the universal queue with `submitCommandsAndWait` ([`vktObjectRefreshTests.cpp#L291-L346`](../../../modules/vulkan/sc/vktObjectRefreshTests.cpp#L291-L346)). The barrier does not provide host-side read-back.
-- The refresh cases return `pass("Pass")` after submission completes. The query case returns `pass("pass")` after its checks ([`vktObjectRefreshTests.cpp#L49-L92`](../../../modules/vulkan/sc/vktObjectRefreshTests.cpp#L49-L92), [`vktObjectRefreshTests.cpp#L343-L346`](../../../modules/vulkan/sc/vktObjectRefreshTests.cpp#L343-L346)).
+- Every leaf requires `VK_KHR_object_refresh` through `checkRefreshSupport()` ([`vktObjectRefreshTests.cpp`](../../../modules/vulkan/sc/vktObjectRefreshTests.cpp#L360-L373)).
+- Each refresh case performs a null-output query and a full data query. A failed query or zero reported count raises `NotSupportedError` ([`refreshObjects()`](../../../modules/vulkan/sc/vktObjectRefreshTests.cpp#L95-L110)).
+- The setup creates a command pool and primary command buffer, fence, semaphore, event, occlusion query pool, host-visible buffer and buffer view, sampler, sampler YCbCr conversion, image and image view, shader module, render pass, framebuffer, read-only application-storage pipeline cache, pipeline layout, compute pipeline, descriptor pool, descriptor-set layout, and descriptor set ([object creation](../../../modules/vulkan/sc/vktObjectRefreshTests.cpp#L112-L256)).
+- `objectHandlesMap` stores live handles for created objects and zero for types such as instance, physical device, device, queue, command buffer, surface, swapchain, display, display mode, and debug messenger ([`objectHandlesMap`](../../../modules/vulkan/sc/vktObjectRefreshTests.cpp#L258-L289)).
+- The command buffer records refresh commands followed by a `VkMemoryBarrier` from `VK_ACCESS_TRANSFER_WRITE_BIT` to `VK_ACCESS_MEMORY_READ_BIT`, ends, and submits to the universal queue with `submitCommandsAndWait` ([`refreshObjects()`](../../../modules/vulkan/sc/vktObjectRefreshTests.cpp#L291-L346)). The barrier does not provide host-side read-back.
+- The refresh cases return `pass("Pass")` after submission completes. The query case returns `pass("pass")` after its checks ([`queryRefreshableObjects()`](../../../modules/vulkan/sc/vktObjectRefreshTests.cpp#L49-L92), [completion](../../../modules/vulkan/sc/vktObjectRefreshTests.cpp#L343-L346)).
 
 ### Object inventory and dependencies
 
@@ -156,11 +156,11 @@ Each barrier specifies `VK_PIPELINE_STAGE_TRANSFER_BIT` to `VK_PIPELINE_STAGE_BO
 
 ### Requirement-based pruning
 
-All three leaves require `VK_KHR_object_refresh`. The query and refresh bodies also treat a zero reported refreshable-type count as unsupported ([`vktObjectRefreshTests.cpp#L49-L64`](../../../modules/vulkan/sc/vktObjectRefreshTests.cpp#L49-L64), [`vktObjectRefreshTests.cpp#L102-L110`](../../../modules/vulkan/sc/vktObjectRefreshTests.cpp#L102-L110)). The source has no format, limit, or generated-parameter gate.
+All three leaves require `VK_KHR_object_refresh`. The query and refresh bodies also treat a zero reported refreshable-type count as unsupported ([`queryRefreshableObjects()`](../../../modules/vulkan/sc/vktObjectRefreshTests.cpp#L49-L64), [`refreshObjects()`](../../../modules/vulkan/sc/vktObjectRefreshTests.cpp#L102-L110)). The source has no format, limit, or generated-parameter gate.
 
 ### Design-based pruning
 
-The family does not cover invalid handles, invalid flags, malformed list counts, every possible object type, or post-refresh object observation. The handle map leaves several types at zero and skips them. The default mustpass scope remains the three paths at [`sc.txt#L145-L147`](../../../mustpass/main/vksc-default/sc.txt#L145-L147).
+The family does not cover invalid handles, invalid flags, malformed list counts, every possible object type, or post-refresh object observation. The handle map leaves several types at zero and skips them. The default mustpass scope remains the three paths at [Sc](../../../mustpass/main/vksc-default/sc.txt#L145-L147).
 
 ## Key Takeaways
 
@@ -181,4 +181,4 @@ The family does not cover invalid handles, invalid flags, malformed list counts,
 | Type-to-handle map | [`objectHandlesMap`](../../../modules/vulkan/sc/vktObjectRefreshTests.cpp#L258-L289) | Defines live and skipped object types. |
 | Command recording and completion | [`refreshObjects()`](../../../modules/vulkan/sc/vktObjectRefreshTests.cpp#L291-L346) | Defines individual/batch commands, barrier, submission, and pass result. |
 | Minimal compute source | [`createComputeSource()`](../../../modules/vulkan/sc/vktObjectRefreshTests.cpp#L349-L357) | Defines the setup-only compute program. |
-| Default SC coverage | [`sc.txt#L145-L147`](../../../mustpass/main/vksc-default/sc.txt#L145-L147) | Confirms the three registered paths. |
+| Default SC coverage | [Default SC coverage](../../../mustpass/main/vksc-default/sc.txt#L145-L147) | Confirms the three registered paths. |

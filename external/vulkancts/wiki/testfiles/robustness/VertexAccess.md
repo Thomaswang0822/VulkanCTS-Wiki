@@ -2,10 +2,10 @@
 
 **Core question:** Does robust vertex input access preserve attributes whose checked fetches remain in range and return only permitted values when a draw fetches beyond a bound vertex buffer?
 
-- This page covers the `robustness.vertex_access` test family implemented and registered by [vktRobustnessVertexAccessTests.cpp](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L52-L1207).
+- This page covers the `robustness.vertex_access` test family implemented and registered by [`vktRobustnessVertexAccessTests.cpp`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L52-L1207).
 - Each case binds vertex-rate and instance-rate data, then deliberately makes one kind of fetch cross or meet the end of a bound vertex buffer.
 - The vertex shader copies three fetched attributes into a storage buffer. After accounting for Vulkan's same-binding allowance, the host checks fetches that remain in range against the populated data and classifies out-of-range results using the values allowed by robust vertex input semantics.
-- The matrix covers 15 input formats, non-indexed and indexed draws, and six test case leaves. The default mustpass profile contains 90 paths [robustness.txt](../../../mustpass/main/vk-default/robustness.txt#L96874-L96963).
+- The matrix covers 15 input formats, non-indexed and indexed draws, and six test case leaves. The default mustpass profile contains 90 paths [Robustness](../../../mustpass/main/vk-default/robustness.txt#L96874-L96963).
 
 ## Background Knowledge
 
@@ -36,7 +36,7 @@ robustness.vertex_access
 └── a2b10g10r10_unorm_pack32
 ```
 
-Each format intermediate node contains `draw` and `draw_indexed`. Each of those nodes contains three executable leaves [registration](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L1190-L1203), [mustpass](../../../mustpass/main/vk-default/robustness.txt#L96874-L96963).
+Each format intermediate node contains `draw` and `draw_indexed`. Each of those nodes contains three executable leaves [`vktRobustnessVertexAccessTests.cpp`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L1190-L1203), [mustpass](../../../mustpass/main/vk-default/robustness.txt#L96874-L96963).
 
 ## Parameter Dimensions and Observed Values
 
@@ -279,7 +279,7 @@ void main (void)
 - Binding 0 has two selected-format attributes at offsets `0` and one format element. Binding 1 has one instance-rate attribute. Binding 2 contains `R32_SINT` bookkeeping values that map executed vertices to output slots [vertex input setup](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L541-L589).
 - The host binds the SSBO at set `0`, binding `0`, configures the graphics environment, and records either `vkCmdDraw` or `vkCmdDrawIndexed` with the case's vertex and instance counts [descriptor and draw setup](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L737-L799).
 - Before submission, the host initializes the bookkeeping buffer. It submits the command buffer, waits for a fence, invalidates the output allocation, and calls `verifyResult()` [iteration](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L806-L858).
-- `verifyResult()` maps each captured scalar to its source binding and index. Values that remain classified as in range after the same-binding allowance must match the populated input after format extraction. Out-of-range values must match a value available in the bound memory, zero, or the permitted four-component pattern [result verification](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L860-L1003).
+- `verifyResult()` maps each captured scalar to its source binding and index. Values that remain classified as in range after the same-binding allowance must match the populated input after format extraction. Out-of-range values must match a value available in the bound memory, zero, or the permitted four-component pattern [`vktRobustnessVertexAccessTests.cpp`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L860-L1003).
 - The color attachment makes the graphics draw valid, but the host reads only the SSBO for the verdict.
 
 ## Failure Meaning
@@ -349,7 +349,7 @@ All six values can also expose incorrect vertex format conversion, shader captur
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Test and instance types | [vktRobustnessVertexAccessTests.cpp#L52-L238](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L52-L238) | Defines the common test parameters, runtime resources, and draw-specific instances. |
+| Test and instance types | [Test and instance types](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L52-L238) | Defines the common test parameters, runtime resources, and draw-specific instances. |
 | Shader generation | [`VertexAccessTest::initPrograms()`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L238-L341) | Emits format-specific vertex inputs, SSBO capture stores, and the fixed fragment shader. |
 | Indexed patterns | [`DrawIndexedAccessTest::s_indexConfigs`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L421-L435) | Defines the three indexed behavior leaves' index sequences. |
 | Vertex input and resource setup | [`VertexAccessInstance`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L114-L179) | Creates bindings, buffers, descriptor state, and graphics draw configuration. |
@@ -360,4 +360,4 @@ All six values can also expose incorrect vertex format conversion, shader captur
 | Format matrix and test family root | [`addVertexFormatTests()` and `createVertexAccessTests()`](../../../modules/vulkan/robustness/vktRobustnessVertexAccessTests.cpp#L1165-L1203) | Registers 15 format intermediate nodes under `robustness.vertex_access`. |
 | Robust vertex input semantics | [Vulkan specification: Robust Buffer Access](../../../../vulkan-docs/src/chapters/shaders.adoc#L1925-L2030) | Defines checked ranges, same-binding behavior, and permitted out-of-range values. |
 | Vertex input state | [Vulkan specification: Vertex Input Description](../../../../vulkan-docs/src/chapters/fxvertex.adoc#L257-L409) | Defines bindings, input rates, formats, and offsets. |
-| Mustpass inventory | [robustness.txt#L96874-L96963](../../../mustpass/main/vk-default/robustness.txt#L96874-L96963) | Confirms 90 registered paths for the 15 by 2 by 3 matrix. |
+| Mustpass inventory | [Robust vertex-access mustpass cases](../../../mustpass/main/vk-default/robustness.txt#L96874-L96963) | Confirms 90 registered paths for the 15 by 2 by 3 matrix. |

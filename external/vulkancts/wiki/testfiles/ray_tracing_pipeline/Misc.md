@@ -2,7 +2,7 @@
 
 **Core question:** Do `VK_KHR_ray_tracing_pipeline` implementations correctly handle the ray tracing edge cases that do not fit the dedicated `builtin`, `raygen`, `pipeline`, `shader_binding_table`, or `acceleration_structures` test families, including callable shader stress, cull masks, recursion, shader record layouts, intersection reporting, ray termination, empty layouts, null miss, buffer reuse, empty AS updates, and pipeline library linking?
 
-This page covers one test family registered from [vktRayTracingMiscTests.cpp](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L10904-L11244):
+This page covers one test family registered from [instantiate and register miscellaneous ray-tracing cases](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L10904-L11244):
 
 - `misc` groups 111 direct test case leaves that each exercise a distinct ray tracing pipeline behavior. The family is heterogeneous: no single registered dimension spans every leaf. The shared infrastructure is the generic runner `RayTracingMiscTestInstance`, which builds the pipeline, descriptor set, shader binding table, and acceleration structures, then dispatches rays and copies the result buffer back for a per-test `verifyResultBuffer` check.
 
@@ -140,16 +140,16 @@ The `misc` family has no intermediate nodes. All 113 direct children are test ca
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Behavioral group | `callableshaderstress`, `AS_stresstest`, `cullmask`, `maxrayhitattributesize`, `maxrtinvocations`, `NO_DUPLICATE_ANY_HIT`, `mixedPrimTL`, `report_intersection_result`, `raypayloadin`, `recursiveTraces`, `shaderRecord`, `Op*` termination, `memory_access`, `null_miss`, `empty_pipeline_layout`, `reuse`, `update_empty`, `shaders_from_lib` | Selects which ray tracing mechanism the leaf exercises. This is the primary behavioral axis. | [vktRayTracingMiscTests.cpp#L10910-L11241](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L10910-L11241) |
+| Behavioral group | `callableshaderstress`, `AS_stresstest`, `cullmask`, `maxrayhitattributesize`, `maxrtinvocations`, `NO_DUPLICATE_ANY_HIT`, `mixedPrimTL`, `report_intersection_result`, `raypayloadin`, `recursiveTraces`, `shaderRecord`, `Op*` termination, `memory_access`, `null_miss`, `empty_pipeline_layout`, `reuse`, `update_empty`, `shaders_from_lib` | Selects which ray tracing mechanism the leaf exercises. This is the primary behavioral axis. | [Behavioral group](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L10910-L11241) |
 | Standalone facing leaf | `preserve_flip_facing` | Checks facing preservation under the instance-transform path without using the generated layout/geometry suffix matrix. | [registration](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L11225-L11241) |
-| Acceleration structure layout | `1TL1BL1G`, `1TL1BLnG`, `1TLnBL1G`, `1TLnBLnG` | Varies TLAS/BLAS/geometry count. Used by `callableshaderstress`, `NO_DUPLICATE_ANY_HIT`, `maxrayhitattributesize`. `AS_stresstest`, `cullmask`, `maxrtinvocations`, `raypayloadin`, `recursiveTraces` fix one layout. | [vktRayTracingMiscTests.cpp#L309-L357](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L309-L357) |
-| Geometry type | `AABB`, `tri` | Triangle BLAS or AABB procedural BLAS. AABB needs an intersection shader. Used by most matrix-expanded groups. | [vktRayTracingMiscTests.cpp#L309-L357](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L309-L357) |
-| Callable stress mode | `static`, `dynamic` | `dynamic` chains 8 callable levels; `static` chains 2. | [vktRayTracingMiscTests.cpp#L10917-L10931](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L10917-L10931) |
-| Cull mask extra bits | (absent), `_extrabits` | `extrabits` ORs `0x00FFFFFF` into the mask to confirm the implementation ignores upper bits. | [vktRayTracingMiscTests.cpp#L10953-L10966](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L10953-L10966) |
-| Recursion depth | `0`..`15` | Specialization constant `MAX_RECURSIVE_DEPTH`. Depth 0 records one rgen item per ray and traces nothing. | [vktRayTracingMiscTests.cpp#L11153-L11181](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L11153-L11181) |
-| Shader record layout | `STD430`, `Scalar`, `ExplicitScalarOffset`, `ExplicitSTD430Offset` | SBT memory layout qualifier. Scalar variants need `VK_EXT_scalar_block_layout`. | [vktRayTracingMiscTests.cpp#L3756-L4055](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L3756-L4055) |
-| Shader record type group | `1`..`6` | Type set in the record block: 1 = float/vec/mat2-4/int/uint, 2 = double/dvec/dmat2-3, 3 = dmat3-4, 4 = 16-bit, 5 = 64-bit, 6 = 8-bit. | [vktRayTracingMiscTests.cpp#L3756-L4055](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L3756-L4055) |
-| Termination mode | `AnyHitStatically`, `AnyHitDynamically`, `IntersectionStatically`, `IntersectionDynamically` | Combines the op (`OpIgnoreIntersectionKHR`, `OpTerminateRayKHR`) with the stage (any-hit, intersection) and control flow (static, dynamic). | [vktRayTracingMiscTests.cpp#L11183-L11221](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L11183-L11221) |
+| Acceleration structure layout | `1TL1BL1G`, `1TL1BLnG`, `1TLnBL1G`, `1TLnBLnG` | Varies TLAS/BLAS/geometry count. Used by `callableshaderstress`, `NO_DUPLICATE_ANY_HIT`, `maxrayhitattributesize`. `AS_stresstest`, `cullmask`, `maxrtinvocations`, `raypayloadin`, `recursiveTraces` fix one layout. | [Acceleration structure layout](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L309-L357) |
+| Geometry type | `AABB`, `tri` | Triangle BLAS or AABB procedural BLAS. AABB needs an intersection shader. Used by most matrix-expanded groups. | [Geometry type](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L309-L357) |
+| Callable stress mode | `static`, `dynamic` | `dynamic` chains 8 callable levels; `static` chains 2. | [Callable stress mode](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L10917-L10931) |
+| Cull mask extra bits | (absent), `_extrabits` | `extrabits` ORs `0x00FFFFFF` into the mask to confirm the implementation ignores upper bits. | [Cull mask extra bits](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L10953-L10966) |
+| Recursion depth | `0`..`15` | Specialization constant `MAX_RECURSIVE_DEPTH`. Depth 0 records one rgen item per ray and traces nothing. | [Recursion depth](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L11153-L11181) |
+| Shader record layout | `STD430`, `Scalar`, `ExplicitScalarOffset`, `ExplicitSTD430Offset` | SBT memory layout qualifier. Scalar variants need `VK_EXT_scalar_block_layout`. | [Shader record layout](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L3756-L4055) |
+| Shader record type group | `1`..`6` | Type set in the record block: 1 = float/vec/mat2-4/int/uint, 2 = double/dvec/dmat2-3, 3 = dmat3-4, 4 = 16-bit, 5 = 64-bit, 6 = 8-bit. | [Shader record type group](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L3756-L4055) |
+| Termination mode | `AnyHitStatically`, `AnyHitDynamically`, `IntersectionStatically`, `IntersectionDynamically` | Combines the op (`OpIgnoreIntersectionKHR`, `OpTerminateRayKHR`) with the stage (any-hit, intersection) and control flow (static, dynamic). | [Termination mode](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L11183-L11221) |
 
 ## Behavior Parameters
 
@@ -322,9 +322,9 @@ void main()
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
-| Recursion depth | Values `1` through `15` enable closest-hit and miss stages to record descendants and issue recursive traces; `0` keeps this raygen-only behavior. | [vktRayTracingMiscTests.cpp#L11153-L11181](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L11153-L11181) |
-| Geometry type | `AABB` selects procedural geometry and its intersection path; the sibling `tri` cases use triangle geometry. | [vktRayTracingMiscTests.cpp#L309-L357](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L309-L357) |
-| Recursive shader stages | Closest-hit and miss stages consume `MAX_RECURSIVE_DEPTH` and recursively call `traceRayEXT`; this walkthrough's rgen stage remains the launch-side seed. | [vktRayTracingMiscTests.cpp#L6228-L6536](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L6228-L6536) |
+| Recursion depth | Values `1` through `15` enable closest-hit and miss stages to record descendants and issue recursive traces; `0` keeps this raygen-only behavior. | [Recursion depth](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L11153-L11181) |
+| Geometry type | `AABB` selects procedural geometry and its intersection path; the sibling `tri` cases use triangle geometry. | [Geometry type](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L309-L357) |
+| Recursive shader stages | Closest-hit and miss stages consume `MAX_RECURSIVE_DEPTH` and recursively call `traceRayEXT`; this walkthrough's rgen stage remains the launch-side seed. | [Recursive shader stages](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L6228-L6536) |
 
 #### SPIR-V
 
@@ -666,24 +666,24 @@ The generic runner `RayTracingMiscTestInstance` drives every leaf that goes thro
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `createMiscTests` registration | [vktRayTracingMiscTests.cpp#L10904-L11244](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L10904-L11244) | Registers every direct child of `misc` |
-| `RayTracingTestCase::checkSupport` | [vktRayTracingMiscTests.cpp#L10445-L10512](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L10445-L10512) | Extension and feature gates, recursion depth limit check |
-| `RayTracingMiscTestInstance::runTest` | [vktRayTracingMiscTests.cpp#L7958-L8417](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L7958-L8417) | Generic runner: pipeline, SBT, descriptor, trace, copyback |
-| `RecursiveTracesTest::initPrograms` | [vktRayTracingMiscTests.cpp#L6228-L6536](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L6228-L6536) | Walkthrough shader source and specialization constant setup |
-| `ReportIntersectionResultTest` | [vktRayTracingMiscTests.cpp#L6956-L7131](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L6956-L7131) | `reportIntersectionEXT` return value test |
-| `TerminationTest` | [vktRayTracingMiscTests.cpp#L7431-L7910](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L7431-L7910) | `ignoreIntersectionEXT`/`terminateRayEXT` six modes |
-| `ShaderRecordBlockTest` | [vktRayTracingMiscTests.cpp#L3756-L4055](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L3756-L4055) | 24 shader record layout variants |
-| `ASStressTest` | [vktRayTracingMiscTests.cpp#L1401-L1751](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L1401-L1751) | Multiple TLAS bound as array |
-| `CullMaskTest` | [vktRayTracingMiscTests.cpp#L2401-L2750](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L2401-L2750) | 255 cull masks plus extra bits variant |
-| `CallableShaderStressTest` | [vktRayTracingMiscTests.cpp#L1753-L2400](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L1753-L2400) | Callable shader invocation chain |
-| `MAXRayHitAttributeSizeTest` | [vktRayTracingMiscTests.cpp#L2752-L3082](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L2752-L3082) | Max hit attribute size |
-| `MAXRTInvocationsSupportedTest` | [vktRayTracingMiscTests.cpp#L3083-L3441](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L3083-L3441) | Max ray dispatch invocation count |
-| `NoDuplicateAnyHitTest` | [vktRayTracingMiscTests.cpp#L3442-L3701](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L3442-L3701) | No duplicate any-hit invocation flag |
-| `RayPayloadInTest` | [vktRayTracingMiscTests.cpp#L7133-L7429](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L7133-L7429) | Large ray payload propagation |
-| `nullMissInstance` | [vktRayTracingMiscTests.cpp#L8552-L8707](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L8552-L8707) | Empty miss SBT entry |
-| `emptyPipelineLayoutInstance` | [vktRayTracingMiscTests.cpp#L8723-L8766](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L8723-L8766) | Empty pipeline layout creation |
-| `reuseCreationBufferInstance` | [vktRayTracingMiscTests.cpp#L8779-L9024](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L8779-L9024) | Creation buffer reuse |
-| `reuseScratchBufferInstance` | [vktRayTracingMiscTests.cpp#L9026-L9298](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L9026-L9298) | Scratch buffer reuse |
-| `updateEmptyBottomASInstance` | [vktRayTracingMiscTests.cpp#L9300-L9668](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L9300-L9668) | Empty BLAS update |
-| `updateEmptyTopASInstance` | [vktRayTracingMiscTests.cpp#L9669-L9951](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L9669-L9951) | Empty TLAS update |
-| `shadersFromLibInstance` | [vktRayTracingMiscTests.cpp#L10052-L10415](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L10052-L10415) | Pipeline library linking |
+| `createMiscTests` registration | [attach miscellaneous ray-tracing test children](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L10904-L11244) | Registers every direct child of `misc` |
+| `RayTracingTestCase::checkSupport` | [RayTracingTestCase::checkSupport](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L10445-L10512) | Extension and feature gates, recursion depth limit check |
+| `RayTracingMiscTestInstance::runTest` | [RayTracingMiscTestInstance::runTest](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L7958-L8417) | Generic runner: pipeline, SBT, descriptor, trace, copyback |
+| `RecursiveTracesTest::initPrograms` | [RecursiveTracesTest::initPrograms](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L6228-L6536) | Walkthrough shader source and specialization constant setup |
+| `ReportIntersectionResultTest` | [ReportIntersectionResultTest](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L6956-L7131) | `reportIntersectionEXT` return value test |
+| `TerminationTest` | [TerminationTest](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L7431-L7910) | `ignoreIntersectionEXT`/`terminateRayEXT` six modes |
+| `ShaderRecordBlockTest` | [ShaderRecordBlockTest](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L3756-L4055) | 24 shader record layout variants |
+| `ASStressTest` | [ASStressTest](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L1401-L1751) | Multiple TLAS bound as array |
+| `CullMaskTest` | [CullMaskTest](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L2401-L2750) | 255 cull masks plus extra bits variant |
+| `CallableShaderStressTest` | [CallableShaderStressTest](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L1753-L2400) | Callable shader invocation chain |
+| `MAXRayHitAttributeSizeTest` | [MAXRayHitAttributeSizeTest](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L2752-L3082) | Max hit attribute size |
+| `MAXRTInvocationsSupportedTest` | [MAXRTInvocationsSupportedTest](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L3083-L3441) | Max ray dispatch invocation count |
+| `NoDuplicateAnyHitTest` | [NoDuplicateAnyHitTest](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L3442-L3701) | No duplicate any-hit invocation flag |
+| `RayPayloadInTest` | [RayPayloadInTest](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L7133-L7429) | Large ray payload propagation |
+| `nullMissInstance` | [nullMissInstance](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L8552-L8707) | Empty miss SBT entry |
+| `emptyPipelineLayoutInstance` | [emptyPipelineLayoutInstance](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L8723-L8766) | Empty pipeline layout creation |
+| `reuseCreationBufferInstance` | [reuseCreationBufferInstance](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L8779-L9024) | Creation buffer reuse |
+| `reuseScratchBufferInstance` | [reuseScratchBufferInstance](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L9026-L9298) | Scratch buffer reuse |
+| `updateEmptyBottomASInstance` | [updateEmptyBottomASInstance](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L9300-L9668) | Empty BLAS update |
+| `updateEmptyTopASInstance` | [updateEmptyTopASInstance](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L9669-L9951) | Empty TLAS update |
+| `shadersFromLibInstance` | [shadersFromLibInstance](../../../modules/vulkan/ray_tracing/vktRayTracingMiscTests.cpp#L10052-L10415) | Pipeline library linking |

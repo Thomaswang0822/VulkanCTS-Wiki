@@ -5,7 +5,7 @@ workgroup-memory blocks, explicit `Offset` decorations on `Workgroup` block memb
 workgroup and storage objects, and does it keep doing so when `VK_KHR_zero_initialize_workgroup_memory`
 is also required?
 
-- [vktComputeWorkgroupMemoryExplicitLayoutTests.cpp](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L1289-L1324)
+- [Explicit-workgroup-layout test families](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L1289-L1324)
   implements the `workgroup_memory_explicit_layout` test family under
   `dEQP-VK.compute.pipeline.workgroup_memory_explicit_layout`.
 - The page also files the registered `alias`, `zero`, `padding`, `size`, `copy_memory`, and `zero_ext` test families
@@ -67,8 +67,8 @@ The `copy_memory` and `zero_ext` children are not registered under the `shader_o
 roots because Amber cannot drive compute pipelines as shader objects; the factory guards on
 `isComputePipelineConstructionTypeShaderObject`
 ([createWorkgroupMemoryExplicitLayoutTests](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L1312-L1321),
-[vktComputeTests.cpp#L48-L64](../../../modules/vulkan/compute/vktComputeTests.cpp#L48-L64),
-[vktComputeTests.cpp#L68-L85](../../../modules/vulkan/compute/vktComputeTests.cpp#L68-L85)).
+[createChildren()](../../../modules/vulkan/compute/vktComputeTests.cpp#L48-L64),
+[createTests()](../../../modules/vulkan/compute/vktComputeTests.cpp#L68-L85)).
 
 ## Parameter Dimensions and Observed Values
 
@@ -83,7 +83,7 @@ for this test.
 | Function shape | `none`, `read`, `write`, `read_write` | `alias` cross-tests helper-function access. `read` calls a read helper, `write` calls a write helper, and `read_write` calls the read helper but performs the write inline (its emitted write helper is unused). | [AliasTest::initPrograms](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L461-L497) |
 | Synchronization | `none`, `barrier` | `alias` optionally inserts `barrier()` between the write and read. Because every alias shader has local size `1 × 1 × 1`, this is a single-invocation barrier variant, not cross-invocation communication. | [AliasTest::initPrograms](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L452-L486) |
 | Workgroup-memory size | `8`, `64`, `4096`, `16384`, `32768`, `49152`, `65536` bytes | `size` compares each declared block with `maxComputeSharedMemorySize` and skips larger sizes with `NotSupportedError`. | [AddSizeTests](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L1211-L1229), [SizeTest::checkSupport](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L1153-L1159) |
-| Pipeline construction type | `pipeline`, `shader_object_spirv`, `shader_object_binary` | The category dispatcher mounts the family under all three roots; the factory drops `copy_memory` and `zero_ext` under the shader-object roots. | [vktComputeTests.cpp#L48-L85](../../../modules/vulkan/compute/vktComputeTests.cpp#L48-L85), [createWorkgroupMemoryExplicitLayoutTests](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L1312-L1321) |
+| Pipeline construction type | `pipeline`, `shader_object_spirv`, `shader_object_binary` | The category dispatcher mounts the family under all three roots; the factory drops `copy_memory` and `zero_ext` under the shader-object roots. | [Pipeline construction type](../../../modules/vulkan/compute/vktComputeTests.cpp#L48-L85), [createWorkgroupMemoryExplicitLayoutTests](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L1312-L1321) |
 
 ## Behavior Parameters
 
@@ -574,7 +574,7 @@ write or barrier in this script; only one selected invocation copies `%wg` to th
 
 - The C++ cases are gated behind `#ifndef CTS_USES_VULKANSC` at the dispatcher level, so the entire family is absent
   from a VulkanSC build
-  ([vktComputeTests.cpp#L61-L63](../../../modules/vulkan/compute/vktComputeTests.cpp#L61-L63)).
+  ([addChild()](../../../modules/vulkan/compute/vktComputeTests.cpp#L61-L63)).
 - `AliasTest` only emits the layout qualifier if its bit is set in the case's `LayoutFlags` mask; the loop at
   `AddAliasTests` skips the inner block when `(c.layout & layout) == 0`
   ([AddAliasTests loop](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L659-L660)).
@@ -613,9 +613,9 @@ write or barrier in this script; only one selected invocation copies `%wg` to th
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Test category factory declaration | [vktComputeWorkgroupMemoryExplicitLayoutTests.hpp#L38-L39](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.hpp#L38-L39) | Declares `createWorkgroupMemoryExplicitLayoutTests`. |
+| Test category factory declaration | [Test category factory declaration](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.hpp#L38-L39) | Declares `createWorkgroupMemoryExplicitLayoutTests`. |
 | Family factory | [createWorkgroupMemoryExplicitLayoutTests](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L1289-L1324) | Mounts `alias`, `zero`, `padding`, `size`, and conditionally `copy_memory` and `zero_ext`. |
-| Category dispatcher | [vktComputeTests.cpp#L48-L64](../../../modules/vulkan/compute/vktComputeTests.cpp#L48-L64), [vktComputeTests.cpp#L68-L85](../../../modules/vulkan/compute/vktComputeTests.cpp#L68-L85) | Mounts the factory under `pipeline`, `shader_object_spirv`, and `shader_object_binary`. |
+| Category dispatcher | [Category dispatcher](../../../modules/vulkan/compute/vktComputeTests.cpp#L48-L64), [Category dispatcher](../../../modules/vulkan/compute/vktComputeTests.cpp#L68-L85) | Mounts the factory under `pipeline`, `shader_object_spirv`, and `shader_object_binary`. |
 | Central support helper | [checkSupportWithParams](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L77-L141) | Centralizes `workgroupMemoryExplicitLayout*`, `shaderInt8/16/64`, `shaderFloat16`, and `shaderFloat64` checks. |
 | Shared runtime helper | [runCompute](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L143-L219) | Records the result buffer, descriptor, command buffer, dispatch, and host scan; reused by every C++ family. |
 | `alias` shader | [AliasTest::initPrograms](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L424-L505) | Generates the per-case two-block shader with the matching `layout(...)` qualifier. |
@@ -629,5 +629,5 @@ write or barrier in this script; only one selected invocation copies `%wg` to th
 | Amber wrapper | [CreateAmberTestCase](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L1231-L1254) | Loads the Amber script and adds `VK_KHR_workgroup_memory_explicit_layout`, `VK_KHR_spirv_1_4`, optional `VK_KHR_zero_initialize_workgroup_memory`, and optional `VK_EXT_shader_object` requirements. |
 | `copy_memory` registration | [AddCopyMemoryTests](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L1256-L1269) | Loads `copy_memory_basic.amber`, `copy_memory_two_invocations.amber`, and `copy_memory_variable_pointers.amber`. |
 | `zero_ext` registration | [AddZeroInitializeExtensionTests](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L1271-L1285) | Loads `zero_ext_block.amber`, `zero_ext_other_block.amber`, and `zero_ext_block_with_offset.amber`. |
-| Vulkan SC and shader-object guards | [vktComputeTests.cpp#L61-L63](../../../modules/vulkan/compute/vktComputeTests.cpp#L61-L63), [createWorkgroupMemoryExplicitLayoutTests guard](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L1312-L1321) | Hide the family under `CTS_USES_VULKANSC` and hide `copy_memory` and `zero_ext` under shader-object construction types. |
+| Vulkan SC and shader-object guards | [Vulkan SC and shader-object guards](../../../modules/vulkan/compute/vktComputeTests.cpp#L61-L63), [createWorkgroupMemoryExplicitLayoutTests guard](../../../modules/vulkan/compute/vktComputeWorkgroupMemoryExplicitLayoutTests.cpp#L1312-L1321) | Hide the family under `CTS_USES_VULKANSC` and hide `copy_memory` and `zero_ext` under shader-object construction types. |
 | Amber scripts | [copy_memory_basic.amber](../../../data/vulkan/amber/compute/workgroup_memory_explicit_layout/copy_memory_basic.amber), [copy_memory_two_invocations.amber](../../../data/vulkan/amber/compute/workgroup_memory_explicit_layout/copy_memory_two_invocations.amber), [copy_memory_variable_pointers.amber](../../../data/vulkan/amber/compute/workgroup_memory_explicit_layout/copy_memory_variable_pointers.amber), [zero_ext_block.amber](../../../data/vulkan/amber/compute/workgroup_memory_explicit_layout/zero_ext_block.amber), [zero_ext_other_block.amber](../../../data/vulkan/amber/compute/workgroup_memory_explicit_layout/zero_ext_other_block.amber), [zero_ext_block_with_offset.amber](../../../data/vulkan/amber/compute/workgroup_memory_explicit_layout/zero_ext_block_with_offset.amber) | Provide the `copy_memory` and `zero_ext` Amber scripts. |

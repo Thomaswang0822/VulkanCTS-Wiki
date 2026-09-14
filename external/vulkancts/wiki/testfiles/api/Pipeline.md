@@ -39,15 +39,15 @@ The complete set of registered test case leaves is:
 
 | Intermediate node | Test case leaf | Mustpass line |
 |---|---|---|
-| `renderpass` | `destroy_pipeline_renderpass` | [api.txt#L327783](../../../mustpass/main/vk-default/api.txt#L267497) |
-| `renderpass` | `framebuffer_compatible_renderpass` | [api.txt#L327784](../../../mustpass/main/vk-default/api.txt#L267497) |
-| `pipeline_layout.lifetime` | `graphics` | [api.txt#L327782](../../../mustpass/main/vk-default/api.txt#L267497) |
-| `pipeline_layout.lifetime` | `compute` | [api.txt#L327778](../../../mustpass/main/vk-default/api.txt#L267497) |
-| `pipeline_layout.lifetime` | `destroy_after_end` | [api.txt#L327780](../../../mustpass/main/vk-default/api.txt#L267497) |
-| `pipeline_layout.lifetime` | `destroy_after_compute_pipeline_construction` | [api.txt#L327779](../../../mustpass/main/vk-default/api.txt#L267497) |
-| `pipeline_layout.lifetime` | `destroy_after_graphics_pipeline_construction` | [api.txt#L327781](../../../mustpass/main/vk-default/api.txt#L267497) |
-| `pipeline_invalid_pointers_unused_structs` | `compute` | [api.txt#L327776](../../../mustpass/main/vk-default/api.txt#L267497) |
-| `pipeline_invalid_pointers_unused_structs` | `graphics` | [api.txt#L327777](../../../mustpass/main/vk-default/api.txt#L267497) |
+| `renderpass` | `destroy_pipeline_renderpass` | [renderpass](../../../mustpass/main/vk-default/api.txt#L267497) |
+| `renderpass` | `framebuffer_compatible_renderpass` | [renderpass](../../../mustpass/main/vk-default/api.txt#L267497) |
+| `pipeline_layout.lifetime` | `graphics` | [pipelinelayout.lifetime](../../../mustpass/main/vk-default/api.txt#L267497) |
+| `pipeline_layout.lifetime` | `compute` | [pipelinelayout.lifetime](../../../mustpass/main/vk-default/api.txt#L267497) |
+| `pipeline_layout.lifetime` | `destroy_after_end` | [pipelinelayout.lifetime](../../../mustpass/main/vk-default/api.txt#L267497) |
+| `pipeline_layout.lifetime` | `destroy_after_compute_pipeline_construction` | [pipelinelayout.lifetime](../../../mustpass/main/vk-default/api.txt#L267497) |
+| `pipeline_layout.lifetime` | `destroy_after_graphics_pipeline_construction` | [pipelinelayout.lifetime](../../../mustpass/main/vk-default/api.txt#L267497) |
+| `pipeline_invalid_pointers_unused_structs` | `compute` | [pipelineinvalidpointersunusedstructs](../../../mustpass/main/vk-default/api.txt#L267497) |
+| `pipeline_invalid_pointers_unused_structs` | `graphics` | [pipelineinvalidpointersunusedstructs](../../../mustpass/main/vk-default/api.txt#L267497) |
 
 ## Behavior Parameters
 
@@ -153,8 +153,8 @@ The three intermediate nodes share a common shape: create a parent object, creat
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
 | Test family factory | [createPipelineTests()](../../../modules/vulkan/api/vktApiPipelineTests.cpp#L1798-L1809) | Creates the `pipeline` test family root and registers its three direct child intermediate nodes. |
-| Header declaration | [vktApiPipelineTests.hpp#L36-L38](../../../modules/vulkan/api/vktApiPipelineTests.hpp#L36-L38) | Declares `createPipelineTests`. |
-| Parent registration | [vktApiTests.cpp#L121](../../../modules/vulkan/api/vktApiTests.cpp#L121) | Adds the `pipeline` test family under the `api` test category. |
+| Header declaration | [Header declaration](../../../modules/vulkan/api/vktApiPipelineTests.hpp#L36-L38) | Declares `createPipelineTests`. |
+| Parent registration | [Parent registration](../../../modules/vulkan/api/vktApiTests.cpp#L121) | Adds the `pipeline` test family under the `api` test category. |
 | `renderpass` registration | [createrenderpassTests()](../../../modules/vulkan/api/vktApiPipelineTests.cpp#L1736-L1748) | Registers the `destroy_pipeline_renderpass` and `framebuffer_compatible_renderpass` test case leaves. |
 | `pipeline_layout` registration | [createPipelineLayoutTests()](../../../modules/vulkan/api/vktApiPipelineTests.cpp#L1770-L1777) | Registers the `pipeline_layout.lifetime` intermediate node. |
 | `lifetime` leaf registration | [createPipelineLayoutLifetimeTests()](../../../modules/vulkan/api/vktApiPipelineTests.cpp#L1750-L1768) | Registers the five `lifetime` test case leaves and selects their support checks. |
@@ -165,4 +165,4 @@ The three intermediate nodes share a common shape: create a parent object, creat
 | `destroy_after_end` and `destroy_after_compute_pipeline_construction` implementation | [destroyEarlyTest()](../../../modules/vulkan/api/vktApiPipelineTests.cpp#L1256-L1409) | Verifies pipeline usability after the pipeline layout is destroyed at different points. |
 | `pipeline_invalid_pointers_unused_structs` implementation | [pipelineInvalidPointersUnusedStructsTest()](../../../modules/vulkan/api/vktApiPipelineTests.cpp#L1521-L1696) | Verifies pipeline creation succeeds with invalid pointers in unused struct fields. |
 | `VK_KHR_maintenance4` support check | [checkMaintenance4Support()](../../../modules/vulkan/api/vktApiPipelineTests.cpp#L1245-L1248) | Required by the two `destroy_after_*_pipeline_construction` leaves. |
-| Mustpass entries | [api.txt#L327776-L327784](../../../mustpass/main/vk-default/api.txt#L267497-L267497) | Lists the nine `dEQP-VK.api.pipeline.*` test case leaves covered by this page. |
+| Mustpass entries | [Mustpass entries](../../../mustpass/main/vk-default/api.txt#L267497-L267497) | Lists the nine `dEQP-VK.api.pipeline.*` test case leaves covered by this page. |

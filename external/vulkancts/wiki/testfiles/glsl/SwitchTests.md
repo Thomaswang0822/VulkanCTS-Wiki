@@ -164,87 +164,87 @@ The primary behavioral axis is the behavior family at the start of each test cas
 
 ### `basic`: ordinary labels and breaks
 
-Four literal labels map selector values 0 through 3 to `xyz`, `wzy`, `yzw`, and `zyx`. Every selected body ends with `break`, giving the baseline switch behavior ([source](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L232-L239)).
+Four literal labels map selector values 0 through 3 to `xyz`, `wzy`, `yzw`, and `zyx`. Every selected body ends with `break`, giving the baseline switch behavior ([registration body](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L232-L239)).
 
 ### `const_expr_in_label`: constant-expression labels
 
-The labels use `int(0.0)`, `2-1`, `3&(1<<1)`, and `t+1` instead of plain literals. They evaluate to 0 through 3 and must select the same swizzles as `basic` ([source](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L241-L249)).
+The labels use `int(0.0)`, `2-1`, `3&(1<<1)`, and `t+1` instead of plain literals. They evaluate to 0 through 3 and must select the same swizzles as `basic` ([`ShaderSwitchTests::init()`](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L241-L249)).
 
 ### `default_label`: matching through a final default
 
-The switch omits `case 2`. Selector value 2 reaches the final `default` body and writes `coords.yzw` ([source](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L251-L258)).
+The switch omits `case 2`. Selector value 2 reaches the final `default` body and writes `coords.yzw` ([`ShaderSwitchTests::init()`](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L251-L258)).
 
 ### `default_not_last`: default between ordinary labels
 
-The `default` label appears after `case 0` and before `case 1` and `case 3`. Its position must not change selection for selector value 2 ([source](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L260-L267)).
+The `default` label appears after `case 0` and before `case 1` and `case 3`. Its position must not change selection for selector value 2 ([`ShaderSwitchTests::init()`](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L260-L267)).
 
 ### `no_default_label`: no matching label
 
-The template initializes `res` to `coords.yzw`, omits both `case 2` and `default`, and checks that a selector value of 2 leaves the initialized result unchanged ([source](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L269-L276)).
+The template initializes `res` to `coords.yzw`, omits both `case 2` and `default`, and checks that a selector value of 2 leaves the initialized result unchanged ([`ShaderSwitchTests::init()`](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L269-L276)).
 
 ### `default_only`: switch with only a default label
 
-The body has no ordinary cases. Static and uniform selector values must enter `default` and write `coords.yzw` ([source](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L278-L285)).
+The body has no ordinary cases. Static and uniform selector values must enter `default` and write `coords.yzw` ([`ShaderSwitchTests::init()`](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L278-L285)).
 
 ### `empty_case_default`: empty case falling into default
 
-`case 2` contains no statements or `break`, so execution continues into `default` and writes `coords.yzw` ([source](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L287-L295)).
+`case 2` contains no statements or `break`, so execution continues into `default` and writes `coords.yzw` ([`ShaderSwitchTests::init()`](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L287-L295)).
 
 ### `fall_through`: case falling into a later ordinary case
 
-`case 2` rotates `coords` to `yzwx` and then falls through to `case 4`, which copies the first three components into `res`. The result remains the expected original `yzw` swizzle ([source](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L297-L305)).
+`case 2` rotates `coords` to `yzwx` and then falls through to `case 4`, which copies the first three components into `res`. The result remains the expected original `yzw` swizzle ([`ShaderSwitchTests::init()`](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L297-L305)).
 
 ### `fall_through_default`: case falling into default
 
-`case 2` rotates `coords` and falls into a trailing `default` body. The template checks fall-through into `default`, rather than selection of `default` because no case matched ([source](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L307-L315)).
+`case 2` rotates `coords` and falls into a trailing `default` body. The template checks fall-through into `default`, rather than selection of `default` because no case matched ([`ShaderSwitchTests::init()`](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L307-L315)).
 
 ### `conditional_fall_through`: conditional break after shared work
 
-`case 2` prepares `tmp`, falls into `case 3`, writes `res`, and takes a conditional `break` when the selector is not 3. If that break is not taken, execution continues into `default` ([source](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L317-L330)).
+`case 2` prepares `tmp`, falls into `case 3`, writes `res`, and takes a conditional `break` when the selector is not 3. If that break is not taken, execution continues into `default` ([`ShaderSwitchTests::init()`](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L317-L330)).
 
 ### `conditional_fall_through_2`: fall-through after changing a local selector
 
-This form stores the selector in local integer `c`. On `case 2`, it adds the original condition to `c`, falls through, and breaks when `c == 4`, checking data flow across labeled sections as well as conditional fall-through ([source](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L332-L347)).
+This form stores the selector in local integer `c`. On `case 2`, it adds the original condition to `c`, falls through, and breaks when `c == 4`, checking data flow across labeled sections as well as conditional fall-through ([`ShaderSwitchTests::init()`](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L332-L347)).
 
 ### `scope`: case-local block scope
 
-`case 2` opens a block, declares local vector `t`, assigns it to `res`, and breaks inside the block. The case checks declarations and control flow inside a scoped labeled section ([source](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L349-L361)).
+`case 2` opens a block, declares local vector `t`, assigns it to `res`, and breaks inside the block. The case checks declarations and control flow inside a scoped labeled section ([`ShaderSwitchTests::init()`](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L349-L361)).
 
 ### `switch_in_if`: switch nested in a conditional
 
-A nonnegative-condition `if` encloses the baseline four-case switch. The generated selector values satisfy the outer condition, so the selected switch case determines the color ([source](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L363-L373)).
+A nonnegative-condition `if` encloses the baseline four-case switch. The generated selector values satisfy the outer condition, so the selected switch case determines the color ([`ShaderSwitchTests::init()`](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L363-L373)).
 
 ### `switch_in_for_loop`: switch executed across for-loop iterations
 
-A `for` loop advances `i` from 0 through the selected condition. Each iteration switches on `i` and overwrites `res`; the final executed iteration determines the expected swizzle ([source](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L375-L385)).
+A `for` loop advances `i` from 0 through the selected condition. Each iteration switches on `i` and overwrites `res`; the final executed iteration determines the expected swizzle ([`ShaderSwitchTests::init()`](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L375-L385)).
 
 ### `switch_in_while_loop`: switch executed across while-loop iterations
 
-This template implements the same repeated switch with an explicit `while` condition and increment. It checks the loop's condition, increment, and switch execution together ([source](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L387-L399)).
+This template implements the same repeated switch with an explicit `while` condition and increment. It checks the loop's condition, increment, and switch execution together ([`ShaderSwitchTests::init()`](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L387-L399)).
 
 ### `switch_in_do_while_loop`: switch executed across do-while iterations
 
-The body switches on `i`, increments it, and tests the loop condition afterward. For the generated selector range, the last iteration still determines the expected swizzle ([source](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L401-L413)).
+The body switches on `i`, increments it, and tests the loop condition afterward. For the generated selector range, the last iteration still determines the expected swizzle ([`ShaderSwitchTests::init()`](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L401-L413)).
 
 ### `if_in_switch`: conditional selection inside default
 
-Cases 0 and 1 handle their selectors directly. Other selector values enter `default`, where an `if` distinguishes selector 2 from the remaining values and chooses `yzw` or `zyx` ([source](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L415-L426)).
+Cases 0 and 1 handle their selectors directly. Other selector values enter `default`, where an `if` distinguishes selector 2 from the remaining values and chooses `yzw` or `zyx` ([`ShaderSwitchTests::init()`](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L415-L426)).
 
 ### `for_loop_in_switch`: for loop inside shared cases
 
-Cases 1 and 2 share a scoped body. A `for` loop reverses local vector `t` once per selector count, and the body then writes the resulting value and breaks ([source](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L428-L442)).
+Cases 1 and 2 share a scoped body. A `for` loop reverses local vector `t` once per selector count, and the body then writes the resulting value and breaks ([`ShaderSwitchTests::init()`](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L428-L442)).
 
 ### `while_loop_in_switch`: while loop inside shared cases
 
-This form uses an explicit counter and `while` loop in the shared body for cases 1 and 2. Repeated reversal must produce the same selector-dependent result as the corresponding `for` form ([source](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L444-L462)).
+This form uses an explicit counter and `while` loop in the shared body for cases 1 and 2. Repeated reversal must produce the same selector-dependent result as the corresponding `for` form ([`ShaderSwitchTests::init()`](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L444-L462)).
 
 ### `do_while_loop_in_switch`: do-while loop inside shared cases
 
-The shared case body reverses `t` before checking `i < ${CONDITION}`. The registered selectors entering this body are 1 and 2, so each executes the intended positive number of reversals ([source](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L464-L482)).
+The shared case body reverses `t` before checking `i < ${CONDITION}`. The registered selectors entering this body are 1 and 2, so each executes the intended positive number of reversals ([`ShaderSwitchTests::init()`](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L464-L482)).
 
 ### `switch_in_switch`: nested switch selection
 
-Cases 1 and 2 of the outer switch enter an inner switch on `${CONDITION} - 1`. The inner labels distinguish those two outer selector values and write `wzy` or `yzw` ([source](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L484-L497)).
+Cases 1 and 2 of the outer switch enter an inner switch on `${CONDITION} - 1`. The inner labels distinguish those two outer selector values and write `wzy` or `yzw` ([`ShaderSwitchTests::init()`](../../../modules/vulkan/shaderrender/vktShaderRenderSwitchTests.cpp#L484-L497)).
 
 ## Shader Analysis
 

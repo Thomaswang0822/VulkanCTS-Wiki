@@ -55,7 +55,7 @@ spirv_assembly.instruction.compute.ldexp
 └── ldexp_float64_int8
 ```
 
-All 36 children are direct test case leaves of the `ldexp` test family; there are no intermediate nodes between the family and its leaves. The full registration is mirrored at [spirv-assembly.txt#L7370-L7405](../../../mustpass/main/vk-default/spirv-assembly.txt#L7370-L7405).
+All 36 children are direct test case leaves of the `ldexp` test family; there are no intermediate nodes between the family and its leaves. The full registration is mirrored at [SPIR-V assembly test registration](../../../mustpass/main/vk-default/spirv-assembly.txt#L7370-L7405).
 
 ## Parameter Dimensions and Observed Values
 
@@ -147,11 +147,11 @@ This representative case does not use GLSL or HLSL. CTS supplies the shader modu
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---|---|---|
-| Variation 1 | `OpTypeFloat` width (`16`, `32`, `64`) and the matching `OpCapability` (`Float16` or `Float64`; `32` needs none). | [source evidence](../../../modules/vulkan/spirv_assembly/) |
-| Variation 2 | `OpTypeInt` width for the exponent (`8`, `16`, `32`, `64`) and the matching `OpCapability` (`Int8`, `Int16`, `Int64`; `32` needs none). | [source evidence](../../../modules/vulkan/spirv_assembly/) |
-| Variation 3 | Whether scalar types are replaced with `OpTypeVector ... 2` or `OpTypeVector ... 4` for both significand and exponent; vector cases also change `ArrayStride` accordingly (e.g., `8` for `v2float`, `16` for `v4float`). | [source evidence](../../../modules/vulkan/spirv_assembly/) |
-| Variation 4 | The `OpCapability`, extension declarations, and storage-feature requirements reported to CTS by the dispatcher so unsupported cases are skipped rather than run on devices lacking the feature. | [source evidence](../../../modules/vulkan/spirv_assembly/) |
-| Variation 5 | The active vector count (`pc.count` = `32`, `16`, or `8`), exponent sequence, expected values, and scalar byte offsets derived from the selected type and shape. | [source evidence](../../../modules/vulkan/spirv_assembly/) |
+| Variation 1 | `OpTypeFloat` width (`16`, `32`, `64`) and the matching `OpCapability` (`Float16` or `Float64`; `32` needs none). | [Variation 1](../../../modules/vulkan/spirv_assembly/) |
+| Variation 2 | `OpTypeInt` width for the exponent (`8`, `16`, `32`, `64`) and the matching `OpCapability` (`Int8`, `Int16`, `Int64`; `32` needs none). | [Variation 2](../../../modules/vulkan/spirv_assembly/) |
+| Variation 3 | Whether scalar types are replaced with `OpTypeVector ... 2` or `OpTypeVector ... 4` for both significand and exponent; vector cases also change `ArrayStride` accordingly (e.g., `8` for `v2float`, `16` for `v4float`). | [Variation 3](../../../modules/vulkan/spirv_assembly/) |
+| Variation 4 | The `OpCapability`, extension declarations, and storage-feature requirements reported to CTS by the dispatcher so unsupported cases are skipped rather than run on devices lacking the feature. | [Variation 4](../../../modules/vulkan/spirv_assembly/) |
+| Variation 5 | The active vector count (`pc.count` = `32`, `16`, or `8`), exponent sequence, expected values, and scalar byte offsets derived from the selected type and shape. | [Variation 5](../../../modules/vulkan/spirv_assembly/) |
 
 #### SPIR-V
 
@@ -380,11 +380,11 @@ No design-based pruning is applied. Every combination of three float significand
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `createLdexpGroup` factory | [vktSpvAsmLdexpTests.cpp#L35-L143](../../../modules/vulkan/spirv_assembly/vktSpvAsmLdexpTests.cpp#L35-L143) | Defines the `ldexp` test family and registers all 36 Amber cases. |
-| Parent registration and Vulkan SC guard | [vktSpvAsmInstructionTests.cpp#L21437-L21449](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21437-L21449) | Adds `ldexp` below `instruction.compute` only in the `#ifndef CTS_USES_VULKANSC` block. |
-| `LdexpCase` list | [vktSpvAsmLdexpTests.cpp#L39-L130](../../../modules/vulkan/spirv_assembly/vktSpvAsmLdexpTests.cpp#L39-L130) | Per-case test name and feature requirements passed to `cts_amber::createAmberTestCase`. |
-| Amber dispatcher call | [vktSpvAsmLdexpTests.cpp#L132-L141](../../../modules/vulkan/spirv_assembly/vktSpvAsmLdexpTests.cpp#L132-L141) | Routes each case to its `.amber` file in the `ldexp` data subdirectory. |
-| Amber generator | [gen_amber.py#L111-L167](../../../data/vulkan/amber/ldexp/gen_amber.py#L111-L167) | Derives active-operation counts, boundary and near-minimum exponents, expected values, and the final per-case `EXPECT` clauses. |
+| `createLdexpGroup` factory | [`createLdexpGroup`](../../../modules/vulkan/spirv_assembly/vktSpvAsmLdexpTests.cpp#L35-L143) | Defines the `ldexp` test family and registers all 36 Amber cases. |
+| Parent registration and Vulkan SC guard | [`createOpMulExtendedGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21437-L21449) | Adds `ldexp` below `instruction.compute` only in the `#ifndef CTS_USES_VULKANSC` block. |
+| `LdexpCase` list | [`createLdexpGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmLdexpTests.cpp#L39-L130) | Per-case test name and feature requirements passed to `cts_amber::createAmberTestCase`. |
+| Amber dispatcher call | [`createLdexpGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmLdexpTests.cpp#L132-L141) | Routes each case to its `.amber` file in the `ldexp` data subdirectory. |
+| Amber generator | [Amber generator](../../../data/vulkan/amber/ldexp/gen_amber.py#L111-L167) | Derives active-operation counts, boundary and near-minimum exponents, expected values, and the final per-case `EXPECT` clauses. |
 | Representative Amber script | [ldexp_float32_int32.amber](../../../data/vulkan/amber/ldexp/ldexp_float32_int32.amber) | Baseline case carrying the embedded SPIR-V assembly, host buffers, dispatch, and `EXPECT` checks analyzed in this page. |
 | Amber script directory | [ldexp/](../../../data/vulkan/amber/ldexp/) | Holds all 36 `.amber` files plus generator scripts (`gen_shaders.py`, `gen_amber.py`, `gen_spv.sh`, `gen_spvasm.sh`) and the README documenting the generation pipeline. |
-| Mustpass entry range | [spirv-assembly.txt#L7370-L7405](../../../mustpass/main/vk-default/spirv-assembly.txt#L7370-L7405) | Mirrors the 36 registered `dEQP-VK.spirv_assembly.instruction.compute.ldexp.*` case paths. |
+| Mustpass entry range | [Mustpass entry range](../../../mustpass/main/vk-default/spirv-assembly.txt#L7370-L7405) | Mirrors the 36 registered `dEQP-VK.spirv_assembly.instruction.compute.ldexp.*` case paths. |

@@ -174,7 +174,7 @@ right region: original cleared content
 ```
 
 This leaf combines layered rendering with attachment-load and copyback checks. Because it exercises several mechanisms at once,
-it has the broadest failure surface of any leaf; see [`## Failure Meaning`](#failure-meaning) for a per-mechanism breakdown.
+it has the broadest failure surface of any leaf; see [`](#failure-meaning) for a per-mechanism breakdown.
 
 ### `secondary_cmd_buffer` — layered rendering through a secondary command buffer
 

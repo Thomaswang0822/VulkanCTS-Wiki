@@ -21,7 +21,7 @@ ray_tracing_pipeline.procedural_geometry
 └── triangle_in_between
 ```
 
-The two direct children are registered by [createProceduralGeometryTests](../../../modules/vulkan/ray_tracing/vktRayTracingProceduralGeometryTests.cpp#L611-L622). Each child maps to a `TestType` value and selects a different AABB arrangement and, for `triangle_in_between`, an additional triangle instance and a second closest-hit shader.
+The two direct children are registered by [register the two procedural-geometry scenarios](../../../modules/vulkan/ray_tracing/vktRayTracingProceduralGeometryTests.cpp#L611-L622). Each child maps to a `TestType` value and selects a different AABB arrangement and, for `triangle_in_between`, an additional triangle instance and a second closest-hit shader.
 
 ## Parameter Dimensions and Observed Values
 
@@ -37,11 +37,11 @@ The primary behavioral axis is the test case leaf. Each leaf selects a different
 
 ### object_behind_bounding_boxes - procedural object entirely behind a wall of AABBs
 
-The reference TLAS contains a single large AABB spanning `(0,0,-64)` to `(64,64,-16)`, which encloses the whole procedural ellipsoid. The result TLAS contains a wall of four thin AABBs at z `[0,1]` arranged in a 2x2 grid covering the 64x64 xy area. The procedural ellipsoid (centered at z `-30`) lies behind this 1-unit-thick wall, so the AABB extents themselves do not contain the ellipsoid. The intersection shader must generate the ellipsoid hit through the wall. If traversal correctly invokes the intersection shader for the wall AABBs and the shader reports the correct `t`, the result image matches the reference. This is the [ObjectBehindBoundingBoxInstance acceleration structure setup](../../../modules/vulkan/ray_tracing/vktRayTracingProceduralGeometryTests.cpp#L303-L347).
+The reference TLAS contains a single large AABB spanning `(0,0,-64)` to `(64,64,-16)`, which encloses the whole procedural ellipsoid. The result TLAS contains a wall of four thin AABBs at z `[0,1]` arranged in a 2x2 grid covering the 64x64 xy area. The procedural ellipsoid (centered at z `-30`) lies behind this 1-unit-thick wall, so the AABB extents themselves do not contain the ellipsoid. The intersection shader must generate the ellipsoid hit through the wall. If traversal correctly invokes the intersection shader for the wall AABBs and the shader reports the correct `t`, the result image matches the reference. This is the [`ObjectBehindBoundingBoxInstance()`](../../../modules/vulkan/ray_tracing/vktRayTracingProceduralGeometryTests.cpp#L303-L347).
 
 ### triangle_in_between - procedural intersections generated behind an opaque triangle
 
-The reference TLAS contains the same single large AABB plus one opaque triangle geometry. The result TLAS contains a wall of three thin AABBs (z `[0,1]`) plus the same opaque triangle. The triangle sits at z `-8`, in front of the procedural ellipsoid (centered at z `-30`). The intersection shader reports ellipsoid hits that are *behind* the triangle, so the triangle should win as the closest hit where the ray crosses both. This adds a second closest-hit shader (`chit_triangle`, writing a fixed payload of `250`) bound to the triangle hit group, and the raygen uses `gl_RayFlagsCullBackFacingTrianglesEXT`. This is the [TriangleInBeteenInstance acceleration structure setup](../../../modules/vulkan/ray_tracing/vktRayTracingProceduralGeometryTests.cpp#L392-L447).
+The reference TLAS contains the same single large AABB plus one opaque triangle geometry. The result TLAS contains a wall of three thin AABBs (z `[0,1]`) plus the same opaque triangle. The triangle sits at z `-8`, in front of the procedural ellipsoid (centered at z `-30`). The intersection shader reports ellipsoid hits that are *behind* the triangle, so the triangle should win as the closest hit where the ray crosses both. This adds a second closest-hit shader (`chit_triangle`, writing a fixed payload of `250`) bound to the triangle hit group, and the raygen uses `gl_RayFlagsCullBackFacingTrianglesEXT`. This is the [`TriangleInBeteenInstance()`](../../../modules/vulkan/ray_tracing/vktRayTracingProceduralGeometryTests.cpp#L392-L447).
 
 ## Shader Analysis
 
@@ -292,8 +292,8 @@ Both leaves share the rgen, isec, chit, and miss shaders, the reference/result b
 
 ### Requirement-based pruning
 
-- Both leaves require `VK_KHR_ray_tracing_pipeline` and `VK_KHR_acceleration_structure`, with the `rayTracingPipeline` and `accelerationStructure` feature bits set. If `rayTracingPipeline` is not set, the test throws `NotSupportedError`; if `accelerationStructure` is not set, it throws `TestError` [checkSupport](../../../modules/vulkan/ray_tracing/vktRayTracingProceduralGeometryTests.cpp#L472-L483).
-- The device capabilities also require `VK_KHR_deferred_host_operations`, `VK_KHR_buffer_device_address`, `VK_EXT_descriptor_indexing`, `VK_KHR_spirv_1_4`, and `VK_KHR_shader_float_controls`, plus the `bufferDeviceAddress` feature [initDeviceCapabilities](../../../modules/vulkan/ray_tracing/vktRayTracingProceduralGeometryTests.cpp#L593-L607).
+- Both leaves require `VK_KHR_ray_tracing_pipeline` and `VK_KHR_acceleration_structure`, with the `rayTracingPipeline` and `accelerationStructure` feature bits set. If `rayTracingPipeline` is not set, the test throws `NotSupportedError`; if `accelerationStructure` is not set, it throws `TestError` [`RayTracingProceduralGeometryTestCase()`](../../../modules/vulkan/ray_tracing/vktRayTracingProceduralGeometryTests.cpp#L472-L483).
+- The device capabilities also require `VK_KHR_deferred_host_operations`, `VK_KHR_buffer_device_address`, `VK_EXT_descriptor_indexing`, `VK_KHR_spirv_1_4`, and `VK_KHR_shader_float_controls`, plus the `bufferDeviceAddress` feature [declare procedural-geometry device extensions and features](../../../modules/vulkan/ray_tracing/vktRayTracingProceduralGeometryTests.cpp#L593-L607).
 
 ### Design-based pruning
 
@@ -310,11 +310,11 @@ Both leaves share the rgen, isec, chit, and miss shaders, the reference/result b
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `TestType` enum | [vktRayTracingProceduralGeometryTests.cpp#L57-L61](../../../modules/vulkan/ray_tracing/vktRayTracingProceduralGeometryTests.cpp#L57-L61) | Defines `OBJECT_BEHIND_BOUNDING_BOX` and `TRIANGLE_IN_BETWEEN` |
-| `RayTracingProceduralGeometryTestBase::iterate` | [vktRayTracingProceduralGeometryTests.cpp#L104-L237](../../../modules/vulkan/ray_tracing/vktRayTracingProceduralGeometryTests.cpp#L104-L237) | Descriptor/buffer setup, dual trace, and result-buffer comparison |
-| `ObjectBehindBoundingBoxInstance::setupAccelerationStructures` | [vktRayTracingProceduralGeometryTests.cpp#L303-L347](../../../modules/vulkan/ray_tracing/vktRayTracingProceduralGeometryTests.cpp#L303-L347) | Reference single AABB and result wall of four AABBs |
-| `TriangleInBeteenInstance::setupAccelerationStructures` | [vktRayTracingProceduralGeometryTests.cpp#L392-L447](../../../modules/vulkan/ray_tracing/vktRayTracingProceduralGeometryTests.cpp#L392-L447) | Reference single AABB + triangle and result wall of three AABBs + triangle |
-| `initPrograms` (rgen/isec/chit/chit_triangle/miss) | [vktRayTracingProceduralGeometryTests.cpp#L485-L577](../../../modules/vulkan/ray_tracing/vktRayTracingProceduralGeometryTests.cpp#L485-L577) | Generated GLSL for all shader stages |
-| `checkSupport` | [vktRayTracingProceduralGeometryTests.cpp#L472-L483](../../../modules/vulkan/ray_tracing/vktRayTracingProceduralGeometryTests.cpp#L472-L483) | Feature gates for ray tracing pipeline and acceleration structure |
-| `initDeviceCapabilities` | [vktRayTracingProceduralGeometryTests.cpp#L593-L607](../../../modules/vulkan/ray_tracing/vktRayTracingProceduralGeometryTests.cpp#L593-L607) | Required extensions and features |
-| `createProceduralGeometryTests` | [vktRayTracingProceduralGeometryTests.cpp#L611-L622](../../../modules/vulkan/ray_tracing/vktRayTracingProceduralGeometryTests.cpp#L611-L622) | Registration of the two test case leaves |
+| `TestType` enum | [TestType enum](../../../modules/vulkan/ray_tracing/vktRayTracingProceduralGeometryTests.cpp#L57-L61) | Defines `OBJECT_BEHIND_BOUNDING_BOX` and `TRIANGLE_IN_BETWEEN` |
+| `RayTracingProceduralGeometryTestBase::iterate` | [RayTracingProceduralGeometryTestBase::iterate](../../../modules/vulkan/ray_tracing/vktRayTracingProceduralGeometryTests.cpp#L104-L237) | Descriptor/buffer setup, dual trace, and result-buffer comparison |
+| `ObjectBehindBoundingBoxInstance::setupAccelerationStructures` | [build the reference AABB and the four-box wall](../../../modules/vulkan/ray_tracing/vktRayTracingProceduralGeometryTests.cpp#L303-L347) | Reference single AABB and result wall of four AABBs |
+| `TriangleInBeteenInstance::setupAccelerationStructures` | [build reference and wall geometry with an intervening triangle](../../../modules/vulkan/ray_tracing/vktRayTracingProceduralGeometryTests.cpp#L392-L447) | Reference single AABB + triangle and result wall of three AABBs + triangle |
+| `initPrograms` (rgen/isec/chit/chit_triangle/miss) | [initPrograms (rgen/isec/chit/chittriangle/miss)](../../../modules/vulkan/ray_tracing/vktRayTracingProceduralGeometryTests.cpp#L485-L577) | Generated GLSL for all shader stages |
+| `checkSupport` | [check procedural-geometry ray-tracing support](../../../modules/vulkan/ray_tracing/vktRayTracingProceduralGeometryTests.cpp#L472-L483) | Feature gates for ray tracing pipeline and acceleration structure |
+| `initDeviceCapabilities` | [initialize procedural-geometry device requirements](../../../modules/vulkan/ray_tracing/vktRayTracingProceduralGeometryTests.cpp#L593-L607) | Required extensions and features |
+| `createProceduralGeometryTests` | [register the two procedural-geometry scenarios](../../../modules/vulkan/ray_tracing/vktRayTracingProceduralGeometryTests.cpp#L611-L622) | Registration of the two test case leaves |

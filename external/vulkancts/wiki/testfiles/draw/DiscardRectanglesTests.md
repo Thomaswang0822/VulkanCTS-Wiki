@@ -172,7 +172,7 @@ The checked-in mustpass draw lists contain the category-qualified `discard_recta
 | Rectangle and reference generation | [`generateDiscardRectangles()` and `generateReferenceImage()`](../../../modules/vulkan/draw/vktDrawDiscardRectanglesTests.cpp#L348-L417) | Defines the fixed geometry and software oracle. |
 | Runtime and comparison | [`DiscardRectanglesTestInstance::iterate()`](../../../modules/vulkan/draw/vktDrawDiscardRectanglesTests.cpp#L469-L640) | Creates resources, records rendering and copy commands, and applies the image verdict. |
 | Dynamic commands | [`drawCommands()`](../../../modules/vulkan/draw/vktDrawDiscardRectanglesTests.cpp#L653-L671) | Sets dynamic rectangle coordinates and scissor state before the draw. |
-| Shaders, support, and leaves | [Case implementation and `createTests()`](../../../modules/vulkan/draw/vktDrawDiscardRectanglesTests.cpp#L727-L831) | Defines generated programs, capability checks, and all 72 leaf names. |
+| Shaders, support, and leaves | [vktDrawDiscardRectanglesTests.cpp](../../../modules/vulkan/draw/vktDrawDiscardRectanglesTests.cpp#L727-L831) | Defines generated programs, capability checks, and all 72 leaf names. |
 | Test-family factory | [`createDiscardRectanglesTests()`](../../../modules/vulkan/draw/vktDrawDiscardRectanglesTests.cpp#L834-L837) | Names the `discard_rectangles` test family. |
 | Draw dispatcher | [`createChildren()` and rendering arrangements](../../../modules/vulkan/draw/vktDrawTests.cpp#L70-L199) | Selects the render-pass and dynamic-rendering scopes and excludes nested-secondary variants. |
 | Vulkan default mustpass | [Draw list](../../../mustpass/main/vk-default/draw.txt) | Includes 72 leaves in each of four arrangements. |

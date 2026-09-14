@@ -2,7 +2,7 @@
 
 **Core question:** Does the EXT compute miscellaneous coverage execute each generated-command variant and produce the values its shader and host setup require?
 
-This page covers the implementation behind `dgc.ext.compute.misc` in [vktDGCComputeMiscTestsExt.cpp](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L2521-L2619). It tests repeated generated dispatches, sequence indices, push-constant ranges, multiple descriptor sets, inline uniform blocks, descriptor-buffer push descriptors, pipeline and shader-object execution sets, and scratch-space use.
+This page covers the implementation behind `dgc.ext.compute.misc` in [EXT miscellaneous compute-case registration](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L2521-L2619). It tests repeated generated dispatches, sequence indices, push-constant ranges, multiple descriptor sets, inline uniform blocks, descriptor-buffer push descriptors, pipeline and shader-object execution sets, and scratch-space use.
 
 The registered cases form one implementation-bearing test family with several focused case groups. The suffixes and prefixes encode the matrix, so a reader can distinguish queue selection, preprocessing, descriptor layout, execution-set use, and the behavior under test without treating every leaf as a separate mechanism.
 
@@ -316,4 +316,4 @@ These checks mean that the implementation does not support the selected legal te
 | Descriptor-buffer push descriptors | [DBPDCase and DBPDInstance](../../../modules/vulkan/device_generated_commands/vktDGCComputeMiscTestsExt.cpp#L2194-L2517) | Combines descriptor buffers, push descriptors, execution sets, and specialization constants. |
 | Descriptor set semantics | [Descriptor set layouts](../../../../vulkan-docs/src/chapters/descriptorsets.adoc#descriptors-setlayout) | Defines binding interfaces and inline uniform block rules. |
 | Descriptor-buffer semantics | [Descriptor buffers](../../../../vulkan-docs/src/chapters/descriptorbuffers.adoc) | Defines descriptor-buffer binding and push-descriptor behavior. |
-| DGC support helpers | [vktDGCUtilExt.hpp](../../../modules/vulkan/device_generated_commands/vktDGCUtilExt.hpp) | Supplies the DGC support and resource helpers used by the implementation. |
+| DGC support helpers | [DGC support and resource helper declarations](../../../modules/vulkan/device_generated_commands/vktDGCUtilExt.hpp) | Supplies the DGC support and resource helpers used by the implementation. |

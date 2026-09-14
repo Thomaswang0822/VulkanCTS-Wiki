@@ -166,12 +166,12 @@ No analyzer-generated walkthrough or SPIR-V appendix is included: this page has 
 
 | Entry point | Link | Why it matters |
 |---|---|---|
-| Negative/zero test instance and reference generation | [vktDrawNegativeViewportHeightTests.cpp#L133-L590](../../../modules/vulkan/draw/vktDrawNegativeViewportHeightTests.cpp#L133-L590) | Fixed geometry, viewport setup, shaders, image comparison, and expected output |
-| Front-face/cull registration | [populateTestGroup#L659-L697](../../../modules/vulkan/draw/vktDrawNegativeViewportHeightTests.cpp#L659-L697) | Exact eight-case matrix |
-| Feature checks | [NegativeViewportHeightTest::checkSupport#L642-L648](../../../modules/vulkan/draw/vktDrawNegativeViewportHeightTests.cpp#L642-L648) | Required extensions |
-| Off-screen generation and verification | [OffScreenViewportCase#L699-L997](../../../modules/vulkan/draw/vktDrawNegativeViewportHeightTests.cpp#L699-L997) | Exact axis cases, seeds, sign handling, and black-result check |
-| Root creators | [createNegativeViewportHeightTests#L1002-L1059](../../../modules/vulkan/draw/vktDrawNegativeViewportHeightTests.cpp#L1002-L1059) | Direct registration roots and the zero-root flag |
-| Draw dispatcher | [vktDrawTests.cpp#L70-L88](../../../modules/vulkan/draw/vktDrawTests.cpp#L70-L88) | Places the roots under `draw.renderpass` |
+| Negative/zero test instance and reference generation | [Negative/zero test instance and reference generation](../../../modules/vulkan/draw/vktDrawNegativeViewportHeightTests.cpp#L133-L590) | Fixed geometry, viewport setup, shaders, image comparison, and expected output |
+| Front-face/cull registration | [vktDrawNegativeViewportHeightTests.cpp](../../../modules/vulkan/draw/vktDrawNegativeViewportHeightTests.cpp#L659-L697) | Exact eight-case matrix |
+| Feature checks | [vktDrawNegativeViewportHeightTests.cpp](../../../modules/vulkan/draw/vktDrawNegativeViewportHeightTests.cpp#L642-L648) | Required extensions |
+| Off-screen generation and verification | [vktDrawNegativeViewportHeightTests.cpp](../../../modules/vulkan/draw/vktDrawNegativeViewportHeightTests.cpp#L699-L997) | Exact axis cases, seeds, sign handling, and black-result check |
+| Root creators | [vktDrawNegativeViewportHeightTests.cpp](../../../modules/vulkan/draw/vktDrawNegativeViewportHeightTests.cpp#L1002-L1059) | Direct registration roots and the zero-root flag |
+| Draw dispatcher | [`createChildren()`](../../../modules/vulkan/draw/vktDrawTests.cpp#L70-L88) | Places the roots under `draw.renderpass` |
 | Vulkan viewport and rasterization rules | [primsrast.adoc](../../../../vulkan-docs/src/chapters/primsrast.adoc) | Specification background |
 
 ### Source and registration notes

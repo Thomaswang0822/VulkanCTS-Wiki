@@ -2,7 +2,7 @@
 
 **Core question:** Do robustness extensions return permitted values for out-of-bounds or null accesses without corrupting valid data?
 
-- This page covers the extension test matrix implemented by [vktRobustnessExtsTests.cpp](../../../modules/vulkan/robustness/vktRobustnessExtsTests.cpp#L1-L4376).
+- This page covers the extension test matrix implemented by [`vktRobustnessExtsTests.cpp`](../../../modules/vulkan/robustness/vktRobustnessExtsTests.cpp#L1-L4376).
 - The source implements `robustness.robustness2`, `robustness.image_robustness`, and, outside Vulkan SC, `robustness.pipeline_robustness`.
 - The matrix varies descriptor update method, resource and format, shader stage, access shape, and pipeline construction, then checks the observed values against the selected robustness contract.
 
@@ -256,5 +256,5 @@ Pipeline-robustness and `64b_indexing` use reduced format sets. Pipeline robustn
 | Stride cases | [Lines 3497–3820](../../../modules/vulkan/robustness/vktRobustnessExtsTests.cpp#L3497-L3820) | Implements `misc.out_of_bounds_stride*`. |
 | Matrix generator and pruning | [Lines 3840–4308](../../../modules/vulkan/robustness/vktRobustnessExtsTests.cpp#L3840-L4308) | Registers parameters and removes unsupported or redundant combinations. |
 | Root factories | [Lines 4311–4372](../../../modules/vulkan/robustness/vktRobustnessExtsTests.cpp#L4311-L4372) | Creates the documented hierarchy roots. |
-| Category dispatcher | [vktRobustnessTests.cpp](../../../modules/vulkan/robustness/vktRobustnessTests.cpp#L84-L88) | Attaches the factories to `robustness`. |
-| Mustpass inventory | [robustness.txt](../../../mustpass/main/vk-default/robustness.txt#L1866-L96873) | Confirms generated registered paths. |
+| Category dispatcher | [`createTests()`](../../../modules/vulkan/robustness/vktRobustnessTests.cpp#L84-L88) | Attaches the factories to `robustness`. |
+| Mustpass inventory | [robustness source](../../../mustpass/main/vk-default/robustness.txt#L1866-L96873) | Confirms generated registered paths. |

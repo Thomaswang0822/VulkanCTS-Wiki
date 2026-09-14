@@ -2,7 +2,7 @@
 
 **Core question:** Can a compute shader receive a buffer device address through a push constant or an SSBO field, form a `PhysicalStorageBuffer` pointer from it, and dereference it with `OpLoad`/`OpStore` to copy 64 int32 elements between two buffers?
 
-- [vktSpvAsmPhysicalStorageBufferPointerTests.cpp](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp) implements the `physical_storage_buffer` test family under `spirv_assembly.instruction.compute`.
+- [`vktSpvAsmPhysicalStorageBufferPointerTests.cpp`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp) implements the `physical_storage_buffer` test family under `spirv_assembly.instruction.compute`.
 - The factory ([createPhysicalStorageBufferTestGroup](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L742-L763)) registers three test case leaves: `push_constants`, `push_constants_function`, and `addrs_in_ssbo`.
 - Each case authors a SPIR-V assembly compute shader directly in a C++ string template. There is no GLSL or HLSL source; the assembly is the source of truth. The published assembly was assembled, validated, and disassembled with `spirv-as` → `spirv-val` → `spirv-dis` (see the spirv_assembly category deviation in `## Shader Analysis`).
 - The core mechanism is the host producing two buffer device addresses with `vkGetBufferDeviceAddress`, handing them to the shader, and the shader dereferencing them as `PhysicalStorageBuffer` pointers. The pass criterion is a faithful element-by-element copy from a source buffer to a destination buffer.
@@ -29,7 +29,7 @@ The three test case leaves are registered directly under `physical_storage_buffe
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
 | Pass method | `push_constants`, `push_constants_function`, `addrs_in_ssbo`, `ptr_access_chain_from_ubo` | How the physical storage-buffer address is communicated to the shader. The UBO variant reads the address and uses `OpPtrAccessChain`; the host expects `42`. | [PassMethod enum](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L55-L61) |
-| Element count | `64` | Number of int32 elements to copy. Fixed for all three cases; not a behavioral axis. | [registration](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L758-L759) |
+| Element count | `64` | Number of int32 elements to copy. Fixed for all three cases; not a behavioral axis. | [`SpvAsmPhysicalStorageBufferAddrsInSSBOTestInstance::iterate()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L758-L759) |
 | SPIR-V target | `spirv1.4` | All three cases build with `vk::SPIRV_VERSION_1_4`; required for `OpSelect` on pointers and the physical-storage-buffer addressing model. | [build options](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L529-L530) |
 
 ## Behavior Parameters
@@ -419,7 +419,7 @@ All three cases share the same final host comparison; any destination element th
 
 ### Design-based pruning
 
-- The element count is fixed at 64 for all three cases; no parameter matrix varies it ([registration](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L758-L759)).
+- The element count is fixed at 64 for all three cases; no parameter matrix varies it ([`SpvAsmPhysicalStorageBufferAddrsInSSBOTestInstance::iterate()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L758-L759)).
 - `push_constants` and `push_constants_function` are registered as separate cases even though they share one shader, because the `use_fun` push-constant value selects a structurally different copy path (inline loop versus `OpFunctionCall`).
 - `addrs_in_ssbo` is registered separately because its shader, dispatch shape, capability set, and address-transport mechanism differ from the push-constants cases.
 - There are no graphics variants; physical-storage-buffer pointer tests are compute-only in this family.
@@ -436,13 +436,13 @@ All three cases share the same final host comparison; any destination element th
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `PassMethod` enum and `TestParams` | [vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L55-L66](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L55-L66) | Defines the three pass methods and the element count. |
-| Push-constant shader template | [vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L400-L527](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L400-L527) | Shared SPIR-V assembly for `push_constants` and `push_constants_function`. |
-| Push-constant host setup and comparison | [vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L533-L581](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L533-L581) | Builds buffers, queries device addresses, pushes constants, dispatches `1×1×1`, compares. |
-| SSBO shader template | [vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L588-L670](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L588-L670) | SPIR-V assembly for `addrs_in_ssbo` with `OpConvertUToPtr` and `OpSelect`. |
-| SSBO host setup and comparison | [vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L682-L738](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L682-L738) | Builds the SSBO, binds it, dispatches `64×1×1`, compares. |
-| `ut::Buffer` / `ut::TypedBuffer` helpers | [vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L73-L294](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L73-L294) | Manage buffer creation with optional device-address support, `iota`, `zero`, `flush`, `invalidate`. |
-| `getDeviceAddress` | [vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L181-L194](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L181-L194) | Wraps `vkGetBufferDeviceAddress`. |
-| Support checks | [vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L350-L362](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L350-L362) | `bufferDeviceAddress`, `shaderInt64`, instance extension gates. |
-| SPIR-V 1.4 build options | [vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L529-L530](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L529-L530) | `vk::SpirVAsmBuildOptions(..., vk::SPIRV_VERSION_1_4, true)`. |
-| Registration factory | [vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L742-L763](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L742-L763) | Registers the three test case leaves under `physical_storage_buffer`. |
+| `PassMethod` enum and `TestParams` | [`PassMethod` enum and `TestParams`](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L55-L66) | Defines the three pass methods and the element count. |
+| Push-constant shader template | [push-constants shader](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L400-L527) | Shared SPIR-V assembly for `push_constants` and `push_constants_function`. |
+| Push-constant host setup and comparison | [Push-constant host setup and comparison](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L533-L581) | Builds buffers, queries device addresses, pushes constants, dispatches `1×1×1`, compares. |
+| SSBO shader template | [SSBO shader](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L588-L670) | SPIR-V assembly for `addrs_in_ssbo` with `OpConvertUToPtr` and `OpSelect`. |
+| SSBO host setup and comparison | [SSBO host setup and comparison](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L682-L738) | Builds the SSBO, binds it, dispatches `64×1×1`, compares. |
+| `ut::Buffer` / `ut::TypedBuffer` helpers | [`ut::Buffer` / `ut::TypedBuffer` helpers](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L73-L294) | Manage buffer creation with optional device-address support, `iota`, `zero`, `flush`, `invalidate`. |
+| `getDeviceAddress` | [getDeviceAddress](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L181-L194) | Wraps `vkGetBufferDeviceAddress`. |
+| Support checks | [checkSupport](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L350-L362) | `bufferDeviceAddress`, `shaderInt64`, instance extension gates. |
+| SPIR-V 1.4 build options | [build options](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L529-L530) | `vk::SpirVAsmBuildOptions(..., vk::SPIRV_VERSION_1_4, true)`. |
+| Registration factory | [createPhysicalStorageBufferTestGroup](../../../modules/vulkan/spirv_assembly/vktSpvAsmPhysicalStorageBufferPointerTests.cpp#L742-L763) | Registers the three test case leaves under `physical_storage_buffer`. |

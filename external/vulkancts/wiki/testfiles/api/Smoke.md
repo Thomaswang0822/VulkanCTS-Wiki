@@ -26,7 +26,7 @@ api.smoke
 └── unused_resolve_attachment
 ```
 
-The `smoke` test family is created by [`createSmokeTests()`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L864) and attached to the `api` test category by [`vktApiTests.cpp#L94`](../../../modules/vulkan/api/vktApiTests.cpp#L94). The six test case leaves are added at [`vktApiSmokeTests.cpp#L868-L874`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L868-L874). The family is excluded from Vulkan SC builds through the `CTS_USES_VULKANSC` guard at [`vktApiTests.cpp#L55`](../../../modules/vulkan/api/vktApiTests.cpp#L55).
+The `smoke` test family is created by [`createSmokeTests()`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L864) and attached to the `api` test category by [ApiTests source lines](../../../modules/vulkan/api/vktApiTests.cpp#L94). The six test case leaves are added at [ApiSmokeTests source lines](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L868-L874). The family is excluded from Vulkan SC builds through the `CTS_USES_VULKANSC` guard at [ApiTests source lines](../../../modules/vulkan/api/vktApiTests.cpp#L55).
 
 ## Parameter Dimensions and Observed Values
 
@@ -35,11 +35,11 @@ The `smoke` test family is created by [`createSmokeTests()`](../../../modules/vu
 | Test case leaf | `create_sampler`, `create_shader`, `triangle`, `asm_triangle`, `asm_triangle_no_opname`, `unused_resolve_attachment` | Each leaf selects one basic Vulkan code path to exercise independently. | [`createSmokeTests()`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L864) |
 | Shader source | none, GLSL, SPIR-V assembly with `OpName`, SPIR-V assembly without `OpName` | Selects the program-collection function and the shader-module creation path. | `createShaderProgs`, `createTriangleProgs`, `createTriangleAsmProgs`, `createProgsNoOpName` |
 | Render size | `256x256` | Fixed render target size for the four triangle cases. | [`renderTriangleTest()`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L333) |
-| Color format | `VK_FORMAT_R8G8B8A8_UNORM` | Fixed color attachment format. | [`vktApiSmokeTests.cpp#L334`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L334) |
-| Clear color | `(0.125, 0.25, 0.75, 1.0)` | Background color used for both device and reference rendering. | [`vktApiSmokeTests.cpp#L335`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L335) |
-| Triangle vertices | `(-0.5,-0.5,0,1)`, `(+0.5,-0.5,0,1)`, `(0,+0.5,0,1)` | Fixed vertex positions used by every triangle case. | [`vktApiSmokeTests.cpp#L337-L338`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L337-L338) |
-| Memory binding offset | zero (default), non-zero (alignment) | `triangle` uses non-zero offsets on vertex buffer, readback buffer, and image; `unused_resolve_attachment` uses zero offsets. | [`vktApiSmokeTests.cpp#L352-L404`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L352-L404) |
-| Resolve attachment | none, `VK_ATTACHMENT_UNUSED` | `triangle` uses a render pass without resolve; `unused_resolve_attachment` declares `VK_ATTACHMENT_UNUSED` in `pResolveAttachments`. | [`vktApiSmokeTests.cpp#L670`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L670) |
+| Color format | `VK_FORMAT_R8G8B8A8_UNORM` | Fixed color attachment format. | [Color format](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L334) |
+| Clear color | `(0.125, 0.25, 0.75, 1.0)` | Background color used for both device and reference rendering. | [Clear color](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L335) |
+| Triangle vertices | `(-0.5,-0.5,0,1)`, `(+0.5,-0.5,0,1)`, `(0,+0.5,0,1)` | Fixed vertex positions used by every triangle case. | [Triangle vertices](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L337-L338) |
+| Memory binding offset | zero (default), non-zero (alignment) | `triangle` uses non-zero offsets on vertex buffer, readback buffer, and image; `unused_resolve_attachment` uses zero offsets. | [Memory binding offset](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L352-L404) |
+| Resolve attachment | none, `VK_ATTACHMENT_UNUSED` | `triangle` uses a render pass without resolve; `unused_resolve_attachment` declares `VK_ATTACHMENT_UNUSED` in `pResolveAttachments`. | [Resolve attachment](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L670) |
 
 ## Behavior Parameters
 
@@ -274,8 +274,8 @@ void main (void)
 
 The two creation cases do not record command buffers:
 
-1. Build a `VkSamplerCreateInfo` with NEAREST filtering and CLAMP_TO_EDGE addressing; call `vkCreateSampler` and assign the resulting handle through `Move<VkSampler>` ([`vktApiSmokeTests.cpp#L64-L100`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L64-L100)).
-2. Build a `VkShaderModule` from the GLSL program named `test`; call `vkCreateShaderModule` ([`vktApiSmokeTests.cpp#L109-L116`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L109-L116)).
+1. Build a `VkSamplerCreateInfo` with NEAREST filtering and CLAMP_TO_EDGE addressing; call `vkCreateSampler` and assign the resulting handle through `Move<VkSampler>` ([ApiSmokeTests source lines](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L64-L100)).
+2. Build a `VkShaderModule` from the GLSL program named `test`; call `vkCreateShaderModule` ([`main()`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L109-L116)).
 
 Both cases pass when the creation call returns `VK_SUCCESS` and the framework handle wrapper remains valid.
 
@@ -283,11 +283,11 @@ Both cases pass when the creation call returns `VK_SUCCESS` and the framework ha
 
 The three rendering cases share [`renderTriangleTest()`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L325) and follow the same sequence:
 
-1. Allocate vertex buffer, readback buffer, and color image through a `SimpleAllocator`. For each, allocate `size + alignment` bytes and bind at the non-zero offset `alignment` to exercise the offset path ([`vktApiSmokeTests.cpp#L351-L404`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L351-L404)).
+1. Allocate vertex buffer, readback buffer, and color image through a `SimpleAllocator`. For each, allocate `size + alignment` bytes and bind at the non-zero offset `alignment` to exercise the offset path ([`RefFragmentShader()`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L351-L404)).
 2. Create render pass, image view, pipeline layout, shader modules, graphics pipeline, and framebuffer.
-3. Record a command buffer: pipeline barrier from `HOST_WRITE_BIT` to vertex-attribute and color-attachment access, `beginRenderPass` with the clear color, `cmdBindPipeline`, `cmdBindVertexBuffers`, `cmdDraw(3, 1, 0, 0)`, `endRenderPass`, then `copyImageToBuffer` ([`vktApiSmokeTests.cpp#L494-L536`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L494-L536)).
+3. Record a command buffer: pipeline barrier from `HOST_WRITE_BIT` to vertex-attribute and color-attachment access, `beginRenderPass` with the clear color, `cmdBindPipeline`, `cmdBindVertexBuffers`, `cmdDraw(3, 1, 0, 0)`, `endRenderPass`, then `copyImageToBuffer` ([ApiSmokeTests source lines](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L494-L536)).
 4. Upload vertex data with `deMemcpy` and `flushAlloc`; submit and wait.
-5. Invalidate the readback allocation, render a reference triangle through `rr::Renderer` into a `tcu::TextureLevel`, and compare with `tcu::intThresholdPositionDeviationCompare` using zero color threshold and `(1, 1, 0)` position deviation ([`vktApiSmokeTests.cpp#L546-L569`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L546-L569)).
+5. Invalidate the readback allocation, render a reference triangle through `rr::Renderer` into a `tcu::TextureLevel`, and compare with `tcu::intThresholdPositionDeviationCompare` using zero color threshold and `(1, 1, 0)` position deviation ([ApiSmokeTests source lines](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L546-L569)).
 
 Pass condition: the device image matches the software reference within zero color threshold and one-pixel position deviation.
 
@@ -295,9 +295,9 @@ Pass condition: the device image matches the software reference within zero colo
 
 Follows the same flow as `triangle` with three differences:
 
-- A custom `VkRenderPassCreateInfo` is built with a `pResolveAttachments` array whose single entry is `{VK_ATTACHMENT_UNUSED, VK_IMAGE_LAYOUT_GENERAL}` ([`vktApiSmokeTests.cpp#L670`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L670)).
-- Memory bindings use zero offsets: vertex buffer, readback buffer, and image are bound at `vertexBufferMemory->getOffset()` ([`vktApiSmokeTests.cpp#L610-L653`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L610-L653)).
-- The readback pixel access reads from `readImageBufferMemory->getHostPtr()` without adding an offset ([`vktApiSmokeTests.cpp#L837`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L837)).
+- A custom `VkRenderPassCreateInfo` is built with a `pResolveAttachments` array whose single entry is `{VK_ATTACHMENT_UNUSED, VK_IMAGE_LAYOUT_GENERAL}` ([`VoidVulkanStruct()`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L670)).
+- Memory bindings use zero offsets: vertex buffer, readback buffer, and image are bound at `vertexBufferMemory->getOffset()` ([`VoidVulkanStruct()`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L610-L653)).
+- The readback pixel access reads from `readImageBufferMemory->getHostPtr()` without adding an offset ([ApiSmokeTests source lines](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L837)).
 
 Pass condition is the same image-comparison check as the other rendering cases.
 
@@ -350,7 +350,7 @@ Pass condition is the same image-comparison check as the other rendering cases.
 
 ### Requirement-based pruning
 
-The `smoke` test family is excluded from Vulkan SC builds through a `#ifndef CTS_USES_VULKANSC` guard at [`vktApiTests.cpp#L55`](../../../modules/vulkan/api/vktApiTests.cpp#L55) and [`vktApiTests.cpp#L93-L95`](../../../modules/vulkan/api/vktApiTests.cpp#L93-L95). No additional device feature, format, or extension is queried; the family uses only core Vulkan 1.0 entry points and `VK_FORMAT_R8G8B8A8_UNORM`.
+The `smoke` test family is excluded from Vulkan SC builds through a `#ifndef CTS_USES_VULKANSC` guard at [ApiTests source lines](../../../modules/vulkan/api/vktApiTests.cpp#L55) and [ApiTests source lines](../../../modules/vulkan/api/vktApiTests.cpp#L93-L95). No additional device feature, format, or extension is queried; the family uses only core Vulkan 1.0 entry points and `VK_FORMAT_R8G8B8A8_UNORM`.
 
 ### Design-based pruning
 
@@ -368,17 +368,17 @@ No parameter matrix is generated. The family contains six hand-written cases, ea
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `createSmokeTests()` | [`vktApiSmokeTests.cpp#L864`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L864) | Family registration and leaf case additions. |
-| Parent attach | [`vktApiTests.cpp#L94`](../../../modules/vulkan/api/vktApiTests.cpp#L94) | Attaches the `smoke` family to the `api` test category. |
-| Vulkan SC guard | [`vktApiTests.cpp#L55`](../../../modules/vulkan/api/vktApiTests.cpp#L55) | Excludes the family from Vulkan SC builds. |
-| `createSamplerTest()` | [`vktApiSmokeTests.cpp#L64-L100`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L64-L100) | `create_sampler` implementation. |
-| `createShaderModuleTest()` | [`vktApiSmokeTests.cpp#L109-L116`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L109-L116) | `create_shader` implementation. |
-| `createShaderProgs()` | [`vktApiSmokeTests.cpp#L102-L107`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L102-L107) | GLSL vertex program for `create_shader`. |
-| `renderTriangleTest()` | [`vktApiSmokeTests.cpp#L325-L573`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L325-L573) | Shared implementation of `triangle`, `asm_triangle`, and `asm_triangle_no_opname`. |
-| `createTriangleProgs()` | [`vktApiSmokeTests.cpp#L182-L190`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L182-L190) | GLSL programs for `triangle` and `unused_resolve_attachment`. |
-| `createTriangleAsmProgs()` | [`vktApiSmokeTests.cpp#L118-L180`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L118-L180) | SPIR-V assembly programs with `OpName` for `asm_triangle`. |
-| `createProgsNoOpName()` | [`vktApiSmokeTests.cpp#L192-L259`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L192-L259) | SPIR-V assembly programs without `OpName` for `asm_triangle_no_opname`. |
-| `renderTriangleUnusedResolveAttachmentTest()` | [`vktApiSmokeTests.cpp#L581-L860`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L581-L860) | `unused_resolve_attachment` implementation. |
-| `renderReferenceTriangle()` | [`vktApiSmokeTests.cpp#L307-L323`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L307-L323) | Reference renderer invocation through `rr::Renderer`. |
-| Image comparison | [`vktApiSmokeTests.cpp#L563-L568`](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L563-L568) | `tcu::intThresholdPositionDeviationCompare` pass/fail decision. |
+| `createSmokeTests()` | [createSmokeTests()](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L864) | Family registration and leaf case additions. |
+| Parent attach | [Parent attach](../../../modules/vulkan/api/vktApiTests.cpp#L94) | Attaches the `smoke` family to the `api` test category. |
+| Vulkan SC guard | [Vulkan SC guard](../../../modules/vulkan/api/vktApiTests.cpp#L55) | Excludes the family from Vulkan SC builds. |
+| `createSamplerTest()` | [createSamplerTest()](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L64-L100) | `create_sampler` implementation. |
+| `createShaderModuleTest()` | [createShaderModuleTest()](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L109-L116) | `create_shader` implementation. |
+| `createShaderProgs()` | [createShaderProgs()](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L102-L107) | GLSL vertex program for `create_shader`. |
+| `renderTriangleTest()` | [renderTriangleTest()](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L325-L573) | Shared implementation of `triangle`, `asm_triangle`, and `asm_triangle_no_opname`. |
+| `createTriangleProgs()` | [createTriangleProgs()](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L182-L190) | GLSL programs for `triangle` and `unused_resolve_attachment`. |
+| `createTriangleAsmProgs()` | [createTriangleAsmProgs()](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L118-L180) | SPIR-V assembly programs with `OpName` for `asm_triangle`. |
+| `createProgsNoOpName()` | [createProgsNoOpName()](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L192-L259) | SPIR-V assembly programs without `OpName` for `asm_triangle_no_opname`. |
+| `renderTriangleUnusedResolveAttachmentTest()` | [renderTriangleUnusedResolveAttachmentTest()](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L581-L860) | `unused_resolve_attachment` implementation. |
+| `renderReferenceTriangle()` | [renderReferenceTriangle()](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L307-L323) | Reference renderer invocation through `rr::Renderer`. |
+| Image comparison | [Image comparison](../../../modules/vulkan/api/vktApiSmokeTests.cpp#L563-L568) | `tcu::intThresholdPositionDeviationCompare` pass/fail decision. |
 | Header | [`vktApiSmokeTests.hpp`](../../../modules/vulkan/api/vktApiSmokeTests.hpp#L1) | Declares `createSmokeTests`. |

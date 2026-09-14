@@ -5,7 +5,7 @@
 - This page covers the `mesh_shader.nv.synchronization` test family implemented by [createMeshShaderSyncTests](../../../modules/vulkan/mesh_shader/vktMeshShaderSyncTests.cpp#L1332-L1453).
 - The factory combines 11 explicit stage pairs, four resource kinds, two registered barrier forms, and legal write/read access pairs. Each leaf carries a distinct `uint32_t` test value.
 - The source stage writes or supplies the value, the destination stage reads it, and the test observes the value in a host-visible buffer or a color attachment copied into one.
-- The current `vk-default` mesh-shader mustpass contains 50 NV synchronization cases. The exact entries are in [mesh-shader.txt](../../../mustpass/main/vk-default/mesh-shader.txt#L27964-L28013).
+- The current `vk-default` mesh-shader mustpass contains 50 NV synchronization cases. The exact entries are in [mesh-shader source](../../../mustpass/main/vk-default/mesh-shader.txt#L27964-L28013).
 
 ## Background Knowledge
 
@@ -426,14 +426,14 @@ These removals mean that the omitted case is unsupported, invalid for the select
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Stage/resource/barrier/access definitions | [vktMeshShaderSyncTests.cpp](../../../modules/vulkan/mesh_shader/vktMeshShaderSyncTests.cpp#L57-L228) | Defines the exact matrix vocabulary and Vulkan flag mappings. |
-| Combination legality and result routing | [vktMeshShaderSyncTests.cpp](../../../modules/vulkan/mesh_shader/vktMeshShaderSyncTests.cpp#L230-L365) | Explains supported endpoint/resource/access combinations and where results land. |
+| Stage/resource/barrier/access definitions | [Stage/resource/barrier/access definitions](../../../modules/vulkan/mesh_shader/vktMeshShaderSyncTests.cpp#L57-L228) | Defines the exact matrix vocabulary and Vulkan flag mappings. |
+| Combination legality and result routing | [Combination legality and result routing](../../../modules/vulkan/mesh_shader/vktMeshShaderSyncTests.cpp#L230-L365) | Explains supported endpoint/resource/access combinations and where results land. |
 | Support gate and generated programs | [checkSupport and initPrograms](../../../modules/vulkan/mesh_shader/vktMeshShaderSyncTests.cpp#L610-L698) | Requires NV mesh/task support and emits task, mesh, and fragment shaders. |
 | Render-pass dependency and helper barriers | [render pass and barriers](../../../modules/vulkan/mesh_shader/vktMeshShaderSyncTests.cpp#L722-L795) | Shows subpass dependency construction and host/transfer synchronization. |
 | Resource setup and command execution | [MeshShaderSyncInstance::iterate](../../../modules/vulkan/mesh_shader/vktMeshShaderSyncTests.cpp#L797-L1277) | Shows buffers, images, descriptors, layouts, draws, copies, submit, and wait. |
-| Observable result checks | [result verification](../../../modules/vulkan/mesh_shader/vktMeshShaderSyncTests.cpp#L1279-L1327) | Shows each host-side comparison and failure message. |
+| Observable result checks | [`MeshShaderSyncInstance::iterate()`](../../../modules/vulkan/mesh_shader/vktMeshShaderSyncTests.cpp#L1279-L1327) | Shows each host-side comparison and failure message. |
 | Registration and pruning | [createMeshShaderSyncTests](../../../modules/vulkan/mesh_shader/vktMeshShaderSyncTests.cpp#L1332-L1453) | Registers the hierarchy, matrix values, and skip predicates. |
 | Shared NV support helper | [checkTaskMeshShaderSupportNV](../../../modules/vulkan/mesh_shader/vktMeshShaderUtil.cpp#L111-L124) | Requires `VK_NV_mesh_shader` and the selected task/mesh features. |
 | Default mustpass | [NV synchronization entries](../../../mustpass/main/vk-default/mesh-shader.txt#L27964-L28013) | Records the exact 50 NV leaves selected for the default profile. |
-| Synchronization semantics | [synchronization.adoc](../../../../vulkan-docs/src/chapters/synchronization.adoc#synchronization-dependencies) | Defines execution dependencies, availability, visibility, and access scopes. |
-| Pipeline barriers | [synchronization.adoc](../../../../vulkan-docs/src/chapters/synchronization.adoc#synchronization-pipeline-barriers) | Defines global, buffer, and image barrier semantics used by the cases. |
+| Synchronization semantics | [synchronization source](../../../../vulkan-docs/src/chapters/synchronization.adoc#synchronization-dependencies) | Defines execution dependencies, availability, visibility, and access scopes. |
+| Pipeline barriers | [synchronization source](../../../../vulkan-docs/src/chapters/synchronization.adoc#synchronization-pipeline-barriers) | Defines global, buffer, and image barrier semantics used by the cases. |

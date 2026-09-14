@@ -466,13 +466,13 @@ All six combinations in the intended two-topology by three-polygon-mode matrix a
 
 | Topic | Source |
 |---|---|
-| Case names and feature requirements | [`vktDrawDepthBiasTests.cpp#L40-L65`](../../../modules/vulkan/draw/vktDrawDepthBiasTests.cpp#L40-L65) |
-| Depth-bias test-group creation | [`vktDrawDepthBiasTests.cpp#L71-L74`](../../../modules/vulkan/draw/vktDrawDepthBiasTests.cpp#L71-L74) |
-| Parent registration and render-pass gate | [`vktDrawTests.cpp#L103-L117`](../../../modules/vulkan/draw/vktDrawTests.cpp#L103-L117) |
+| Case names and feature requirements | [`createTests()`](../../../modules/vulkan/draw/vktDrawDepthBiasTests.cpp#L40-L65) |
+| Depth-bias test-group creation | [`createDepthBiasTests()`](../../../modules/vulkan/draw/vktDrawDepthBiasTests.cpp#L71-L74) |
+| Parent registration and render-pass gate | [`createChildren`](../../../modules/vulkan/draw/vktDrawTests.cpp#L103-L117) |
 | Amber data directory and script files | [`external/vulkancts/data/vulkan/amber/draw/depth_bias/`](../../../data/vulkan/amber/draw/depth_bias/) |
 | Triangle-list Amber pipeline and verification | [`depth_bias_triangle_list_fill.amber`](../../../data/vulkan/amber/draw/depth_bias/depth_bias_triangle_list_fill.amber) |
 | Patch-list tessellation and verification | [`depth_bias_patch_list_tri_fill.amber`](../../../data/vulkan/amber/draw/depth_bias/depth_bias_patch_list_tri_fill.amber) |
-| Amber test-case construction | [`vktDrawDepthBiasTests.cpp#L59-L65`](../../../modules/vulkan/draw/vktDrawDepthBiasTests.cpp#L59-L65) |
-| Amber feature support checks | [`vktAmberTestCase.cpp#L203-L248`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L203-L248) |
+| Amber test-case construction | [`createTests()`](../../../modules/vulkan/draw/vktDrawDepthBiasTests.cpp#L59-L65) |
+| Amber feature support checks | [`AmberTestCase::checkSupport()`](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L203-L248) |
 | Vulkan depth-bias semantics | [Depth Bias Computation](https://docs.vulkan.org/spec/latest/chapters/primsrast.html#primsrast-depthbias-computation) |
 | Mustpass registration evidence | [`external/vulkancts/mustpass/main/vk-default/draw.txt`](../../../mustpass/main/vk-default/draw.txt) |

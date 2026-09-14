@@ -54,7 +54,7 @@ The primary behavioral axis is the test family. Each family uses a different fen
 
 ### `one_signaled` - one initially signaled fence
 
-`basicSignaledCase` creates one fence with `VK_FENCE_CREATE_SIGNALED_BIT`, checks that `vkGetFenceStatus` returns `VK_SUCCESS` immediately, and waits for it with `waitAll=VK_TRUE` ([registration](../../../modules/vulkan/synchronization/vktSynchronizationBasicFenceTests.cpp#L361-L363), [implementation](../../../modules/vulkan/synchronization/vktSynchronizationBasicFenceTests.cpp#L131-L164)). The Vulkan specification defines this flag as selecting the initial signaled state ([`VkFenceCreateFlagBits`](../../../../vulkan-docs/src/chapters/synchronization.adoc#VkFenceCreateFlagBits)).
+`basicSignaledCase` creates one fence with `VK_FENCE_CREATE_SIGNALED_BIT`, checks that `vkGetFenceStatus` returns `VK_SUCCESS` immediately, and waits for it with `waitAll=VK_TRUE` ([registration](../../../modules/vulkan/synchronization/vktSynchronizationBasicFenceTests.cpp#L361-L363), [`basicSignaledCase()`](../../../modules/vulkan/synchronization/vktSynchronizationBasicFenceTests.cpp#L131-L164)). The Vulkan specification defines this flag as selecting the initial signaled state ([`VkFenceCreateFlagBits`](../../../../vulkan-docs/src/chapters/synchronization.adoc#VkFenceCreateFlagBits)).
 
 ### `multiple_signaled` - ten initially signaled fences
 

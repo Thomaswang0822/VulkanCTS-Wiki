@@ -2,7 +2,7 @@
 
 **Core question:** Can every advertised surface color-space choice be used without changing the raw rendered pixel value for a fixed image format?
 
-- This page covers the `colorspace` and `colorspace_compare` test families implemented by [vktWsiColorSpaceTests.cpp](../../../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp).
+- This page covers the `colorspace` and `colorspace_compare` test families implemented by [`vktWsiColorSpaceTests.cpp`](../../../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp).
 - `colorspace` checks extension advertisement, renders with each queried surface format and color-space pair, and repeats the rendering path with HDR metadata.
 - `colorspace_compare` fixes one of six image formats, creates a swapchain for each supported color space, and compares pixel `(128, 128)` exactly across the resulting images. The current source [performs each readback after presenting the image without reacquiring it](../../../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp#L497-L512), contrary to the [presentable-image reacquisition rule](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L7419-L7426), so this comparison cannot serve as a conformance oracle as implemented.
 - The source owns both families because they share instance, device, swapchain, renderer, presentation, and readback setup. The WSI dispatcher registers them separately under each platform type.
@@ -400,6 +400,6 @@ Missing a required extension, finding no extended color space, and finding fewer
 | Registrations and fixed formats | [createColorSpaceTests and createColorspaceCompareTests](../../../modules/vulkan/wsi/vktWsiColorSpaceTests.cpp#L696-L726) | Provides all direct child names and the six comparison formats. |
 | Shared shader generator | [WsiTriangleRenderer::getPrograms](../../../framework/vulkan/vkWsiUtil.cpp#L1171-L1194) | Emits the exact vertex and fragment GLSL used by rendering cases. |
 | Shared renderer commands | [WsiTriangleRenderer::recordFrame](../../../framework/vulkan/vkWsiUtil.cpp#L1019-L1069) | Records layout transitions, clear, push constant, draw, and presentation transition. |
-| Mustpass evidence | [wsi.txt](../../../mustpass/main/vk-default/wsi.txt) | Lists executable WSI color-space paths. |
+| Mustpass evidence | [wsi source](../../../mustpass/main/vk-default/wsi.txt) | Lists executable WSI color-space paths. |
 | Vulkan surface semantics | [VK_KHR_surface/wsi.adoc](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc) | Defines surface-format query and WSI behavior used to interpret the tests. |
 | Presentable-image use rule | [Present release and reacquisition requirement](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L7419-L7426) | States that `vkQueuePresentKHR` releases image acquisition and that a presented image must not be used again before reacquisition. |

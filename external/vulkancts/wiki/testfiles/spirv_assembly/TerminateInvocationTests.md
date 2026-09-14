@@ -261,9 +261,9 @@ The C++ dispatcher attaches `VK_KHR_shader_terminate_invocation` to every case a
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `createTerminateInvocationGroup` | [vktSpvAsmTerminateInvocationTests.cpp#L110-L168](../../../modules/vulkan/spirv_assembly/vktSpvAsmTerminateInvocationTests.cpp#L110-L168) | Top-level group constructor; registers the `terminate` intermediate node and all 15 case leaves. |
-| `addTestsForAmberFiles` | [vktSpvAsmTerminateInvocationTests.cpp#L77-L104](../../../modules/vulkan/spirv_assembly/vktSpvAsmTerminateInvocationTests.cpp#L77-L104) | Amber dispatcher; attaches `VK_KHR_shader_terminate_invocation`, the per-case requirement vector, and the SPIR-V version to each `cts_amber::createAmberTestCase`. |
-| Case list | [vktSpvAsmTerminateInvocationTests.cpp#L132-L162](../../../modules/vulkan/spirv_assembly/vktSpvAsmTerminateInvocationTests.cpp#L132-L162) | The 15 registered case basenames with their `spv1p3` flag and requirement bundle. |
-| Requirement vectors | [vktSpvAsmTerminateInvocationTests.cpp#L117-L130](../../../modules/vulkan/spirv_assembly/vktSpvAsmTerminateInvocationTests.cpp#L117-L130) | Definitions of `Stores`, `VarPtr`, `Vote`, and `Ballot` requirement vectors. |
+| `createTerminateInvocationGroup` | [`createTerminateInvocationGroup`](../../../modules/vulkan/spirv_assembly/vktSpvAsmTerminateInvocationTests.cpp#L110-L168) | Top-level group constructor; registers the `terminate` intermediate node and all 15 case leaves. |
+| `addTestsForAmberFiles` | [`addTestsForAmberFiles`](../../../modules/vulkan/spirv_assembly/vktSpvAsmTerminateInvocationTests.cpp#L77-L104) | Amber dispatcher; attaches `VK_KHR_shader_terminate_invocation`, the per-case requirement vector, and the SPIR-V version to each `cts_amber::createAmberTestCase`. |
+| Case list | [case list](../../../modules/vulkan/spirv_assembly/vktSpvAsmTerminateInvocationTests.cpp#L132-L162) | The 15 registered case basenames with their `spv1p3` flag and requirement bundle. |
+| Requirement vectors | [requirement vectors](../../../modules/vulkan/spirv_assembly/vktSpvAsmTerminateInvocationTests.cpp#L117-L130) | Definitions of `Stores`, `VarPtr`, `Vote`, and `Ballot` requirement vectors. |
 | Amber data directory | [terminate_invocation/](../../../data/vulkan/amber/spirv_assembly/instruction/terminate_invocation/) | The 16 `.amber` files (15 registered) containing the SPIR-V assembly, buffers, pipelines, and `EXPECT` checks. |
 | Representative Amber script | [no_output_write.amber](../../../data/vulkan/amber/spirv_assembly/instruction/terminate_invocation/no_output_write.amber) | Source of the walkthrough fragment shader and the reference-pipeline comparison. |

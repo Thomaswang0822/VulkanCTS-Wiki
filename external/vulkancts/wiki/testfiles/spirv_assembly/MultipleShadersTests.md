@@ -30,7 +30,7 @@ The parent compute registration adds this test family under `spirv_assembly.inst
 | Test case leaf | `two_entry_points_execution_mode_id`, `two_entry_points_different_interfaces` | Selects the multi-entry-point module form and the property under test. | [case construction](../../../modules/vulkan/spirv_assembly/vktSpvAsmMultipleShadersTests.cpp#L449-L460) |
 | Entry-point name | `mainA`, `mainB` | Selects the function used when the host creates each compute pipeline from the shared module. | [pipeline stages](../../../modules/vulkan/spirv_assembly/vktSpvAsmMultipleShadersTests.cpp#L148-L178) |
 | Buffer interface | binding `0` only, or bindings `0` and `1` | The first leaf shares one buffer; the second leaf gives `mainA` and `mainB` distinct storage buffers. | [descriptor setup](../../../modules/vulkan/spirv_assembly/vktSpvAsmMultipleShadersTests.cpp#L118-L141) |
-| Workgroup size | `2 x 3 x 1` with `LocalSizeId`, `3 x 2 x 1` with `LocalSize` | Both forms produce six local invocations for a `1 x 1 x 1` dispatch. | [assembly builders](../../../modules/vulkan/spirv_assembly/vktSpvAsmMultipleShadersTests.cpp#L260-L329) and [#L349-L436](../../../modules/vulkan/spirv_assembly/vktSpvAsmMultipleShadersTests.cpp#L349-L436) |
+| Workgroup size | `2 x 3 x 1` with `LocalSizeId`, `3 x 2 x 1` with `LocalSize` | Both forms produce six local invocations for a `1 x 1 x 1` dispatch. | [assembly builders](../../../modules/vulkan/spirv_assembly/vktSpvAsmMultipleShadersTests.cpp#L260-L329) and [`vktSpvAsmMultipleShadersTests.cpp`](../../../modules/vulkan/spirv_assembly/vktSpvAsmMultipleShadersTests.cpp#L349-L436) |
 
 ## Behavior Parameters
 
@@ -393,6 +393,6 @@ The source registers exactly two leaves. It holds the module count, pipeline cou
 | `Programs::init` | [assembly builders](../../../modules/vulkan/spirv_assembly/vktSpvAsmMultipleShadersTests.cpp#L235-L436) | Provides both CTS-authored SPIR-V assembly strings. |
 | `checkSupport` | [support gate](../../../modules/vulkan/spirv_assembly/vktSpvAsmMultipleShadersTests.cpp#L441-L445) | Requires `VK_KHR_maintenance4` for the `LocalSizeId` leaf. |
 | `createMultipleShaderExtendedGroup` | [family registration](../../../modules/vulkan/spirv_assembly/vktSpvAsmMultipleShadersTests.cpp#L449-L463) | Registers the two executable leaves. |
-| Default mustpass entries | [spirv-assembly.txt#L7488-L7489](../../../mustpass/main/vk-default/spirv-assembly.txt#L7488-L7489) | Lists both Vulkan executable paths. |
-| Pipeline entry-point rule | [pipelines.adoc](../../../../vulkan-docs/src/chapters/pipelines.adoc#L1183-L1186) | Grounds the `pName` and execution-model claim. |
+| Default mustpass entries | [Default mustpass entries](../../../mustpass/main/vk-default/spirv-assembly.txt#L7488-L7489) | Lists both Vulkan executable paths. |
+| Pipeline entry-point rule | [pipelines source](../../../../vulkan-docs/src/chapters/pipelines.adoc#L1183-L1186) | Grounds the `pName` and execution-model claim. |
 | `LocalSizeId` support | [VK_KHR_maintenance4 appendix](../../../../vulkan-docs/src/appendices/VK_KHR_maintenance4.adoc#L38-L40) | Grounds the extension's relation to `LocalSizeId`. |

@@ -2,7 +2,7 @@
 
 **Core question:** Does the robustness buffer-access generator preserve permitted results for uniform, storage, and texel-buffer accesses that cross a descriptor or allocation boundary?
 
-- This page covers `robustness.buffer_access`, `robustness.pipeline_robustness_buffer_access`, and `robustness.descriptor_heap_buffer_access` from [vktRobustnessBufferAccessTests.cpp](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L1929-L2035).
+- This page covers `robustness.buffer_access`, `robustness.pipeline_robustness_buffer_access`, and `robustness.descriptor_heap_buffer_access` from [`vktRobustnessBufferAccessTests.cpp`](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L1929-L2035).
 - The shared generator varies shader stage, access form, format, range, and read/write operation; the latter two roots are non-VulkanSC variants with different feature/device setup.
 - The host checks in-range values, partial accesses, out-of-bounds results, and untouched output bytes against the local robustness predicates.
 
@@ -37,7 +37,7 @@ robustness.descriptor_heap_buffer_access
 └── vertex
 ```
 
-`pipeline_robustness_buffer_access` and `descriptor_heap_buffer_access` are registered only outside Vulkan SC. The shared factory and dispatcher are [here](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L1929-L2035) and [here](../../../modules/vulkan/robustness/vktRobustnessTests.cpp#L65-L95).
+`pipeline_robustness_buffer_access` and `descriptor_heap_buffer_access` are registered only outside Vulkan SC. The shared factory and dispatcher are [vktRobustnessBufferAccessTests.cpp](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L1929-L2035) and [vktRobustnessTests.cpp](../../../modules/vulkan/robustness/vktRobustnessTests.cpp#L65-L95).
 
 ## Parameter Dimensions and Observed Values
 
@@ -155,7 +155,7 @@ void main (void)
 
 #### Additional Info
 
-- The integer `scalar_copy` branch emits `uvec4 inVecs[128][4]`/`outVecs[128][4]` blocks and 16 component-wise assignments [source](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L432-L515).
+- The integer `scalar_copy` branch emits `uvec4 inVecs[128][4]`/`outVecs[128][4]` blocks and 16 component-wise assignments [`vktRobustnessBufferAccessTests.cpp`](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L432-L515).
 - Descriptor-range cases leave `inIndex` and `outIndex` at zero; only `out_of_alloc` cases move an index near an allocation end [index setup](../../../modules/vulkan/robustness/vktRobustnessBufferAccessTests.cpp#L1154-L1184).
 
 #### Parameter Variation Summary

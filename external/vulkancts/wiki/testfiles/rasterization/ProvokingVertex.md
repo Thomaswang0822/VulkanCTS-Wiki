@@ -557,8 +557,8 @@ Both values share the solid-red reference image compare, so a wrong provoking-ve
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Parent category attachment | [vktRasterizationTests.cpp#L10294-L10299](../../../modules/vulkan/rasterization/vktRasterizationTests.cpp#L10294-L10299) | Adds `provoking_vertex` to the `rasterization` test category on non-VulkanSC builds. |
-| Factory declaration | [vktRasterizationProvokingVertexTests.hpp#L34](../../../modules/vulkan/rasterization/vktRasterizationProvokingVertexTests.hpp#L34) | Declares `createProvokingVertexTests`. |
+| Parent category attachment | [`createRasterizationTests()`](../../../modules/vulkan/rasterization/vktRasterizationTests.cpp#L10294-L10299) | Adds `provoking_vertex` to the `rasterization` test category on non-VulkanSC builds. |
+| Factory declaration | [Factory declaration](../../../modules/vulkan/rasterization/vktRasterizationProvokingVertexTests.hpp#L34) | Declares `createProvokingVertexTests`. |
 | Factory entry | [createProvokingVertexTests()](../../../modules/vulkan/rasterization/vktRasterizationProvokingVertexTests.cpp#L1156-L1159) | Creates the root group `provoking_vertex` and dispatches to `createTests()`. |
 | Provoking-vertex mode enumeration | [ProvokingVertexMode enum](../../../modules/vulkan/rasterization/vktRasterizationProvokingVertexTests.cpp#L51-L57) | Defines `PROVOKING_VERTEX_DEFAULT`, `_FIRST`, `_LAST`, `_PER_PIPELINE`. |
 | Test parameters | [Params struct](../../../modules/vulkan/rasterization/vktRasterizationProvokingVertexTests.cpp#L59-L67) | Carries format, size, topology, geometry-shader requirement, transform-feedback flag, and provoking mode. |
@@ -574,4 +574,4 @@ Both values share the solid-red reference image compare, so a wrong provoking-ve
 | Render pass with optional self-dependency | [ProvokingVertexTestInstance::makeRenderPass()](../../../modules/vulkan/rasterization/vktRasterizationProvokingVertexTests.cpp#L1009-L1067) | Adds the transform-feedback counter self-dependency for the `per_pipeline` + `transform_feedback` combination. |
 | Test matrix registration | [createTests()](../../../modules/vulkan/rasterization/vktRasterizationProvokingVertexTests.cpp#L1069-L1152) | Walks the test-type, provoking-mode, and topology arrays and registers each leaf case. |
 | Test-type and mode arrays | [testTypes[], provokingVertexModes[], topologies[]](../../../modules/vulkan/rasterization/vktRasterizationProvokingVertexTests.cpp#L1073-L1117) | Defines the registered values used in the parameter dimensions. |
-| Mustpass evidence (vk-default) | [vk-default/rasterization.txt#L9239-L9301](../../../mustpass/main/vk-default/rasterization.txt#L9239-L9301) | Lists all 63 cases under `rasterization.provoking_vertex`. |
+| Mustpass evidence (vk-default) | [Mustpass evidence (vk-default)](../../../mustpass/main/vk-default/rasterization.txt#L9239-L9301) | Lists all 63 cases under `rasterization.provoking_vertex`. |

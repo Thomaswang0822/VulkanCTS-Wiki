@@ -120,17 +120,17 @@ A failure in both values can point to their shared image allocation, transfer, s
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Test family attachment | [vktProtectedMemTests.cpp#L62-L70](../../../modules/vulkan/protected_memory/vktProtectedMemTests.cpp#L62-L70) | Adds `blit` under the `protected_memory.image` path. |
-| Support checks | [vktProtectedMemBlitImageTests.cpp#L84-L104](../../../modules/vulkan/protected_memory/vktProtectedMemBlitImageTests.cpp#L84-L104) | Requires protected-context support and gates the Vulkan SC secondary mode. |
-| Runtime operation | [vktProtectedMemBlitImageTests.cpp#L125-L328](../../../modules/vulkan/protected_memory/vktProtectedMemBlitImageTests.cpp#L125-L328) | Creates images, records barriers/clear/blit, submits protected work, and calls validation. |
-| Case generation | [vktProtectedMemBlitImageTests.cpp#L331-L465](../../../modules/vulkan/protected_memory/vktProtectedMemBlitImageTests.cpp#L331-L465) | Defines the static and seeded-random leaves for each command-buffer mode. |
-| Command-buffer mode registration | [vktProtectedMemBlitImageTests.cpp#L470-L477](../../../modules/vulkan/protected_memory/vktProtectedMemBlitImageTests.cpp#L470-L477) | Registers `primary` and `secondary` under `blit`. |
-| Protected image helper | [vktProtectedMemUtils.cpp#L306-L348](../../../modules/vulkan/protected_memory/vktProtectedMemUtils.cpp#L306-L348) | Creates protected images and requires protected memory allocation. |
-| Protected command and submission helpers | [vktProtectedMemUtils.cpp#L444-L496](../../../modules/vulkan/protected_memory/vktProtectedMemUtils.cpp#L444-L496) | Begins secondary command buffers and performs protected queue submission. |
-| Validator programs | [vktProtectedMemImageValidator.cpp#L47-L115](../../../modules/vulkan/protected_memory/vktProtectedMemImageValidator.cpp#L47-L115) | Defines validation-only compute shaders and the sample comparison rule. |
-| Validator execution | [vktProtectedMemImageValidator.cpp#L117-L264](../../../modules/vulkan/protected_memory/vktProtectedMemImageValidator.cpp#L117-L264) | Binds resources, dispatches protected checking, and maps timeout to failure. |
-| Vulkan mustpass paths | [protected-memory.txt#L605-L638](../../../mustpass/main/vk-default/protected-memory.txt#L605-L638) | Confirms all 34 Vulkan leaves. |
-| Vulkan SC mustpass paths | [protected-memory.txt#L424-L457](../../../mustpass/main/vksc-default/protected-memory.txt#L424-L457) | Confirms the corresponding 34 Vulkan SC leaves. |
-| Protected memory specification | [memory.adoc#L5565-L5654](../../../../vulkan-docs/src/chapters/memory.adoc#L5565-L5654) | Defines protected resources, execution, visibility restrictions, and access rules. |
-| Image blit specification | [copies.adoc#L2333-L2455](../../../../vulkan-docs/src/chapters/copies.adoc#L2333-L2455) | Defines `vkCmdBlitImage`, region mapping, filtering, and format behavior. |
-| Synchronization specification | [synchronization.adoc#L137-L208](../../../../vulkan-docs/src/chapters/synchronization.adoc#L137-L208) | Defines memory dependencies, access scopes, availability/visibility, and image transitions. |
+| Test family attachment | [`vktProtectedMemTests.cpp`](../../../modules/vulkan/protected_memory/vktProtectedMemTests.cpp#L62-L70) | Adds `blit` under the `protected_memory.image` path. |
+| Support checks | [`vktProtectedMemBlitImageTests.cpp`](../../../modules/vulkan/protected_memory/vktProtectedMemBlitImageTests.cpp#L84-L104) | Requires protected-context support and gates the Vulkan SC secondary mode. |
+| Runtime operation | [`vktProtectedMemBlitImageTests.cpp`](../../../modules/vulkan/protected_memory/vktProtectedMemBlitImageTests.cpp#L125-L328) | Creates images, records barriers/clear/blit, submits protected work, and calls validation. |
+| Case generation | [case generation](../../../modules/vulkan/protected_memory/vktProtectedMemBlitImageTests.cpp#L331-L465) | Defines the static and seeded-random leaves for each command-buffer mode. |
+| Command-buffer mode registration | [registration](../../../modules/vulkan/protected_memory/vktProtectedMemBlitImageTests.cpp#L470-L477) | Registers `primary` and `secondary` under `blit`. |
+| Protected image helper | [image helper](../../../modules/vulkan/protected_memory/vktProtectedMemUtils.cpp#L306-L348) | Creates protected images and requires protected memory allocation. |
+| Protected command and submission helpers | [`vktProtectedMemUtils.cpp`](../../../modules/vulkan/protected_memory/vktProtectedMemUtils.cpp#L444-L496) | Begins secondary command buffers and performs protected queue submission. |
+| Validator programs | [`ImageValidator::initPrograms`](../../../modules/vulkan/protected_memory/vktProtectedMemImageValidator.cpp#L47-L115) | Defines validation-only compute shaders and the sample comparison rule. |
+| Validator execution | [`ImageValidator::validateImage`](../../../modules/vulkan/protected_memory/vktProtectedMemImageValidator.cpp#L117-L264) | Binds resources, dispatches protected checking, and maps timeout to failure. |
+| Vulkan mustpass paths | [Vulkan mustpass paths](../../../mustpass/main/vk-default/protected-memory.txt#L605-L638) | Confirms all 34 Vulkan leaves. |
+| Vulkan SC mustpass paths | [Vulkan SC mustpass paths](../../../mustpass/main/vksc-default/protected-memory.txt#L424-L457) | Confirms the corresponding 34 Vulkan SC leaves. |
+| Protected memory specification | [`memory.adoc`](../../../../vulkan-docs/src/chapters/memory.adoc#L5565-L5654) | Defines protected resources, execution, visibility restrictions, and access rules. |
+| Image blit specification | [`copies.adoc`](../../../../vulkan-docs/src/chapters/copies.adoc#L2333-L2455) | Defines `vkCmdBlitImage`, region mapping, filtering, and format behavior. |
+| Synchronization specification | [`synchronization.adoc`](../../../../vulkan-docs/src/chapters/synchronization.adoc#L137-L208) | Defines memory dependencies, access scopes, availability/visibility, and image transitions. |

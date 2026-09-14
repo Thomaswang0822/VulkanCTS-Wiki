@@ -136,7 +136,7 @@ void main (void)
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
 | Image type | `1d_image` uses an integer coordinate; `3d_image` uses `ivec3`; multi-layer views add `Array` and use the invocation Z coordinate as the layer. | [compute coordinate branches](../../../modules/vulkan/image/vktImageCompressionTranscodingSupport.cpp#L3175-L3200) |
-| View format | The generated image type gains an `i` or `u` prefix for signed or unsigned formats, and the layout qualifier changes with the selected format. | [type/qualifier derivation](../../../modules/vulkan/image/vktImageCompressionTranscodingSupport.cpp#L3158-L3167), [helper implementation](../../../modules/vulkan/image/vktImageTestsUtil.cpp#L551-L608) |
+| View format | The generated image type gains an `i` or `u` prefix for signed or unsigned formats, and the layout qualifier changes with the selected format. | [type/qualifier derivation](../../../modules/vulkan/image/vktImageCompressionTranscodingSupport.cpp#L3158-L3167), [vktImageTestsUtil.cpp](../../../modules/vulkan/image/vktImageTestsUtil.cpp#L551-L608) |
 | Compute operation | `texel_fetch` declares a sampler and uses `texelFetch`; `texture` samples normalized coordinates; `image_store` declares three storage images and writes through the compatible image. | [operation generators](../../../modules/vulkan/image/vktImageCompressionTranscodingSupport.cpp#L3204-L3290) |
 | Graphics operation | Attachment cases use `subpassLoad`; texture cases sample a compatible view and write a storage image. | [fragment generators](../../../modules/vulkan/image/vktImageCompressionTranscodingSupport.cpp#L3368-L3430) |
 

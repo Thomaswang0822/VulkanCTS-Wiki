@@ -2,7 +2,7 @@
 
 **Core question:** Can a sparse mipmapped image preserve data across every resident mip level, mip tail, plane, and supported image type?
 
-- [`vktSparseResourcesMipmapSparseResidency.cpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesMipmapSparseResidency.cpp#L135-L201) implements the `sparse_resources.mipmap_sparse_residency` and `sparse_resources.device_group_mipmap_sparse_residency` test families.
+- [`MipmapSparseResidencyInstance::iterate()`](../../../modules/vulkan/sparse_resources/vktSparseResourcesMipmapSparseResidency.cpp#L135-L201) implements the `sparse_resources.mipmap_sparse_residency` and `sparse_resources.device_group_mipmap_sparse_residency` test families.
 - Each test case creates a single-sampled sparse image, binds the memory reported for its mip levels, mip tails, and metadata, then copies every plane and mip level through buffers.
 - The host compares the returned bytes with the input pattern. The page explains the image-type matrix, residency binding, transfer flow, and failure interpretation.
 
@@ -134,7 +134,7 @@ All image types share common failure causes: unsupported sparse format propertie
 ## Source Reference Appendix
 
 - Implementation and support checks: [`vktSparseResourcesMipmapSparseResidency.cpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesMipmapSparseResidency.cpp#L1-L107)
-- Runtime binding and transfer validation: [`vktSparseResourcesMipmapSparseResidency.cpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesMipmapSparseResidency.cpp#L135-L582)
+- Runtime binding and transfer validation: [`MipmapSparseResidencyInstance::iterate()`](../../../modules/vulkan/sparse_resources/vktSparseResourcesMipmapSparseResidency.cpp#L135-L582)
 - Registration and parameter generation: [`vktSparseResourcesMipmapSparseResidency.cpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesMipmapSparseResidency.cpp#L592-L660)
 - Shared image and format helpers: [`vktSparseResourcesTestsUtil.hpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesTestsUtil.hpp#L78-L115), [`vktSparseResourcesTestsUtil.cpp`](../../../modules/vulkan/sparse_resources/vktSparseResourcesTestsUtil.cpp#L52-L118)
 - Vulkan sparse image semantics: [`sparsemem.adoc`](../../../../vulkan-docs/src/chapters/sparsemem.adoc#L497-L536), [`sparsemem.adoc`](../../../../vulkan-docs/src/chapters/sparsemem.adoc#L867-L914)

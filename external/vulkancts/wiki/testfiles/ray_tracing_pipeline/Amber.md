@@ -31,15 +31,15 @@ ray_tracing_pipeline.amber
 └── rt-sample
 ```
 
-The 12 direct children are registered by [createAmberTests](../../../modules/vulkan/ray_tracing/vktRayTracingAmberTests.cpp#L33-L98), which iterates the `amberTests` array. Each entry pairs a script name with a requirement array. The dispatcher at [createTests](../../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69) adds the `amber` group as the first child of the `ray_tracing_pipeline` test category. All 12 leaves appear in the mustpass at [ray-tracing-pipeline.txt](../../../mustpass/main/vk-default/ray-tracing-pipeline.txt).
+The 12 direct children are registered by [Amber script case construction](../../../modules/vulkan/ray_tracing/vktRayTracingAmberTests.cpp#L33-L98), which iterates the `amberTests` array. Each entry pairs a script name with a requirement array. The dispatcher at [attach the Amber test family](../../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69) adds the `amber` group as the first child of the `ray_tracing_pipeline` test category. All 12 leaves appear in the mustpass at [ray-tracing-pipeline.txt](../../../mustpass/main/vk-default/ray-tracing-pipeline.txt).
 
 ## Parameter Dimensions and Observed Values
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Amber script (test case leaf) | `barycentrics`, `basic`, `basic2`, `basic_lib`, `different-payload-sizes`, `divergent-as`, `flags-accept-first`, `flags-culling`, `flags-force-non-opaque`, `flags-force-opaque`, `flags-skip-chit`, `rt-sample` | Each leaf is a self-contained Amber script that exercises a distinct ray tracing scenario. This is the primary behavioral axis. | [amberTests array](../../../modules/vulkan/ray_tracing/vktRayTracingAmberTests.cpp#L65-L78) |
-| Requirement array | `stdRayTracingList`, `libRayTracingList`, `extRayTracingList` | Selects which KHR extensions and features are attached to the Amber test case. `basic_lib`, `different-payload-sizes`, and `divergent-as` use pipeline library; `rt-sample` uses deferred host operations; the rest use the standard set. | [requirement arrays](../../../modules/vulkan/ray_tracing/vktRayTracingAmberTests.cpp#L38-L60) |
-| Build scope | Vulkan SC excluded | The entire `amberTests` array is inside `#ifndef CTS_USES_VULKANSC`, so no Amber cases register on Vulkan SC builds. | [createAmberTests](../../../modules/vulkan/ray_tracing/vktRayTracingAmberTests.cpp#L37) |
+| Amber script (test case leaf) | `barycentrics`, `basic`, `basic2`, `basic_lib`, `different-payload-sizes`, `divergent-as`, `flags-accept-first`, `flags-culling`, `flags-force-non-opaque`, `flags-force-opaque`, `flags-skip-chit`, `rt-sample` | Each leaf is a self-contained Amber script that exercises a distinct ray tracing scenario. This is the primary behavioral axis. | [script names and requirement associations](../../../modules/vulkan/ray_tracing/vktRayTracingAmberTests.cpp#L65-L78) |
+| Requirement array | `stdRayTracingList`, `libRayTracingList`, `extRayTracingList` | Selects which KHR extensions and features are attached to the Amber test case. `basic_lib`, `different-payload-sizes`, and `divergent-as` use pipeline library; `rt-sample` uses deferred host operations; the rest use the standard set. | [standard, library, and deferred-operation requirements](../../../modules/vulkan/ray_tracing/vktRayTracingAmberTests.cpp#L38-L60) |
+| Build scope | Vulkan SC excluded | The entire `amberTests` array is inside `#ifndef CTS_USES_VULKANSC`, so no Amber cases register on Vulkan SC builds. | [exclude Amber cases from Vulkan SC](../../../modules/vulkan/ray_tracing/vktRayTracingAmberTests.cpp#L37) |
 
 ## Behavior Parameters
 
@@ -423,11 +423,11 @@ void main()
 ## Runtime Execution and Result Checking
 
 - **Amber runner as the execution engine.** The CTS Amber test case delegates all execution to the Amber runner. The runner parses the `.amber` script, enables the declared extensions and features, compiles the GLSL shader blocks to SPIR-V, builds the declared acceleration structures, assembles the pipeline and SBT, and dispatches the `RUN` command. The C++ test class does not participate in any of these steps.
-- **Requirement attachment.** [createAmberTests](../../../modules/vulkan/ray_tracing/vktRayTracingAmberTests.cpp#L86-L92) iterates the requirement array for each test and calls `addRequirement` for each non-empty entry. The Amber runner checks these requirements alongside the script's own `DEVICE_EXTENSION` and `DEVICE_FEATURE` declarations before running.
+- **Requirement attachment.** [attach each script's required capabilities](../../../modules/vulkan/ray_tracing/vktRayTracingAmberTests.cpp#L86-L92) iterates the requirement array for each test and calls `addRequirement` for each non-empty entry. The Amber runner checks these requirements alongside the script's own `DEVICE_EXTENSION` and `DEVICE_FEATURE` declarations before running.
 - **Pass/fail via `EXPECT` assertions.** Ten of the twelve scripts include `EXPECT` lines that compare output image or buffer values against literal expected values. `basic2.amber` has no `EXPECT` line, so it passes if the pipeline builds and the raygen dispatch completes without a device loss or crash. The `EXPECT` semantics support exact equality (`EQ`) and tolerance-based comparison (`TOLERANCE n EQ`). `barycentrics.amber` uses tolerance 1 to allow rounding slack.
 - **No host-side result scan.** The C++ test class does not read back or compare any result buffer. All result checking is inside the Amber script's `EXPECT` assertions, which the Amber runner evaluates after the `RUN` dispatch. A test case passes only if every `EXPECT` assertion matches, or if the script has no `EXPECT` and the dispatch completes without error.
-- **Vulkan SC exclusion.** The entire `amberTests` array sits inside `#ifndef CTS_USES_VULKANSC` ([createAmberTests](../../../modules/vulkan/ray_tracing/vktRayTracingAmberTests.cpp#L37)), so no Amber cases register on Vulkan SC builds. On non-SC builds, all 12 cases register unconditionally.
-- **Data directory resolution.** The C++ registration passes `dataDir = "ray_tracing"` to `createAmberTestCase` ([data directory](../../../modules/vulkan/ray_tracing/vktRayTracingAmberTests.cpp#L80)). The Amber runner resolves this relative to the Vulkan data root, landing at `external/vulkancts/data/vulkan/amber/ray_tracing/` where all 12 `.amber` files reside.
+- **Vulkan SC exclusion.** The entire `amberTests` array sits inside `#ifndef CTS_USES_VULKANSC` ([exclude Amber cases from Vulkan SC](../../../modules/vulkan/ray_tracing/vktRayTracingAmberTests.cpp#L37)), so no Amber cases register on Vulkan SC builds. On non-SC builds, all 12 cases register unconditionally.
+- **Data directory resolution.** The C++ registration passes `dataDir = "ray_tracing"` to `createAmberTestCase` ([Amber ray-tracing data directory](../../../modules/vulkan/ray_tracing/vktRayTracingAmberTests.cpp#L80)). The Amber runner resolves this relative to the Vulkan data root, landing at `external/vulkancts/data/vulkan/amber/ray_tracing/` where all 12 `.amber` files reside.
 
 ## Failure Meaning
 
@@ -474,14 +474,14 @@ All 12 scripts share the Amber runner, the CTS Amber test case wrapper, the requ
 
 ### Requirement-based pruning
 
-- All 12 Amber cases require `VK_KHR_acceleration_structure`, `VK_KHR_ray_tracing_pipeline`, and `VK_KHR_buffer_device_address` with their corresponding feature bits (`accelerationStructure`, `rayTracingPipeline`, `bufferDeviceAddress`). These are declared both in the Amber scripts' `DEVICE_EXTENSION` and `DEVICE_FEATURE` lines and in the C++ requirement arrays [stdRayTracingList](../../../modules/vulkan/ray_tracing/vktRayTracingAmberTests.cpp#L38-L44).
-- `basic_lib`, `different-payload-sizes`, and `divergent-as` additionally require `VK_KHR_pipeline_library` [libRayTracingList](../../../modules/vulkan/ray_tracing/vktRayTracingAmberTests.cpp#L45-L52).
-- `rt-sample` additionally requires `VK_KHR_deferred_host_operations` [extRayTracingList](../../../modules/vulkan/ray_tracing/vktRayTracingAmberTests.cpp#L53-L60).
-- The entire test family is excluded from Vulkan SC builds via `#ifndef CTS_USES_VULKANSC` [createAmberTests](../../../modules/vulkan/ray_tracing/vktRayTracingAmberTests.cpp#L37).
+- All 12 Amber cases require `VK_KHR_acceleration_structure`, `VK_KHR_ray_tracing_pipeline`, and `VK_KHR_buffer_device_address` with their corresponding feature bits (`accelerationStructure`, `rayTracingPipeline`, `bufferDeviceAddress`). These are declared both in the Amber scripts' `DEVICE_EXTENSION` and `DEVICE_FEATURE` lines and in the C++ requirement arrays [standard ray-tracing requirements](../../../modules/vulkan/ray_tracing/vktRayTracingAmberTests.cpp#L38-L44).
+- `basic_lib`, `different-payload-sizes`, and `divergent-as` additionally require `VK_KHR_pipeline_library` [pipeline-library requirements](../../../modules/vulkan/ray_tracing/vktRayTracingAmberTests.cpp#L45-L52).
+- `rt-sample` additionally requires `VK_KHR_deferred_host_operations` [deferred-host-operation requirements](../../../modules/vulkan/ray_tracing/vktRayTracingAmberTests.cpp#L53-L60).
+- The entire test family is excluded from Vulkan SC builds via `#ifndef CTS_USES_VULKANSC` [exclude Amber cases from Vulkan SC](../../../modules/vulkan/ray_tracing/vktRayTracingAmberTests.cpp#L37).
 
 ### Design-based pruning
 
-- No parameter matrix is generated. The 12 Amber scripts are a fixed, hand-authored set with no generated variants. The C++ registration loops over the `amberTests` array once and registers each script as a single test case [amberTests array](../../../modules/vulkan/ray_tracing/vktRayTracingAmberTests.cpp#L65-L78).
+- No parameter matrix is generated. The 12 Amber scripts are a fixed, hand-authored set with no generated variants. The C++ registration loops over the `amberTests` array once and registers each script as a single test case [script names and requirement associations](../../../modules/vulkan/ray_tracing/vktRayTracingAmberTests.cpp#L65-L78).
 
 ## Key Takeaways
 
@@ -495,10 +495,10 @@ All 12 scripts share the Amber runner, the CTS Amber test case wrapper, the requ
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `createAmberTests` | [vktRayTracingAmberTests.cpp#L33-L98](../../../modules/vulkan/ray_tracing/vktRayTracingAmberTests.cpp#L33-L98) | Registration of the `amber` test group and all 12 Amber test cases |
-| Requirement arrays | [vktRayTracingAmberTests.cpp#L38-L60](../../../modules/vulkan/ray_tracing/vktRayTracingAmberTests.cpp#L38-L60) | Three feature and extension requirement tiers: standard, pipeline library, deferred host operations |
-| `amberTests` array | [vktRayTracingAmberTests.cpp#L65-L78](../../../modules/vulkan/ray_tracing/vktRayTracingAmberTests.cpp#L65-L78) | Pairs each script name with its requirement array |
-| Requirement attachment loop | [vktRayTracingAmberTests.cpp#L86-L92](../../../modules/vulkan/ray_tracing/vktRayTracingAmberTests.cpp#L86-L92) | Iterates requirement strings and calls `addRequirement` |
+| `createAmberTests` | [Amber script case construction](../../../modules/vulkan/ray_tracing/vktRayTracingAmberTests.cpp#L33-L98) | Registration of the `amber` test group and all 12 Amber test cases |
+| Requirement arrays | [standard, library, and deferred-operation requirements](../../../modules/vulkan/ray_tracing/vktRayTracingAmberTests.cpp#L38-L60) | Three feature and extension requirement tiers: standard, pipeline library, deferred host operations |
+| `amberTests` array | [script names and requirement associations](../../../modules/vulkan/ray_tracing/vktRayTracingAmberTests.cpp#L65-L78) | Pairs each script name with its requirement array |
+| Requirement attachment loop | [attach each script's required capabilities](../../../modules/vulkan/ray_tracing/vktRayTracingAmberTests.cpp#L86-L92) | Iterates requirement strings and calls `addRequirement` |
 | Amber script directory | [external/vulkancts/data/vulkan/amber/ray_tracing/](../../../data/vulkan/amber/ray_tracing/) | All 12 `.amber` script files with shaders, geometry, pipelines, and `EXPECT` assertions |
-| Category dispatcher | [vktRayTracingTests.cpp#L69](../../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69) | `createAmberTests` is the first child added to the `ray_tracing_pipeline` test category |
+| Category dispatcher | [attach the Amber test family](../../../modules/vulkan/ray_tracing/vktRayTracingTests.cpp#L69) | `createAmberTests` is the first child added to the `ray_tracing_pipeline` test category |
 | Mustpass evidence | [ray-tracing-pipeline.txt](../../../mustpass/main/vk-default/ray-tracing-pipeline.txt) | All 12 `amber.*` leaves listed in the default ray-tracing-pipeline mustpass |

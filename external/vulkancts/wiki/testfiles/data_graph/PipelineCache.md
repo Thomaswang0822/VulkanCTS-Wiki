@@ -3,7 +3,7 @@
 **Core question:** Does a data graph pipeline cache produce the expected hit or compile-required result, and does a cache miss affect later pipelines as specified?
 
 - This page covers the implementation and registration in [`vktDataGraphPipelineCacheTests.cpp`](../../../modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp#L66-L146).
-- The `data_graph.cache` test category contains pipeline creation tests in `create_pipeline` and cache-backed execution tests in `submit_pipeline` [registration](../../../modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp#L834-L855).
+- The `data_graph.cache` test category contains pipeline creation tests in `create_pipeline` and cache-backed execution tests in `submit_pipeline` [`vktDataGraphPipelineCacheTests.cpp`](../../../modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp#L834-L855).
 - Creation tests arrange pipelines in fill, hit, and miss sequences. Single-pipeline calls use pipeline-creation feedback, while the single-call batched path checks `VK_PIPELINE_COMPILE_REQUIRED` and returned handles [single-pipeline checks](../../../modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp#L283-L344) [batched checks](../../../modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp#L521-L577).
 - The `submit_pipeline` family creates several pipelines with one cache, dispatches each through a data graph session, waits for the queue, and verifies tensor outputs [execution and checking](../../../modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp#L658-L792).
 - The generated test names expose the cache sequence and the TOSA graph/resource dimensions. The large generated matrix is described below rather than expanded into the registration tree.
@@ -32,7 +32,7 @@ The test generator forms a Cartesian product, then keeps only valid `TestParams`
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Pipeline family | `create_pipeline.single_call`, `create_pipeline.multi_calls`, `submit_pipeline` | Selects one-at-a-time creation, one batched creation call, or cache-aware creation followed by dispatch. | [registration](../../../modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp#L796-L855) |
+| Pipeline family | `create_pipeline.single_call`, `create_pipeline.multi_calls`, `submit_pipeline` | Selects one-at-a-time creation, one batched creation call, or cache-aware creation followed by dispatch. | [Pipeline family](../../../modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp#L796-L855) |
 | Failure mode | `failOnMissNoEarlyReturn`, `failOnMissEarlyReturn` | Selects whether expected compile-required behavior is checked without or with early return in the single-call creation sequence. The generated cache tests do not register `ignoreMiss`; that enum value exists only as an implementation branch. | [modes and names](../../../modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp#L73-L126) [registrations](../../../modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp#L802-L830) |
 | Cache sequence | `FillHitHitHit`, `FillHitMissHit` | Controls which pipeline creation is expected to populate the cache, reuse it, or miss it. `single_call` registers both sequences; `multi_calls` registers `FillHitMissHit`. | [single-call sequences](../../../modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp#L802-L817) [multi-call sequence](../../../modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp#L822-L831) |
 | Submit sequence | `FillHitHit` | Builds the first pipeline with an empty cache and creates the following pipelines with that same cache before dispatching all successful sessions. | [submit registration](../../../modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp#L840-L848) |
@@ -63,7 +63,7 @@ For the single-call path, the miss entry uses the same cache as the other entrie
 
 ### `FillHitHitHit`: repeated hits after fill
 
-This sequence is registered for `single_call` creation. The first pipeline fills the cache, and the three later creations must hit it. No pipeline is expected to fail in this sequence [registration](../../../modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp#L801-L805).
+This sequence is registered for `single_call` creation. The first pipeline fills the cache, and the three later creations must hit it. No pipeline is expected to fail in this sequence [`createPipelineSingleCallTests()`](../../../modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp#L801-L805).
 
 ### `FillHitMissHit`: a miss between cache hits
 

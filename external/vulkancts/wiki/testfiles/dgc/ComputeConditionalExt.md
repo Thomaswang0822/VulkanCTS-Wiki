@@ -285,4 +285,4 @@ void main (void) { outputBuffer.value = pc.value; }
 | EXT support helper | [checkDGCExtComputeSupport](../../../modules/vulkan/device_generated_commands/vktDGCUtilExt.cpp#L44-L75) | Checks EXT DGC stage and pipeline-binding properties. |
 | Conditional rendering rules | [Conditional Rendering](../../../../vulkan-docs/src/chapters/drawing.adoc#L2086-L2184) | Defines affected commands, predicate values, and inversion. |
 | Explicit-preprocess rules | [generated-command execution validity](../../../../vulkan-docs/src/chapters/device_generated_commands/generatedcommands.adoc#L3037-L3089) | Requires preprocessing and execution to use matching inputs and state. |
-| Exact registered paths | [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L1-L44) | Lists the 32 general and 12 preprocess test cases. |
+| Exact registered paths | [dgc source](../../../mustpass/main/vk-default/dgc.txt#L1-L44) | Lists the 32 general and 12 preprocess test cases. |

@@ -4,7 +4,7 @@
 
 - This page covers the `tensor.boolean` test family implemented by [vktTensorBool.cpp](../../../modules/vulkan/tensor/vktTensorBool.cpp#L370-L438).
 - The family creates boolean tensors, reads one element per compute invocation, applies `AND`, `OR`, `NOT`, or `XOR`, and writes the result to a second tensor.
-- The registered matrix uses four shapes, two boolean operands, four layout forms where the rank permits them, and all four operators. The default mustpass lists 112 boolean cases at [tensor.txt#L409-L520](../../../mustpass/main/vk-default/tensor.txt#L409-L520).
+- The registered matrix uses four shapes, two boolean operands, four layout forms where the rank permits them, and all four operators. The default mustpass lists 112 boolean cases at [default mustpass case expansion](../../../mustpass/main/vk-default/tensor.txt#L409-L520).
 - The page explains the exact `tensor.boolean` registration position, generated shader coordinate mapping, tensor staging for optimal tiling, host-side comparison, support gates, pruning, and what a mismatch can and cannot identify.
 
 ## Background Knowledge
@@ -31,7 +31,7 @@ tensor.boolean
 | Boolean operator | `and`, `or`, `not`, `xor` | Selects the logical operation emitted by `genShaderBooleanOp` and the matching host expectation. | [operator loop](../../../modules/vulkan/tensor/vktTensorBool.cpp#L394-L397), [shader operator selection](../../../modules/vulkan/tensor/shaders/vktTensorBooleanShader.cpp#L83-L100) |
 | Applied operand | `apply_1`, `apply_0` | Supplies the constant right-hand operand for `AND`, `OR`, and `XOR`; `NOT` is still instantiated with both values even though the generated unary operation does not use it. | [test-value loop](../../../modules/vulkan/tensor/vktTensorBool.cpp#L394-L397), [case-name construction](../../../modules/vulkan/tensor/vktTensorBool.cpp#L308-L316) |
 
-The exact registered naming pattern is `r8_bool_<tiling>_shape_<dimensions>[_strides_<strides>]_operator_<and|or|not|xor>_apply_<0|1>`. The rank-1 shape has `1 × 4 × 2 × 2 = 16` cases (one shape, four operators, two applied values, and two layouts: implicit packed linear and optimal). Each of the rank-2, rank-3, and rank-4 shapes has `1 × 4 × 2 × 4 = 32` cases because it also includes explicit packed and non-packed linear strides. Thus the matrix contains `16 + 3 × 32 = 112` cases. The default mustpass confirms the concrete expansion, including `strides_7429_437_23_1` and `strides_11862_697_36_1` for the rank-4 shape, at [tensor.txt#L409-L520](../../../mustpass/main/vk-default/tensor.txt#L409-L520).
+The exact registered naming pattern is `r8_bool_<tiling>_shape_<dimensions>[_strides_<strides>]_operator_<and|or|not|xor>_apply_<0|1>`. The rank-1 shape has `1 × 4 × 2 × 2 = 16` cases (one shape, four operators, two applied values, and two layouts: implicit packed linear and optimal). Each of the rank-2, rank-3, and rank-4 shapes has `1 × 4 × 2 × 4 = 32` cases because it also includes explicit packed and non-packed linear strides. Thus the matrix contains `16 + 3 × 32 = 112` cases. The default mustpass confirms the concrete expansion, including `strides_7429_437_23_1` and `strides_11862_697_36_1` for the rank-4 shape, at [default mustpass case expansion](../../../mustpass/main/vk-default/tensor.txt#L409-L520).
 
 ## Behavior Parameters
 
@@ -114,9 +114,9 @@ void main()
 
 #### Additional Info
 
-- The source emits one `tensorSizeARM` query and one coordinate expression per rank dimension [vktTensorBooleanShader.cpp#L56-L70](../../../modules/vulkan/tensor/shaders/vktTensorBooleanShader.cpp#L56-L70).
-- The generated shader always uses `tensorReadARM` into a scalar `bool`, applies one of the four source-selected expressions, and writes the scalar with `tensorWriteARM` [vktTensorBooleanShader.cpp#L73-L108](../../../modules/vulkan/tensor/shaders/vktTensorBooleanShader.cpp#L73-L108).
-- The shader does not branch on `test_value` at runtime: the host generator inserts the literal `true` or `false` into the source [vktTensorBooleanShader.cpp#L83-L96](../../../modules/vulkan/tensor/shaders/vktTensorBooleanShader.cpp#L83-L96).
+- The source emits one `tensorSizeARM` query and one coordinate expression per rank dimension [boolean shader coordinate generation](../../../modules/vulkan/tensor/shaders/vktTensorBooleanShader.cpp#L56-L70).
+- The generated shader always uses `tensorReadARM` into a scalar `bool`, applies one of the four source-selected expressions, and writes the scalar with `tensorWriteARM` [tensor read, operation, and write](../../../modules/vulkan/tensor/shaders/vktTensorBooleanShader.cpp#L73-L108).
+- The shader does not branch on `test_value` at runtime: the host generator inserts the literal `true` or `false` into the source [compile-time test value specialization](../../../modules/vulkan/tensor/shaders/vktTensorBooleanShader.cpp#L83-L96).
 - For rank 4, the same generator emits four dimension queries and four coordinate expressions. It does not emit a separate shader algorithm for packed, non-packed, or optimal storage; those differences are in tensor creation and host transfer.
 
 #### Parameter Variation Summary
@@ -224,12 +224,12 @@ void main()
 
 ## Runtime Execution and Result Checking
 
-- For each case, `iterate` multiplies the shape dimensions to obtain the element count and creates input and output tensor descriptions with the selected format, tiling, strides, and `VK_TENSOR_USAGE_SHADER_BIT_ARM | VK_TENSOR_USAGE_TRANSFER_SRC_BIT_ARM | VK_TENSOR_USAGE_TRANSFER_DST_BIT_ARM` [vktTensorBool.cpp#L88-L101](../../../modules/vulkan/tensor/vktTensorBool.cpp#L88-L101).
-- It fills `initialTensorData` using the selected dimensions and strides. Linear cases upload that data to the input tensor and clear the output tensor. Optimal cases instead upload to a linear staging tensor; the command buffer later copies that tensor into the optimal input tensor [vktTensorBool.cpp#L103-L131](../../../modules/vulkan/tensor/vktTensorBool.cpp#L103-L131).
-- The descriptor set has two `VK_DESCRIPTOR_TYPE_TENSOR_ARM` compute bindings: binding 0 is the input view and binding 1 is the output view [vktTensorBool.cpp#L133-L162](../../../modules/vulkan/tensor/vktTensorBool.cpp#L133-L162).
-- The generated `comp` source is compiled into a compute shader module and dispatched with `elements, 1, 1`, so the total number of invocations equals the product of the tensor dimensions [vktTensorBool.cpp#L164-L209](../../../modules/vulkan/tensor/vktTensorBool.cpp#L164-L209).
-- Optimal cases place a transfer-to-compute tensor barrier before the dispatch, then a compute-to-transfer barrier and a tensor copy for readback. A final compute-to-host tensor barrier makes the selected result tensor visible to the host [vktTensorBool.cpp#L181-L243](../../../modules/vulkan/tensor/vktTensorBool.cpp#L181-L243).
-- After submission and completion, the host downloads either `tensorOut` for linear cases or the linear staging tensor for optimal cases. It computes the expected boolean independently for each element and fails at the first mismatch with `Comparison failed at index <n>: expected = <0|1>, buffer = <value>`; a complete match returns `Tensor test succeeded` [vktTensorBool.cpp#L248-L305](../../../modules/vulkan/tensor/vktTensorBool.cpp#L248-L305).
+- For each case, `iterate` multiplies the shape dimensions to obtain the element count and creates input and output tensor descriptions with the selected format, tiling, strides, and `VK_TENSOR_USAGE_SHADER_BIT_ARM | VK_TENSOR_USAGE_TRANSFER_SRC_BIT_ARM | VK_TENSOR_USAGE_TRANSFER_DST_BIT_ARM` [tensor resource and usage setup](../../../modules/vulkan/tensor/vktTensorBool.cpp#L88-L101).
+- It fills `initialTensorData` using the selected dimensions and strides. Linear cases upload that data to the input tensor and clear the output tensor. Optimal cases instead upload to a linear staging tensor; the command buffer later copies that tensor into the optimal input tensor [tensor initialization and staging copy](../../../modules/vulkan/tensor/vktTensorBool.cpp#L103-L131).
+- The descriptor set has two `VK_DESCRIPTOR_TYPE_TENSOR_ARM` compute bindings: binding 0 is the input view and binding 1 is the output view [tensor descriptor bindings](../../../modules/vulkan/tensor/vktTensorBool.cpp#L133-L162).
+- The generated `comp` source is compiled into a compute shader module and dispatched with `elements, 1, 1`, so the total number of invocations equals the product of the tensor dimensions [compute compilation and dispatch](../../../modules/vulkan/tensor/vktTensorBool.cpp#L164-L209).
+- Optimal cases place a transfer-to-compute tensor barrier before the dispatch, then a compute-to-transfer barrier and a tensor copy for readback. A final compute-to-host tensor barrier makes the selected result tensor visible to the host [tensor synchronization and readback copy](../../../modules/vulkan/tensor/vktTensorBool.cpp#L181-L243).
+- After submission and completion, the host downloads either `tensorOut` for linear cases or the linear staging tensor for optimal cases. It computes the expected boolean independently for each element and fails at the first mismatch with `Comparison failed at index <n>: expected = <0|1>, buffer = <value>`; a complete match returns `Tensor test succeeded` [host comparison and pass result](../../../modules/vulkan/tensor/vktTensorBool.cpp#L248-L305).
 
 ## Failure Meaning
 
@@ -269,16 +269,16 @@ All operator values share the same format, descriptor, synchronization, and firs
 ### Requirement-based pruning
 
 - Every executable case requires the `VK_ARM_tensors` device functionality [checkSupport](../../../modules/vulkan/tensor/vktTensorBool.cpp#L325-L328).
-- A case is reported as `NotSupported` when its rank exceeds `maxTensorDimensionCount`, shader tensor access is unavailable, compute-stage tensor access is unavailable, or the selected format/tiling lacks `VK_FORMAT_FEATURE_2_TENSOR_SHADER_BIT_ARM` support [vktTensorBool.cpp#L329-L348](../../../modules/vulkan/tensor/vktTensorBool.cpp#L329-L348).
-- Explicit non-packed linear cases are also reported as `NotSupported` when the device does not support non-packed tensors [vktTensorBool.cpp#L350-L353](../../../modules/vulkan/tensor/vktTensorBool.cpp#L350-L353). This gate applies to the generated non-packed stride cases; packed and optimal parameter objects use empty strides and are considered packed by `TensorParameters::packed` [TensorParameters](../../../modules/vulkan/tensor/vktTensorTestsUtil.hpp#L68-L101).
+- A case is reported as `NotSupported` when its rank exceeds `maxTensorDimensionCount`, shader tensor access is unavailable, compute-stage tensor access is unavailable, or the selected format/tiling lacks `VK_FORMAT_FEATURE_2_TENSOR_SHADER_BIT_ARM` support [feature and format support checks](../../../modules/vulkan/tensor/vktTensorBool.cpp#L329-L348).
+- Explicit non-packed linear cases are also reported as `NotSupported` when the device does not support non-packed tensors [non-packed tensor support check](../../../modules/vulkan/tensor/vktTensorBool.cpp#L350-L353). This gate applies to the generated non-packed stride cases; packed and optimal parameter objects use empty strides and are considered packed by `TensorParameters::packed` [TensorParameters](../../../modules/vulkan/tensor/vktTensorTestsUtil.hpp#L68-L101).
 - A support rejection happens before shader creation and dispatch. It means the selected requirement is not available on the current implementation, not that the boolean operation produced a wrong result.
 
 ### Design-based pruning
 
 - The matrix fixes the format to `VK_FORMAT_R8_BOOL_ARM` because this page tests boolean tensor operations rather than cross-format behavior [vktTensorBool.cpp#L379-L380].
-- It uses exactly four shapes: one rank-1 shape and three shapes with ranks 2 through 4. Explicit packed and non-packed stride cases are omitted for rank 1 by the `if (rank > 1)` guards [vktTensorBool.cpp#L372-L391](../../../modules/vulkan/tensor/vktTensorBool.cpp#L372-L391).
-- For ranks greater than 1, the stride matrix intentionally contains the implicit packed form, explicit packed strides, explicit padded strides, and optimal tiling. The two explicit stride vectors are produced once per shape and reused for every operator/value pair [vktTensorBool.cpp#L382-L426](../../../modules/vulkan/tensor/vktTensorBool.cpp#L382-L426).
-- `NOT` is registered for both `apply_0` and `apply_1` to keep the operator/value matrix uniform, although the applied value is semantically unused by the unary shader expression [vktTensorBool.cpp#L394-L397](../../../modules/vulkan/tensor/vktTensorBool.cpp#L83-L96).
+- It uses exactly four shapes: one rank-1 shape and three shapes with ranks 2 through 4. Explicit packed and non-packed stride cases are omitted for rank 1 by the `if (rank > 1)` guards [shape and stride matrix generation](../../../modules/vulkan/tensor/vktTensorBool.cpp#L372-L391).
+- For ranks greater than 1, the stride matrix intentionally contains the implicit packed form, explicit packed strides, explicit padded strides, and optimal tiling. The two explicit stride vectors are produced once per shape and reused for every operator/value pair [stride matrix construction](../../../modules/vulkan/tensor/vktTensorBool.cpp#L382-L426).
+- `NOT` is registered for both `apply_0` and `apply_1` to keep the operator/value matrix uniform, although the applied value is semantically unused by the unary shader expression [unary NOT registration](../../../modules/vulkan/tensor/vktTensorBool.cpp#L83-L96).
 
 ## Key Takeaways
 
@@ -301,4 +301,4 @@ All operator values share the same format, descriptor, synchronization, and firs
 | Boolean format mapping | [getTensorFormat](../../../modules/vulkan/tensor/shaders/vktTensorShaderUtil.cpp#L39-L70) | Maps `VK_FORMAT_R8_BOOL_ARM` to GLSL `bool`. |
 | Tensor parameter semantics | [TensorParameters](../../../modules/vulkan/tensor/vktTensorTestsUtil.hpp#L68-L101) | Defines rank, element count, host size, and packed detection. |
 | Tensor operation rules | [Tensor Operations](../../../../vulkan-docs/src/chapters/VK_ARM_tensors/tensorops.adoc#tensors) | Defines the shader tensor coordinate, read, and write model used by the test. |
-| Registered leaves | [tensor.txt#L409-L520](../../../mustpass/main/vk-default/tensor.txt#L409-L520) | Confirms the 112 concrete `tensor.boolean` cases in the default mustpass. |
+| Registered leaves | [Registered leaves](../../../mustpass/main/vk-default/tensor.txt#L409-L520) | Confirms the 112 concrete `tensor.boolean` cases in the default mustpass. |

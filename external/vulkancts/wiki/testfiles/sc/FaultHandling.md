@@ -7,7 +7,7 @@
 - The callback cases supply `VkFaultCallbackInfo` during creation of a custom device. They differ in whether they allocate fault-record storage. Their callback discards its arguments.
 - This is a host-API test, not a fault-injection workload. The walkthroughs below trace the query's output checks and the callback configuration's route through the device-creation helper. Neither path runs a shader.
 
-[Query and callback implementations](../../../modules/vulkan/sc/vktFaultHandlingTests.cpp#L59-L219) · [registration](../../../modules/vulkan/sc/vktFaultHandlingTests.cpp#L223-L284).
+[Query and callback implementations](../../../modules/vulkan/sc/vktFaultHandlingTests.cpp#L59-L219) · [`createFaultHandlingTests()`](../../../modules/vulkan/sc/vktFaultHandlingTests.cpp#L223-L284).
 
 ## Background Knowledge
 
@@ -41,13 +41,13 @@ The exact default selection, in file order, is:
 | 143 | `dEQP-VKSC.sc.fault_handling.get_fault_data.get_and_clear_all_faults.array` |
 | 144 | `dEQP-VKSC.sc.fault_handling.get_fault_data.get_and_clear_all_faults.null` |
 
-[`mustpass/main/vksc-default/sc.txt#L141-L144`](../../../mustpass/main/vksc-default/sc.txt#L141-L144) contains all four leaves. It is the selection used here, rather than a Vulkan non-SC mustpass or a name inferred from another page.
+[Sc](../../../mustpass/main/vksc-default/sc.txt#L141-L144) contains all four leaves. It is the selection used here, rather than a Vulkan non-SC mustpass or a name inferred from another page.
 
 ## Parameter Dimensions and Observed Values
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |---|---|---|---|
-| Family | `get_fault_data`, `fault_callback_info` | Changes the observed operation from a query on the context device to creation of a custom device. | [Factory](../../../modules/vulkan/sc/vktFaultHandlingTests.cpp#L228-L280) |
+| Family | `get_fault_data`, `fault_callback_info` | Changes the observed operation from a query on the context device to creation of a custom device. | [Test factory](../../../modules/vulkan/sc/vktFaultHandlingTests.cpp#L228-L280) |
 | Query behavior | `get_and_clear_all_faults` | Selects `VK_FAULT_QUERY_BEHAVIOR_GET_AND_CLEAR_ALL_FAULTS`; the behavior array has no other entry. | [Behavior array](../../../modules/vulkan/sc/vktFaultHandlingTests.cpp#L233-L239) |
 | Query output form | `null`, `array` | Maps to `FHF_NULL` and `FHF_ARRAY`, changing the final query argument and whether the test scans record fields. | [Output-form array](../../../modules/vulkan/sc/vktFaultHandlingTests.cpp#L241-L259) |
 | Callback storage | `create_device_with_callback_with_fault_data`, `create_device_with_callback_without_fault_data` | Maps to `allocateFaultData == true` or `false`. Controls vector population and `pFaults`, while both cases supply `testFaultCallback`. | [Callback parameters](../../../modules/vulkan/sc/vktFaultHandlingTests.cpp#L266-L278) |
@@ -228,7 +228,7 @@ These are investigation areas derived from the exercised calls and comparisons. 
 
 ### Requirement-based pruning
 
-The fault-handling factory registers all four leaves without a support callback, a feature gate, or a property-dependent branch. The test bodies read the SC capacities but contain no per-leaf `NotSupported` or capacity-based skip. This is a statement about this source, not a guarantee that framework instance/device setup succeeds on any environment. [Factory](../../../modules/vulkan/sc/vktFaultHandlingTests.cpp#L223-L284) · [test bodies](../../../modules/vulkan/sc/vktFaultHandlingTests.cpp#L59-L219).
+The fault-handling factory registers all four leaves without a support callback, a feature gate, or a property-dependent branch. The test bodies read the SC capacities but contain no per-leaf `NotSupported` or capacity-based skip. This is a statement about this source, not a guarantee that framework instance/device setup succeeds on any environment. [Test factory](../../../modules/vulkan/sc/vktFaultHandlingTests.cpp#L223-L284) · [test bodies](../../../modules/vulkan/sc/vktFaultHandlingTests.cpp#L59-L219).
 
 `maxQueryFaultCount` and `maxCallbackFaultCount` control runtime allocation, not registration membership. The source does not generate below-limit, at-limit, and above-limit variants, nor does it negotiate a different queue family inside the callback leaf.
 
@@ -250,14 +250,14 @@ The default SC mustpass lists exactly these four leaves. Do not count the query 
 
 | Entry point | Link | Why it matters |
 |---|---|---|
-| Query parameters and initialization | [`vktFaultHandlingTests.cpp#L46-L80`](../../../modules/vulkan/sc/vktFaultHandlingTests.cpp#L46-L80) | Separates enum values from registered cases and establishes initial outputs and records. |
-| Null query | [`testGetFaultData#L82-L105`](../../../modules/vulkan/sc/vktFaultHandlingTests.cpp#L82-L105) | Shows one call, three scalar checks, and exact messages. |
-| Array query and final status | [`testGetFaultData#L106-L142`](../../../modules/vulkan/sc/vktFaultHandlingTests.cpp#L106-L142) | Establishes the capacity-sized level/type scan and pass/fail reduction. |
-| Callback body | [`testFaultCallback#L144-L150`](../../../modules/vulkan/sc/vktFaultHandlingTests.cpp#L144-L150) | Proves that callback arguments are unused. |
-| Callback storage and chain | [`testCreateDeviceWithFaultCallbackInfo#L152-L188`](../../../modules/vulkan/sc/vktFaultHandlingTests.cpp#L152-L188) | Maps the Boolean parameter to count, pointer, and callback fields. |
-| Device request and result | [`testCreateDeviceWithFaultCallbackInfo#L190-L219`](../../../modules/vulkan/sc/vktFaultHandlingTests.cpp#L190-L219) | Queue family zero, one queue, checked helper call, and normal `Pass` return. |
-| Custom-device helper | [`InstanceWrapper#L442-L462`](../../../modules/vulkan/vktCustomInstancesDevices.cpp#L442-L462) | Device selection and checked creation failure propagation. |
-| Final SC creation chain | [`createDeviceInternal#L499-L535`](../../../modules/vulkan/vktCustomInstancesDevices.cpp#L499-L535) | Preserves existing callback info and adds missing reservation/features before the driver call. |
-| Fault-handling registration | [`createFaultHandlingTests#L223-L284`](../../../modules/vulkan/sc/vktFaultHandlingTests.cpp#L223-L284) | Exact groups, behavior array, output forms, and four leaves. |
-| SC parent | [`vktSafetyCriticalTests.cpp#L45-L65`](../../../modules/vulkan/sc/vktSafetyCriticalTests.cpp#L45-L65) | Attaches the implementation group beneath `sc`. |
-| Default SC mustpass | [`sc.txt#L141-L144`](../../../mustpass/main/vksc-default/sc.txt#L141-L144) | Confirms complete four-leaf default membership and exact package-prefixed paths. |
+| Query parameters and initialization | [Query parameters and initialization](../../../modules/vulkan/sc/vktFaultHandlingTests.cpp#L46-L80) | Separates enum values from registered cases and establishes initial outputs and records. |
+| Null query | [vktFaultHandlingTests.cpp](../../../modules/vulkan/sc/vktFaultHandlingTests.cpp#L82-L105) | Shows one call, three scalar checks, and exact messages. |
+| Array query and final status | [vktFaultHandlingTests.cpp](../../../modules/vulkan/sc/vktFaultHandlingTests.cpp#L106-L142) | Establishes the capacity-sized level/type scan and pass/fail reduction. |
+| Callback body | [vktFaultHandlingTests.cpp](../../../modules/vulkan/sc/vktFaultHandlingTests.cpp#L144-L150) | Proves that callback arguments are unused. |
+| Callback storage and chain | [vktFaultHandlingTests.cpp](../../../modules/vulkan/sc/vktFaultHandlingTests.cpp#L152-L188) | Maps the Boolean parameter to count, pointer, and callback fields. |
+| Device request and result | [vktFaultHandlingTests.cpp](../../../modules/vulkan/sc/vktFaultHandlingTests.cpp#L190-L219) | Queue family zero, one queue, checked helper call, and normal `Pass` return. |
+| Custom-device helper | [vktCustomInstancesDevices.cpp](../../../modules/vulkan/vktCustomInstancesDevices.cpp#L442-L462) | Device selection and checked creation failure propagation. |
+| Final SC creation chain | [vktCustomInstancesDevices.cpp](../../../modules/vulkan/vktCustomInstancesDevices.cpp#L499-L535) | Preserves existing callback info and adds missing reservation/features before the driver call. |
+| Fault-handling registration | [vktFaultHandlingTests.cpp](../../../modules/vulkan/sc/vktFaultHandlingTests.cpp#L223-L284) | Exact groups, behavior array, output forms, and four leaves. |
+| SC parent | [category wiring](../../../modules/vulkan/sc/vktSafetyCriticalTests.cpp#L45-L65) | Attaches the implementation group beneath `sc`. |
+| Default SC mustpass | [SC fault-handling mustpass cases](../../../mustpass/main/vksc-default/sc.txt#L141-L144) | Confirms complete four-leaf default membership and exact package-prefixed paths. |

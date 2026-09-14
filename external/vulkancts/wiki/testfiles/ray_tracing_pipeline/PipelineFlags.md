@@ -25,7 +25,7 @@ ray_tracing_pipeline.pipeline_no_null_shaders_flag
 └── misc
 ```
 
-The three direct children are registered by [createPipelineFlagsTests](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L1528-L1643). `gpu` and `cpu` share the same nested matrix (geometry, stride, offset, lib, flags) and differ only in AS build type. `misc` holds four standalone cases that each set one NO_NULL flag with `useMaintenance5 = true`. Below each processor child, the hierarchy continues as `<geometry>.stride_<N>.offset_<N>.<lib>.<flag_combination>` down to the test case leaf.
+The three direct children are registered by [`BitAndName()`](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L1528-L1643). `gpu` and `cpu` share the same nested matrix (geometry, stride, offset, lib, flags) and differ only in AS build type. `misc` holds four standalone cases that each set one NO_NULL flag with `useMaintenance5 = true`. Below each processor child, the hierarchy continues as `<geometry>.stride_<N>.offset_<N>.<lib>.<flag_combination>` down to the test case leaf.
 
 ## Parameter Dimensions and Observed Values
 
@@ -36,7 +36,7 @@ The three direct children are registered by [createPipelineFlagsTests](../../../
 | SBT stride | `3`, `5` | `stbRecStride` passed to `traceRayEXT`. Controls hit-group indexing stride per geometry within an instance. | [strides array](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L1530) |
 | SBT offset | `7` | `stbRecOffset` passed to `traceRayEXT`. Fixed offset into the hit-group region of the SBT. | [offsets array](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L1531) |
 | Library mode | `use_libs`, `no_libs` | Whether miss and hit-group shaders go into pipeline libraries or the main pipeline. | [libs array](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L1542) |
-| NO_NULL flag combination | 15 non-empty subsets of {any, chit, isect, miss} | The tested property. Each subset is OR'd into `VkPipelineCreateFlags`. Triangles prune any combination containing isect, leaving 7. | [NoNullShadersFlagGenerator](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L1450-L1524) |
+| NO_NULL flag combination | 15 non-empty subsets of {any, chit, isect, miss} | The tested property. Each subset is OR'd into `VkPipelineCreateFlags`. Triangles prune any combination containing isect, leaving 7. | [NONULL flag combination](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L1450-L1524) |
 | misc flag | `any_maintenance5`, `chit_maintenance5`, `isect_maintenance5`, `miss_maintenance5` | Individual flags with `setCreateFlags2`. Fixed: Box geometry, stride 3, offset 7, use_libs. | [misc group](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L1625-L1638) |
 | Image size | 256x256 (release), 30x8 (debug) | Result image dimensions. | [width/height](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L1554-L1562) |
 | Instance count | 3 | `instCount` in TestParams. Number of TLAS instances. | [TestParams default](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L1568) |
@@ -124,7 +124,7 @@ The shader source and stage-specific declarations for the representative case ar
 | Geometry type | The rgen text stays fixed, while geometry type changes hit-group composition and whether the intersection shader is required. | [conditional shader generation](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L684-L732) |
 | SBT stride | Changes the `stbRecStride` literal passed to `traceRayEXT` from `3u` to `5u`. | [rgen generation](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L655-L663) |
 | SBT offset | Is fixed at `7u` in registered cases and becomes the `stbRecOffset` literal passed to `traceRayEXT`. | [offset registration](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L1530-L1531) |
-| Library mode | Does not change shader text; it changes whether miss and hit-group modules are assembled into libraries or the main pipeline. | [pipeline creation](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L434-L472) |
+| Library mode | Does not change shader text; it changes whether miss and hit-group modules are assembled into libraries or the main pipeline. | [Library mode](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L434-L472) |
 | NO_NULL flag combination | Does not change rgen text, but controls creation of the conditional any-hit shader and flag-dependent intersection shader; miss and closest-hit source are always generated. | [shader generation](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L670-L732) |
 
 #### SPIR-V
@@ -294,9 +294,9 @@ The shader source and stage-specific declarations for the representative case ar
 
 ### Scene and SBT construction
 
-- BLAS are created per instance. Triangle BLAS hold 2 triangle geometries each; box BLAS hold 2 AABB geometries each. For `tri_and_box`, both triangle and box BLAS are created. Geometry flags use `VK_GEOMETRY_NO_DUPLICATE_ANY_HIT_INVOCATION_BIT_KHR` when ahit is enabled, or `VK_GEOMETRY_OPAQUE_BIT_KHR` otherwise [BLAS creation](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L842-L902).
-- The TLAS instances all BLAS with identity transforms. Each instance's SBT record offset is `i * groupsAndGapsPerInstance` where `groupsAndGapsPerInstance = geomCount * stbRecStride + stbRecOffset + 1` [TLAS creation](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L904-L929).
-- The SBT is built by `prepareShaderBindingTable`, which lays out groups as: index 0 for rgen, index 1 for miss, and indices 2+ for hit groups. Each hit group record stores `geomType`, `geomIndex`, and `retValue` (a distinct green-component value per geometry) [SBT preparation](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L931-L1026).
+- BLAS are created per instance. Triangle BLAS hold 2 triangle geometries each; box BLAS hold 2 AABB geometries each. For `tri_and_box`, both triangle and box BLAS are created. Geometry flags use `VK_GEOMETRY_NO_DUPLICATE_ANY_HIT_INVOCATION_BIT_KHR` when ahit is enabled, or `VK_GEOMETRY_OPAQUE_BIT_KHR` otherwise [build triangle and AABB bottom-level geometry](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L842-L902).
+- The TLAS instances all BLAS with identity transforms. Each instance's SBT record offset is `i * groupsAndGapsPerInstance` where `groupsAndGapsPerInstance = geomCount * stbRecStride + stbRecOffset + 1` [assign instance shader-record offsets in the TLAS](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L904-L929).
+- The SBT is built by `prepareShaderBindingTable`, which lays out groups as: index 0 for rgen, index 1 for miss, and indices 2+ for hit groups. Each hit group record stores `geomType`, `geomIndex`, and `retValue` (a distinct green-component value per geometry) [prepare geometry identifiers and return values in shader records](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L931-L1026).
 
 ### Trace and result copyback
 
@@ -377,15 +377,15 @@ All `gpu` and `cpu` cases share the same shader set, SBT layout, pipeline constr
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `TestParams` struct | [vktRayTracingPipelineFlagsTests.cpp#L80-L111](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L80-L111) | Per-case parameters including flags, geometry, stride, offset, lib mode |
-| `PipelineFlagsCase::checkSupport` | [vktRayTracingPipelineFlagsTests.cpp#L578-L625](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L578-L625) | Feature gates for ray tracing, acceleration structure, pipeline library, maintenance5, host commands |
-| `PipelineFlagsCase::initPrograms` | [vktRayTracingPipelineFlagsTests.cpp#L627-L733](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L627-L733) | Shader generation for rgen, miss, chit, ahit, isect |
-| `RayTracingTestPipeline::createPipeline` | [vktRayTracingPipelineFlagsTests.cpp#L434-L472](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L434-L472) | Pipeline construction with library mode and flag setup |
-| `createBottomLevelAccelerationStructs` | [vktRayTracingPipelineFlagsTests.cpp#L842-L902](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L842-L902) | BLAS creation for triangle and box geometry |
-| `createTopLevelAccelerationStruct` | [vktRayTracingPipelineFlagsTests.cpp#L904-L929](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L904-L929) | TLAS instance setup with SBT record offsets |
-| `prepareShaderBindingTable` | [vktRayTracingPipelineFlagsTests.cpp#L931-L1026](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L931-L1026) | SBT record layout with geomType, geomIndex, retValue per hit group |
-| `travelRay` | [vktRayTracingPipelineFlagsTests.cpp#L1097-L1189](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L1097-L1189) | Offline ray trace for reference image |
-| `verifyResult` | [vktRayTracingPipelineFlagsTests.cpp#L1203-L1320](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L1203-L1320) | Flood-fill similarity check and pass/fail condition |
-| `PipelineFlagsInstance::iterate` | [vktRayTracingPipelineFlagsTests.cpp#L1322-L1448](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L1322-L1448) | Runtime execution: trace, copyback, validation |
-| `NoNullShadersFlagGenerator` | [vktRayTracingPipelineFlagsTests.cpp#L1450-L1524](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L1450-L1524) | Generates all non-empty subsets of the four NO_NULL flag bits |
-| `createPipelineFlagsTests` | [vktRayTracingPipelineFlagsTests.cpp#L1528-L1643](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L1528-L1643) | Registration of gpu, cpu, and misc children with the full matrix |
+| `TestParams` struct | [TestParams struct](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L80-L111) | Per-case parameters including flags, geometry, stride, offset, lib mode |
+| `PipelineFlagsCase::checkSupport` | [PipelineFlagsCase::checkSupport](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L578-L625) | Feature gates for ray tracing, acceleration structure, pipeline library, maintenance5, host commands |
+| `PipelineFlagsCase::initPrograms` | [PipelineFlagsCase::initPrograms](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L627-L733) | Shader generation for rgen, miss, chit, ahit, isect |
+| `RayTracingTestPipeline::createPipeline` | [construct ray-tracing pipelines with flags and library mode](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L434-L472) | Pipeline construction with library mode and flag setup |
+| `createBottomLevelAccelerationStructs` | [create triangle and box bottom-level geometry](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L842-L902) | BLAS creation for triangle and box geometry |
+| `createTopLevelAccelerationStruct` | [assign SBT record offsets to TLAS instances](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L904-L929) | TLAS instance setup with SBT record offsets |
+| `prepareShaderBindingTable` | [pack geometry identity and return values into hit records](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L931-L1026) | SBT record layout with geomType, geomIndex, retValue per hit group |
+| `travelRay` | [travelRay](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L1097-L1189) | Offline ray trace for reference image |
+| `verifyResult` | [verifyResult](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L1203-L1320) | Flood-fill similarity check and pass/fail condition |
+| `PipelineFlagsInstance::iterate` | [PipelineFlagsInstance::iterate](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L1322-L1448) | Runtime execution: trace, copyback, validation |
+| `NoNullShadersFlagGenerator` | [enumerate nonempty NO_NULL flag subsets](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L1450-L1524) | Generates all non-empty subsets of the four NO_NULL flag bits |
+| `createPipelineFlagsTests` | [register CPU, GPU, and miscellaneous pipeline-flag cases](../../../modules/vulkan/ray_tracing/vktRayTracingPipelineFlagsTests.cpp#L1528-L1643) | Registration of gpu, cpu, and misc children with the full matrix |

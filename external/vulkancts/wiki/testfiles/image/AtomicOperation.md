@@ -96,7 +96,7 @@ The primary behavioral axis is **atomic operation**. The type, compute-stage, re
 
 ### `indexing`: 32-bit texel-buffer index boundary
 
-The `indexing` leaf is not part of the operation/format/image-type matrix. It creates an `R32_UINT` storage texel buffer with 131072 elements and performs `imageAtomicAdd` at index 65536. The check requires element 65536 to become `1` while element 0 remains `0`, catching accidental 16-bit index truncation ([implementation](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L2475-L2634)).
+The `indexing` leaf is not part of the operation/format/image-type matrix. It creates an `R32_UINT` storage texel buffer with 131072 elements and performs `imageAtomicAdd` at index 65536. The check requires element 65536 to become `1` while element 0 remains `0`, catching accidental 16-bit index truncation ([`vktImageAtomicOperationTests.cpp`](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L2475-L2634)).
 
 ## Shader Analysis
 
@@ -353,8 +353,8 @@ void main (void)
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
 | Parent registration | [`createChildren()`](../../../modules/vulkan/image/vktImageTests.cpp#L61-L89) | Places `atomic_operations` in the `image` test category. |
-| Image atomic semantics | [`images.adoc#L248-L263`](../../../../vulkan-docs/src/chapters/images.adoc#L248-L263) | Defines image-texel pointers as the location used by SPIR-V atomics. |
-| Operation and reference helpers | [`vktImageAtomicOperationTests.cpp#L301-L808`](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L301-L808) | Defines operations, initial values, generated arguments, order classification, and reference arithmetic. |
+| Image atomic semantics | [Image atomic semantics](../../../../vulkan-docs/src/chapters/images.adoc#L248-L263) | Defines image-texel pointers as the location used by SPIR-V atomics. |
+| Operation and reference helpers | [Operation and reference helpers](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L301-L808) | Defines operations, initial values, generated arguments, order classification, and reference arithmetic. |
 | Support checks | [`commonCheckSupport()`](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L987-L1141) | Checks format, extension, feature, sparse, and transfer requirements. |
 | Generated atomic shaders | [`BinaryAtomicEndResultCase::initPrograms()` and `BinaryAtomicIntermValuesCase::initPrograms()`](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L1194-L1418) | Generates GLSL and selects specialized SPIR-V assembly. |
 | Shared execution path | [`BinaryAtomicInstanceBase::iterate()`](../../../modules/vulkan/image/vktImageAtomicOperationTests.cpp#L1498-L1663) | Allocates resources, initializes, dispatches, synchronizes, reads back, and reports pass/fail. |

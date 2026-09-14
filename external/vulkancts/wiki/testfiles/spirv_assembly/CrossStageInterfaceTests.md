@@ -21,7 +21,7 @@ spirv_assembly.instruction.graphics.cross_stage
 └── interface_blocks
 ```
 
-`createCrossStageInterfaceTests` registers three leaves under each intermediate node: `flat`, `no_perspective`, and `relaxedprecision` ([registration](../../../modules/vulkan/spirv_assembly/vktSpvAsmCrossStageInterfaceTests.cpp#L2717-L2746)). The main Vulkan and Vulkan SC mustpass lists each contain all six paths ([Vulkan entries](../../../mustpass/main/vk-default/spirv-assembly.txt#L23859-L23864), [Vulkan SC entries](../../../mustpass/main/vksc-default/spirv-assembly.txt#L9816-L9821)).
+`createCrossStageInterfaceTests` registers three leaves under each intermediate node: `flat`, `no_perspective`, and `relaxedprecision` ([`createCrossStageInterfaceTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmCrossStageInterfaceTests.cpp#L2717-L2746)). The main Vulkan and Vulkan SC mustpass lists each contain all six paths ([Vulkan entries](../../../mustpass/main/vk-default/spirv-assembly.txt#L23859-L23864), [Vulkan SC entries](../../../mustpass/main/vksc-default/spirv-assembly.txt#L9816-L9821)).
 
 ## Parameter Dimensions and Observed Values
 
@@ -77,7 +77,7 @@ dEQP-VK.spirv_assembly.instruction.graphics.cross_stage.basic_type.flat
 
 | Parameter choice | Meaning in this representative case |
 |------------------|-------------------------------------|
-| Registered leaf `basic_type.flat` | Selects the separately declared basic-variable interface and the `Flat` qualifier ([registration](../../../modules/vulkan/spirv_assembly/vktSpvAsmCrossStageInterfaceTests.cpp#L2717-L2746)). |
+| Registered leaf `basic_type.flat` | Selects the separately declared basic-variable interface and the `Flat` qualifier ([`createCrossStageInterfaceTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmCrossStageInterfaceTests.cpp#L2717-L2746)). |
 | Internal decoration option `DECORATION_IN_VERTEX` | Selects the first `flat` decoration set, which adds `Flat` to the five vertex outputs only ([decoration sets](../../../modules/vulkan/spirv_assembly/vktSpvAsmCrossStageInterfaceTests.cpp#L690-L723)). |
 | Primary shader `Vertex` | Shows the producer-side interface declarations and writes from the direct SPIR-V builder ([vertex module](../../../modules/vulkan/spirv_assembly/vktSpvAsmCrossStageInterfaceTests.cpp#L811-L900)). |
 | SPIR-V target `1.3` | Matches the authored module's `; Version: 1.3` header ([module header](../../../modules/vulkan/spirv_assembly/vktSpvAsmCrossStageInterfaceTests.cpp#L811-L815)). |

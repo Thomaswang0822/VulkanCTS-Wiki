@@ -382,12 +382,12 @@ failing to make the initialized input or written output data visible at the poin
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Delegated test family attachment | [vktMemoryModelMessagePassing.cpp#L2410-L2413](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2410-L2413) | Adds the `padding` test family under the `memory_model` test category. |
-| Factory declaration | [vktMemoryModelPadding.hpp#L30-L35](../../../modules/vulkan/memory_model/vktMemoryModelPadding.hpp#L30-L35) | Declares `createPaddingTests`. |
-| Host mirror structures | [vktMemoryModelPadding.cpp#L44-L75](../../../modules/vulkan/memory_model/vktMemoryModelPadding.cpp#L44-L75) | Defines host-visible scalar fields and explicit padding byte arrays. |
-| Initialization and padding checks | [vktMemoryModelPadding.cpp#L77-L133](../../../modules/vulkan/memory_model/vktMemoryModelPadding.cpp#L77-L133) | Initializes scalar values and padding sentinels, then checks copied members and untouched padding. |
-| Shader generation | [vktMemoryModelPadding.cpp#L177-L223](../../../modules/vulkan/memory_model/vktMemoryModelPadding.cpp#L177-L223) | Emits the `std140` input/output blocks and structure assignments. |
-| Support checks | [vktMemoryModelPadding.cpp#L225-L232](../../../modules/vulkan/memory_model/vktMemoryModelPadding.cpp#L225-L232) | Requires the Vulkan memory model extension and feature. |
-| Runtime execution | [vktMemoryModelPadding.cpp#L234-L355](../../../modules/vulkan/memory_model/vktMemoryModelPadding.cpp#L234-L355) | Creates buffers, descriptors, pipeline, barriers, dispatch, and final host validation. |
-| Test case leaf registration | [vktMemoryModelPadding.cpp#L360-L367](../../../modules/vulkan/memory_model/vktMemoryModelPadding.cpp#L360-L367) | Registers exactly one test case leaf named `test`. |
-| Mustpass entry | [memory-model.txt#L8256-L8260](../../../mustpass/main/vk-default/memory-model.txt#L8256-L8260) | Shows the single `dEQP-VK.memory_model.padding.test` entry between message-passing and shared-layout coverage. |
+| Delegated test family attachment | [Delegated test family attachment](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2410-L2413) | Adds the `padding` test family under the `memory_model` test category. |
+| Factory declaration | [Factory declaration](../../../modules/vulkan/memory_model/vktMemoryModelPadding.hpp#L30-L35) | Declares `createPaddingTests`. |
+| Host mirror structures | [Host mirror structures](../../../modules/vulkan/memory_model/vktMemoryModelPadding.cpp#L44-L75) | Defines host-visible scalar fields and explicit padding byte arrays. |
+| Initialization and padding checks | [Initialization and padding checks](../../../modules/vulkan/memory_model/vktMemoryModelPadding.cpp#L77-L133) | Initializes scalar values and padding sentinels, then checks copied members and untouched padding. |
+| Shader generation | [Shader generation](../../../modules/vulkan/memory_model/vktMemoryModelPadding.cpp#L177-L223) | Emits the `std140` input/output blocks and structure assignments. |
+| Support checks | [Support checks](../../../modules/vulkan/memory_model/vktMemoryModelPadding.cpp#L225-L232) | Requires the Vulkan memory model extension and feature. |
+| Runtime execution | [Runtime execution](../../../modules/vulkan/memory_model/vktMemoryModelPadding.cpp#L234-L355) | Creates buffers, descriptors, pipeline, barriers, dispatch, and final host validation. |
+| Test case leaf registration | [Test case leaf registration](../../../modules/vulkan/memory_model/vktMemoryModelPadding.cpp#L360-L367) | Registers exactly one test case leaf named `test`. |
+| Mustpass entry | [Mustpass entry](../../../mustpass/main/vk-default/memory-model.txt#L8256-L8260) | Shows the single `dEQP-VK.memory_model.padding.test` entry between message-passing and shared-layout coverage. |

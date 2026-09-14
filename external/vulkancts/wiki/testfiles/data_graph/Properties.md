@@ -45,7 +45,7 @@ The primary behavioral axis is the query operation. The graph parameters provide
 
 ### available: enumerate property identifiers
 
-The test builds a TOSA-backed pipeline, calls `vkGetDataGraphPipelineAvailablePropertiesARM` with a null property array to obtain `numProperties`, allocates that many enums, and repeats the call. In `complete`, the second call uses the full count and requires `VK_SUCCESS`. In `incomplete`, it decrements the count and requires `VK_INCOMPLETE`; the implementation therefore tests both capacity outcomes [available query implementation](../../../modules/vulkan/data_graph/vktDataGraphPropertiesTests.cpp#L148-L270).
+The test builds a TOSA-backed pipeline, calls `vkGetDataGraphPipelineAvailablePropertiesARM` with a null property array to obtain `numProperties`, allocates that many enums, and repeats the call. In `complete`, the second call uses the full count and requires `VK_SUCCESS`. In `incomplete`, it decrements the count and requires `VK_INCOMPLETE`; the implementation therefore tests both capacity outcomes [vktDataGraphPropertiesTests.cpp](../../../modules/vulkan/data_graph/vktDataGraphPropertiesTests.cpp#L148-L270).
 
 ### get: retrieve property data
 
@@ -126,11 +126,11 @@ This page uses the reviewed no-walkthrough exception. The TOSA provider supplies
 
 | Entry point | Link | Why it matters |
 |---|---|---|
-| `propertiesTestsGroup()` | [registration](../../../modules/vulkan/data_graph/vktDataGraphPropertiesTests.cpp#L547-L551) | Registers the `available` and `get` test families. |
+| `propertiesTestsGroup()` | [`propertiesTestsGroup()`](../../../modules/vulkan/data_graph/vktDataGraphPropertiesTests.cpp#L547-L551) | Registers the `available` and `get` test families. |
 | `availablePropertiesTests()` | [available registration](../../../modules/vulkan/data_graph/vktDataGraphPropertiesTests.cpp#L506-L522) | Adds `complete` and `incomplete` cases for every valid generated parameter set. |
 | `getPropertiesTests()` | [get registration](../../../modules/vulkan/data_graph/vktDataGraphPropertiesTests.cpp#L524-L545) | Adds single/multiple-call and complete/incomplete combinations. |
-| `availablePropertiesTest()` | [available implementation](../../../modules/vulkan/data_graph/vktDataGraphPropertiesTests.cpp#L148-L270) | Builds the pipeline, queries available property enums, and checks return modes. |
-| `getPropertiesTest()` | [get implementation](../../../modules/vulkan/data_graph/vktDataGraphPropertiesTests.cpp#L273-L501) | Performs size queries, data retrieval, result-code checks, and overwrite checking. |
+| `availablePropertiesTest()` | [vktDataGraphPropertiesTests.cpp](../../../modules/vulkan/data_graph/vktDataGraphPropertiesTests.cpp#L148-L270) | Builds the pipeline, queries available property enums, and checks return modes. |
+| `getPropertiesTest()` | [vktDataGraphPropertiesTests.cpp](../../../modules/vulkan/data_graph/vktDataGraphPropertiesTests.cpp#L273-L501) | Performs size queries, data retrieval, result-code checks, and overwrite checking. |
 | `TestParams::checkSupport()` | [support gate](../../../modules/vulkan/data_graph/vktDataGraphTestUtil.hpp#L219-L257) | Defines extension, feature, and non-packed tensor requirements. |
 | `getTestParamsVariations()` | [parameter generation](../../../modules/vulkan/data_graph/vktDataGraphTestUtil.hpp#L434-L440), [filtering](../../../modules/vulkan/data_graph/vktDataGraphTestUtil.cpp#L139-L219) | Defines the generated matrix and removes invalid combinations. |
 | `DataGraphTestProviderTosa` | [provider selection](../../../modules/vulkan/data_graph/tosa/vktDataGraphTosaUtil.hpp#L1203-L1275) | Maps supported graph shapes and format strings to TOSA implementations. |

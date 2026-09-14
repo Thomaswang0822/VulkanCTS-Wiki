@@ -130,5 +130,5 @@ The test instance creates three `R8G8B8A8_UNORM` images and records a two-subpas
 | Shader generation | [`initPrograms`](../../../modules/vulkan/renderpass/vktRenderPassUnusedAttachmentTests.cpp#L377-L410) | Emits the vertex shader and two fragment shaders for the two subpasses. |
 | Result verification | [`verifyImage`](../../../modules/vulkan/renderpass/vktRenderPassUnusedAttachmentTests.cpp#L1132-L1185) | Reads back both images and applies the dynamic rendering clear exception. |
 | Support checks | [`checkSupport`](../../../modules/vulkan/renderpass/vktRenderPassUnusedAttachmentTests.cpp#L367-L375) | Requires `VK_KHR_create_renderpass2` or `VK_KHR_dynamic_rendering_local_read` per variant. |
-| Attachment under `suballocation` | [`vktRenderPassTests.cpp#L8561`](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8561) | Attaches the test family below the `suballocation` group for every rendering variant. |
+| Attachment under `suballocation` | [Attachment under suballocation](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8561) | Attaches the test family below the `suballocation` group for every rendering variant. |
 | Vulkan spec: unused attachments | [renderpass.adoc](../../../../vulkan-docs/src/chapters/renderpass.adoc) | States that load/store ops are ignored for attachments not used by any subpass. |

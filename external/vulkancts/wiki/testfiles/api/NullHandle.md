@@ -162,15 +162,15 @@ The check is per-case. Results are not aggregated across object types; each leaf
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `createNullHandleTests()` | [vktApiNullHandleTests.cpp#L373](../../../modules/vulkan/api/vktApiNullHandleTests.cpp#L373) | Creates the `null_handle` test family and wires it into the `api` test category. |
-| `addTestsToGroup()` | [vktApiNullHandleTests.cpp#L332-L369](../../../modules/vulkan/api/vktApiNullHandleTests.cpp#L332-L369) | Registers all 24 test case leaves, including the VulkanSC guards and feature gates. |
-| `test<Object>()` template | [vktApiNullHandleTests.cpp#L194-L213](../../../modules/vulkan/api/vktApiNullHandleTests.cpp#L194-L213) | Generic single-object destroy/free test logic, used by 22 leaves. |
-| `test<VkCommandBuffer>()` specialization | [vktApiNullHandleTests.cpp#L216-L254](../../../modules/vulkan/api/vktApiNullHandleTests.cpp#L216-L254) | Array-free path for `free_command_buffers`. |
-| `test<VkDescriptorSet>()` specialization | [vktApiNullHandleTests.cpp#L274-L319](../../../modules/vulkan/api/vktApiNullHandleTests.cpp#L274-L319) | Array-free path for `free_descriptor_sets`. |
-| `release()` overloads | [vktApiNullHandleTests.cpp#L42-L183](../../../modules/vulkan/api/vktApiNullHandleTests.cpp#L42-L183) | Per-object-type destroy or free entry point dispatch, including the VulkanSC no-op overload for `VkShaderModule`. |
-| `reportStatus()` | [vktApiNullHandleTests.cpp#L185-L191](../../../modules/vulkan/api/vktApiNullHandleTests.cpp#L185-L191) | Final pass or fail decision based on allocator-record count. |
-| `checkEventSupport()` | [vktApiNullHandleTests.cpp#L321-L330](../../../modules/vulkan/api/vktApiNullHandleTests.cpp#L321-L330) | Portability-subset event support gate for `destroy_event`. |
-| `checkSupportShaderObject()` | [vktApiNullHandleTests.cpp#L257-L261](../../../modules/vulkan/api/vktApiNullHandleTests.cpp#L257-L261) | `VK_EXT_shader_object` gate for `destroy_shader_object`. |
-| `checkSupportFreeDescriptorSets()` | [vktApiNullHandleTests.cpp#L263-L271](../../../modules/vulkan/api/vktApiNullHandleTests.cpp#L263-L271) | VulkanSC `recycleDescriptorSetMemory` gate for `free_descriptor_sets`. |
-| Parent registration | [vktApiTests.cpp#L113](../../../modules/vulkan/api/vktApiTests.cpp#L113) | Attaches `createNullHandleTests()` to the `api` test category. |
+| `createNullHandleTests()` | [createNullHandleTests()](../../../modules/vulkan/api/vktApiNullHandleTests.cpp#L373) | Creates the `null_handle` test family and wires it into the `api` test category. |
+| `addTestsToGroup()` | [addTestsToGroup()](../../../modules/vulkan/api/vktApiNullHandleTests.cpp#L332-L369) | Registers all 24 test case leaves, including the VulkanSC guards and feature gates. |
+| `test<Object>()` template | [test<Object>() template](../../../modules/vulkan/api/vktApiNullHandleTests.cpp#L194-L213) | Generic single-object destroy/free test logic, used by 22 leaves. |
+| `test<VkCommandBuffer>()` specialization | [test<VkCommandBuffer>() specialization](../../../modules/vulkan/api/vktApiNullHandleTests.cpp#L216-L254) | Array-free path for `free_command_buffers`. |
+| `test<VkDescriptorSet>()` specialization | [test<VkDescriptorSet>() specialization](../../../modules/vulkan/api/vktApiNullHandleTests.cpp#L274-L319) | Array-free path for `free_descriptor_sets`. |
+| `release()` overloads | [release() overloads](../../../modules/vulkan/api/vktApiNullHandleTests.cpp#L42-L183) | Per-object-type destroy or free entry point dispatch, including the VulkanSC no-op overload for `VkShaderModule`. |
+| `reportStatus()` | [reportStatus()](../../../modules/vulkan/api/vktApiNullHandleTests.cpp#L185-L191) | Final pass or fail decision based on allocator-record count. |
+| `checkEventSupport()` | [checkEventSupport()](../../../modules/vulkan/api/vktApiNullHandleTests.cpp#L321-L330) | Portability-subset event support gate for `destroy_event`. |
+| `checkSupportShaderObject()` | [checkSupportShaderObject()](../../../modules/vulkan/api/vktApiNullHandleTests.cpp#L257-L261) | `VK_EXT_shader_object` gate for `destroy_shader_object`. |
+| `checkSupportFreeDescriptorSets()` | [checkSupportFreeDescriptorSets()](../../../modules/vulkan/api/vktApiNullHandleTests.cpp#L263-L271) | VulkanSC `recycleDescriptorSetMemory` gate for `free_descriptor_sets`. |
+| Parent registration | [Parent registration](../../../modules/vulkan/api/vktApiTests.cpp#L113) | Attaches `createNullHandleTests()` to the `api` test category. |
 | Header | [vktApiNullHandleTests.hpp](../../../modules/vulkan/api/vktApiNullHandleTests.hpp#L1) | Declares `createNullHandleTests()`. |

@@ -358,7 +358,7 @@ void main (void)
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `createViewTests()` | [factory](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L1075-L1078) | Creates the `plane_view` test family. |
+| `createViewTests()` | [Test factory](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L1075-L1078) | Creates the `plane_view` test family. |
 | `populateViewGroup()` | [direct registration](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L1065-L1071) | Registers `image_view` and `memory_alias`. |
 | `populateViewTypeGroup()` | [matrix generation](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L983-L1063) | Generates formats, planes, flags, stages, descriptor modes, and compatible formats. |
 | `getShaderSpec()` | [shader specification](../../../modules/vulkan/ycbcr/vktYCbCrViewTests.cpp#L441-L459) | Defines sampler declarations and the two texture operations. |

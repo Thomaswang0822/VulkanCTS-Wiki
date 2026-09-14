@@ -110,7 +110,7 @@ All four families also depend on ordinary surface creation, swapchain creation, 
 
 **Possible failure symptoms:** A wait for a submitted ID fails to return `VK_SUCCESS`, a valid version 1 future/no-ID case returns success instead of `VK_TIMEOUT`, or the elapsed duration falls outside the requested timeout range.
 
-**Possible implementation causes:** The presentation implementation may advance the tracked ID at the wrong point, complete a wait for an unsubmitted ID, fail to complete a submitted request, or return the wrong result at timeout. For version 2, a failure can also involve the separate request-completion rule for a submitted ID. A duration-only failure does not by itself prove an implementation defect: [the Vulkan specification permits implementation-dependent timeout adjustment that may exceed the requested period](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L8222-L8226), while [the CTS source accepts only a fixed 100 ms margin](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L65-L89).
+**Possible implementation causes:** The presentation implementation may advance the tracked ID at the wrong point, complete a wait for an unsubmitted ID, fail to complete a submitted request, or return the wrong result at timeout. For version 2, a failure can also involve the separate request-completion rule for a submitted ID. A duration-only failure does not by itself prove an implementation defect: [wsi.adoc](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L8222-L8226), while [the CTS source accepts only a fixed 100 ms margin](../../../modules/vulkan/wsi/vktWsiPresentIdWaitTests.cpp#L65-L89).
 
 #### Per-swapchain isolation
 

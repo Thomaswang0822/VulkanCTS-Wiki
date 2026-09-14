@@ -2,7 +2,7 @@
 
 **Core question:** Does `VK_EXT_conditional_rendering` suppress only the commands it specifies, while commands outside that affected set continue to operate?
 
-- This page covers the `conditional_rendering.conditional_ignore` test family implemented in [vktConditionalIgnoreTests.cpp](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp).
+- This page covers the `conditional_rendering.conditional_ignore` test family implemented in [`vktConditionalIgnoreTests.cpp`](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp).
 - It exercises binding, transfer, image-clear, push-constant, update, and ray-tracing operations while a conditional-rendering block is active.
 - The expected result is command-specific: the ignore-family commands must produce their ordinary effect inside the block. Where a later draw or dispatch observes state established by an ignored binding or push-constant command, that observer is recorded after the conditional block and therefore runs unconditionally.
 
@@ -185,7 +185,7 @@ These direct children are the exact command components present in the current mu
 | Ignored command | Binding, transfer, image-clear, push-constant, update, and ray-tracing areas | Selects the command that must ignore active conditional rendering. | [`ConditionalIgnoreTests::init()`](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L2312-L2430) |
 | Predicate form | Condition, inverted, and no-condition forms where registered | Places the command inside the conditional-state matrix or provides a control path. | [`s_testsData`](../../../modules/vulkan/conditional_rendering/vktConditionalRenderingTestUtil.hpp#L61-L144) |
 | Command-buffer scope | Primary, secondary, inherited, and nested paths for the generated clear cases | Checks the ignored-command rule at different recording and execution scopes. | [`ConditionalIgnoreClearColorTestInstance::queuePass()`](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L136-L301) and [`ConditionalIgnoreClearDepthTestInstance::iterate()`](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L345-L511) |
-| Observable result | Image, depth/stencil, buffer, or ray-generation output | Supplies the pass/fail signal for the selected command. | The command-specific test functions in [`vktConditionalIgnoreTests.cpp`](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L136-L2302) |
+| Observable result | Image, depth/stencil, buffer, or ray-generation output | Supplies the pass/fail signal for the selected command. | The command-specific test functions in [Observable result](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L136-L2302) |
 
 ## Behavior Parameters
 
@@ -407,5 +407,5 @@ void main(void) { outBuffer.value = ((pc.a == pc.b) ? 1u : 0u); }
 | Graphics and ray tracing | [`graphicsBindTest()`](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L1778-L2040) and [`rayTracingTest()`](../../../modules/vulkan/conditional_rendering/vktConditionalIgnoreTests.cpp#L2076-L2302) | Exercises shader-backed binding and ray-generation command paths. |
 | Shared condition data | [`ConditionalData` and `s_testsData`](../../../modules/vulkan/conditional_rendering/vktConditionalRenderingTestUtil.hpp#L44-L144) | Supplies predicate, inversion, memory, inheritance, and nesting variants. |
 | Conditional begin/end | [`beginConditionalRendering()`](../../../modules/vulkan/conditional_rendering/vktConditionalRenderingTestUtil.cpp#L123-L134) | Shows how the condition buffer and inversion flags enter command recording. |
-| Mustpass coverage | [conditional-rendering.txt](../../../mustpass/main/vk-default/conditional-rendering.txt) | Lists executable `conditional_ignore` paths. |
-| Specification semantics | [drawing.adoc](../../../../vulkan-docs/src/chapters/drawing.adoc#L2086-L2167) | Defines affected commands and conditional-rendering behavior. |
+| Mustpass coverage | [conditional-rendering source](../../../mustpass/main/vk-default/conditional-rendering.txt) | Lists executable `conditional_ignore` paths. |
+| Specification semantics | [drawing source](../../../../vulkan-docs/src/chapters/drawing.adoc#L2086-L2167) | Defines affected commands and conditional-rendering behavior. |

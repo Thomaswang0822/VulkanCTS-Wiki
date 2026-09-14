@@ -450,15 +450,15 @@ These gates mean the implementation cannot legally or meaningfully run the selec
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `MeshShaderBuiltinInstance::iterate` | [vktMeshShaderBuiltinTests.cpp#L170-L360](../../../modules/vulkan/mesh_shader/vktMeshShaderBuiltinTests.cpp#L170-L360) | common image, pipeline, submission, transfer, and readback flow |
-| `FullScreenColorInstance`, `QuadrantsInstance`, `PixelsInstance` | [vktMeshShaderBuiltinTests.cpp#L387-L549](../../../modules/vulkan/mesh_shader/vktMeshShaderBuiltinTests.cpp#L387-L549) | exact reference and mismatch behavior |
-| `PrimitiveIdCase` | [vktMeshShaderBuiltinTests.cpp#L551-L697](../../../modules/vulkan/mesh_shader/vktMeshShaderBuiltinTests.cpp#L551-L697) | GLSL versus direct-SPIR-V primitive-ID paths |
-| `LayerCase` and `ViewportIndexCase` | [vktMeshShaderBuiltinTests.cpp#L699-L956](../../../modules/vulkan/mesh_shader/vktMeshShaderBuiltinTests.cpp#L699-L956) | shared/non-shared primitive metadata and feature gates |
-| `PositionCase`, `PointSizeCase`, `ClipDistanceCase`, `CullDistanceCase` | [vktMeshShaderBuiltinTests.cpp#L958-L1347](../../../modules/vulkan/mesh_shader/vktMeshShaderBuiltinTests.cpp#L958-L1347) | generated geometry, distances, and limit checks |
-| `triangleForPixel`, invocation and draw-index cases | [vktMeshShaderBuiltinTests.cpp#L1349-L1759](../../../modules/vulkan/mesh_shader/vktMeshShaderBuiltinTests.cpp#L1349-L1759) | identifier-to-pixel mapping and task payload generation |
-| `PrimitiveShadingRateCase` | [vktMeshShaderBuiltinTests.cpp#L1761-L2037](../../../modules/vulkan/mesh_shader/vktMeshShaderBuiltinTests.cpp#L1761-L2037) | direct SPIR-V, masks, fragment check, and KHR gate |
-| `createMeshShaderBuiltinTests` | [vktMeshShaderBuiltinTests.cpp#L2041-L2091](../../../modules/vulkan/mesh_shader/vktMeshShaderBuiltinTests.cpp#L2041-L2091) | complete registration hierarchy and 3x3 loop |
-| `checkTaskMeshShaderSupportNV`, shading-rate helpers | [vktMeshShaderUtil.cpp#L34-L124](../../../modules/vulkan/mesh_shader/vktMeshShaderUtil.cpp#L34-L124) | extension, feature, size, and SPIR-V mask helpers |
-| NV mesh specification | [VK_NV_mesh_shader/mesh.adoc#mesh](../../../../vulkan-docs/src/chapters/VK_NV_mesh_shader/mesh.adoc#mesh) | task/mesh launch and output primitive rules |
-| Built-in specification | [interfaces.adoc#interfaces-builtin-variables](../../../../vulkan-docs/src/chapters/interfaces.adoc#interfaces-builtin-variables) | identifier, layer, distance, primitive ID, and shading-rate semantics |
-| `vk-default` coverage | [vk-default/mesh-shader.txt#L541-L577](../../../mustpass/main/vk-default/mesh-shader.txt#L541-L577) | exact 29 registered NV leaves |
+| `MeshShaderBuiltinInstance::iterate` | [`vktMeshShaderBuiltinTests.cpp`](../../../modules/vulkan/mesh_shader/vktMeshShaderBuiltinTests.cpp#L170-L360) | common image, pipeline, submission, transfer, and readback flow |
+| `FullScreenColorInstance`, `QuadrantsInstance`, `PixelsInstance` | [`vktMeshShaderBuiltinTests.cpp`](../../../modules/vulkan/mesh_shader/vktMeshShaderBuiltinTests.cpp#L387-L549) | exact reference and mismatch behavior |
+| `PrimitiveIdCase` | [`vktMeshShaderBuiltinTests.cpp`](../../../modules/vulkan/mesh_shader/vktMeshShaderBuiltinTests.cpp#L551-L697) | GLSL versus direct-SPIR-V primitive-ID paths |
+| `LayerCase` and `ViewportIndexCase` | [layer and viewport generators](../../../modules/vulkan/mesh_shader/vktMeshShaderBuiltinTests.cpp#L699-L956) | shared/non-shared primitive metadata and feature gates |
+| `PositionCase`, `PointSizeCase`, `ClipDistanceCase`, `CullDistanceCase` | [`vktMeshShaderBuiltinTests.cpp`](../../../modules/vulkan/mesh_shader/vktMeshShaderBuiltinTests.cpp#L958-L1347) | generated geometry, distances, and limit checks |
+| `triangleForPixel`, invocation and draw-index cases | [`vktMeshShaderBuiltinTests.cpp`](../../../modules/vulkan/mesh_shader/vktMeshShaderBuiltinTests.cpp#L1349-L1759) | identifier-to-pixel mapping and task payload generation |
+| `PrimitiveShadingRateCase` | [`vktMeshShaderBuiltinTests.cpp`](../../../modules/vulkan/mesh_shader/vktMeshShaderBuiltinTests.cpp#L1761-L2037) | direct SPIR-V, masks, fragment check, and KHR gate |
+| `createMeshShaderBuiltinTests` | [`vktMeshShaderBuiltinTests.cpp`](../../../modules/vulkan/mesh_shader/vktMeshShaderBuiltinTests.cpp#L2041-L2091) | complete registration hierarchy and 3x3 loop |
+| `checkTaskMeshShaderSupportNV`, shading-rate helpers | [`vktMeshShaderUtil.cpp`](../../../modules/vulkan/mesh_shader/vktMeshShaderUtil.cpp#L34-L124) | extension, feature, size, and SPIR-V mask helpers |
+| NV mesh specification | [`mesh.adoc`](../../../../vulkan-docs/src/chapters/VK_NV_mesh_shader/mesh.adoc#mesh) | task/mesh launch and output primitive rules |
+| Built-in specification | [interfaces source](../../../../vulkan-docs/src/chapters/interfaces.adoc#interfaces-builtin-variables) | identifier, layer, distance, primitive ID, and shading-rate semantics |
+| `vk-default` coverage | [vk-default coverage](../../../mustpass/main/vk-default/mesh-shader.txt#L541-L577) | exact 29 registered NV leaves |

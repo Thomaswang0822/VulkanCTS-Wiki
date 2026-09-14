@@ -155,16 +155,16 @@ The four local leaves have no per-case Vulkan version, extension, feature, forma
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Build-name helpers and `logBuildInfo()` | [`vktInfoTests.cpp#L50-L149`](../../../modules/vulkan/vktInfoTests.cpp#L50-L149) | Converts build constants to log text and returns `Not validated`. |
-| `logDeviceInfo()` | [`vktInfoTests.cpp#L151-L167`](../../../modules/vulkan/vktInfoTests.cpp#L151-L167) | Reports the selected device index and core physical-device properties. |
-| `logPlatformInfo()` | [`vktInfoTests.cpp#L169-L178`](../../../modules/vulkan/vktInfoTests.cpp#L169-L178) | Delegates platform description to the active platform port. |
-| Size formatting and `logPlatformMemoryLimits()` | [`vktInfoTests.cpp#L180-L258`](../../../modules/vulkan/vktInfoTests.cpp#L180-L258) | Formats platform budgets and applies the three explicit checks. |
-| `createInfoTests()` and `createTests()` | [`vktInfoTests.cpp#L260-L277`](../../../modules/vulkan/vktInfoTests.cpp#L260-L277) | Registers the four local leaves and attaches the delegated API information leaves. |
-| Local factory declaration | [`vktInfoTests.hpp#L30-L37`](../../../modules/vulkan/vktInfoTests.hpp#L30-L37) | Declares the `info::createTests()` package entry point. |
-| Root package attachment | [`vktTestPackage.cpp#L1375-L1377`](../../../modules/vulkan/vktTestPackage.cpp#L1375-L1377), [`vktTestPackage.cpp#L1444-L1446`](../../../modules/vulkan/vktTestPackage.cpp#L1444-L1446) | Attaches `info` to both Vulkan and Vulkan SC packages. |
-| Delegated registration | [`vktApiFeatureInfo.cpp#L9163-L9195`](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L9163-L9195) | Registers the nonlocal `info` leaves shared by both package profiles. |
-| Vulkan mustpass scope | [`vk-default/info.txt#L1-L23`](../../../mustpass/main/vk-default/info.txt#L1-L23) | Confirms all four local `dEQP-VK.info.*` leaves and the delegated Vulkan leaves. |
-| Vulkan SC mustpass scope | [`vksc-default/info.txt#L1-L23`](../../../mustpass/main/vksc-default/info.txt#L1-L23) | Confirms all four local `dEQP-VKSC.info.*` leaves and the delegated Vulkan SC leaves. |
-| `PlatformMemoryLimits` contract | [`tcuPlatform.hpp#L51-L75`](../../../../../framework/common/tcuPlatform.hpp#L51-L75) | Defines the CTS platform memory-budget and page-geometry fields. |
-| Physical-device property semantics | [`devsandqueues.adoc#L60-L123`](../../../../vulkan-docs/src/chapters/devsandqueues.adoc#L60-L123) | Defines the Vulkan properties reported by `device`. |
-| Vulkan memory-property model | [`memory.adoc#L500-L543`](../../../../vulkan-docs/src/chapters/memory.adoc#L500-L543) | Distinguishes Vulkan memory heaps and types from CTS platform limits. |
+| Build-name helpers and `logBuildInfo()` | [Build-name helpers and logBuildInfo()](../../../modules/vulkan/vktInfoTests.cpp#L50-L149) | Converts build constants to log text and returns `Not validated`. |
+| `logDeviceInfo()` | [logDeviceInfo()](../../../modules/vulkan/vktInfoTests.cpp#L151-L167) | Reports the selected device index and core physical-device properties. |
+| `logPlatformInfo()` | [logPlatformInfo()](../../../modules/vulkan/vktInfoTests.cpp#L169-L178) | Delegates platform description to the active platform port. |
+| Size formatting and `logPlatformMemoryLimits()` | [Size formatting and logPlatformMemoryLimits()](../../../modules/vulkan/vktInfoTests.cpp#L180-L258) | Formats platform budgets and applies the three explicit checks. |
+| `createInfoTests()` and `createTests()` | [createInfoTests() and createTests()](../../../modules/vulkan/vktInfoTests.cpp#L260-L277) | Registers the four local leaves and attaches the delegated API information leaves. |
+| Local factory declaration | [Local factory declaration](../../../modules/vulkan/vktInfoTests.hpp#L30-L37) | Declares the `info::createTests()` package entry point. |
+| Root package attachment | [Root package attachment](../../../modules/vulkan/vktTestPackage.cpp#L1375-L1377), [Root package attachment](../../../modules/vulkan/vktTestPackage.cpp#L1444-L1446) | Attaches `info` to both Vulkan and Vulkan SC packages. |
+| Delegated registration | [Delegated registration](../../../modules/vulkan/api/vktApiFeatureInfo.cpp#L9163-L9195) | Registers the nonlocal `info` leaves shared by both package profiles. |
+| Vulkan mustpass scope | [Vulkan mustpass scope](../../../mustpass/main/vk-default/info.txt#L1-L23) | Confirms all four local `dEQP-VK.info.*` leaves and the delegated Vulkan leaves. |
+| Vulkan SC mustpass scope | [Vulkan SC mustpass scope](../../../mustpass/main/vksc-default/info.txt#L1-L23) | Confirms all four local `dEQP-VKSC.info.*` leaves and the delegated Vulkan SC leaves. |
+| `PlatformMemoryLimits` contract | [PlatformMemoryLimits contract](../../../../../framework/common/tcuPlatform.hpp#L51-L75) | Defines the CTS platform memory-budget and page-geometry fields. |
+| Physical-device property semantics | [Physical-device property semantics](../../../../vulkan-docs/src/chapters/devsandqueues.adoc#L60-L123) | Defines the Vulkan properties reported by `device`. |
+| Vulkan memory-property model | [Vulkan memory-property model](../../../../vulkan-docs/src/chapters/memory.adoc#L500-L543) | Distinguishes Vulkan memory heaps and types from CTS platform limits. |

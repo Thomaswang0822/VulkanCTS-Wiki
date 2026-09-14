@@ -28,12 +28,12 @@ The root and both groups are created by [`createApplicationParametersTests`](../
 
 | Dimension | Values in the registered matrix | What the value changes | Evidence |
 |---|---|---|---|
-| Creation target | `create_instance`, `create_device` | Chooses the object-creation API and the location of `VkApplicationParametersEXT` in the chain. | [`vktApplicationParametersTests.cpp#L193-L240`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L193-L240), [`vktApplicationParametersTests.cpp#L257-L299`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L257-L299) |
-| Scenario | `invalid_vendor_id`, `invalid_device_id`, `invalid_parameter_key`, `invalid_parameter_value`, `valid` | Selects the field deliberately made invalid, or a vendor-supplied invalid/valid key-value pair. | [`vktApplicationParametersTests.cpp#L46-L53`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L46-L53), [`vktApplicationParametersTests.cpp#L90-L111`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L90-L111) |
-| Baseline identity | `vendorID` and `deviceID` queried from the active physical device | Supplies the identity used by the default record and by vendor-data matching. | [`vktApplicationParametersTests.cpp#L71-L81`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L71-L81) |
-| Invalid identity value | `0x01234567` | Replaces exactly one queried ID in each invalid-identity default record. | [`vktApplicationParametersTests.cpp#L90-L100`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L90-L100) |
-| Default invalid key | `0x7fffffff` | Supplies an unknown parameter key with a zero-initialized value. | [`vktApplicationParametersTests.cpp#L102-L105`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L102-L105) |
-| Vendor key/value | Defined only when vendor data is added | Supplies the vendor-specific cases that cannot be generalized by CTS. | [`vktApplicationParametersTests.cpp#L128-L160`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L128-L160) |
+| Creation target | `create_instance`, `create_device` | Chooses the object-creation API and the location of `VkApplicationParametersEXT` in the chain. | [`createDeviceTest()`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L193-L240), [`createInstanceTest()`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L257-L299) |
+| Scenario | `invalid_vendor_id`, `invalid_device_id`, `invalid_parameter_key`, `invalid_parameter_value`, `valid` | Selects the field deliberately made invalid, or a vendor-supplied invalid/valid key-value pair. | [Scenario](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L46-L53), [`getDefaultTestData()`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L90-L111) |
+| Baseline identity | `vendorID` and `deviceID` queried from the active physical device | Supplies the identity used by the default record and by vendor-data matching. | [`readIDsFromDevice`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L71-L81) |
+| Invalid identity value | `0x01234567` | Replaces exactly one queried ID in each invalid-identity default record. | [`getDefaultTestData()`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L90-L100) |
+| Default invalid key | `0x7fffffff` | Supplies an unknown parameter key with a zero-initialized value. | [`getDefaultTestData()`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L102-L105) |
+| Vendor key/value | Defined only when vendor data is added | Supplies the vendor-specific cases that cannot be generalized by CTS. | [`getTestDataList()`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L128-L160) |
 
 ## Behavior Parameters
 
@@ -51,7 +51,7 @@ For device records, the source overwrites the expected result with `VK_ERROR_INI
 
 ### `invalid_vendor_id` — exercise a nonmatching vendor identity
 
-The default record starts with the active device's IDs, replaces `vendorId` with `0x01234567`, and leaves the device ID at its queried value. Instance creation must return `VK_ERROR_INCOMPATIBLE_DRIVER`; device creation must return `VK_ERROR_INITIALIZATION_FAILED` because of the device-path normalization described above. The test checks the API result only; it does not prove which internal identity-matching component produced it. See [`vktApplicationParametersTests.cpp#L88-L100`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L88-L100) and [`vktApplicationParametersTests.cpp#L114-L117`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L114-L117).
+The default record starts with the active device's IDs, replaces `vendorId` with `0x01234567`, and leaves the device ID at its queried value. Instance creation must return `VK_ERROR_INCOMPATIBLE_DRIVER`; device creation must return `VK_ERROR_INITIALIZATION_FAILED` because of the device-path normalization described above. The test checks the API result only; it does not prove which internal identity-matching component produced it. See [`getDefaultTestData()`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L88-L100) and [`getDefaultTestData()`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L114-L117).
 
 ### `invalid_device_id` — exercise a nonmatching device identity
 
@@ -59,15 +59,15 @@ The default record preserves the queried vendor ID and replaces `deviceId` with 
 
 ### `invalid_parameter_key` — exercise rejection of an unknown key
 
-The default record uses parameter key `0x7fffffff`, leaves the value at its zero-initialized value, and expects `VK_ERROR_INITIALIZATION_FAILED`. This is a key-recognition/validation check, not a test of a vendor-defined value range. See [`vktApplicationParametersTests.cpp#L102-L105`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L102-L105).
+The default record uses parameter key `0x7fffffff`, leaves the value at its zero-initialized value, and expects `VK_ERROR_INITIALIZATION_FAILED`. This is a key-recognition/validation check, not a test of a vendor-defined value range. See [`getDefaultTestData()`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L102-L105).
 
 ### `invalid_parameter_value` — vendor-supplied invalid value
 
-The generic generator intentionally emits no default record for this scenario. The conditional vendor block shows the required shape: matching vendor/device identity, a vendor-defined key, an invalid value, and `VK_ERROR_INITIALIZATION_FAILED` for both creation targets. Until a vendor adds such data, the registered leaf has no executable record. See [`vktApplicationParametersTests.cpp#L107-L111`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L107-L111) and [`vktApplicationParametersTests.cpp#L140-L160`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L140-L160).
+The generic generator intentionally emits no default record for this scenario. The conditional vendor block shows the required shape: matching vendor/device identity, a vendor-defined key, an invalid value, and `VK_ERROR_INITIALIZATION_FAILED` for both creation targets. Until a vendor adds such data, the registered leaf has no executable record. See [`getDefaultTestData()`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L107-L111) and [`getTestDataList()`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L140-L160).
 
 ### `valid` — vendor-supplied accepted value
 
-This scenario is likewise data-driven. A vendor must provide a recognized key and accepted value for the relevant creation target; the expected result is `VK_SUCCESS`. The generic source does not claim that zero is a valid parameter value, so the placeholder values in the disabled example are not coverage. See [`vktApplicationParametersTests.cpp#L128-L160`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L128-L160).
+This scenario is likewise data-driven. A vendor must provide a recognized key and accepted value for the relevant creation target; the expected result is `VK_SUCCESS`. The generic source does not claim that zero is a valid parameter value, so the placeholder values in the disabled example are not coverage. See [`getTestDataList()`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L128-L160).
 
 ## Shader Analysis
 
@@ -77,8 +77,8 @@ No shader participates. The implementation performs only instance/device creatio
 
 1. The case's support callback enumerates instance extensions and requires `VK_EXT_application_parameters`. If the extension is absent, it raises `NotSupportedError`; this is a support skip, not a failed `VkResult` comparison. It then obtains the data list and raises `TestError` if that list is empty. See [`checkSupport`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L179-L191).
 2. Data construction queries `VkPhysicalDeviceProperties` from the active physical device. The queried `vendorID` and `deviceID` form the baseline for default records and the matching keys for vendor records. See [`readIDsFromDevice`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L71-L81).
-3. The selected record is copied into `VkApplicationParametersEXT`. Instance tests reach it through `VkApplicationInfo`; device tests put it in `VkDeviceCreateInfo.pNext`. The device path also creates the prerequisite custom instance and surrounding queue/SC structures. See [`vktApplicationParametersTests.cpp#L199-L234`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L199-L234) and [`vktApplicationParametersTests.cpp#L266-L292`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L266-L292).
-4. Each creation call's returned `VkResult` is compared directly to `testData.expectedResult`. A mismatch marks the aggregate test as failed, while all matching records return `Pass`. The implementation continues through the available records rather than returning at the first mismatch. See [`vktApplicationParametersTests.cpp#L239-L254`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L239-L254) and [`vktApplicationParametersTests.cpp#L307-L319`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L307-L319).
+3. The selected record is copied into `VkApplicationParametersEXT`. Instance tests reach it through `VkApplicationInfo`; device tests put it in `VkDeviceCreateInfo.pNext`. The device path also creates the prerequisite custom instance and surrounding queue/SC structures. See [`createDeviceTest()`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L199-L234) and [`createInstanceTest()`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L266-L292).
+4. Each creation call's returned `VkResult` is compared directly to `testData.expectedResult`. A mismatch marks the aggregate test as failed, while all matching records return `Pass`. The implementation continues through the available records rather than returning at the first mismatch. See [`createDeviceTest()`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L239-L254) and [`createInstanceTest()`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L307-L319).
 
 These outcomes have different meanings:
 
@@ -118,13 +118,13 @@ These outcomes have different meanings:
 
 ### Requirement-based pruning
 
-- Every registered leaf first requires `VK_EXT_application_parameters`. Missing support stops the case with `NotSupportedError`, so no creation call is made. See [`vktApplicationParametersTests.cpp#L181-L185`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L181-L185).
+- Every registered leaf first requires `VK_EXT_application_parameters`. Missing support stops the case with `NotSupportedError`, so no creation call is made. See [`checkSupport()`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L181-L185).
 
 ### Design-based pruning
 
-- `getTestDataList` always adds one default record for the three default-defined scenarios (`invalid_vendor_id`, `invalid_device_id`, and `invalid_parameter_key`). It deliberately does not add a default record for `invalid_parameter_value` or `valid`. See [`vktApplicationParametersTests.cpp#L120-L165`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L120-L165).
-- Vendor records are added only when creation target and scenario match, the vendor ID equals the active physical device's vendor ID, and the vendor device ID is either zero (wildcard) or equals the active device ID. See [`vktApplicationParametersTests.cpp#L166-L174`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L166-L174).
-- If filtering leaves no record, `checkSupport` raises `TestError` with `No test data available - please update vendorTestDataList`. This is not a valid way to obtain a pass and should not be described as ordinary pruning or unsupported-extension behavior. See [`vktApplicationParametersTests.cpp#L187-L190`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L187-L190).
+- `getTestDataList` always adds one default record for the three default-defined scenarios (`invalid_vendor_id`, `invalid_device_id`, and `invalid_parameter_key`). It deliberately does not add a default record for `invalid_parameter_value` or `valid`. See [`getTestDataList()`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L120-L165).
+- Vendor records are added only when creation target and scenario match, the vendor ID equals the active physical device's vendor ID, and the vendor device ID is either zero (wildcard) or equals the active device ID. See [`getTestDataList()`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L166-L174).
+- If filtering leaves no record, `checkSupport` raises `TestError` with `No test data available - please update vendorTestDataList`. This is not a valid way to obtain a pass and should not be described as ordinary pruning or unsupported-extension behavior. See [`checkSupport()`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L187-L190).
 - The default matrix does not enumerate arbitrary identities, keys, values, or combinations. Such coverage requires explicit vendor data; the page should not infer universal valid values from the disabled example block.
 
 ## Key Takeaways
@@ -140,11 +140,11 @@ These outcomes have different meanings:
 | Source | Relevant lines | Purpose |
 |---|---:|---|
 | [`vktApplicationParametersTests.cpp`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L40-L117) | 40–117 | Test dimensions, record fields, queried IDs, default invalid records, and expected results. |
-| [`vktApplicationParametersTests.cpp`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L120-L176) | 120–176 | Vendor-data hook and filtering rules. |
-| [`vktApplicationParametersTests.cpp`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L179-L191) | 179–191 | Extension support and empty-data handling. |
-| [`vktApplicationParametersTests.cpp`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L193-L255) | 193–255 | Device creation setup, call, logging, and result aggregation. |
-| [`vktApplicationParametersTests.cpp`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L257-L319) | 257–319 | Instance creation setup, cleanup, call, and result aggregation. |
-| [`vktApplicationParametersTests.cpp`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L322-L359) | 322–359 | Exact root, group, and leaf registration. |
+| [`getTestDataList()`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L120-L176) | 120–176 | Vendor-data hook and filtering rules. |
+| [`checkSupport`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L179-L191) | 179–191 | Extension support and empty-data handling. |
+| [`createDeviceTest`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L193-L255) | 193–255 | Device creation setup, call, logging, and result aggregation. |
+| [`createInstanceTest`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L257-L319) | 257–319 | Instance creation setup, cleanup, call, and result aggregation. |
+| [`createApplicationParametersTests`](../../../modules/vulkan/sc/vktApplicationParametersTests.cpp#L322-L359) | 322–359 | Exact root, group, and leaf registration. |
 | [`vktSafetyCriticalTests.cpp`](../../../modules/vulkan/sc/vktSafetyCriticalTests.cpp#L45-L64) | 45–64 | Places `application_parameters` under the `sc` root. |
 | [`sc.txt`](../../../mustpass/main/vksc-default/sc.txt#L7-L16) | 7–16 | Confirms the ten default mustpass paths. |
 | [`initialization.adoc`](../../../../vulkan-docs/src/chapters/initialization.adoc#L923-L996) | 923–996 | Extension structure and creation-time semantics. |

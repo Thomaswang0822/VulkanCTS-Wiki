@@ -21,7 +21,7 @@ sc.pipeline_cache
 └── incorrect_device_id
 ```
 
-The family factory registers exactly these two leaves with `addFunctionCaseWithPrograms()` ([family registration](../../../modules/vulkan/sc/vktPipelineCacheSCTests.cpp#L365-L382)); the `sc` category wiring places the family below the safety-critical root ([category wiring](../../../modules/vulkan/sc/vktSafetyCriticalTests.cpp#L45-L65)). The default mustpass contains both executable paths at [sc.txt#L148-L149](../../../mustpass/main/vksc-default/sc.txt#L148-L149).
+The family factory registers exactly these two leaves with `addFunctionCaseWithPrograms()` ([family registration](../../../modules/vulkan/sc/vktPipelineCacheSCTests.cpp#L365-L382)); the `sc` category wiring places the family below the safety-critical root ([category wiring](../../../modules/vulkan/sc/vktSafetyCriticalTests.cpp#L45-L65)). The default mustpass contains both executable paths at [Sc](../../../mustpass/main/vksc-default/sc.txt#L148-L149).
 
 ## Parameter Dimensions and Observed Values
 
@@ -107,11 +107,11 @@ A failure before the result assertion can instead indicate cache-resource acquis
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| SC category wiring | [vktSafetyCriticalTests.cpp#L45-L65](../../../modules/vulkan/sc/vktSafetyCriticalTests.cpp#L45-L65) | Places `pipeline_cache` below `sc`. |
-| Shader callback | [vktPipelineCacheSCTests.cpp#L61-L101](../../../modules/vulkan/sc/vktPipelineCacheSCTests.cpp#L61-L101) | Defines setup-only GLSL programs. |
-| Parent cache seeding | [vktPipelineCacheSCTests.cpp#L103-L232](../../../modules/vulkan/sc/vktPipelineCacheSCTests.cpp#L103-L232) | Creates graphics and compute pipelines without execution. |
-| Cache mutation | [vktPipelineCacheSCTests.cpp#L235-L258](../../../modules/vulkan/sc/vktPipelineCacheSCTests.cpp#L235-L258) | Defines exact vendor/device replacements. |
-| SC ingestion and oracle | [vktPipelineCacheSCTests.cpp#L260-L333](../../../modules/vulkan/sc/vktPipelineCacheSCTests.cpp#L260-L333) | Defines the reservation chain and primary result check. |
-| Direct fallback | [vktPipelineCacheSCTests.cpp#L335-L360](../../../modules/vulkan/sc/vktPipelineCacheSCTests.cpp#L335-L360) | Defines the secondary result check and cleanup. |
-| Family registration | [vktPipelineCacheSCTests.cpp#L365-L382](../../../modules/vulkan/sc/vktPipelineCacheSCTests.cpp#L365-L382) | Defines exact group and leaf names. |
-| Default mustpass | [sc.txt#L148-L149](../../../mustpass/main/vksc-default/sc.txt#L148-L149) | Confirms both default executable paths. |
+| SC category wiring | [category wiring](../../../modules/vulkan/sc/vktSafetyCriticalTests.cpp#L45-L65) | Places `pipeline_cache` below `sc`. |
+| Shader callback | [`createShaders()`](../../../modules/vulkan/sc/vktPipelineCacheSCTests.cpp#L61-L101) | Defines setup-only GLSL programs. |
+| Parent cache seeding | [`createPipelineCacheTest()`](../../../modules/vulkan/sc/vktPipelineCacheSCTests.cpp#L103-L232) | Creates graphics and compute pipelines without execution. |
+| Cache mutation | [mutation switch](../../../modules/vulkan/sc/vktPipelineCacheSCTests.cpp#L235-L258) | Defines exact vendor/device replacements. |
+| SC ingestion and oracle | [device reservation setup](../../../modules/vulkan/sc/vktPipelineCacheSCTests.cpp#L260-L333) | Defines the reservation chain and primary result check. |
+| Direct fallback | [fallback](../../../modules/vulkan/sc/vktPipelineCacheSCTests.cpp#L335-L360) | Defines the secondary result check and cleanup. |
+| Family registration | [factory loop](../../../modules/vulkan/sc/vktPipelineCacheSCTests.cpp#L365-L382) | Defines exact group and leaf names. |
+| Default mustpass | [Default mustpass](../../../mustpass/main/vksc-default/sc.txt#L148-L149) | Confirms both default executable paths. |

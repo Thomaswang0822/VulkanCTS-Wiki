@@ -31,10 +31,10 @@ The `descriptor_set` test family is built by [`createDescriptorSetTests`](../../
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Intermediate node | `descriptor_set_layout_lifetime`, `descriptor_set_layout`, `descriptor_set_layout_binding` | Selects the descriptor-set property under test: deferred lifetime, empty-layout creation, or binding-order spill. | [vktApiDescriptorSetTests.cpp#L666-L670](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L666-L670) |
-| Lifetime pipeline type | `graphics`, `compute` | Selects which pipeline-creation entry point exercises the lifetime property. The two leaves share the same lifetime mechanism. | [vktApiDescriptorSetTests.cpp#L610-L615](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L610-L615) |
-| Empty-layout flags | `0`, `VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR` | Selects whether the empty layout is a normal layout or a push-descriptor layout. | [vktApiDescriptorSetTests.cpp#L626-L632](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L626-L632) |
-| Binding-order case | `update_subsequent_binding`, `layout_binding_order` | Splits the binding-order concept into a host-side functional check and a declarative Amber check. | [vktApiDescriptorSetTests.cpp#L642-L649](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L642-L649) |
+| Intermediate node | `descriptor_set_layout_lifetime`, `descriptor_set_layout`, `descriptor_set_layout_binding` | Selects the descriptor-set property under test: deferred lifetime, empty-layout creation, or binding-order spill. | [Intermediate node](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L666-L670) |
+| Lifetime pipeline type | `graphics`, `compute` | Selects which pipeline-creation entry point exercises the lifetime property. The two leaves share the same lifetime mechanism. | [Lifetime pipeline type](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L610-L615) |
+| Empty-layout flags | `0`, `VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR` | Selects whether the empty layout is a normal layout or a push-descriptor layout. | [Empty-layout flags](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L626-L632) |
+| Binding-order case | `update_subsequent_binding`, `layout_binding_order` | Splits the binding-order concept into a host-side functional check and a declarative Amber check. | [Binding-order case](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L642-L649) |
 
 ## Behavior Parameters
 
@@ -121,16 +121,16 @@ void main (void)
 
 #### Additional Info
 
-- The host supplies the same 4-byte uniform buffer containing `5` through all three `VkDescriptorBufferInfo` entries, so descriptor placement—not differing input data—is what determines whether all outputs become `5` ([source](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L350-L378)).
-- A single write starts at binding 0 with `descriptorCount = 3`; binding 0 has only two elements, while the compatible binding 1 has one, making the third shader read the direct signal for the subsequent-binding update ([source](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L386-L407), [write](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L454-L465)).
-- After dispatch, the host invalidates the result allocation and requires all three integers to equal `5` ([source](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L541-L555)).
+- The host supplies the same 4-byte uniform buffer containing `5` through all three `VkDescriptorBufferInfo` entries, so descriptor placement—not differing input data—is what determines whether all outputs become `5` ([Uniform-buffer descriptor inputs](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L350-L378)).
+- A single write starts at binding 0 with `descriptorCount = 3`; binding 0 has only two elements, while the compatible binding 1 has one, making the third shader read the direct signal for the subsequent-binding update ([Descriptor write across bindings](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L386-L407), [write](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L454-L465)).
+- After dispatch, the host invalidates the result allocation and requires all three integers to equal `5` ([Three-value dispatch result check](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L541-L555)).
 
 #### Parameter Variation Summary
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
-| Binding-order case | `update_subsequent_binding` uses this generated compute shader and host readback. The sibling `layout_binding_order` case instead runs an Amber script, so it does not use this C++ shader builder. | [vktApiDescriptorSetTests.cpp#L637-L650](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L637-L650) |
-| Descriptor bindings within the selected case | Binding 0 is a two-element uniform-buffer array, binding 1 is a single uniform buffer, and binding 2 is the storage result. These fixed declarations mirror the layout that permits the three-descriptor write to cross from binding 0 to binding 1. | [vktApiDescriptorSetTests.cpp#L386-L407](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L386-L407), [shader builder](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L578-L601) |
+| Binding-order case | `update_subsequent_binding` uses this generated compute shader and host readback. The sibling `layout_binding_order` case instead runs an Amber script, so it does not use this C++ shader builder. | [Binding-order case](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L637-L650) |
+| Descriptor bindings within the selected case | Binding 0 is a two-element uniform-buffer array, binding 1 is a single uniform buffer, and binding 2 is the storage result. These fixed declarations mirror the layout that permits the three-descriptor write to cross from binding 0 to binding 1. | [Descriptor write across bindings](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L386-L407), [shader builder](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L578-L601) |
 
 #### SPIR-V
 
@@ -264,8 +264,8 @@ void main (void)
 
 ### Requirement-based pruning
 
-- `descriptor_set_layout.empty_set.push_descriptor` is excluded from the Vulkan SC test set by [`#ifndef CTS_USES_VULKANSC`](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L628-L633) because `VK_KHR_push_descriptor` is not part of Vulkan SC.
-- `descriptor_set_layout_binding.layout_binding_order` is excluded from the Vulkan SC test set by [`#ifndef CTS_USES_VULKANSC`](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L645-L650). Unlike the `push_descriptor` leaf, the source does not document the specific Vulkan SC incompatibility for this Amber case, and the Amber script is not in the working tree.
+- `descriptor_set_layout.empty_set.push_descriptor` is excluded from the Vulkan SC test set by [vktApiDescriptorSetTests.cpp](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L628-L633) because `VK_KHR_push_descriptor` is not part of Vulkan SC.
+- `descriptor_set_layout_binding.layout_binding_order` is excluded from the Vulkan SC test set by [vktApiDescriptorSetTests.cpp](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L645-L650). Unlike the `push_descriptor` leaf, the source does not document the specific Vulkan SC incompatibility for this Amber case, and the Amber script is not in the working tree.
 - The `push_descriptor` leaf additionally self-skips at runtime through `context.requireDeviceFunctionality("VK_KHR_push_descriptor")` if the device does not advertise the extension.
 
 ### Design-based pruning
@@ -286,14 +286,14 @@ void main (void)
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `createDescriptorSetTests` registration | [vktApiDescriptorSetTests.cpp#L664-L672](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L664-L672) | Builds the `descriptor_set` test family and adds the three intermediate nodes. |
-| Parent registration in `createApiTests` | [vktApiTests.cpp#L120-L120](../../../modules/vulkan/api/vktApiTests.cpp#L120-L120) | Adds `createDescriptorSetTests` under the `api` test category. |
-| `createPipelineLayoutDestroyDescriptorSetLayout` | [vktApiDescriptorSetTests.cpp#L50-L67](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L50-L67) | Shared lifetime helper: creates the pipeline layout, then releases the descriptor set layout. |
-| `descriptorSetLayoutLifetimeGraphicsTest` | [vktApiDescriptorSetTests.cpp#L69-L226](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L69-L226) | Graphics lifetime path: creates a render pass, graphics pipeline, framebuffer, and submits a draw. |
-| `descriptorSetLayoutLifetimeComputeTest` | [vktApiDescriptorSetTests.cpp#L228-L306](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L228-L306) | Compute lifetime path: builds a compute pipeline and dispatches a no-op shader. |
-| `emptyDescriptorSetLayoutTest` | [vktApiDescriptorSetTests.cpp#L308-L332](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L308-L332) | Empty-layout creation entry; takes the create flags as a parameter. |
-| `descriptorSetLayoutBindingOrderingTest` | [vktApiDescriptorSetTests.cpp#L334-L556](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L334-L556) | Functional binding-order test: issues the spill write and compares three result slots. |
-| Inline GLSL shader sources | [vktApiDescriptorSetTests.cpp#L559-L601](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L559-L601) | Vertex, compute, and binding-order shaders used by the three shader-bearing leaves. |
-| Empty-set registration | [vktApiDescriptorSetTests.cpp#L620-L635](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L620-L635) | Registers `normal` and `push_descriptor` under `empty_set`; gates `push_descriptor` on Vulkan SC. |
-| Binding-order registration | [vktApiDescriptorSetTests.cpp#L637-L653](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L637-L653) | Registers `update_subsequent_binding` and the Amber `layout_binding_order` case. |
+| `createDescriptorSetTests` registration | [createDescriptorSetTests registration](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L664-L672) | Builds the `descriptor_set` test family and adds the three intermediate nodes. |
+| Parent registration in `createApiTests` | [Parent registration in createApiTests](../../../modules/vulkan/api/vktApiTests.cpp#L120-L120) | Adds `createDescriptorSetTests` under the `api` test category. |
+| `createPipelineLayoutDestroyDescriptorSetLayout` | [createPipelineLayoutDestroyDescriptorSetLayout](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L50-L67) | Shared lifetime helper: creates the pipeline layout, then releases the descriptor set layout. |
+| `descriptorSetLayoutLifetimeGraphicsTest` | [descriptorSetLayoutLifetimeGraphicsTest](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L69-L226) | Graphics lifetime path: creates a render pass, graphics pipeline, framebuffer, and submits a draw. |
+| `descriptorSetLayoutLifetimeComputeTest` | [descriptorSetLayoutLifetimeComputeTest](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L228-L306) | Compute lifetime path: builds a compute pipeline and dispatches a no-op shader. |
+| `emptyDescriptorSetLayoutTest` | [emptyDescriptorSetLayoutTest](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L308-L332) | Empty-layout creation entry; takes the create flags as a parameter. |
+| `descriptorSetLayoutBindingOrderingTest` | [descriptorSetLayoutBindingOrderingTest](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L334-L556) | Functional binding-order test: issues the spill write and compares three result slots. |
+| Inline GLSL shader sources | [Inline GLSL shader sources](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L559-L601) | Vertex, compute, and binding-order shaders used by the three shader-bearing leaves. |
+| Empty-set registration | [Empty-set registration](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L620-L635) | Registers `normal` and `push_descriptor` under `empty_set`; gates `push_descriptor` on Vulkan SC. |
+| Binding-order registration | [Binding-order registration](../../../modules/vulkan/api/vktApiDescriptorSetTests.cpp#L637-L653) | Registers `update_subsequent_binding` and the Amber `layout_binding_order` case. |
 | Mustpass entries | [api.txt](../../../mustpass/main/vk-default/api.txt) | Lists the six registered test case leaves under `dEQP-VK.api.descriptor_set.*`. |

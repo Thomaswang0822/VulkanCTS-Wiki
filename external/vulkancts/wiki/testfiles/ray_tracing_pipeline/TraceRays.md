@@ -24,13 +24,13 @@ ray_tracing_pipeline
 └── trace_rays_indirect2
 ```
 
-The three test families are direct children of the `ray_tracing_pipeline` test category, registered by [createTraceRaysTests](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L1459-L1502), [createTraceRaysMaintenance1Tests](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L1504-L1549), and [createTraceRays2Tests](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L1551-L1593).
+The three test families are direct children of the `ray_tracing_pipeline` test category, registered by [register direct and indirect ray-dispatch cases](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L1459-L1502), [`BufferSourceTypeData()`](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L1504-L1549), and [`BufferSourceTypeData()`](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L1551-L1593).
 
 ## Parameter Dimensions and Observed Values
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Dispatch command | `direct`, `indirect_cpu`, `indirect_gpu` (cmds); `indirect2_cpu`, `indirect2_gpu` (maintenance1); `indirect_cpu`, `indirect_gpu` (indirect2) | Selects which `vkCmdTraceRays*` command is recorded and where its parameters are sourced. This is the primary behavioral axis. | [TraceType enum](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L60-L67) |
+| Dispatch command | `direct`, `indirect_cpu`, `indirect_gpu` (cmds); `indirect2_cpu`, `indirect2_gpu` (maintenance1); `indirect_cpu`, `indirect_gpu` (indirect2) | Selects which `vkCmdTraceRays*` command is recorded and where its parameters are sourced. This is the primary behavioral axis. | [Dispatch command](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L60-L67) |
 | Launch dimensions | `{0,0,0}`, `{0,1,1}`, `{1,0,1}`, `{1,1,0}`, `{8,1,1}`, `{8,8,1}`, `{8,8,8}`, `{11,1,1}`, `{11,13,1}`, `{11,13,5}` (cmds and maintenance1); `{11,17,1}`, `{19,11,2}`, `{23,47,3}`, `{47,19,4}` (indirect2) | Scales the 3D launch volume and the chessboard AS grid. Zero values exercise null dispatch. | [traceDimensions](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L1474-L1477), [extendedTraceDimensions](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L1518-L1524), [indirect2 traceDimensions](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L1565) |
 | Copy style (indirect2 only) | `full_copy`, `partial_copy` | Selects whether the compute shader copies all 12 SBT fields of `VkTraceRaysIndirectCommand2KHR` or only a subset, with the host pre-filling the rest. | [copyStyles](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L1560) |
 | Submit queue (indirect2 only) | `submit_graphics`, `submit_compute` | Selects the queue family (graphics or compute) the indirect2 trace is submitted to. | [submitQueues](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L1562-L1563) |
@@ -141,9 +141,9 @@ void main()
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
-| Dispatch command | The rgen/chit/miss shaders are identical for `direct`, `indirect_cpu`, `indirect_gpu`, `indirect2_cpu`, and `indirect2_gpu`. The dispatch command differs only on the host side. | [dispatch selection](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L776-L791) |
-| Maintenance1 compute shader | The `trace_rays_cmds_maintenance_1` GPU-sourced variant of `compute_indirect_command` copies the 12 extended SBT fields plus dimensions. | [maintenance1 compute shader](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L298-L361) |
-| Indirect2 partial-copy compute shader | The `trace_rays_indirect2` GPU-sourced variant adds a `push_constant uint full` that selects full vs partial field copy. | [indirect2 compute shader](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L934-L997) |
+| Dispatch command | The rgen/chit/miss shaders are identical for `direct`, `indirect_cpu`, `indirect_gpu`, `indirect2_cpu`, and `indirect2_gpu`. The dispatch command differs only on the host side. | [Dispatch command](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L776-L791) |
+| Maintenance1 compute shader | The `trace_rays_cmds_maintenance_1` GPU-sourced variant of `compute_indirect_command` copies the 12 extended SBT fields plus dimensions. | [Maintenance1 compute shader](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L298-L361) |
+| Indirect2 partial-copy compute shader | The `trace_rays_indirect2` GPU-sourced variant adds a `push_constant uint full` that selects full vs partial field copy. | [Indirect2 partial-copy compute shader](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L934-L997) |
 | Launch dimensions | The rgen uses `gl_LaunchIDEXT` directly, so dimensions scale the launch volume without changing shader text. Zero dimensions mean no rgen invocations. | [rgen shader](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L376-L381) |
 
 #### SPIR-V
@@ -270,7 +270,7 @@ Both test classes share the same chessboard scene construction and the same per-
 
 ### Indirect buffer filling
 
-- **CPU-sourced** (`indirect_cpu`, `indirect2_cpu`): the host `deMemcpy`s the parameter struct into a host-visible indirect buffer and flushes it [INDIRECT_CPU / INDIRECT2_CPU fill](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L647-L672). For `trace_rays_indirect2`, `makeIndirectStructAndFlush` assembles the full `VkTraceRaysIndirectCommand2KHR` [struct flush](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L1060-L1121).
+- **CPU-sourced** (`indirect_cpu`, `indirect2_cpu`): the host `deMemcpy`s the parameter struct into a host-visible indirect buffer and flushes it [INDIRECT_CPU / INDIRECT2_CPU fill](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L647-L672). For `trace_rays_indirect2`, `makeIndirectStructAndFlush` assembles the full `VkTraceRaysIndirectCommand2KHR` [`if()`](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L1060-L1121).
 - **GPU-sourced** (`indirect_gpu`, `indirect2_gpu`): the host writes the parameters into a uniform buffer, then records a compute dispatch of `compute_indirect_command` that copies them into the indirect storage buffer. A buffer memory barrier transitions the indirect buffer from `SHADER_WRITE` to `INDIRECT_COMMAND_READ` before the trace [INDIRECT_GPU compute + barrier](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L704-L753). For `trace_rays_indirect2` partial-copy, the host pre-fills some struct fields and the compute shader copies the rest, driven by the `full` push constant [partial-copy compute](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L1342-L1367).
 
 ### Dispatch command selection
@@ -286,7 +286,7 @@ The `trace_rays_indirect2` family always uses `cmdTraceRaysIndirect2` [indirect2
 ### Result copyback and check
 
 - After the trace, a memory barrier (`SHADER_WRITE` -> `TRANSFER_READ`) and `cmdCopyImageToBuffer` copy the 3D image into a host-visible result buffer, followed by a `TRANSFER_WRITE` -> `HOST_READ` barrier [copyback](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L793-L804).
-- The host invalidates and scans every voxel. The expected value is `kHitColorValue` (2) for odd `(x+y+z)`, `kMissColorValue` (1) for even, or `kClearColorValue` (0xFF) for null-dimension cases where no raygen ran [per-voxel check](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L827-L842).
+- The host invalidates and scans every voxel. The expected value is `kHitColorValue` (2) for odd `(x+y+z)`, `kMissColorValue` (1) for even, or `kClearColorValue` (0xFF) for null-dimension cases where no raygen ran [compare each voxel with its hit, miss, or clear value](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L827-L842).
 - Pass condition: `failures == 0`. The `trace_rays_indirect2` pass message also reports the BLAS pool allocation count [indirect2 check](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L1421-L1440).
 
 ## Failure Meaning
@@ -347,9 +347,9 @@ All leaves share the chessboard scene and the per-voxel equality check, so a fai
 
 ### Requirement-based pruning
 
-- `trace_rays_cmds` and `trace_rays_cmds_maintenance_1` require `VK_KHR_acceleration_structure` and `VK_KHR_ray_tracing_pipeline`, with `rayTracingPipeline` and `accelerationStructure` feature bits set [checkSupport](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L254-L293). If `accelerationStructure` is not set, the test throws `TestError`.
+- `trace_rays_cmds` and `trace_rays_cmds_maintenance_1` require `VK_KHR_acceleration_structure` and `VK_KHR_ray_tracing_pipeline`, with `rayTracingPipeline` and `accelerationStructure` feature bits set [`RayTracingTraceRaysIndirectTestInstance()`](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L254-L293). If `accelerationStructure` is not set, the test throws `TestError`.
 - The indirect variants (`indirect_cpu`, `indirect_gpu`) additionally require `rayTracingPipelineTraceRaysIndirect` [indirect feature gate](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L264-L266).
-- The indirect2 variants (`indirect2_cpu`, `indirect2_gpu`) and the `trace_rays_indirect2` family require `VK_KHR_ray_tracing_maintenance1` with `rayTracingMaintenance1` and `rayTracingPipelineTraceRaysIndirect2` set [maintenance1 feature gate](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L268-L285), [indirect2 checkSupport](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L898-L929).
+- The indirect2 variants (`indirect2_cpu`, `indirect2_gpu`) and the `trace_rays_indirect2` family require `VK_KHR_ray_tracing_maintenance1` with `rayTracingMaintenance1` and `rayTracingPipelineTraceRaysIndirect2` set [maintenance1 feature gate](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L268-L285), [`TraceRaysIndirect2Case()`](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L898-L929).
 - The `trace_rays_indirect2` family requires the requested queue family (graphics or compute) to be present; otherwise `checkSupport` throws `NotSupportedError` [queue check](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L919-L928).
 
 ### Design-based pruning
@@ -372,17 +372,17 @@ All leaves share the chessboard scene and the per-voxel equality check, so a fai
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `TraceType` enum | [vktRayTracingTraceRaysTests.cpp#L60-L67](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L60-L67) | Defines the five dispatch variants |
-| `TestParams` / `TestParams2` | [vktRayTracingTraceRaysTests.cpp#L69-L82](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L69-L82) | Parameter structs for the two test classes |
-| rgen / chit / miss shaders | [vktRayTracingTraceRaysTests.cpp#L364-L414](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L364-L414) | The chessboard ray-tracing shaders |
-| compute_indirect_command (maintenance1) | [vktRayTracingTraceRaysTests.cpp#L298-L361](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L298-L361) | GPU-sourced struct copy with extended SBT fields |
-| compute_indirect_command (indirect2) | [vktRayTracingTraceRaysTests.cpp#L934-L997](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L934-L997) | GPU-sourced struct copy with full/partial push constant |
-| checkSupport (cmds + maintenance1) | [vktRayTracingTraceRaysTests.cpp#L254-L293](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L254-L293) | Feature gates for indirect and indirect2 |
-| checkSupport (indirect2) | [vktRayTracingTraceRaysTests.cpp#L898-L929](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L898-L929) | Maintenance1 + indirect2 + queue family support |
-| dispatch command selection | [vktRayTracingTraceRaysTests.cpp#L776-L791](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L776-L791) | Picks `cmdTraceRays` / `cmdTraceRaysIndirect` / `cmdTraceRaysIndirect2KHR` by `traceType` |
-| per-voxel result check | [vktRayTracingTraceRaysTests.cpp#L827-L842](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L827-L842) | Expected-value rule and failures counter |
-| indirect2 partial-copy struct split | [vktRayTracingTraceRaysTests.cpp#L1060-L1121](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L1060-L1121) | `makeIndirectStructAndFlush` full vs partial field split |
-| indirect2 queue selection | [vktRayTracingTraceRaysTests.cpp#L146-L179](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L146-L179) | `getQueueFamilyIndexAtExact` for graphics/compute queue |
-| registration: trace_rays_cmds | [vktRayTracingTraceRaysTests.cpp#L1459-L1502](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L1459-L1502) | `createTraceRaysTests` |
-| registration: trace_rays_cmds_maintenance_1 | [vktRayTracingTraceRaysTests.cpp#L1504-L1549](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L1504-L1549) | `createTraceRaysMaintenance1Tests` |
-| registration: trace_rays_indirect2 | [vktRayTracingTraceRaysTests.cpp#L1551-L1593](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L1551-L1593) | `createTraceRays2Tests` |
+| `TraceType` enum | [define direct and indirect ray-dispatch variants](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L60-L67) | Defines the five dispatch variants |
+| `TestParams` / `TestParams2` | [TestParams / TestParams2](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L69-L82) | Parameter structs for the two test classes |
+| rgen / chit / miss shaders | [rgen / chit / miss shaders](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L364-L414) | The chessboard ray-tracing shaders |
+| compute_indirect_command (maintenance1) | [copy maintenance1 dispatch and SBT fields on the GPU](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L298-L361) | GPU-sourced struct copy with extended SBT fields |
+| compute_indirect_command (indirect2) | [copy full or partial indirect2 commands on the GPU](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L934-L997) | GPU-sourced struct copy with full/partial push constant |
+| checkSupport (cmds + maintenance1) | [check indirect ray-dispatch feature requirements](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L254-L293) | Feature gates for indirect and indirect2 |
+| checkSupport (indirect2) | [check indirect2 features and queue support](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L898-L929) | Maintenance1 + indirect2 + queue family support |
+| dispatch command selection | [select the ray-dispatch command from the trace type](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L776-L791) | Picks `cmdTraceRays` / `cmdTraceRaysIndirect` / `cmdTraceRaysIndirect2KHR` by `traceType` |
+| per-voxel result check | [count mismatches against per-voxel expected values](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L827-L842) | Expected-value rule and failures counter |
+| indirect2 partial-copy struct split | [split indirect2 fields between full and partial copies](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L1060-L1121) | `makeIndirectStructAndFlush` full vs partial field split |
+| indirect2 queue selection | [indirect2 queue selection](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L146-L179) | `getQueueFamilyIndexAtExact` for graphics/compute queue |
+| registration: trace_rays_cmds | [register direct and indirect trace-command cases](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L1459-L1502) | `createTraceRaysTests` |
+| registration: trace_rays_cmds_maintenance_1 | [register maintenance1 trace-command variants](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L1504-L1549) | `createTraceRaysMaintenance1Tests` |
+| registration: trace_rays_indirect2 | [register indirect2 copy and dispatch variants](../../../modules/vulkan/ray_tracing/vktRayTracingTraceRaysTests.cpp#L1551-L1593) | `createTraceRays2Tests` |

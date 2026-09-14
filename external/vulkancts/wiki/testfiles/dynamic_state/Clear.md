@@ -134,12 +134,12 @@ No design-based pruning applies. Each leaf is a single fixed test case with no g
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `DynamicStateClearTests::init()` | [`vktDynamicStateClearTests.cpp#L478`](../../../modules/vulkan/dynamic_state/vktDynamicStateClearTests.cpp#L478) | Registers the four test case leaves under the `image` group |
-| `CmdBaseCase::iterate()` | [`vktDynamicStateClearTests.cpp#L83`](../../../modules/vulkan/dynamic_state/vktDynamicStateClearTests.cpp#L83) | Shared execution flow: set state, run image command, draw, compare |
-| Blend state configuration | [`vktDynamicStateClearTests.cpp#L62-L68`](../../../modules/vulkan/dynamic_state/vktDynamicStateClearTests.cpp#L62) | Sets the `ONE_MINUS_CONSTANT_COLOR` and `ONE_MINUS_CONSTANT_ALPHA` factors |
-| `ClearTestInstance::command()` | [`vktDynamicStateClearTests.cpp#L190`](../../../modules/vulkan/dynamic_state/vktDynamicStateClearTests.cpp#L190) | `vkCmdClearAttachments` inside the render pass |
-| `BlitTestInstance::command()` | [`vktDynamicStateClearTests.cpp#L246`](../../../modules/vulkan/dynamic_state/vktDynamicStateClearTests.cpp#L246) | `vkCmdBlitImage` outside the render pass |
-| `CopyTestInstance::command()` | [`vulkan/dynamic_state/vktDynamicStateClearTests.cpp#L309`](../../../modules/vulkan/dynamic_state/vktDynamicStateClearTests.cpp#L309) | `vkCmdCopyImage` outside the render pass |
-| `ResolveTestInstance::command()` | [`vktDynamicStateClearTests.cpp#L371`](../../../modules/vulkan/dynamic_state/vktDynamicStateClearTests.cpp#L371) | `vkCmdResolveImage` outside the render pass |
-| `checkSupport()` | [`vktDynamicStateClearTests.cpp#L445`](../../../modules/vulkan/dynamic_state/vktDynamicStateClearTests.cpp#L445) | Format and sample count support check |
-| Shared base class | [`vktDynamicStateBaseClass.hpp#L43`](../../../modules/vulkan/dynamic_state/vktDynamicStateBaseClass.hpp#L43) | Provides dynamic state setup, pipeline, render pass, and image infrastructure |
+| `DynamicStateClearTests::init()` | [`DynamicStateClearTests::init()`](../../../modules/vulkan/dynamic_state/vktDynamicStateClearTests.cpp#L478) | Registers the four test case leaves under the `image` group |
+| `CmdBaseCase::iterate()` | [`CmdBaseCase::iterate()`](../../../modules/vulkan/dynamic_state/vktDynamicStateClearTests.cpp#L83) | Shared execution flow: set state, run image command, draw, compare |
+| Blend state configuration | [`CmdBaseCase::CmdBaseCase()`](../../../modules/vulkan/dynamic_state/vktDynamicStateClearTests.cpp#L62) | Sets the `ONE_MINUS_CONSTANT_COLOR` and `ONE_MINUS_CONSTANT_ALPHA` factors |
+| `ClearTestInstance::command()` | [`ClearTestInstance::command(true)`](../../../modules/vulkan/dynamic_state/vktDynamicStateClearTests.cpp#L190) | `vkCmdClearAttachments` inside the render pass |
+| `BlitTestInstance::command()` | [`BlitTestInstance::command(false)`](../../../modules/vulkan/dynamic_state/vktDynamicStateClearTests.cpp#L246) | `vkCmdBlitImage` outside the render pass |
+| `CopyTestInstance::command()` | [`CopyTestInstance::command(false)`](../../../modules/vulkan/dynamic_state/vktDynamicStateClearTests.cpp#L309) | `vkCmdCopyImage` outside the render pass |
+| `ResolveTestInstance::command()` | [`ResolveTestInstance::command(false)`](../../../modules/vulkan/dynamic_state/vktDynamicStateClearTests.cpp#L371) | `vkCmdResolveImage` outside the render pass |
+| `checkSupport()` | [`checkSupport()`](../../../modules/vulkan/dynamic_state/vktDynamicStateClearTests.cpp#L445) | Format and sample count support check |
+| Shared base class | [`DynamicStateBaseClass`](../../../modules/vulkan/dynamic_state/vktDynamicStateBaseClass.hpp#L43) | Provides dynamic state setup, pipeline, render pass, and image infrastructure |

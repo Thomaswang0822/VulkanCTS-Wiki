@@ -9,9 +9,9 @@
 
 ## Background Knowledge
 
-- SPIR-V `OpVariable` can declare a variable with an initializer whose type matches the declared pointer's pointee type. This page focuses on initialization semantics, rather than ordinary host-created descriptor resources. See the Vulkan shader-module requirement for SPIR-V input in [shaders.adoc](../../../../vulkan-docs/src/chapters/shaders.adoc#L1400-L1416).
-- `Private` storage gives each shader invocation its own object. `Workgroup` storage is shared by the invocations in a compute workgroup. The `*_from_workgroup` cases initialize a private pointer, write the composite constant through it, and load the value back through that pointer. Vulkan describes Workgroup storage and its scope in [shaders.adoc](../../../../vulkan-docs/src/chapters/shaders.adoc#L3173-L3217).
-- Shader-stage `Output` variables carry values through the graphics interface. The output cases initialize a vertex output and let the fragment shader read the corresponding input. The interface relationship is described in [interfaces.adoc](../../../../vulkan-docs/src/chapters/interfaces.adoc#L56-L108).
+- SPIR-V `OpVariable` can declare a variable with an initializer whose type matches the declared pointer's pointee type. This page focuses on initialization semantics, rather than ordinary host-created descriptor resources. See the Vulkan shader-module requirement for SPIR-V input in [shaders source](../../../../vulkan-docs/src/chapters/shaders.adoc#L1400-L1416).
+- `Private` storage gives each shader invocation its own object. `Workgroup` storage is shared by the invocations in a compute workgroup. The `*_from_workgroup` cases initialize a private pointer, write the composite constant through it, and load the value back through that pointer. Vulkan describes Workgroup storage and its scope in [shaders source](../../../../vulkan-docs/src/chapters/shaders.adoc#L3173-L3217).
+- Shader-stage `Output` variables carry values through the graphics interface. The output cases initialize a vertex output and let the fragment shader read the corresponding input. The interface relationship is described in [interfaces source](../../../../vulkan-docs/src/chapters/interfaces.adoc#L56-L108).
 
 ## Registration Hierarchy
 
@@ -24,7 +24,7 @@ spirv_assembly.instruction.graphics.variable_init
 └── output
 ```
 
-The source file implements both roots. Their factories are called by the instruction dispatcher in [`vktSpvAsmInstructionTests.cpp`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21399-L21402) and [`vktSpvAsmInstructionTests.cpp`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21498-L21501).
+The source file implements both roots. Their factories are called by the instruction dispatcher in [`createOpExecutionModeTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21399-L21402) and [`createComputeChildren()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmInstructionTests.cpp#L21498-L21501).
 
 ## Parameter Dimensions and Observed Values
 
@@ -193,7 +193,7 @@ This representative case does not use GLSL or HLSL. CTS supplies the shader modu
 
 ## Runtime Execution and Result Checking
 
-- The `variable_init` family now wraps explicit-layout workgroup values in Block-decorated structs before taking pointers, matching `VK_KHR_workgroup_memory_explicit_layout` requirements. See [`vktSpvAsmVariableInitTests.cpp`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L210-L255).
+- The `variable_init` family now wraps explicit-layout workgroup values in Block-decorated structs before taking pointers, matching `VK_KHR_workgroup_memory_explicit_layout` requirements. See [`addComputeVariableInitPrivateTest()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L210-L255).
 - The compute builder allocates a `Float32Buffer` containing 128 values of `1.0f`, specializes one assembly module, requests one workgroup per output element, and registers the case as a `SpvAsmComputeShaderCase`. The output array uses an element stride of `numComponents * 4` bytes. See [`addComputeVariableInitPrivateTest`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L113-L227).
 - Direct compute cases load the `Private` object and write the value at the invocation index. Global-source cases perform the extra pointer and Workgroup operations before the same output write.
 - Graphics-private cases configure one storage-buffer output containing 128 expected `1.0f` values and invoke `createTestsForAllStages()` for each constant-source type. The common graphics runner accepts exact values or up to one ULP of RTZ/RNE difference; for the vertex, tessellation, and geometry variants, its generic fallback also accepts a finite value equal to the expectation plus a non-negative integer. Thus the expected buffer is all ones, but those four stage variants do not enforce exact all-ones readback. See [`addGraphicsVariableInitPrivateTest`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L263-L349) and [graphics-resource comparison](../../../modules/vulkan/spirv_assembly/vktSpvAsmGraphicsShaderTestUtil.cpp#L4719-L4784).
@@ -255,7 +255,7 @@ The common parameter table contains nine entries, but the graphics builders inte
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Parameter table and shared assembly templates | [`vktSpvAsmVariableInitTests.cpp`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L47-L111) | Defines the types, constants, storage-buffer layout, and Workgroup declarations. |
+| Parameter table and shared assembly templates | [Parameter table and shared assembly templates](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L47-L111) | Defines the types, constants, storage-buffer layout, and Workgroup declarations. |
 | Compute-private registration and generator | [`addComputeVariableInitPrivateTest`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L113-L229) | Builds direct and indirect initialization cases and registers nine compute leaves. |
 | Graphics-private registration and generator | [`addGraphicsVariableInitPrivateTest`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L263-L349) | Registers five types across five graphics stages. |
 | Graphics output shader construction | [`addShaderCodeOutput`](../../../modules/vulkan/spirv_assembly/vktSpvAsmVariableInitTests.cpp#L361-L632) | Builds the type-specific vertex and fragment SPIR-V assembly. |

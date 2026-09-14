@@ -2,7 +2,7 @@
 
 **Core question:** Do constant two-dimensional texel offsets move an implicit-LOD texture sample to the requested neighboring texel?
 
-- This page covers the Vulkan-only `texture.texel_offset` test family registered by [`vktTextureTexelOffsetTests.cpp`](../../../modules/vulkan/texture/vktTextureTexelOffsetTests.cpp#L36-L55).
+- This page covers the Vulkan-only `texture.texel_offset` test family registered by [`createTextureTexelOffsetTests()`](../../../modules/vulkan/texture/vktTextureTexelOffsetTests.cpp#L36-L55).
 - The family contains one Amber test case. It writes an x/y coordinate gradient into a 256 by 256 image, samples that image four times with one-texel offsets, and packs the four comparison results into a bit mask.
 - Amber checks the complete 254 by 254 interior of the result image. Every checked pixel must contain red byte `15`, which means all four directional samples reached a neighbor on the expected side of the base coordinate.
 
@@ -126,7 +126,7 @@ void main() {
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|-----------------------------------------|----------|
-| Test case | None. The registration table contains only this recipe and the Amber file contains one tested pipeline. | [registration](../../../modules/vulkan/texture/vktTextureTexelOffsetTests.cpp#L40-L50), [recipe](../../../data/vulkan/amber/texture/texel_offset/texel_offset.amber#L1-L58) |
+| Test case | None. The registration table contains only this recipe and the Amber file contains one tested pipeline. | [`createTextureTexelOffsetTests()`](../../../modules/vulkan/texture/vktTextureTexelOffsetTests.cpp#L40-L50), [recipe](../../../data/vulkan/amber/texture/texel_offset/texel_offset.amber#L1-L58) |
 
 #### SPIR-V
 
@@ -327,7 +327,7 @@ void main() {
 
 ## Runtime Execution and Result Checking
 
-- C++ registers `texel_offset.amber`; the common Amber test case parses it and compiles its inline GLSL to SPIR-V 1.0 ([registration](../../../modules/vulkan/texture/vktTextureTexelOffsetTests.cpp#L40-L50), [Amber compilation](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L435-L499)).
+- C++ registers `texel_offset.amber`; the common Amber test case parses it and compiles its inline GLSL to SPIR-V 1.0 ([`createTextureTexelOffsetTests()`](../../../modules/vulkan/texture/vktTextureTexelOffsetTests.cpp#L40-L50), [Amber compilation](../../../modules/vulkan/amber/vktAmberTestCase.cpp#L435-L499)).
 - Amber creates `texture`, a 256 by 256 `R8G8B8A8_UNORM` image, plus the default nearest sampler. The `setup` graphics pipeline binds `texture` as its color target and draws a full rectangle, filling red with `x/255` and green with `y/255`.
 - The second pipeline binds the same image as a combined image sampler at descriptor set 0, binding 0. It binds a separate `R8G8B8A8_UNORM` buffer named `framebuffer` as the color target and draws another full rectangle.
 - The tested fragment shader writes one mask per pixel. Bit `1` checks negative y, bit `2` positive y, bit `4` negative x, and bit `8` positive x.

@@ -38,7 +38,7 @@ ray_tracing_pipeline.non_uniform_args
 └── miss_cause_6
 ```
 
-The 16 direct children are registered by [createNonUniformArgsTests](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L517-L558). The 10 `chit_*` leaves come from the closest-hit loop over `typeCount` 1 to 4 and `rayType` 0 to `typeCount - 1` ([chit loop](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L522-L539)). The 6 `miss_cause_*` leaves come from the miss loop over `MissCause` values 1 to 6 ([miss loop](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L541-L555)).
+The 16 direct children are registered by [register non-uniform ray-argument cases](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L517-L558). The 10 `chit_*` leaves come from the closest-hit loop over `typeCount` 1 to 4 and `rayType` 0 to `typeCount - 1` ([chit loop](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L522-L539)). The 6 `miss_cause_*` leaves come from the miss loop over `MissCause` values 1 to 6 ([miss loop](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L541-L555)).
 
 ## Parameter Dimensions and Observed Values
 
@@ -47,7 +47,7 @@ The 16 direct children are registered by [createNonUniformArgsTests](../../../mo
 | Leaf group | `chit_*`, `miss_cause_*` | Selects the tested property: closest-hit SBT selection or miss-cause invocation. This is the primary behavioral axis. | [createNonUniformArgsTests](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L517-L558) |
 | Ray type count (`chit`) | `1`, `2`, `3`, `4` | Sets `sbtRecordStride` and the number of closest-hit shaders per geometry. Larger counts exercise deeper SBT layouts. | [chit loop](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L529-L538) |
 | Ray type (`chit`) | `0` to `typeCount - 1` | Sets `sbtRecordOffset`. Selects which of the `typeCount` hit shaders runs for the hit geometry. | [chit loop](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L532-L537) |
-| Miss cause (`miss_cause`) | `1`=FLAGS, `2`=CULL_MASK, `3`=ORIGIN, `4`=TMIN, `5`=DIRECTION, `6`=TMAX | Selects which argument is flipped to a bad value that must force a miss. `missIndex` is `causeIdx - 1`. | [MissCause enum](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L50-L60), [miss loop](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L548-L554) |
+| Miss cause (`miss_cause`) | `1`=FLAGS, `2`=CULL_MASK, `3`=ORIGIN, `4`=TMIN, `5`=DIRECTION, `6`=TMAX | Selects which argument is flipped to a bad value that must force a miss. `missIndex` is `causeIdx - 1`. | [Miss cause (misscause)](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L50-L60), [miss loop](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L548-L554) |
 | Geometry count | 2 (offscreen first, onscreen second) | The hit geometry is always the second one, so `geometryIndex` is 1 and `sbtRecordStride` matters. | [geometries vector](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L291-L293) |
 | SPIR-V target | `spirv1.4` | All generated shaders use `vk::SPIRV_VERSION_1_4`. | [ShaderBuildOptions](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L137) |
 
@@ -139,7 +139,7 @@ void main()
 
 #### Additional Info
 
-- The ray-generation source is shared by all 16 leaves; case-specific buffer contents determine whether traversal reaches a closest-hit or miss shader ([shader generation](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L135-L205), [buffer fill](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L463-L480)).
+- The ray-generation source is shared by all 16 leaves; case-specific buffer contents determine whether traversal reaches a closest-hit or miss shader ([`ArgsBufferData()`](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L135-L205), [initialize valid or miss-inducing ray arguments](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L463-L480)).
 - The ray-generation shader does not write `result.shaderId`; the selected closest-hit or miss shader performs that write, so the result identifies the SBT record that actually executed ([shader generation](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L135-L205)).
 
 #### Parameter Variation Summary
@@ -351,13 +351,13 @@ All leaves share the rgen shader, the `args` buffer layout, the AS construction,
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `MissCause` enum | [vktRayTracingNonUniformArgsTests.cpp#L50-L60](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L50-L60) | Defines the 6 miss causes mapped to `miss_cause_*` leaves |
-| `NonUniformParams` struct | [vktRayTracingNonUniformArgsTests.cpp#L62-L77](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L62-L77) | Per-case parameters: hit `rayTypeCount`/`rayType` or miss `missCause`/`missIndex` |
-| `ArgsBufferData` struct | [vktRayTracingNonUniformArgsTests.cpp#L122-L133](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L122-L133) | Storage buffer layout read by the rgen shader |
-| `initPrograms` | [vktRayTracingNonUniformArgsTests.cpp#L135-L205](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L135-L205) | rgen, chit, and miss shader generation; rgen loads all args from the buffer |
-| `makeMissId` / `makeChitId` | [vktRayTracingNonUniformArgsTests.cpp#L226-L236](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L226-L236) | Build the expected result IDs: `(1<<16)\|index` for miss, `(2<<16)\|index` for chit |
-| `iterate` | [vktRayTracingNonUniformArgsTests.cpp#L238-L513](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L238-L513) | Scene setup, SBT layout, buffer fill, trace, and single-value result check |
-| Good/bad argument constants | [vktRayTracingNonUniformArgsTests.cpp#L251-L274](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L251-L274) | Triangle positions and the good/bad values for each miss cause |
-| Buffer fill | [vktRayTracingNonUniformArgsTests.cpp#L463-L480](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L463-L480) | Selects good or bad value per field based on `MissCause` |
-| Expected value and pass/fail | [vktRayTracingNonUniformArgsTests.cpp#L498-L512](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L498-L512) | `makeChitId`/`makeMissId` comparison and failure message |
-| `createNonUniformArgsTests` | [vktRayTracingNonUniformArgsTests.cpp#L517-L558](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L517-L558) | Registration of the `non_uniform_args` group and its 16 children |
+| `MissCause` enum | [define miss causes for non-uniform ray arguments](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L50-L60) | Defines the 6 miss causes mapped to `miss_cause_*` leaves |
+| `NonUniformParams` struct | [NonUniformParams struct](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L62-L77) | Per-case parameters: hit `rayTypeCount`/`rayType` or miss `missCause`/`missIndex` |
+| `ArgsBufferData` struct | [ArgsBufferData struct](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L122-L133) | Storage buffer layout read by the rgen shader |
+| `initPrograms` | [generate tracing shaders that load arguments from a buffer](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L135-L205) | rgen, chit, and miss shader generation; rgen loads all args from the buffer |
+| `makeMissId` / `makeChitId` | [makeMissId / makeChitId](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L226-L236) | Build the expected result IDs: `(1<<16)\|index` for miss, `(2<<16)\|index` for chit |
+| `iterate` | [iterate](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L238-L513) | Scene setup, SBT layout, buffer fill, trace, and single-value result check |
+| Good/bad argument constants | [Good/bad argument constants](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L251-L274) | Triangle positions and the good/bad values for each miss cause |
+| Buffer fill | [choose valid or miss-inducing argument values](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L463-L480) | Selects good or bad value per field based on `MissCause` |
+| Expected value and pass/fail | [Expected value and pass/fail](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L498-L512) | `makeChitId`/`makeMissId` comparison and failure message |
+| `createNonUniformArgsTests` | [register non-uniform ray-argument cases](../../../modules/vulkan/ray_tracing/vktRayTracingNonUniformArgsTests.cpp#L517-L558) | Registration of the `non_uniform_args` group and its 16 children |

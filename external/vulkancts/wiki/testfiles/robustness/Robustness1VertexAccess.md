@@ -23,7 +23,7 @@ robustness.robustness1_vertex_access
 └── out_of_bounds_stride_8_middle_of_buffer_separate
 ```
 
-The group is created by `createRobustness1VertexAccessTests(testCtx)` and adds the four leaves from `robustness1Tests` [registration](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L202-L210), [factory](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L903-L912). The same four paths are present in the inspected default mustpass list [robustness.txt](../../../mustpass/main/vk-default/robustness.txt#L15026-L15029).
+The group is created by `createRobustness1VertexAccessTests(testCtx)` and adds the four leaves from `robustness1Tests` [`vktRobustness1VertexAccessTests.cpp`](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L202-L210), [Test factory](../../../modules/vulkan/robustness/vktRobustness1VertexAccessTests.cpp#L903-L912). The same four paths are present in the inspected default mustpass list [robustness source](../../../mustpass/main/vk-default/robustness.txt#L15026-L15029).
 
 ## Parameter Dimensions and Observed Values
 

@@ -2,12 +2,12 @@
 
 **Core question:** Does `rayQueryInitializeEXT` honor each of its six non-AS traversal argument slots independently, so that flipping exactly one argument to a value that must make the ray miss all geometry produces zero candidates, while the all-good configuration reports a triangle candidate?
 
-This page covers the `non_uniform_args` test family registered by [vktRayQueryNonUniformArgsTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L375-L391). The file is both the implementation and the registration point for the family.
+This page covers the `non_uniform_args` test family registered by [Non-uniform-argument case registration](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L375-L391). The file is both the implementation and the registration point for the family.
 
-- Seven test case leaves are registered by iterating the `MissCause` enum: one `no_miss` positive control plus six `miss_cause_<i>` leaves, each of which sets exactly one `rayQueryInitializeEXT` argument to a value that must cause the ray to miss every candidate ([vktRayQueryNonUniformArgsTests.cpp:380-L388](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L380-L388)).
-- The host builds a two-triangle BLAS (one offscreen at `z = -5`, one onscreen at `z = +5`) wrapped in one TLAS instance with `cullMask = 0x0F` and `VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR`, then writes the per-case arguments into a `std430` storage buffer consumed by the shader ([vktRayQueryNonUniformArgsTests.cpp:190-L243](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L190-L243)).
-- The shader runs one `local_size_x = 1` compute invocation per case, performs an inline ray query with the buffer-supplied arguments, and stores `1` if a triangle candidate was reported, `2` for an AABB candidate, `3` for any other candidate, or `0` if `rayQueryProceedEXT` never reported a candidate ([vktRayQueryNonUniformArgsTests.cpp:120-L167](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L120-L167)).
-- The host reads one `uint32_t` and expects `1` for `no_miss` and `0` for every `miss_cause_*` leaf ([vktRayQueryNonUniformArgsTests.cpp:355-L370](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L355-L370)).
+- Seven test case leaves are registered by iterating the `MissCause` enum: one `no_miss` positive control plus six `miss_cause_<i>` leaves, each of which sets exactly one `rayQueryInitializeEXT` argument to a value that must cause the ray to miss every candidate ([Miss-cause case generation](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L380-L388)).
+- The host builds a two-triangle BLAS (one offscreen at `z = -5`, one onscreen at `z = +5`) wrapped in one TLAS instance with `cullMask = 0x0F` and `VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR`, then writes the per-case arguments into a `std430` storage buffer consumed by the shader ([Triangle scene and TLAS construction](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L190-L243)).
+- The shader runs one `local_size_x = 1` compute invocation per case, performs an inline ray query with the buffer-supplied arguments, and stores `1` if a triangle candidate was reported, `2` for an AABB candidate, `3` for any other candidate, or `0` if `rayQueryProceedEXT` never reported a candidate ([Argument-buffer shader](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L120-L167)).
+- The host reads one `uint32_t` and expects `1` for `no_miss` and `0` for every `miss_cause_*` leaf ([Expected output verification](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L355-L370)).
 
 ## Background Knowledge
 
@@ -31,17 +31,17 @@ ray_query.non_uniform_args
 └── miss_cause_6
 ```
 
-Each child is a direct test case leaf. There are no intermediate nodes. The seven leaves correspond one-to-one to the seven values of the `MissCause` enum (`NONE`, `FLAGS`, `CULL_MASK`, `ORIGIN`, `TMIN`, `DIRECTION`, `TMAX`); the registered name uses `no_miss` for `NONE` and `miss_cause_<causeIdx>` (the integer enum value) for the rest ([vktRayQueryNonUniformArgsTests.cpp:385-L386](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L385-L386)).
+Each child is a direct test case leaf. There are no intermediate nodes. The seven leaves correspond one-to-one to the seven values of the `MissCause` enum (`NONE`, `FLAGS`, `CULL_MASK`, `ORIGIN`, `TMIN`, `DIRECTION`, `TMAX`); the registered name uses `no_miss` for `NONE` and `miss_cause_<causeIdx>` (the integer enum value) for the rest ([Registered miss-cause names](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L385-L386)).
 
 ## Parameter Dimensions and Observed Values
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| `MissCause` | `NONE`, `FLAGS`, `CULL_MASK`, `ORIGIN`, `TMIN`, `DIRECTION`, `TMAX` | Selects which single `rayQueryInitializeEXT` argument receives a bad value; all other arguments stay at their good values. `NONE` is the all-good positive control. | [vktRayQueryNonUniformArgsTests.cpp:50-L60](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L50-L60) |
-| Geometry | Two triangles: offscreen at `z = -5`, onscreen at `z = +5`, both around `(x = 0, y = 2)` | Only the onscreen triangle is in the path of the good ray; the offscreen triangle sits behind the origin and is never hit. | [vktRayQueryNonUniformArgsTests.cpp:190-L201](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L190-L201) |
-| TLAS instance | One instance, `mask = 0x0F`, identity transform, `VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR` | Face culling is disabled so the `FLAGS` and `CULL_MASK` cases are the only culling-related mechanisms exercised. | [vktRayQueryNonUniformArgsTests.cpp:240-L243](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L240-L243) |
-| Good argument set | `origin = (0, 2, 0)`, `direction = (0, 0, 1)`, `Tmin = 4.0`, `Tmax = 6.0`, `rayFlags = 0`, `cullMask = 0x0F` | Hits the onscreen triangle at distance `5.0`, inside `[4.0, 6.0]`. | [vktRayQueryNonUniformArgsTests.cpp:202-L213](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L202-L213) |
-| Expected output | `1` for `no_miss`, `0` for every `miss_cause_*` | The host requires the positive control to find a triangle candidate and every negative control to find no candidate at all. | [vktRayQueryNonUniformArgsTests.cpp:359](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L359) |
+| `MissCause` | `NONE`, `FLAGS`, `CULL_MASK`, `ORIGIN`, `TMIN`, `DIRECTION`, `TMAX` | Selects which single `rayQueryInitializeEXT` argument receives a bad value; all other arguments stay at their good values. `NONE` is the all-good positive control. | [Miss-cause enum](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L50-L60) |
+| Geometry | Two triangles: offscreen at `z = -5`, onscreen at `z = +5`, both around `(x = 0, y = 2)` | Only the onscreen triangle is in the path of the good ray; the offscreen triangle sits behind the origin and is never hit. | [Test triangles](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L190-L201) |
+| TLAS instance | One instance, `mask = 0x0F`, identity transform, `VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR` | Face culling is disabled so the `FLAGS` and `CULL_MASK` cases are the only culling-related mechanisms exercised. | [TLAS instance setup](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L240-L243) |
+| Good argument set | `origin = (0, 2, 0)`, `direction = (0, 0, 1)`, `Tmin = 4.0`, `Tmax = 6.0`, `rayFlags = 0`, `cullMask = 0x0F` | Hits the onscreen triangle at distance `5.0`, inside `[4.0, 6.0]`. | [Good and bad query arguments](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L202-L213) |
+| Expected output | `1` for `no_miss`, `0` for every `miss_cause_*` | The host requires the positive control to find a triangle candidate and every negative control to find no candidate at all. | [Expected output value](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L359) |
 
 ## Behavior Parameters
 
@@ -170,21 +170,21 @@ void main()
 
 #### Additional Info
 
-- `updateRayTracingGLSL()` is an identity passthrough in this CTS version ([vkRayTracingUtil.hpp:111](../../../framework/vulkan/vkRayTracingUtil.hpp#L111)), so the reconstructed GLSL is the GLSL the host feeds to `glslangValidator`. The build options target `SPIRV_VERSION_1_4` ([vktRayQueryNonUniformArgsTests.cpp:122](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L122)).
+- `updateRayTracingGLSL()` is an identity passthrough in this CTS version ([GLSL identity helper](../../../framework/vulkan/vkRayTracingUtil.hpp#L111)), so the reconstructed GLSL is the GLSL the host feeds to `glslangValidator`. The build options target `SPIRV_VERSION_1_4` ([Shader build options](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L122)).
 - The shader inspects the candidate type (`rayQueryGetIntersectionTypeEXT(rq, false)`, the `false` meaning candidate), not the committed type. With `gl_RayFlagsNoneEXT` and opaque triangle geometry, `proceed` auto-commits the triangle candidate, but the shader never calls `rayQueryConfirmIntersectionEXT` and never reads the committed state.
 - The only candidate intersection types are Triangle and AABB; a generated intersection is a committed type produced after `rayQueryGenerateIntersectionEXT`, not a candidate type. The `else` branch is therefore defensive and unreachable for a valid candidate state. This BLAS has no AABBs, so the host never expects `2` or `3` as output.
-- The host pre-fills the output buffer with byte value `42` before dispatch ([vktRayQueryNonUniformArgsTests.cpp:257-L259](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L257-L259)). If the shader failed to write at all, the host would read `0x2A2A2A2A` and fail; this sentinel is a defensive check, not part of the tested behavior.
+- The host pre-fills the output buffer with byte value `42` before dispatch ([Output sentinel initialization](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L257-L259)). If the shader failed to write at all, the host would read `0x2A2A2A2A` and fail; this sentinel is a defensive check, not part of the tested behavior.
 
 #### Parameter Variation Summary
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|------------------------|----------|
-| `MissCause = FLAGS` | Same shader binary; the host writes `rayFlags = 256` into `args`. The traversal skips triangles, `proceed` returns false immediately, and `candidateFoundVal` stays `0`. | [vktRayQueryNonUniformArgsTests.cpp:333](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L333) |
-| `MissCause = CULL_MASK` | Same shader binary; the host writes `cullMask = 0xF0`. The instance is skipped, `proceed` returns false immediately, and `candidateFoundVal` stays `0`. | [vktRayQueryNonUniformArgsTests.cpp:334](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L334) |
-| `MissCause = ORIGIN` | Same shader binary; the host writes `origin = (0, 8, 0, 0)`. The ray passes above the triangles, no candidate is reported, and `candidateFoundVal` stays `0`. | [vktRayQueryNonUniformArgsTests.cpp:329](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L329) |
-| `MissCause = TMIN` | Same shader binary; the host writes `Tmin = 5.5`. The triangle at `t = 5.0` is below `Tmin`, no candidate is reported, and `candidateFoundVal` stays `0`. | [vktRayQueryNonUniformArgsTests.cpp:331](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L331) |
-| `MissCause = DIRECTION` | Same shader binary; the host writes `direction = (1, 0, 0, 0)`. The ray travels along `+x` and never reaches `z = 5`, no candidate is reported, and `candidateFoundVal` stays `0`. | [vktRayQueryNonUniformArgsTests.cpp:330](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L330) |
-| `MissCause = TMAX` | Same shader binary; the host writes `Tmax = 4.5`. The triangle at `t = 5.0` is above `Tmax`, no candidate is reported, and `candidateFoundVal` stays `0`. | [vktRayQueryNonUniformArgsTests.cpp:332](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L332) |
+| `MissCause = FLAGS` | Same shader binary; the host writes `rayFlags = 256` into `args`. The traversal skips triangles, `proceed` returns false immediately, and `candidateFoundVal` stays `0`. | [Bad ray flags selection](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L333) |
+| `MissCause = CULL_MASK` | Same shader binary; the host writes `cullMask = 0xF0`. The instance is skipped, `proceed` returns false immediately, and `candidateFoundVal` stays `0`. | [Bad cull-mask selection](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L334) |
+| `MissCause = ORIGIN` | Same shader binary; the host writes `origin = (0, 8, 0, 0)`. The ray passes above the triangles, no candidate is reported, and `candidateFoundVal` stays `0`. | [Bad origin selection](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L329) |
+| `MissCause = TMIN` | Same shader binary; the host writes `Tmin = 5.5`. The triangle at `t = 5.0` is below `Tmin`, no candidate is reported, and `candidateFoundVal` stays `0`. | [Bad Tmin selection](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L331) |
+| `MissCause = DIRECTION` | Same shader binary; the host writes `direction = (1, 0, 0, 0)`. The ray travels along `+x` and never reaches `z = 5`, no candidate is reported, and `candidateFoundVal` stays `0`. | [Bad direction selection](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L330) |
+| `MissCause = TMAX` | Same shader binary; the host writes `Tmax = 4.5`. The triangle at `t = 5.0` is above `Tmax`, no candidate is reported, and `candidateFoundVal` stays `0`. | [Bad Tmax selection](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L332) |
 
 #### SPIR-V
 
@@ -347,13 +347,13 @@ void main()
 
 ## Runtime Execution and Result Checking
 
-- **Acceleration-structure build.** The host builds one BLAS with two triangle geometries (offscreen first, onscreen second) and one TLAS instance over it, using `cullMask = 0x0F` and `VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR` ([vktRayQueryNonUniformArgsTests.cpp:222-L243](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L222-L243)).
-- **Input and output buffers.** A host-visible `std430` storage buffer holds the per-case `ArgsBufferData` (origin, direction, Tmin, Tmax, rayFlags, cullMask). A second host-visible storage buffer holds one `uint32_t` output, pre-filled byte-by-byte with `42`, yielding the non-writing sentinel `0x2A2A2A2A` ([vktRayQueryNonUniformArgsTests.cpp:246-L259](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L246-L259)).
-- **Descriptor set.** Binding 0 is the TLAS, binding 1 is the arguments buffer, binding 2 is the result buffer. All three are storage-buffer or acceleration-structure bindings visible to the compute stage ([vktRayQueryNonUniformArgsTests.cpp:262-L296](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L262-L296)).
-- **Per-case argument fill.** The host selects, for each leaf, one field of `ArgsBufferData` to receive its bad value; the other five fields receive their good values. The struct is `deMemcpy`'d into the input buffer and flushed ([vktRayQueryNonUniformArgsTests.cpp:327-L339](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L327-L339)).
-- **Dispatch.** One compute dispatch of `1 x 1 x 1` runs the single invocation that writes the result ([vktRayQueryNonUniformArgsTests.cpp:342-L345](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L342-L345)).
-- **Copyback.** A `SHADER_WRITE -> HOST_READ` memory barrier is recorded before `endCommandBuffer` and `submitCommandsAndWait`. The host invalidates the output allocation and copies one `uint32_t` out ([vktRayQueryNonUniformArgsTests.cpp:347-L358](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L347-L358)).
-- **Pass/fail condition.** The expected value is `1` for `no_miss` and `0` for every `miss_cause_*` leaf. Any other value (including the `0x2A2A2A2A` sentinel, or `2`/`3` from an unexpected candidate state) fails the case with a message naming the observed and expected values ([vktRayQueryNonUniformArgsTests.cpp:359-L370](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L359-L370)).
+- **Acceleration-structure build.** The host builds one BLAS with two triangle geometries (offscreen first, onscreen second) and one TLAS instance over it, using `cullMask = 0x0F` and `VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR` ([Acceleration-structure construction](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L222-L243)).
+- **Input and output buffers.** A host-visible `std430` storage buffer holds the per-case `ArgsBufferData` (origin, direction, Tmin, Tmax, rayFlags, cullMask). A second host-visible storage buffer holds one `uint32_t` output, pre-filled byte-by-byte with `42`, yielding the non-writing sentinel `0x2A2A2A2A` ([Input and output buffer setup](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L246-L259)).
+- **Descriptor set.** Binding 0 is the TLAS, binding 1 is the arguments buffer, binding 2 is the result buffer. All three are storage-buffer or acceleration-structure bindings visible to the compute stage ([Descriptor set setup](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L262-L296)).
+- **Per-case argument fill.** The host selects, for each leaf, one field of `ArgsBufferData` to receive its bad value; the other five fields receive their good values. The struct is `deMemcpy`'d into the input buffer and flushed ([Per-case argument upload](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L327-L339)).
+- **Dispatch.** One compute dispatch of `1 x 1 x 1` runs the single invocation that writes the result ([Compute dispatch](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L342-L345)).
+- **Copyback.** A `SHADER_WRITE -> HOST_READ` memory barrier is recorded before `endCommandBuffer` and `submitCommandsAndWait`. The host invalidates the output allocation and copies one `uint32_t` out ([Output synchronization and readback](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L347-L358)).
+- **Pass/fail condition.** The expected value is `1` for `no_miss` and `0` for every `miss_cause_*` leaf. Any other value (including the `0x2A2A2A2A` sentinel, or `2`/`3` from an unexpected candidate state) fails the case with a message naming the observed and expected values ([Pass/fail output check](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L359-L370)).
 
 ## Failure Meaning
 
@@ -407,7 +407,7 @@ A failure that produces `2`, `3`, or the `0x2A2A2A2A` sentinel instead of the ex
 
 ### Requirement-based pruning
 
-- `VK_KHR_acceleration_structure` and `VK_KHR_ray_query` are required ([vktRayQueryNonUniformArgsTests.cpp:104-L108](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L104-L108)).
+- `VK_KHR_acceleration_structure` and `VK_KHR_ray_query` are required ([Required device extensions](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L104-L108)).
 - The dispatch is compute only; `rayTracingPipeline` is not required.
 
 ### Design-based pruning
@@ -427,12 +427,12 @@ A failure that produces `2`, `3`, or the `0x2A2A2A2A` sentinel instead of the ex
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `MissCause` enum and `NonUniformParams` | [vktRayQueryNonUniformArgsTests.cpp:50-L65](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L50-L65) | Defines the seven-value behavioral axis and the per-case parameter struct. |
-| `ArgsBufferData` struct | [vktRayQueryNonUniformArgsTests.cpp:110-L118](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L110-L118) | The `std430` layout the shader reads; must match the GLSL `ArgumentsBlock`. |
-| `NonUniformArgsCase::checkSupport` | [vktRayQueryNonUniformArgsTests.cpp:104-L108](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L104-L108) | Acceleration-structure and ray-query feature gates. |
-| `NonUniformArgsCase::initPrograms` (compute shader) | [vktRayQueryNonUniformArgsTests.cpp:120-L167](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L120-L167) | The GLSL source the host compiles; identical for all seven leaves. |
-| Geometry and argument constants | [vktRayQueryNonUniformArgsTests.cpp:190-L213](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L190-L213) | The two-triangle scene and the good/bad argument values per miss cause. |
-| `NonUniformArgsInstance::iterate` | [vktRayQueryNonUniformArgsTests.cpp:180-L371](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L180-L371) | AS build, descriptor setup, per-case argument fill, dispatch, copyback, and the `0`/`1` pass-fail check. |
-| Per-case argument fill | [vktRayQueryNonUniformArgsTests.cpp:327-L339](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L327-L339) | Selects the bad value for the active `MissCause` and the good values for the other five fields. |
-| `createNonUniformArgsTests` registration | [vktRayQueryNonUniformArgsTests.cpp:375-L391](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L375-L391) | Iterates `MissCause` and registers the seven test case leaves. |
+| `MissCause` enum and `NonUniformParams` | [Miss-cause parameters](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L50-L65) | Defines the seven-value behavioral axis and the per-case parameter struct. |
+| `ArgsBufferData` struct | [Argument buffer layout](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L110-L118) | The `std430` layout the shader reads; must match the GLSL `ArgumentsBlock`. |
+| `NonUniformArgsCase::checkSupport` | [Required device extensions](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L104-L108) | Acceleration-structure and ray-query feature gates. |
+| `NonUniformArgsCase::initPrograms` (compute shader) | [Argument-buffer shader](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L120-L167) | The GLSL source the host compiles; identical for all seven leaves. |
+| Geometry and argument constants | [Geometry and argument constants](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L190-L213) | The two-triangle scene and the good/bad argument values per miss cause. |
+| `NonUniformArgsInstance::iterate` | [Non-uniform argument execution](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L180-L371) | AS build, descriptor setup, per-case argument fill, dispatch, copyback, and the `0`/`1` pass-fail check. |
+| Per-case argument fill | [Per-case argument upload](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L327-L339) | Selects the bad value for the active `MissCause` and the good values for the other five fields. |
+| `createNonUniformArgsTests` registration | [Non-uniform-argument case registration](../../../modules/vulkan/ray_query/vktRayQueryNonUniformArgsTests.cpp#L375-L391) | Iterates `MissCause` and registers the seven test case leaves. |
 | Vulkan spec: ray traversal | [raytraversal.adoc](../../../../vulkan-docs/src/chapters/raytraversal.adoc) | `rayQueryInitializeEXT` argument semantics, ray flags, cull mask, and `Tmin`/`Tmax` range. |

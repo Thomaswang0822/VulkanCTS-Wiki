@@ -160,13 +160,13 @@ Each leaf is a separate CTS test case with an independent pass/fail status. No s
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Selector enum | [vktShaderObjectApiTests.cpp#L42-L48](../../../modules/vulkan/shader_object/vktShaderObjectApiTests.cpp#L42-L48) | Names the four property and extension checks behind the table-driven leaves. |
-| Custom device and proc-address loop | [vktShaderObjectApiTests.cpp#L63-L168](../../../modules/vulkan/shader_object/vktShaderObjectApiTests.cpp#L63-L168) | Implements `get_device_proc_addr`: single-extension device creation and the 49-command resolution loop. |
-| Command list | [vktShaderObjectApiTests.cpp#L104-L158](../../../modules/vulkan/shader_object/vktShaderObjectApiTests.cpp#L104-L158) | The 49 dynamic-state command names, grouped by source extension. |
-| `get_device_proc_addr` support gate | [vktShaderObjectApiTests.cpp#L187-L190](../../../modules/vulkan/shader_object/vktShaderObjectApiTests.cpp#L187-L190) | Requires `VK_EXT_shader_object`. |
-| Property and extension checks | [vktShaderObjectApiTests.cpp#L210-L311](../../../modules/vulkan/shader_object/vktShaderObjectApiTests.cpp#L210-L311) | Implements the four table-driven leaves: UUID scan, dynamic-rendering dependency, and revision checks. |
-| Per-leaf support gates | [vktShaderObjectApiTests.cpp#L335-L346](../../../modules/vulkan/shader_object/vktShaderObjectApiTests.cpp#L335-L346) | Adds the `VK_EXT_discard_rectangles` and `VK_NV_scissor_exclusive` requirements. |
-| Test family registration | [vktShaderObjectApiTests.cpp#L349-L370](../../../modules/vulkan/shader_object/vktShaderObjectApiTests.cpp#L349-L370) | Builds the `api` group and adds the five leaves. |
-| Category root registration | [vktShaderObjectTests.cpp#L48-L65](../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L48-L65) | Attaches the `api` test family to the `shader_object` test category. |
-| Mustpass entries | [api.txt#L1-L5](../../../mustpass/main/vk-default/shader-object/api.txt#L1-L5) | The five registered leaves in the shader-object mustpass file. |
+| Selector enum | [Selector enum](../../../modules/vulkan/shader_object/vktShaderObjectApiTests.cpp#L42-L48) | Names the four property and extension checks behind the table-driven leaves. |
+| Custom device and proc-address loop | [iterate()](../../../modules/vulkan/shader_object/vktShaderObjectApiTests.cpp#L63-L168) | Implements `get_device_proc_addr`: single-extension device creation and the 49-command resolution loop. |
+| Command list | [command list](../../../modules/vulkan/shader_object/vktShaderObjectApiTests.cpp#L104-L158) | The 49 dynamic-state command names, grouped by source extension. |
+| `get_device_proc_addr` support gate | [support gate](../../../modules/vulkan/shader_object/vktShaderObjectApiTests.cpp#L187-L190) | Requires `VK_EXT_shader_object`. |
+| Property and extension checks | [`ShaderObjectExtensionVersionInstance::iterate()`](../../../modules/vulkan/shader_object/vktShaderObjectApiTests.cpp#L210-L311) | Implements the four table-driven leaves: UUID scan, dynamic-rendering dependency, and revision checks. |
+| Per-leaf support gates | [support gates](../../../modules/vulkan/shader_object/vktShaderObjectApiTests.cpp#L335-L346) | Adds the `VK_EXT_discard_rectangles` and `VK_NV_scissor_exclusive` requirements. |
+| Test family registration | [registration](../../../modules/vulkan/shader_object/vktShaderObjectApiTests.cpp#L349-L370) | Builds the `api` group and adds the five leaves. |
+| Category root registration | [`createTests()`](../../../modules/vulkan/shader_object/vktShaderObjectTests.cpp#L48-L65) | Attaches the `api` test family to the `shader_object` test category. |
+| Mustpass entries | [Shader-object API mustpass cases](../../../mustpass/main/vk-default/shader-object/api.txt#L1-L5) | The five registered leaves in the shader-object mustpass file. |
 | Mustpass inclusion and exclusion | [main.txt](../../../mustpass/main/src/main.txt), [excluded-tests.txt](../../../mustpass/main/src/excluded-tests.txt) | The `dEQP-VK.*` wildcard includes this test family; only `shader_object.performance` is excluded. |

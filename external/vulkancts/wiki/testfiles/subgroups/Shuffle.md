@@ -176,7 +176,7 @@ void main (void)
 
 #### Additional Info
 
-- The exact case is registered in the Vulkan default subgroup mustpass list at [`subgroups.txt#L39667`](../../../mustpass/main/vk-default/subgroups.txt#L39667).
+- The exact case is registered in the Vulkan default subgroup mustpass list at [Mustpass registration](../../../mustpass/main/vk-default/subgroups.txt#L39667).
 - `initPrograms()` selects SPIR-V 1.3 for this compute case and delegates final compute-shader assembly to `initStdPrograms()`.
 
 #### Parameter Variation Summary

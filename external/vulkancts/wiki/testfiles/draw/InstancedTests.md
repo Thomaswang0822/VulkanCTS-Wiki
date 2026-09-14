@@ -1093,18 +1093,18 @@ Tests with `VK_EXT_vertex_input_dynamic_state` enabled, using `vkCmdSetVertexInp
 
 | Requirement | Condition | Source |
 |-------------|-----------|--------|
-| `VK_EXT_vertex_attribute_divisor` | When `testAttribDivisor == ATTRIBUTE_DIVISOR_EXT` | [vktDrawInstancedTests.cpp#L365-L366](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L365-L366) |
-| `vertexAttributeInstanceRateDivisor` feature | When divisor != 1 and using EXT or KHR | [vktDrawInstancedTests.cpp#L370-L371](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L370-L371), [vktDrawInstancedTests.cpp#L390-L391](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L390-L391) |
-| `vertexAttributeInstanceRateZeroDivisor` feature | When divisor == 0 and using EXT or KHR | [vktDrawInstancedTests.cpp#L373-L374](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L373-L374), [vktDrawInstancedTests.cpp#L393-L394](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L393-L394) |
-| `supportsNonZeroFirstInstance` property | When using EXT or KHR divisor | [vktDrawInstancedTests.cpp#L380-L381](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L380-L381), [vktDrawInstancedTests.cpp#L398-L399](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L398-L399) |
-| `VK_KHR_vertex_attribute_divisor` | When `testAttribDivisor == ATTRIBUTE_DIVISOR_KHR` | [vktDrawInstancedTests.cpp#L384-L385](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L384-L385) |
-| `VK_KHR_multiview` | When `testMultiview` is true | [vktDrawInstancedTests.cpp#L403-L404](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L403-L404) |
-| `multiview` feature | When `testMultiview` is true | [vktDrawInstancedTests.cpp#L407-L409](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L407-L409) |
-| `VK_KHR_dynamic_rendering` | When using dynamic rendering variant | [vktDrawInstancedTests.cpp#L414-L415](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L414-L415) |
-| `triangleFans` portability feature | When topology is `TRIANGLE_FAN` and portability subset is present | [vktDrawInstancedTests.cpp#L417-L423](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L417-L423) |
-| `VK_EXT_vertex_input_dynamic_state` | When `dynamicState` is true | [vktDrawInstancedTests.cpp#L359-L362](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L359-L362) |
-| `VK_KHR_maintenance5` | When `useMaintenance5Ext` is true | [vktDrawInstancedTests.cpp#L425-L426](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L425-L426) |
-| `VK_KHR_device_address_commands` | When `useDeviceAddressCommands` is true | [vktDrawInstancedTests.cpp#L428-L429](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L428-L429) |
+| `VK_EXT_vertex_attribute_divisor` | When `testAttribDivisor == ATTRIBUTE_DIVISOR_EXT` | [`InstancedDrawCase::checkSupport()`](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L365-L366) |
+| `vertexAttributeInstanceRateDivisor` feature | When divisor != 1 and using EXT or KHR | [`InstancedDrawCase::checkSupport()`](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L370-L371), [`InstancedDrawCase::checkSupport()`](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L390-L391) |
+| `vertexAttributeInstanceRateZeroDivisor` feature | When divisor == 0 and using EXT or KHR | [`InstancedDrawCase::checkSupport()`](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L373-L374), [`InstancedDrawCase::checkSupport()`](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L393-L394) |
+| `supportsNonZeroFirstInstance` property | When using EXT or KHR divisor | [`InstancedDrawCase::checkSupport()`](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L380-L381), [`InstancedDrawCase::checkSupport()`](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L398-L399) |
+| `VK_KHR_vertex_attribute_divisor` | When `testAttribDivisor == ATTRIBUTE_DIVISOR_KHR` | [`InstancedDrawCase::checkSupport()`](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L384-L385) |
+| `VK_KHR_multiview` | When `testMultiview` is true | [`InstancedDrawCase::checkSupport()`](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L403-L404) |
+| `multiview` feature | When `testMultiview` is true | [`InstancedDrawCase::checkSupport()`](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L407-L409) |
+| `VK_KHR_dynamic_rendering` | When using dynamic rendering variant | [`InstancedDrawCase::checkSupport()`](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L414-L415) |
+| `triangleFans` portability feature | When topology is `TRIANGLE_FAN` and portability subset is present | [`InstancedDrawCase::checkSupport()`](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L417-L423) |
+| `VK_EXT_vertex_input_dynamic_state` | When `dynamicState` is true | [`InstancedDrawCase::checkSupport()`](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L359-L362) |
+| `VK_KHR_maintenance5` | When `useMaintenance5Ext` is true | [`InstancedDrawCase::checkSupport()`](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L425-L426) |
+| `VK_KHR_device_address_commands` | When `useDeviceAddressCommands` is true | [`InstancedDrawCase::checkSupport()`](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L428-L429) |
 
 ## Shader Analysis
 
@@ -1174,18 +1174,18 @@ void main() {
 
 #### Additional Info
 
-- The push-constant range is vertex-stage-only, starts at offset 0, and is exactly two `float` values; `draw()` uploads `{ firstInstance, instanceCount }` before issuing the draw ([vktDrawInstancedTests.cpp#L459-L466](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L459-L466), [vktDrawInstancedTests.cpp#L1099-L1102](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L1099-L1102)).
-- In this baseline case, binding 0 has vertex rate and a `VertexPositionAndColor` stride, while binding 1 has instance rate and a `vec4` stride; attribute 2 reads the instance color at offset 0 ([vktDrawInstancedTests.cpp#L535-L561](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L535-L561)).
+- The push-constant range is vertex-stage-only, starts at offset 0, and is exactly two `float` values; `draw()` uploads `{ firstInstance, instanceCount }` before issuing the draw ([`InstancedDrawInstance::InstancedDrawInstance()`](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L459-L466), [`InstancedDrawInstance::draw()`](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L1099-L1102)).
+- In this baseline case, binding 0 has vertex rate and a `VertexPositionAndColor` stride, while binding 1 has instance rate and a `vec4` stride; attribute 2 reads the instance color at offset 0 ([`InstancedDrawInstance::InstancedDrawInstance()`](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L535-L561)).
 
 #### Parameter Variation Summary
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|---------------------------------------|----------|
-| `instanceCount` / `firstInstance` | The shader source is unchanged; runtime push-constant values alter horizontal spacing and the absolute-index color term. | [vktDrawInstancedTests.cpp#L638-L671](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L638-L671) |
-| `FUNCTION_DRAW`, indexed, indirect, indexed-indirect | The generated vertex shader is unchanged; only command recording and optional index/indirect buffers differ. | [vktDrawInstancedTests.cpp#L1135-L1166](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L1135-L1166) |
-| Attribute divisor | The shader declaration is unchanged; the instance-rate fetch for `in_color_2` advances according to the selected binding divisor. | [vktDrawInstancedTests.cpp#L567-L573](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L567-L573) |
-| `dynamicState` | The shader declaration and code are unchanged; vertex binding and attribute descriptions are supplied at draw time instead of pipeline creation. | [vktDrawInstancedTests.cpp#L600-L611](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L600-L611), [vktDrawInstancedTests.cpp#L1104-L1133](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L1104-L1133) |
-| `testMultiview` | The shader is unchanged; the same vertex invocation and output are broadcast through view mask `0x3` to two layers. | [vktDrawInstancedTests.cpp#L468-L483](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L468-L483), [vktDrawInstancedTests.cpp#L622-L628](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L622-L628) |
+| `instanceCount` / `firstInstance` | The shader source is unchanged; runtime push-constant values alter horizontal spacing and the absolute-index color term. | [`InstancedDrawInstance::iterate()`](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L638-L671) |
+| `FUNCTION_DRAW`, indexed, indirect, indexed-indirect | The generated vertex shader is unchanged; only command recording and optional index/indirect buffers differ. | [`InstancedDrawInstance::draw()`](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L1135-L1166) |
+| Attribute divisor | The shader declaration is unchanged; the instance-rate fetch for `in_color_2` advances according to the selected binding divisor. | [`InstancedDrawInstance::InstancedDrawInstance()`](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L567-L573) |
+| `dynamicState` | The shader declaration and code are unchanged; vertex binding and attribute descriptions are supplied at draw time instead of pipeline creation. | [`InstancedDrawInstance::InstancedDrawInstance()`](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L600-L611), [`InstancedDrawInstance::draw()`](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L1104-L1133) |
+| `testMultiview` | The shader is unchanged; the same vertex invocation and output are broadcast through view mask `0x3` to two layers. | [`InstancedDrawInstance::InstancedDrawInstance()`](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L468-L483), [`InstancedDrawInstance::InstancedDrawInstance()`](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L622-L628) |
 
 #### SPIR-V
 
@@ -1296,8 +1296,8 @@ void main() {
 
 ## Runtime Execution and Result Checking
 
-- **Fuzzy image comparison against software reference renderer**: A reference image is generated using the software renderer (`rr::Renderer`) with a custom vertex shader (`TestVertShader` at [vktDrawInstancedTests.cpp#L191-L228](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L191-L228)) that applies the same per-instance offset and color computation as the GPU shader. The rendered output is compared using `tcu::fuzzyCompare` with a threshold of 0.05 for non-point topologies at [vktDrawInstancedTests.cpp#L883-L885](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L883-L885), and `tcu::intThresholdPositionDeviationCompare` with a color threshold of 4 and position deviation of (1,1,0) for point lists at [vktDrawInstancedTests.cpp#L871-L876](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L871-L876).
-- **Multiview layer-by-layer comparison**: When multiview is enabled, each layer is read and compared independently against the same reference image at [vktDrawInstancedTests.cpp#L857-L887](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L857-L887).
+- **Fuzzy image comparison against software reference renderer**: A reference image is generated using the software renderer (`rr::Renderer`) with a custom vertex shader (`TestVertShader` at [`vktDrawInstancedTests.cpp`](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L191-L228)) that applies the same per-instance offset and color computation as the GPU shader. The rendered output is compared using `tcu::fuzzyCompare` with a threshold of 0.05 for non-point topologies at [`InstancedDrawInstance::iterate()`](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L883-L885), and `tcu::intThresholdPositionDeviationCompare` with a color threshold of 4 and position deviation of (1,1,0) for point lists at [`InstancedDrawInstance::iterate()`](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L871-L876).
+- **Multiview layer-by-layer comparison**: When multiview is enabled, each layer is read and compared independently against the same reference image at [`InstancedDrawInstance::iterate()`](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L857-L887).
 
 ## Failure Meaning
 
@@ -1342,10 +1342,10 @@ The generator intentionally reduces combinations for secondary-command-buffer pa
 
 ## Source Reference Appendix
 
-- Test names are generated dynamically by the `operator<<` overload for `TestParams` at [vktDrawInstancedTests.cpp#L103-L139](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L103-L139), encoding the draw function, topology, divisor extension/value, and multiview status.
-- The vertex shader uses `gl_InstanceIndex` with push constants for `firstInstance` and `instanceCount` to compute per-instance offsets at [vktDrawInstancedTests.cpp#L326-L345](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L326-L345).
-- Test count is reduced for dynamic rendering with secondary command buffers by skipping certain topology and divisor combinations at [vktDrawInstancedTests.cpp#L1238-L1241](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L1238-L1241) and [vktDrawInstancedTests.cpp#L1248-L1251](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L1248-L1251).
-- When `ATTRIBUTE_DIVISOR_NONE` is used, only divisor value 1 is tested (no divisor extension available) at [vktDrawInstancedTests.cpp#L1256-L1257](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L1256-L1257).
-- Multiview tests are only generated when vertex attribute divisor is `ATTRIBUTE_DIVISOR_NONE` to avoid excessive test count at [vktDrawInstancedTests.cpp#L1272-L1273](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L1272-L1273).
-- The reference renderer treats divisor 0 as per-vertex; `INT_MAX` is used instead for the reference at [vktDrawInstancedTests.cpp#L830-L833](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L830-L833).
-- Device address command tests mix and match old and new binding commands based on `(topology + attribDivisor) % 3` at [vktDrawInstancedTests.cpp#L1028-L1031](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L1028-L1031).
+- Test names are generated dynamically by the `operator<<` overload for `TestParams` at [`operator<<()`](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L103-L139), encoding the draw function, topology, divisor extension/value, and multiview status.
+- The vertex shader uses `gl_InstanceIndex` with push constants for `firstInstance` and `instanceCount` to compute per-instance offsets at [`InstancedDrawCase::InstancedDrawCase()`](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L326-L345).
+- Test count is reduced for dynamic rendering with secondary command buffers by skipping certain topology and divisor combinations at [`InstancedTests::InstancedTests()`](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L1238-L1241) and [`InstancedTests::InstancedTests()`](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L1248-L1251).
+- When `ATTRIBUTE_DIVISOR_NONE` is used, only divisor value 1 is tested (no divisor extension available) at [`InstancedTests::InstancedTests()`](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L1256-L1257).
+- Multiview tests are only generated when vertex attribute divisor is `ATTRIBUTE_DIVISOR_NONE` to avoid excessive test count at [`InstancedTests::InstancedTests()`](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L1272-L1273).
+- The reference renderer treats divisor 0 as per-vertex; `INT_MAX` is used instead for the reference at [`InstancedDrawInstance::iterate()`](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L830-L833).
+- Device address command tests mix and match old and new binding commands based on `(topology + attribDivisor) % 3` at [`InstancedDrawInstance::draw()`](../../../modules/vulkan/draw/vktDrawInstancedTests.cpp#L1028-L1031).

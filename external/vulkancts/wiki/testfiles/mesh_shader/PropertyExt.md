@@ -2,7 +2,7 @@
 
 **Core question:** Does an implementation that exposes `VK_EXT_mesh_shader` report legal property values and execute mesh or task shaders at the boundary sizes derived from those values?
 
-- [`vktMeshShaderPropertyTestsEXT.cpp`](../../../modules/vulkan/mesh_shader/vktMeshShaderPropertyTestsEXT.cpp#L2429-L2543) registers the `properties` test family and implements its limit, payload, shared-memory, multiview, layer, output-count, output-component, and output-memory checks.
+- [`createMeshShaderPropertyTestsEXT()`](../../../modules/vulkan/mesh_shader/vktMeshShaderPropertyTestsEXT.cpp#L2429-L2543) registers the `properties` test family and implements its limit, payload, shared-memory, multiview, layer, output-count, output-component, and output-memory checks.
 - The source contains one query-only child, `limits`, and shader-backed children that use device properties to choose legal specialization-constant sizes and output budgets.
 - The Vulkan default mustpass contains 30 exact leaves for this family at [`mesh-shader.txt`](../../../mustpass/main/vk-default/mesh-shader.txt#L2025-L2054).
 

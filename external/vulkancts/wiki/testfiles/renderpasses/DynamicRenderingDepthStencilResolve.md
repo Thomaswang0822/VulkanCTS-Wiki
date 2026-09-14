@@ -6,7 +6,7 @@
   [vktDynamicRenderingDepthStencilResolveTests.cpp](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp).
 - The family is registered under the `dynamic_rendering` test category, attached to each of the three
   dynamic-rendering intermediate nodes (`primary_cmd_buff`, `partial_secondary_cmd_buff`, and
-  `complete_secondary_cmd_buff`) by [vktRenderPassTests.cpp#L8527](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8527).
+  `complete_secondary_cmd_buff`) by [Render-pass dispatcher registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8527).
   It is not registered under `graphics_pipeline_library`, and it is excluded from Vulkan SC builds.
 - Each case renders a fullscreen quad into a multisampled depth/stencil image, lets the dynamic rendering
   `VkRenderingAttachmentInfo` resolve step reduce it to a single-sample image using a chosen depth and stencil
@@ -52,7 +52,7 @@ renderpasses.dynamic_rendering.primary_cmd_buff.depth_stencil_resolve
 The `depth_stencil_resolve` test family is created by
 [createDynamicRenderingDepthStencilResolveTests](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L1926-L1931)
 and attached under each of the three dynamic-rendering intermediate nodes at
-[vktRenderPassTests.cpp#L8527](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8527). The tree above uses
+[Render-pass dispatcher registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8527). The tree above uses
 `primary_cmd_buff` as the representative path; the same `depth_stencil_resolve` subtree appears identically under
 `partial_secondary_cmd_buff` and `complete_secondary_cmd_buff`. The family is not registered under
 `graphics_pipeline_library`, and it is excluded from Vulkan SC builds. The three intermediate nodes share the same
@@ -453,7 +453,7 @@ layout transition that triggers an implicit clear) would produce this symptom.
   `getPhysicalDeviceImageFormatProperties`; otherwise the case throws `NotSupportedError`
   ([format/sample/layer checks](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L1256-L1283)).
 - The whole family is excluded from Vulkan SC builds (`#ifndef CTS_USES_VULKANSC` around the dynamic-rendering
-  registration block in [vktRenderPassTests.cpp#L8521-L8548](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8521-L8548)).
+  registration block in [Render-pass dispatcher registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8521-L8548)).
 
 ### Design-based pruning
 
@@ -466,11 +466,11 @@ layout transition that triggers an implicit clear) would produce this symptom.
   ([L1815-L1823](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L1815-L1823)).
 - The `testing_pushconsts` variant is emitted only for depth-only formats with `depth_average_stencil_none` and only
   when secondary command buffers are not in use
-  ([L1885-L1886](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L1885-L1886)).
+  ([guard](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L1885-L1886)).
 - The family is registered under `primary_cmd_buff`, `partial_secondary_cmd_buff`, and
   `complete_secondary_cmd_buff` but not under `graphics_pipeline_library`, because the registration is gated on
   monolithic pipeline construction
-  ([vktRenderPassTests.cpp#L8524-L8525](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8524-L8525)).
+  ([Render-pass dispatcher registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8524-L8525)).
 
 ## Key Takeaways
 
@@ -492,15 +492,15 @@ layout transition that triggers an implicit clear) would produce this symptom.
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Test family factory | [vktDynamicRenderingDepthStencilResolveTests.cpp#L1926-L1931](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L1926-L1931) | Creates the `depth_stencil_resolve` group and calls `initTests` to populate it. |
-| Case creation loop | [vktDynamicRenderingDepthStencilResolveTests.cpp#L1692-L1922](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L1692-L1922) | Enumerates sample counts, formats, resolve modes, and tested aspects; applies design-based pruning. |
-| Expected-value tables | [vktDynamicRenderingDepthStencilResolveTests.cpp#L1744-L1759](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L1744-L1759) | Precomputed depth and stencil resolved values per resolve mode and sample count. |
-| Support checks | [vktDynamicRenderingDepthStencilResolveTests.cpp#L1197-L1284](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L1197-L1284) | Extension, feature, resolve-mode, and image-format requirement checks. |
-| Render pipeline and shaders | [vktDynamicRenderingDepthStencilResolveTests.cpp#L351-L462](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L351-L462) | Builds the graphics pipeline with dynamic rendering `VkPipelineRenderingCreateInfo`. |
-| Shader sources | [vktDynamicRenderingDepthStencilResolveTests.cpp#L1078-L1195](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L1078-L1195) | Vertex, geometry, and both fragment shaders, plus the push-constants variant pair. |
-| Submit and resolve | [vktDynamicRenderingDepthStencilResolveTests.cpp#L527-L911](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L527-L911) | Records the dynamic rendering instance with resolve, draw loops, barriers, and copyback. |
-| Push-constants submit | [vktDynamicRenderingDepthStencilResolveTests.cpp#L1417-L1658](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L1417-L1658) | Layered resolve plus a second push-constant color render in one command buffer. |
-| Depth verification | [vktDynamicRenderingDepthStencilResolveTests.cpp#L913-L995](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L913-L995) | Format-specific depth decode and inside/outside comparison against the expected value. |
-| Stencil verification | [vktDynamicRenderingDepthStencilResolveTests.cpp#L997-L1056](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L997-L1056) | Byte-wise stencil comparison against the expected value. |
-| Group attachment | [vktRenderPassTests.cpp#L8527](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8527) | Adds the family under each dynamic-rendering intermediate node. |
+| Test family factory | [populate the dynamic depth/stencil resolve group](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L1926-L1931) | Creates the `depth_stencil_resolve` group and calls `initTests` to populate it. |
+| Case creation loop | [Case creation loop](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L1692-L1922) | Enumerates sample counts, formats, resolve modes, and tested aspects; applies design-based pruning. |
+| Expected-value tables | [Expected-value tables](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L1744-L1759) | Precomputed depth and stencil resolved values per resolve mode and sample count. |
+| Support checks | [`checkSupport()`](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L1197-L1284) | Extension, feature, resolve-mode, and image-format requirement checks. |
+| Render pipeline and shaders | [Render pipeline and shaders](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L351-L462) | Builds the graphics pipeline with dynamic rendering `VkPipelineRenderingCreateInfo`. |
+| Shader sources | [Shader sources](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L1078-L1195) | Vertex, geometry, and both fragment shaders, plus the push-constants variant pair. |
+| Submit and resolve | [Submit and resolve](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L527-L911) | Records the dynamic rendering instance with resolve, draw loops, barriers, and copyback. |
+| Push-constants submit | [Push-constants submit](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L1417-L1658) | Layered resolve plus a second push-constant color render in one command buffer. |
+| Depth verification | [decode depth and compare inside/outside resolve regions](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L913-L995) | Format-specific depth decode and inside/outside comparison against the expected value. |
+| Stencil verification | [compare resolved stencil bytes with expected values](../../../modules/vulkan/renderpass/vktDynamicRenderingDepthStencilResolveTests.cpp#L997-L1056) | Byte-wise stencil comparison against the expected value. |
+| Group attachment | [Render-pass dispatcher registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8527) | Adds the family under each dynamic-rendering intermediate node. |
 | Mustpass entries | [renderpasses.txt](../../../mustpass/main/vk-default/renderpasses.txt) | Lists all `dEQP-VK.renderpasses.dynamic_rendering.{primary_cmd_buff,partial_secondary_cmd_buff,complete_secondary_cmd_buff}.depth_stencil_resolve.*` leaves. |

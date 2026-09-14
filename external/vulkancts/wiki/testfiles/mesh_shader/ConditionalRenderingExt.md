@@ -2,7 +2,7 @@
 
 **Core question:** Does `VK_EXT_conditional_rendering` execute or discard an EXT mesh draw at the predicate value and command-buffer boundary selected by the case?
 
-- This page covers `createMeshShaderConditionalRenderingTestsEXT` in [vktMeshShaderConditionalRenderingTestsEXT.cpp](../../../modules/vulkan/mesh_shader/vktMeshShaderConditionalRenderingTestsEXT.cpp#L599-L736).
+- This page covers `createMeshShaderConditionalRenderingTestsEXT` in [factory and nested registration](../../../modules/vulkan/mesh_shader/vktMeshShaderConditionalRenderingTestsEXT.cpp#L599-L736).
 - The factory registers `draw`, `draw_indirect`, and `draw_indirect_count` under `mesh_shader.ext.conditional_rendering`.
 - Each leaf records a graphics pipeline with an EXT mesh shader, optionally a task shader, and a fragment shader. Conditional rendering surrounds the mesh draw; in the inherited-secondary variant it instead surrounds the secondary command-buffer execution.
 - The test clears a 4 x 4 `VK_FORMAT_R8G8B8A8_UNORM` color attachment, submits one command buffer, copies the attachment to host-visible memory, and compares every pixel with the color expected from the predicate and inversion flag.
@@ -235,4 +235,4 @@ These exclusions are intentional matrix design, not support failures.
 | Secondary inheritance specification | [command-buffer recording](../../../../vulkan-docs/src/chapters/cmdbuffers.adoc#L1284-L1323) | Defines `conditionalRenderingEnable` and its feature requirement. |
 | Mesh task draw commands | [EXT mesh drawing commands](../../../../vulkan-docs/src/chapters/drawing.adoc#L2484-L2724) | Defines direct, indirect, and indirect-count mesh task parameters and execution. |
 | EXT mesh support helpers | [shared mesh feature checks](../../../modules/vulkan/mesh_shader/vktMeshShaderUtil.cpp#L126-L148) | Requires `VK_EXT_mesh_shader`, task support when requested, mesh support, and the SPIR-V 1.4 build target. |
-| `vk-default` coverage | [mesh-shader.txt](../../../mustpass/main/vk-default/mesh-shader.txt#L578-L1369) | Contains the exact 792 default-profile paths for this registration subtree. |
+| `vk-default` coverage | [mesh-shader source](../../../mustpass/main/vk-default/mesh-shader.txt#L578-L1369) | Contains the exact 792 default-profile paths for this registration subtree. |

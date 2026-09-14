@@ -622,16 +622,16 @@ void main (void)
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `FlagBits` and `getExpectedPointSize()` | [`vktTessellationGeometryPointSizeTests.cpp#L62-L103`](../../../modules/vulkan/tessellation/vktTessellationGeometryPointSizeTests.cpp#L62-L103) | Defines stage operations and the expected last-writer/addition model. |
-| `verifyImage()` | [`vktTessellationGeometryPointSizeTests.cpp#L115-L170`](../../../modules/vulkan/tessellation/vktTessellationGeometryPointSizeTests.cpp#L115-L170) | Defines the exact non-black square and width check. |
-| `initPrograms()` | [`vktTessellationGeometryPointSizeTests.cpp#L172-L289`](../../../modules/vulkan/tessellation/vktTessellationGeometryPointSizeTests.cpp#L172-L289) | Generates all shader stages and point-size branches. |
-| Requirements and resources | [`vktTessellationGeometryPointSizeTests.cpp#L291-L379`](../../../modules/vulkan/tessellation/vktTessellationGeometryPointSizeTests.cpp#L291-L379) | Checks support and builds the image, buffer, and graphics pipeline. |
-| Draw, copy, and result | [`vktTessellationGeometryPointSizeTests.cpp#L381-L430`](../../../modules/vulkan/tessellation/vktTessellationGeometryPointSizeTests.cpp#L381-L430) | Records one draw, copies the attachment, and returns pass or fail. |
-| Naming and portability support | [`vktTessellationGeometryPointSizeTests.cpp#L433-L462`](../../../modules/vulkan/tessellation/vktTessellationGeometryPointSizeTests.cpp#L433-L462) | Builds exact leaf names and gates tessellation point mode. |
-| `createGeometryPointSizeTests()` | [`vktTessellationGeometryPointSizeTests.cpp#L466-L489`](../../../modules/vulkan/tessellation/vktTessellationGeometryPointSizeTests.cpp#L466-L489) | Registers the seven selected flag combinations. |
-| `createGeometryInteractionTests()` | [`vktTessellationTests.cpp#L52-L61`](../../../modules/vulkan/tessellation/vktTessellationTests.cpp#L52-L61) | Places the family at `tessellation.geometry_interaction.point_size`. |
-| Pipeline topology selection | [`vktTessellationUtil.cpp#L201-L208`](../../../modules/vulkan/tessellation/vktTessellationUtil.cpp#L201-L208) | Selects patch-list topology when tessellation control is active. |
-| Shared feature checks | [`vktTessellationUtil.cpp#L802-L824`](../../../modules/vulkan/tessellation/vktTessellationUtil.cpp#L802-L824) | Defines the three feature gates used by this family. |
-| Point rasterization | [`primsrast.adoc#primsrast-points`](../../../../vulkan-docs/src/chapters/primsrast.adoc#primsrast-points) | Defines square point coverage and active-stage point-size selection. |
-| Tessellation/geometry point-size feature | [`features.adoc#features-shaderTessellationAndGeometryPointSize`](../../../../vulkan-docs/src/chapters/features.adoc#features-shaderTessellationAndGeometryPointSize) | Defines legal `PointSize` access in the later stages. |
-| Default mustpass entries | [`tessellation.txt#L25-L31`](../../../mustpass/main/vk-default/tessellation.txt#L25-L31) | Confirms all seven executable paths. |
+| `FlagBits` and `getExpectedPointSize()` | [`FlagBits` and `getExpectedPointSize()`](../../../modules/vulkan/tessellation/vktTessellationGeometryPointSizeTests.cpp#L62-L103) | Defines stage operations and the expected last-writer/addition model. |
+| `verifyImage()` | [`verifyImage()`](../../../modules/vulkan/tessellation/vktTessellationGeometryPointSizeTests.cpp#L115-L170) | Defines the exact non-black square and width check. |
+| `initPrograms()` | [`initPrograms()`](../../../modules/vulkan/tessellation/vktTessellationGeometryPointSizeTests.cpp#L172-L289) | Generates all shader stages and point-size branches. |
+| Requirements and resources | [`test()`](../../../modules/vulkan/tessellation/vktTessellationGeometryPointSizeTests.cpp#L291-L379) | Checks support and builds the image, buffer, and graphics pipeline. |
+| Draw, copy, and result | [`test()`](../../../modules/vulkan/tessellation/vktTessellationGeometryPointSizeTests.cpp#L381-L430) | Records one draw, copies the attachment, and returns pass or fail. |
+| Naming and portability support | [Naming and portability support](../../../modules/vulkan/tessellation/vktTessellationGeometryPointSizeTests.cpp#L433-L462) | Builds exact leaf names and gates tessellation point mode. |
+| `createGeometryPointSizeTests()` | [`createGeometryPointSizeTests()`](../../../modules/vulkan/tessellation/vktTessellationGeometryPointSizeTests.cpp#L466-L489) | Registers the seven selected flag combinations. |
+| `createGeometryInteractionTests()` | [`createGeometryInteractionTests()`](../../../modules/vulkan/tessellation/vktTessellationTests.cpp#L52-L61) | Places the family at `tessellation.geometry_interaction.point_size`. |
+| Pipeline topology selection | [topology selection](../../../modules/vulkan/tessellation/vktTessellationUtil.cpp#L201-L208) | Selects patch-list topology when tessellation control is active. |
+| Shared feature checks | [`requireFeatures()`](../../../modules/vulkan/tessellation/vktTessellationUtil.cpp#L802-L824) | Defines the three feature gates used by this family. |
+| Point rasterization | [primsrast.adoc](../../../../vulkan-docs/src/chapters/primsrast.adoc#primsrast-points) | Defines square point coverage and active-stage point-size selection. |
+| Tessellation/geometry point-size feature | [features.adoc](../../../../vulkan-docs/src/chapters/features.adoc#features-shaderTessellationAndGeometryPointSize) | Defines legal `PointSize` access in the later stages. |
+| Default mustpass entries | [Default mustpass entries](../../../mustpass/main/vk-default/tessellation.txt#L25-L31) | Confirms all seven executable paths. |

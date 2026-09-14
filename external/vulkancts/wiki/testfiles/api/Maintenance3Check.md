@@ -149,9 +149,9 @@ No shader is involved in this test family. All checks are host-side API queries 
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Parent registration | [vktApiTests.cpp#L119](../../../modules/vulkan/api/vktApiTests.cpp#L119) | Adds `maintenance3_check` under the `api` test category. |
+| Parent registration | [Parent registration](../../../modules/vulkan/api/vktApiTests.cpp#L119) | Adds `maintenance3_check` under the `api` test category. |
 | Test family factory | [createMaintenance3Tests()](../../../modules/vulkan/api/vktApiMaintenance3Check.cpp#L868-L918) | Registers the two named leaves and generates the 176 `support_count_*` leaves. |
-| Spec minimum constants | [vktApiMaintenance3Check.cpp#L66-L67](../../../modules/vulkan/api/vktApiMaintenance3Check.cpp#L66-L67) | Defines `maxMemoryAllocationSize = 1073741824u` and `maxDescriptorsInSet = 1024u`. |
+| Spec minimum constants | [Spec minimum constants](../../../modules/vulkan/api/vktApiMaintenance3Check.cpp#L66-L67) | Defines `maxMemoryAllocationSize = 1073741824u` and `maxDescriptorsInSet = 1024u`. |
 | Property check | [Maintenance3StructTestInstance::iterate()](../../../modules/vulkan/api/vktApiMaintenance3Check.cpp#L414-L444) | Queries and validates `VkPhysicalDeviceMaintenance3Properties`. |
 | Count distribution | [distributeCounts()](../../../modules/vulkan/api/vktApiMaintenance3Check.cpp#L139-L227) | Evenly distributes descriptor counts across selected types to saturate device limits. |
 | Limits vector | [buildLimitsVector()](../../../modules/vulkan/api/vktApiMaintenance3Check.cpp#L230-L305) | Constructs the limit-to-type map used by the distribution algorithm. |
@@ -160,4 +160,4 @@ No shader is involved in this test family. All checks are host-side API queries 
 | Variable count support check | [testCountLayoutSupport()](../../../modules/vulkan/api/vktApiMaintenance3Check.cpp#L682-L855) | Queries `VkDescriptorSetVariableDescriptorCountLayoutSupport` and validates consistency. |
 | Support and count helper | [getSetLayoutSupportAndCount()](../../../modules/vulkan/api/vktApiMaintenance3Check.cpp#L668-L680) | Chains the variable-count structure and pre-fills `maxVariableDescriptorCount` with `UINT32_MAX`. |
 | Support gates | [checkSupportCountLayoutSupport()](../../../modules/vulkan/api/vktApiMaintenance3Check.cpp#L644-L660) | Requires `VK_KHR_maintenance3`, `VK_EXT_descriptor_indexing`, the variable-count feature, and `VK_EXT_inline_uniform_block` where applicable. |
-| Mustpass entries | [api.txt#L327103-L327280](../../../mustpass/main/vk-default/api.txt#L267497-L267497) | Lists all 178 `dEQP-VK.api.maintenance3_check.*` leaves. |
+| Mustpass entries | [Mustpass entries](../../../mustpass/main/vk-default/api.txt#L267497-L267497) | Lists all 178 `dEQP-VK.api.maintenance3_check.*` leaves. |

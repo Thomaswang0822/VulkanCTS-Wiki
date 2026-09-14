@@ -2,9 +2,9 @@
 
 **Core question:** Does `rayQueryGetIntersectionBarycentricsEXT` return the expected candidate-state `(b, c)` barycentric coordinates within a small tolerance when the host constructs each ray from known triangle coordinates?
 
-This page covers the `barycentric_coordinates` test family registered by [vktRayQueryBarycentricCoordinatesTests.cpp](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L381-L390).
+This page covers the `barycentric_coordinates` test family registered by [Barycentric-coordinate case registration](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L381-L390).
 
-- The family registers a single `compute` test case with deterministic seed `1614674687u` ([vktRayQueryBarycentricCoordinatesTests.cpp:388-L389](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L388-L389)).
+- The family registers a single `compute` test case with deterministic seed `1614674687u` ([Fixed-seed compute case](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L388-L389)).
 - The host builds one triangle in a single BLAS inside one TLAS instance, then traces `kNumRays = 20` rays from the origin in directions that land strictly inside the triangle. The first three directions target the vertex-adjacent barycentric `(0.999, 0.0005, 0.0005)` and permutations; the remaining directions are sampled by a deterministic `de::Random` seeded with `TestParams::seed`.
 - The shader issues an inline ray query and records the queried candidate-state `(b, c)` when `proceed` exposes the triangle candidate. The host compares each output cell against its constructed `(b, c)` with tolerance `kThreshold = 0.001` and also requires the padded `.z` and `.w` components to equal zero exactly.
 
@@ -29,9 +29,9 @@ The single `compute` test case leaf is registered under `barycentric_coordinates
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Deterministic seed | `1614674687u` | Drives the single case's RNG for `kNumRays - 3 = 17` extra ray directions and expected `(b, c)` values. The post-increment changes only the local registration variable after this sole case receives the initial value. | [vktRayQueryBarycentricCoordinatesTests.cpp:388-L389](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L388-L389) |
-| Direction budget | 3 vertex-adjacent + 17 RNG-sampled = `kNumRays = 20u` | The shader uses `local_size_x = kNumRays` so each invocation corresponds to one stored `(b, c)` in the output buffer. | [vktRayQueryBarycentricCoordinatesTests.cpp:63](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L63), [116](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L116) |
-| Tolerance | `kThreshold = 0.001f` (float); `tmin = 1.0 - threshold`, `tmax = 1.0 + threshold` | A tight float tolerance on `(b, c)` plus a thin ray slab around `t = 1.0`; rays must hit the triangle near the expected distance. | [vktRayQueryBarycentricCoordinatesTests.cpp:60-L62](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L60-L62) |
+| Deterministic seed | `1614674687u` | Drives the single case's RNG for `kNumRays - 3 = 17` extra ray directions and expected `(b, c)` values. The post-increment changes only the local registration variable after this sole case receives the initial value. | [Fixed-seed compute case](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L388-L389) |
+| Direction budget | 3 vertex-adjacent + 17 RNG-sampled = `kNumRays = 20u` | The shader uses `local_size_x = kNumRays` so each invocation corresponds to one stored `(b, c)` in the output buffer. | [Ray count constant](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L63), [Compute workgroup size](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L116) |
+| Tolerance | `kThreshold = 0.001f` (float); `tmin = 1.0 - threshold`, `tmax = 1.0 + threshold` | A tight float tolerance on `(b, c)` plus a thin ray slab around `t = 1.0`; rays must hit the triangle near the expected distance. | [Coordinate tolerance and ray interval](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L60-L62) |
 
 ## Behavior Parameters
 
@@ -119,7 +119,7 @@ void main()
 
 #### Additional Info
 
-- `updateRayTracingGLSL()` is an identity passthrough in this CTS version ([vkRayTracingUtil.hpp:111](../../../framework/vulkan/vkRayTracingUtil.hpp#L111)), so the reconstructed GLSL above is the GLSL the host feeds to `glslangValidator`. `kNumRays`, `kTMin`, `kTMax` are baked in as constants at shader-build time by [`initPrograms`](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L108-L145).
+- `updateRayTracingGLSL()` is an identity passthrough in this CTS version ([GLSL identity helper](../../../framework/vulkan/vkRayTracingUtil.hpp#L111)), so the reconstructed GLSL above is the GLSL the host feeds to `glslangValidator`. `kNumRays`, `kTMin`, `kTMax` are baked in as constants at shader-build time by [Barycentric-query shader generation](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L108-L145).
 - The shader deliberately reads candidate-state barycentrics (`rayQueryGetIntersectionBarycentricsEXT(rq, false)`) during the iteration where `proceed` returns the triangle candidate. Opaque-triangle processing can establish the committed hit as traversal continues, but the tested value is the candidate query itself; the page does not substitute committed-state semantics for that call.
 - The host sets `tmin = 1.0 - 0.001` and `tmax = 1.0 + 0.001` to require the same precision in `t` as in the barycentric comparison: the triangle vertex is at distance `5.0` from the origin in `z`, the directions carry only the `.xyz` of the stored `vec4`, and the ray must hit the triangle inside a thin slab around `t = 1.0`.
 - `gl_RayFlagsNoneEXT` is used, so triangle geometry is treated as opaque and the candidate is auto-committed on `proceed` without a `rayQueryConfirmIntersectionEXT` call. With a single triangle in the scene and a `tmax` just past the triangle, the loop runs exactly once for every direction.
@@ -128,7 +128,7 @@ void main()
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|------------------------------------------|----------|
-| Registered case | This family registers one fixed `compute` leaf, so the shader has no within-family stage or operation variants. | [case registration](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L381-L392) |
+| Registered case | This family registers one fixed `compute` leaf, so the shader has no within-family stage or operation variants. | [Single compute case registration](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L381-L392) |
 
 #### SPIR-V
 
@@ -276,12 +276,12 @@ void main()
 
 ## Runtime Execution and Result Checking
 
-- **Resource setup.** The host builds a single-triangle BLAS, wraps it in one TLAS instance with the identity transform, `cullMask = 0xFF`, and `VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR`, and allocates a uniform buffer of `kNumRays` `vec4` directions plus a `std430` storage buffer of `kNumRays` `vec4` output cells ([vktRayQueryBarycentricCoordinatesTests.cpp:211-L273](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L211-L273)).
-- **Direction generation.** Three directions target the vertex-adjacent `(0.999, 0.0005, 0.0005)` barycentric in three permutations; the remaining `kNumRays - 3` directions and expected `(b, c)` values are sampled with `de::Random` initialized from `TestParams::seed`. The loops exclude zero `b` and `c`, while `calcCoordinates` asserts `b + c < 1`, so all samples lie strictly inside the triangle ([vktRayQueryBarycentricCoordinatesTests.cpp:239-L262](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L239-L262)).
-- **Descriptor binding.** The TLAS is at binding 0, the directions uniform buffer at binding 1, and the output storage buffer at binding 2 ([vktRayQueryBarycentricCoordinatesTests.cpp:277-L292](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L277-L292)).
-- **Dispatch.** A single compute dispatch of `1 x 1 x 1` workgroup runs `kNumRays = 20` invocations at `local_size_x = 20` ([vktRayQueryBarycentricCoordinatesTests.cpp:340-L343](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L340-L343)).
-- **Result copyback.** A `SHADER_WRITE -> HOST_READ` memory barrier is recorded before `endCommandBuffer` and `submitCommandsAndWait`, then the host invalidates and copies the storage buffer ([vktRayQueryBarycentricCoordinatesTests.cpp:346-L359](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L346-L359)).
-- **Verification.** [`iterate`](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L361-L374) requires each cell's `.x` and `.y` to match the expected `(b, c)` within `kThreshold`, and `.z` and `.w` to be exactly `0.0`. Any deviation fails with a per-cell message naming the ray index, the expected value, and the observed value.
+- **Resource setup.** The host builds a single-triangle BLAS, wraps it in one TLAS instance with the identity transform, `cullMask = 0xFF`, and `VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR`, and allocates a uniform buffer of `kNumRays` `vec4` directions plus a `std430` storage buffer of `kNumRays` `vec4` output cells ([Triangle scene and result buffers](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L211-L273)).
+- **Direction generation.** Three directions target the vertex-adjacent `(0.999, 0.0005, 0.0005)` barycentric in three permutations; the remaining `kNumRays - 3` directions and expected `(b, c)` values are sampled with `de::Random` initialized from `TestParams::seed`. The loops exclude zero `b` and `c`, while `calcCoordinates` asserts `b + c < 1`, so all samples lie strictly inside the triangle ([Interior rays and reference coordinates](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L239-L262)).
+- **Descriptor binding.** The TLAS is at binding 0, the directions uniform buffer at binding 1, and the output storage buffer at binding 2 ([Query descriptor layout and allocation](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L277-L292)).
+- **Dispatch.** A single compute dispatch of `1 x 1 x 1` workgroup runs `kNumRays = 20` invocations at `local_size_x = 20` ([Single-workgroup dispatch](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L340-L343)).
+- **Result copyback.** A `SHADER_WRITE -> HOST_READ` memory barrier is recorded before `endCommandBuffer` and `submitCommandsAndWait`, then the host invalidates and copies the storage buffer ([Output synchronization and readback](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L346-L359)).
+- **Verification.** [Barycentric result comparison](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L361-L374) requires each cell's `.x` and `.y` to match the expected `(b, c)` within `kThreshold`, and `.z` and `.w` to be exactly `0.0`. Any deviation fails with a per-cell message naming the ray index, the expected value, and the observed value.
 - **Pass condition.** All `kNumRays` cells pass; the instance returns `tcu::TestStatus::pass("Pass")`.
 
 ## Failure Meaning
@@ -304,7 +304,7 @@ A failure means that, for one or more of the 20 directions, the value returned b
 
 **Possible failure symptoms:** A cell stores `(-1, -1, -1, -1)`, the value the shader initializes before the `proceed` loop. Both the exact `.z`/`.w == 0` checks and the comparisons against expected `(b, c)` fail for that cell.
 
-**Possible implementation causes:** The BLAS or TLAS build, the ray's `tmin/tmax`, the `cullMask`, or the triangle facing-culling setting may be wrong. The host sets `VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR` precisely so that back-face culling cannot drop the ray ([vktRayQueryBarycentricCoordinatesTests.cpp:222-L223](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L222-L223)). If the shader reports no candidate, the cause is more likely an acceleration-structure build failure or a `tmin/tmax` exclusion than a barycentric built-in bug, and source-level investigation is needed to localize it.
+**Possible implementation causes:** The BLAS or TLAS build, the ray's `tmin/tmax`, the `cullMask`, or the triangle facing-culling setting may be wrong. The host sets `VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR` precisely so that back-face culling cannot drop the ray ([Instance mask and culling flags](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L222-L223)). If the shader reports no candidate, the cause is more likely an acceleration-structure build failure or a `tmin/tmax` exclusion than a barycentric built-in bug, and source-level investigation is needed to localize it.
 
 #### Output `.z` or `.w` is non-zero
 
@@ -316,13 +316,13 @@ A failure means that, for one or more of the 20 directions, the value returned b
 
 ### Requirement-based pruning
 
-- `VK_KHR_acceleration_structure` and `VK_KHR_ray_query` are required ([vktRayQueryBarycentricCoordinatesTests.cpp:102-L106](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L102-L106)).
+- `VK_KHR_acceleration_structure` and `VK_KHR_ray_query` are required ([Required device extensions](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L102-L106)).
 - The dispatch is compute only; `rayTracingPipeline` is not required.
 
 ### Design-based pruning
 
 - There are no additional leaves to prune. The single `compute` test case is the entire family.
-- The host deliberately excludes triangle boundaries by using `getBarycentricVertex() = (0.999, 0.0005, 0.0005)` rather than `(1, 0, 0)`, skipping zero `b` and `c`, and requiring `a = 1 - b - c > 0` in `calcCoordinates` ([vktRayQueryBarycentricCoordinatesTests.cpp:159-L180](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L159-L180), [L249-L261](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L249-L261)). This avoids shared-edge and exact-vertex ownership/precision behavior and keeps the test focused on coordinates for strict interior intersections.
+- The host deliberately excludes triangle boundaries by using `getBarycentricVertex() = (0.999, 0.0005, 0.0005)` rather than `(1, 0, 0)`, skipping zero `b` and `c`, and requiring `a = 1 - b - c > 0` in `calcCoordinates` ([Interior barycentric coordinate helpers](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L159-L180), [Strict-interior random sampling](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L249-L261)). This avoids shared-edge and exact-vertex ownership/precision behavior and keeps the test focused on coordinates for strict interior intersections.
 
 ## Key Takeaways
 
@@ -334,12 +334,12 @@ A failure means that, for one or more of the 20 directions, the value returned b
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `kNumRays`, `kTMin`, `kTMax`, `kThreshold`, `kZCoord`, `kXYCoordAbs` | [vktRayQueryBarycentricCoordinatesTests.cpp:57-L63](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L57-L63) | Geometry constants and the shader-baked ray slab. |
-| `checkSupport` | [vktRayQueryBarycentricCoordinatesTests.cpp:102-L106](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L102-L106) | Acceleration-structure and ray-query feature gates. |
-| `initPrograms` (compute shader) | [vktRayQueryBarycentricCoordinatesTests.cpp:108-L145](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L108-L145) | The GLSL source the host compiles and the only shader the family runs. |
-| `calcCoordinates` and `getBarycentricVertex` | [vktRayQueryBarycentricCoordinatesTests.cpp:159-L181](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L159-L181) | Host-side `(b, c)`-to-world-point inversion and the vertex-adjacent barycentric used for the first three rays. |
-| `iterate` (test instance) | [vktRayQueryBarycentricCoordinatesTests.cpp:188-L377](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L188-L377) | BLAS/TLAS build, direction and expected-value generation, descriptor setup, dispatch, copyback, and verification. |
-| Verification loop | [vktRayQueryBarycentricCoordinatesTests.cpp:361-L374](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L361-L374) | The exact `.x`/`.y` tolerance check plus the `.z`/`.w == 0` check. |
-| `createBarycentricCoordinatesTests` registration | [vktRayQueryBarycentricCoordinatesTests.cpp:381-L390](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L381-L390) | Top-level registration of the single `compute` test case with deterministic seed. |
-| `updateRayTracingGLSL` (identity passthrough) | [vkRayTracingUtil.hpp:111](../../../framework/vulkan/vkRayTracingUtil.hpp#L111) | Confirms the reconstructed GLSL is unmodified by the helper. |
+| `kNumRays`, `kTMin`, `kTMax`, `kThreshold`, `kZCoord`, `kXYCoordAbs` | [Geometry and ray constants](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L57-L63) | Geometry constants and the shader-baked ray slab. |
+| `checkSupport` | [Required device extensions](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L102-L106) | Acceleration-structure and ray-query feature gates. |
+| `initPrograms` (compute shader) | [Barycentric-query shader generation](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L108-L145) | The GLSL source the host compiles and the only shader the family runs. |
+| `calcCoordinates` and `getBarycentricVertex` | [Barycentric-to-world coordinate helpers](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L159-L181) | Host-side `(b, c)`-to-world-point inversion and the vertex-adjacent barycentric used for the first three rays. |
+| `iterate` (test instance) | [Query execution and verification](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L188-L377) | BLAS/TLAS build, direction and expected-value generation, descriptor setup, dispatch, copyback, and verification. |
+| Verification loop | [Barycentric result comparison](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L361-L374) | The exact `.x`/`.y` tolerance check plus the `.z`/`.w == 0` check. |
+| `createBarycentricCoordinatesTests` registration | [Barycentric-coordinate case registration](../../../modules/vulkan/ray_query/vktRayQueryBarycentricCoordinatesTests.cpp#L381-L390) | Top-level registration of the single `compute` test case with deterministic seed. |
+| `updateRayTracingGLSL` (identity passthrough) | [GLSL identity helper](../../../framework/vulkan/vkRayTracingUtil.hpp#L111) | Confirms the reconstructed GLSL is unmodified by the helper. |
 | Vulkan spec: ray traversal | [raytraversal.adoc](../../../../vulkan-docs/src/chapters/raytraversal.adoc) | `rayQueryGetIntersectionBarycentricsEXT` semantics. |

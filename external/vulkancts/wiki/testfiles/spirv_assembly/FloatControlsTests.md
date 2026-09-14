@@ -113,7 +113,7 @@ This representative case does not use GLSL or HLSL. CTS supplies the shader modu
 |---------------------|---------------------------------------|----------|
 | `BehaviorFlags` | Swaps `OpCapability` and `OpExecutionMode` lines (e.g. `DenormFlushToZero 32`, `SignedZeroInfNanPreserve 32`, `RoundingModeRTE 32`, `RoundingModeRTZ 32`). | [`getBehaviorCapabilityAndExecutionMode()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L3802-L3827) |
 | `OperationId` | Replaces the `%result = OpFAdd ...` line with the operation's command snippet (e.g. `OpFSub`, `OpFMul`, `OpFma`, `OpFConvert`, `OpExtInst` for trig/log/sqrt). | [`createOperationMap()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L2142-L2650) |
-| `VariableType` | Swaps the float type, array stride, capabilities, and load/store snippets for FP16 or FP64. | [source evidence](../../../modules/vulkan/spirv_assembly/) |
+| `VariableType` | Swaps the float type, array stride, capabilities, and load/store snippets for FP16 or FP64. | [`VariableType`](../../../modules/vulkan/spirv_assembly/) |
 | Argument source | `input_args` keeps the SSBO load; `generated_args` replaces it with constant construction. | [`fillShaderSpec(OperationTestCaseInfo)`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L4271-L4460) |
 | Rounding override | `rounding_rte_override_from_fp32_*` / `rounding_rtz_override_from_fp32_*` add `OpDecorate %result FPRoundingMode RTE|RTZ` on an `OpFConvert` from FP32 to FP16. | [`createOperationMap()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L2142-L2650) |
 
@@ -248,7 +248,7 @@ This representative case does not use GLSL or HLSL. CTS supplies the shader modu
 | `SettingsMode` | `SM_DENORMS` swaps the rounding-mode capabilities and execution modes for `DenormPreserve`/`DenormFlushToZero` per width. | [`fillShaderSpec(SettingsTestCaseInfo)`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L4462-L4554) |
 | `Independence` | `32_BIT_ONLY` restricts the probed combination so only 32-bit-only independence is required; `ALL` requires all widths to be independently controllable. | [`createSettingsTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L4130-L4140) |
 | Per-width option | Swaps which execution mode is declared per width (e.g. FP16 RTZ + FP32 RTE, or FP16 preserve + FP32 flush). | [`fillShaderSpec(SettingsTestCaseInfo)`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L4462-L4554) |
-| FP64 active | Adds `%type_f64`, a third output SSBO, a third `OpFAdd` path, and the FP64 execution mode. | [source evidence](../../../modules/vulkan/spirv_assembly/) |
+| FP64 active | Adds `%type_f64`, a third output SSBO, a third `OpFAdd` path, and the FP64 execution mode. | [FP64 active](../../../modules/vulkan/spirv_assembly/) |
 
 #### SPIR-V
 
@@ -439,21 +439,21 @@ This representative case does not use GLSL or HLSL. CTS supplies the shader modu
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `createFloatControlsTestGroup()` | [`vktSpvAsmFloatControlsTests.cpp#L5383-L5410`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L5383-L5410) | Creates `fp16`/`fp32`/`fp64` operation groups and calls `createSettingsTests`. |
-| `m_operationShaderTemplate` | [`vktSpvAsmFloatControlsTests.cpp#L3978-L4044`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L3978-L4044) | The compute shader string template for all operation tests. |
-| `m_settingsShaderTemplate` | [`vktSpvAsmFloatControlsTests.cpp#L4046-L4099`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L4046-L4099) | The compute shader string template for independence settings tests. |
-| `ComputeTestGroupBuilder::createOperationTests()` | [`vktSpvAsmFloatControlsTests.cpp#L4102-L4128`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L4102-L4128) | Builds per-operation compute cases for `input_args` / `generated_args`. |
-| `ComputeTestGroupBuilder::createSettingsTests()` | [`vktSpvAsmFloatControlsTests.cpp#L4130-L4140`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L4130-L4140) | Enumerates all independence_settings cases and the property-only case. |
-| `ComputeTestGroupBuilder::fillShaderSpec(OperationTestCaseInfo)` | [`vktSpvAsmFloatControlsTests.cpp#L4271-L4460`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L4271-L4460) | Specializes the operation template and sets up buffers/features. |
-| `ComputeTestGroupBuilder::fillShaderSpec(SettingsTestCaseInfo)` | [`vktSpvAsmFloatControlsTests.cpp#L4462-L4554`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L4462-L4554) | Specializes the settings template, picks per-width execution modes and expected results. |
-| `getBehaviorCapabilityAndExecutionMode()` | [`vktSpvAsmFloatControlsTests.cpp#L3793-L3818`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L3793-L3818) | Translates `BehaviorFlags` into `OpCapability` + `OpExecutionMode` strings. |
-| `setupFloatControlsProperties()` | [`vktSpvAsmFloatControlsTests.cpp#L3820-L3849`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L3820-L3849) | Mirrors requested execution modes into `VkPhysicalDeviceFloatControlsProperties`. |
-| `verifyIndependenceSettings()` | [`vktSpvAsmFloatControlsTests.cpp#L3878-L3960`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L3878-L3960) | Property-only case that validates reported support bits against the independence level. |
-| `checkValue()` | [`vktSpvAsmFloatControlsTests.cpp#L3440-L3530`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L3440-L3530) | `ValueId`-decoded bit comparison with NaN/denorm/multi-result handling. |
-| `checkFloats()` | [`vktSpvAsmFloatControlsTests.cpp#L3532-L3549`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L3532-L3549) | Wrapper around `checkValue` for single-width operation tests. |
-| `checkMixedFloats()` | [`vktSpvAsmFloatControlsTests.cpp#L3551-L3570`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L3551-L3570) | Per-width dispatch for settings tests. |
-| `createOperationMap()` | [`vktSpvAsmFloatControlsTests.cpp#L2142-L2650`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L2142-L2650) | SPIR-V command snippets per `OperationId`. |
-| `BehaviorFlags` enum | [`vktSpvAsmFloatControlsTests.cpp#L109-L116`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L109-L116) | The five tested float-control behaviors. |
-| `ValueId` enum | [`vktSpvAsmFloatControlsTests.cpp#L122-L276`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L122-L276) | Encoded argument/result values. |
-| `GraphicsTestGroupBuilder::createSettingsTests()` | [`vktSpvAsmFloatControlsTests.cpp#L4973-L4978`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L4973-L4978) | Documents the compute-only decision for settings. |
-| `GraphicsTestGroupBuilder::createInstanceContext()` | [`vktSpvAsmFloatControlsTests.cpp#L4979-L5379`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L4979-L5379) | Builds the graphics pipeline context for vertex/fragment operation tests. |
+| `createFloatControlsTestGroup()` | [`createFloatControlsTestGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L5383-L5410) | Creates `fp16`/`fp32`/`fp64` operation groups and calls `createSettingsTests`. |
+| `m_operationShaderTemplate` | [`m_operationShaderTemplate`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L3978-L4044) | The compute shader string template for all operation tests. |
+| `m_settingsShaderTemplate` | [`ComputeTestGroupBuilder::init()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L4046-L4099) | The compute shader string template for independence settings tests. |
+| `ComputeTestGroupBuilder::createOperationTests()` | [`createOperationTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L4102-L4128) | Builds per-operation compute cases for `input_args` / `generated_args`. |
+| `ComputeTestGroupBuilder::createSettingsTests()` | [`ComputeTestGroupBuilder::createSettingsTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L4130-L4140) | Enumerates all independence_settings cases and the property-only case. |
+| `ComputeTestGroupBuilder::fillShaderSpec(OperationTestCaseInfo)` | [`fillShaderSpec(OperationTestCaseInfo)`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L4271-L4460) | Specializes the operation template and sets up buffers/features. |
+| `ComputeTestGroupBuilder::fillShaderSpec(SettingsTestCaseInfo)` | [`fillShaderSpec(SettingsTestCaseInfo)`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L4462-L4554) | Specializes the settings template, picks per-width execution modes and expected results. |
+| `getBehaviorCapabilityAndExecutionMode()` | [`getBehaviorCapabilityAndExecutionMode()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L3793-L3818) | Translates `BehaviorFlags` into `OpCapability` + `OpExecutionMode` strings. |
+| `setupFloatControlsProperties()` | [`setupFloatControlsProperties()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L3820-L3849) | Mirrors requested execution modes into `VkPhysicalDeviceFloatControlsProperties`. |
+| `verifyIndependenceSettings()` | [`verifyIndependenceSettings()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L3892-L3967) | Property-only case that validates reported support bits against the independence level. |
+| `checkValue()` | [`compareBytes()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L3440-L3530) | `ValueId`-decoded bit comparison with NaN/denorm/multi-result handling. |
+| `checkFloats()` | [`checkFloats()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L3532-L3549) | Wrapper around `checkValue` for single-width operation tests. |
+| `checkMixedFloats()` | [`checkMixedFloats()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L3551-L3570) | Per-width dispatch for settings tests. |
+| `createOperationMap()` | [`createOperationMap()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L2142-L2650) | SPIR-V command snippets per `OperationId`. |
+| `BehaviorFlags` enum | [`BehaviorFlags`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L109-L116) | The five tested float-control behaviors. |
+| `ValueId` enum | [`ValueId` enum](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L122-L276) | Encoded argument/result values. |
+| `GraphicsTestGroupBuilder::createSettingsTests()` | [`GraphicsTestGroupBuilder::createSettingsTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L4973-L4978) | Documents the compute-only decision for settings. |
+| `GraphicsTestGroupBuilder::createInstanceContext()` | [`GraphicsTestGroupBuilder::createInstanceContext()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmFloatControlsTests.cpp#L4979-L5379) | Builds the graphics pipeline context for vertex/fragment operation tests. |

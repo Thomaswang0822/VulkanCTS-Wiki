@@ -23,7 +23,7 @@ ray_tracing_pipeline.rtir_activity
 └── activity
 ```
 
-The single direct child is registered by [createRTIRActivityTests](../../../modules/vulkan/ray_tracing/vktRayTracingInvocationReorderActivityTests.cpp#L634-L649). The leaf is created with `TestParams{use_shader_invocation_reorder = true, resX = 512, resY = 512}`.
+The single direct child is registered by [register the invocation-reorder activity case](../../../modules/vulkan/ray_tracing/vktRayTracingInvocationReorderActivityTests.cpp#L634-L649). The leaf is created with `TestParams{use_shader_invocation_reorder = true, resX = 512, resY = 512}`.
 
 ## Parameter Dimensions and Observed Values
 
@@ -160,13 +160,13 @@ void main()
 
 - The miss shader writes `vec3(0.0)` to the payload but is not expected to run because the traced geometry is opaque.
 - Eight closest-hit shaders use the same heavy floating-point loop with distinct `uScale` constants, creating the incoherent workload that invocation reordering is intended to regroup.
-- The reconstructed rgen source follows [`initPrograms`](../../../modules/vulkan/ray_tracing/vktRayTracingInvocationReorderActivityTests.cpp#L129-L339).
+- The reconstructed rgen source follows [`RTIRActivityInstance()`](../../../modules/vulkan/ray_tracing/vktRayTracingInvocationReorderActivityTests.cpp#L129-L339).
 
 #### Parameter Variation Summary
 
 | Parameter dimension | Shader-level variation from this shader | Evidence |
 |---------------------|-----------------------------------------|----------|
-| Test case leaf | No variation: `activity` is the only registered leaf. | [Registration](../../../modules/vulkan/ray_tracing/vktRayTracingInvocationReorderActivityTests.cpp#L634-L649) |
+| Test case leaf | No variation: `activity` is the only registered leaf. | [register the invocation-reorder activity case](../../../modules/vulkan/ray_tracing/vktRayTracingInvocationReorderActivityTests.cpp#L634-L649) |
 | Reorder mode | The representative shader uses the registered `true` path; the generator also contains an unregistered `false` path without hit-object reordering. | [`initPrograms`](../../../modules/vulkan/ray_tracing/vktRayTracingInvocationReorderActivityTests.cpp#L129-L339) |
 | Resolution | No registered variation: the dispatch remains 512x512. | [`TestParams` registration](../../../modules/vulkan/ray_tracing/vktRayTracingInvocationReorderActivityTests.cpp#L639-L644) |
 
@@ -591,8 +591,8 @@ The test creates the fixed ray-tracing scene, dispatches the selected invocation
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `TestParams` struct | [vktRayTracingInvocationReorderActivityTests.cpp#L53-L57](../../../modules/vulkan/ray_tracing/vktRayTracingInvocationReorderActivityTests.cpp#L53-L57) | Per-case parameters: reorder flag and resolution |
-| `checkSupport` | [vktRayTracingInvocationReorderActivityTests.cpp#L96-L127](../../../modules/vulkan/ray_tracing/vktRayTracingInvocationReorderActivityTests.cpp#L96-L127) | Feature gates for ray tracing, acceleration structure, buffer device address, and invocation reorder |
-| `initPrograms` | [vktRayTracingInvocationReorderActivityTests.cpp#L129-L339](../../../modules/vulkan/ray_tracing/vktRayTracingInvocationReorderActivityTests.cpp#L129-L339) | rgen (with and without reorder paths), miss, and eight closest-hit shaders |
-| `iterate` | [vktRayTracingInvocationReorderActivityTests.cpp#L352-L630](../../../modules/vulkan/ray_tracing/vktRayTracingInvocationReorderActivityTests.cpp#L352-L630) | Hint/feature gating, scene build, trace dispatch, and left/right comparison |
-| `createRTIRActivityTests` | [vktRayTracingInvocationReorderActivityTests.cpp#L634-L649](../../../modules/vulkan/ray_tracing/vktRayTracingInvocationReorderActivityTests.cpp#L634-L649) | Registration of the `rtir_activity` group and its single `activity` child |
+| `TestParams` struct | [TestParams struct](../../../modules/vulkan/ray_tracing/vktRayTracingInvocationReorderActivityTests.cpp#L53-L57) | Per-case parameters: reorder flag and resolution |
+| `checkSupport` | [checkSupport](../../../modules/vulkan/ray_tracing/vktRayTracingInvocationReorderActivityTests.cpp#L96-L127) | Feature gates for ray tracing, acceleration structure, buffer device address, and invocation reorder |
+| `initPrograms` | [generate reordered and baseline raygen with activity hit shaders](../../../modules/vulkan/ray_tracing/vktRayTracingInvocationReorderActivityTests.cpp#L129-L339) | rgen (with and without reorder paths), miss, and eight closest-hit shaders |
+| `iterate` | [iterate](../../../modules/vulkan/ray_tracing/vktRayTracingInvocationReorderActivityTests.cpp#L352-L630) | Hint/feature gating, scene build, trace dispatch, and left/right comparison |
+| `createRTIRActivityTests` | [register the invocation-reorder activity case](../../../modules/vulkan/ray_tracing/vktRayTracingInvocationReorderActivityTests.cpp#L634-L649) | Registration of the `rtir_activity` group and its single `activity` child |

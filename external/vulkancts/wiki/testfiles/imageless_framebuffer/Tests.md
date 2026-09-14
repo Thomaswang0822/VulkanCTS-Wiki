@@ -156,13 +156,13 @@ A failure in any family can also come from the shared copy, synchronization, or 
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Root test category registration | [vktTestPackage.cpp#L1378-L1385](../../../modules/vulkan/vktTestPackage.cpp#L1378-L1385) | Registers `imageless_framebuffer` under `dEQP-VK`. |
-| Test type and fixed parameters | [vktImagelessFramebufferTests.cpp#L60-L89](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L60-L89) | Defines the six implementation variants and their parameter record. |
-| Imageless framebuffer construction | [vktImagelessFramebufferTests.cpp#L575-L708](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L575-L708) | Builds compatibility descriptions and creates the framebuffer without image views. |
-| Common verification path | [vktImagelessFramebufferTests.cpp#L883-L1208](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L883-L1208) | Converts depth/stencil data, extracts samples, generates references, and compares readback. |
-| Six runtime implementations | [vktImagelessFramebufferTests.cpp#L1222-L2688](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L1222-L2688) | Implements rendering, copyback, and checks for every test family. |
-| Support and shader setup | [vktImagelessFramebufferTests.cpp#L2691-L2927](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L2691-L2927) | Applies resolve support checks and generates the utility shaders used by each path. |
-| Family dispatch and registration | [vktImagelessFramebufferTests.cpp#L2930-L3040](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L2930-L3040) | Maps each registered leaf to its instance class and creates the exact six-child hierarchy. |
-| Default mustpass entries | [imageless-framebuffer.txt#L1-L12](../../../mustpass/main/vk-default/imageless-framebuffer.txt#L1-L12) | Confirms all twelve executable paths. |
-| Imageless framebuffer specification | [renderpass.adoc#L6180-L6269](../../../../vulkan-docs/src/chapters/renderpass.adoc#L6180-L6269) | Defines attachment compatibility information and `VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT`. |
-| Begin-time attachment validity | [renderpass.adoc#L7243-L7400](../../../../vulkan-docs/src/chapters/renderpass.adoc#L7243-L7400) | Defines how supplied image views must match an imageless framebuffer and render pass. |
+| Root test category registration | [Root test category registration](../../../modules/vulkan/vktTestPackage.cpp#L1378-L1385) | Registers `imageless_framebuffer` under `dEQP-VK`. |
+| Test type and fixed parameters | [Test type and fixed parameters](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L60-L89) | Defines the six implementation variants and their parameter record. |
+| Imageless framebuffer construction | [Imageless framebuffer construction](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L575-L708) | Builds compatibility descriptions and creates the framebuffer without image views. |
+| Common verification path | [Common verification path](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L883-L1208) | Converts depth/stencil data, extracts samples, generates references, and compares readback. |
+| Six runtime implementations | [Six runtime implementations](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L1222-L2688) | Implements rendering, copyback, and checks for every test family. |
+| Support and shader setup | [Support and shader setup](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L2691-L2927) | Applies resolve support checks and generates the utility shaders used by each path. |
+| Family dispatch and registration | [Family dispatch and registration](../../../modules/vulkan/imageless_framebuffer/vktImagelessFramebufferTests.cpp#L2930-L3040) | Maps each registered leaf to its instance class and creates the exact six-child hierarchy. |
+| Default mustpass entries | [Default mustpass entries](../../../mustpass/main/vk-default/imageless-framebuffer.txt#L1-L12) | Confirms all twelve executable paths. |
+| Imageless framebuffer specification | [Imageless framebuffer specification](../../../../vulkan-docs/src/chapters/renderpass.adoc#L6180-L6269) | Defines attachment compatibility information and `VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT`. |
+| Begin-time attachment validity | [Begin-time attachment validity](../../../../vulkan-docs/src/chapters/renderpass.adoc#L7243-L7400) | Defines how supplied image views must match an imageless framebuffer and render pass. |

@@ -5,7 +5,7 @@
 - This page covers the `load_store_op_none` test family implemented in
   [vktRenderPassLoadStoreOpNoneTests.cpp](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp) and registered under every
   `renderpasses` suballocation subgroup (renderpass1, renderpass2, and dynamic rendering, non-SC) by
-  [vktRenderPassTests.cpp](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8564-L8569).
+  [Render-pass dispatcher registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8564-L8569).
 - The test family exercises the `VK_EXT_load_store_op_none` and `VK_KHR_load_store_op_none` extensions across color, depth, stencil, and combined
   depth/stencil attachments.
 - Each case pre-initializes one or more attachments, records a render pass (or dynamic rendering instance) with selected load/store ops, performs draws or
@@ -46,7 +46,7 @@ renderpasses.renderpass1.suballocation.load_store_op_none
 ```
 
 The `load_store_op_none` group is added to each rendering-type suballocation subgroup (`renderpass1`, `renderpass2`, and dynamic rendering) by
-[vktRenderPassTests.cpp#L8564-L8569](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8564-L8569). The tree above uses `renderpass1` as the
+[Render-pass dispatcher registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8564-L8569). The tree above uses `renderpass1` as the
 representative path; the same case leaves appear identically under `renderpass2` and dynamic-rendering subgroups. Test case leaves are registered directly
 under the group; there are no intermediate nodes between the group and the leaves. The tree shows representative leaves from each behavioral group; the full
 set of depth, stencil, and depth/stencil leaves is parameterized by format and enumerated in [Parameter Dimensions and Observed Values](#parameter-dimensions-and-observed-values).
@@ -55,13 +55,13 @@ set of depth, stencil, and depth/stencil leaves is parameterized by format and e
 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
-| Attachment aspect | color, depth, stencil, combined depth/stencil | Determines which attachment aspect receives `NONE` ops and which reference values the verification checks. | [test case creation](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L1536-L2216) |
+| Attachment aspect | color, depth, stencil, combined depth/stencil | Determines which attachment aspect receives `NONE` ops and which reference values the verification checks. | [Attachment aspect](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L1536-L2216) |
 | Load op | `LOAD`, `NONE`, `DONT_CARE`, `CLEAR` (via `cmdClearAttachments`) | Controls whether the attachment's previous contents are preserved (`LOAD`), left undefined (`NONE`, `DONT_CARE`), or overwritten by a clear inside the render area. | [AttachmentParams](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L93-L102) |
 | Store op | `STORE`, `NONE`, `DONT_CARE` | Controls whether rendered contents are written back (`STORE`), left untouched if unwritten or undefined if written (`NONE`), or discarded (`DONT_CARE`). | [AttachmentParams](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L93-L102) |
 | Depth/stencil format | `d16_unorm`, `d32_sfloat`, `d16_unorm_s8_uint`, `d24_unorm_s8_uint`, `d32_sfloat_s8_uint`, `s8_uint` | Expands depth, stencil, and combined depth/stencil cases across all depth- or stencil-capable formats supported by the device. | [format list](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L1757-L1759) |
 | Test/write enable | `color_write_off`, `depth_test_off`, `depth_write_off`, `stencil_test_off`, `stencil_write_off` | Disables the pipeline state that would otherwise write to the attachment, so `STORE_OP_NONE` with no writes can be verified as preserving contents. | [usage flags](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L74-L81) |
 | Extension preference | `KHR`, `EXT` | Alternates between `VK_KHR_load_store_op_none` and `VK_EXT_load_store_op_none` by format index so both extension code paths are exercised. | [extPreference](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L116-L134) |
-| Rendering type | `renderpass1`, `renderpass2`, `dynamic_rendering` | Provided by the `SharedGroupParams`; the group is instantiated once per rendering type. Some input-attachment cases require `VK_KHR_dynamic_rendering_local_read`. | [checkSupport](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L441-L503) |
+| Rendering type | `renderpass1`, `renderpass2`, `dynamic_rendering` | Provided by the `SharedGroupParams`; the group is instantiated once per rendering type. Some input-attachment cases require `VK_KHR_dynamic_rendering_local_read`. | [Rendering type](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L441-L503) |
 
 ### Full depth, stencil, and depth/stencil leaf enumeration
 
@@ -476,7 +476,7 @@ input read can return stale or undefined data. This is a subpass dependency or i
 - Depth and stencil format variants are skipped if `getPhysicalDeviceImageFormatProperties` returns failure for the required format and usage combination
   ([L496-L501](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L496-L501)).
 - The entire group is excluded from Vulkan SC builds (`#ifndef CTS_USES_VULKANSC`)
-  ([vktRenderPassTests.cpp#L8567-L8569](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8567-L8569)).
+  ([Render-pass dispatcher registration](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8567-L8569)).
 
 ### Design-based pruning
 
@@ -506,15 +506,15 @@ input read can return stale or undefined data. This is a subpass dependency or i
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Test family factory | [vktRenderPassLoadStoreOpNoneTests.cpp#L1532-L1534](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L1532-L1534) | Creates the `load_store_op_none` group and registers all test case leaves. |
-| Group attachment | [vktRenderPassTests.cpp#L8564-L8569](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8564-L8569) | Adds the group to each rendering-type suballocation subgroup. |
-| Support checks | [vktRenderPassLoadStoreOpNoneTests.cpp#L441-L503](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L441-L503) | Extension, rendering-type, and depth/stencil format requirement checks. |
-| Shader programs | [vktRenderPassLoadStoreOpNoneTests.cpp#L505-L560](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L505-L560) | Trivial vertex and fragment shaders used as rendering vehicles. |
-| Test instance constructor | [vktRenderPassLoadStoreOpNoneTests.cpp#L562-L569](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L562-L569) | Sets the 32×32 image size and 27×19 render area. |
-| Render pass creation | [vktRenderPassLoadStoreOpNoneTests.cpp#L213-L375](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L213-L375) | Builds the render pass object from attachment descriptions and subpass references. |
-| Dynamic rendering command buffer | [vktRenderPassLoadStoreOpNoneTests.cpp#L600-L780](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L600-L780) | Records the dynamic rendering instance with attachment info and optional secondary command buffer. |
-| Draw commands and mid-pass clears | [vktRenderPassLoadStoreOpNoneTests.cpp#L782-L883](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L782-L883) | Issues `cmdClearAttachments` and draws inside the render pass. |
-| Main test iteration | [vktRenderPassLoadStoreOpNoneTests.cpp#L885-L1528](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L885-L1528) | Creates images, pre-initializes attachments, builds pipelines, submits, reads back, and compares. |
-| Verification loop | [vktRenderPassLoadStoreOpNoneTests.cpp#L1452-L1527](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L1452-L1527) | Reads back each verified aspect and compares inner/outer pixels against reference values. |
-| Test case creation | [vktRenderPassLoadStoreOpNoneTests.cpp#L1536-L2216](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L1536-L2216) | Defines the `TestParams` for every registered case across all behavioral groups. |
+| Test family factory | [Test family factory](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L1532-L1534) | Creates the `load_store_op_none` group and registers all test case leaves. |
+| Group attachment | [attach NONE load/store tests to rendering-type groups](../../../modules/vulkan/renderpass/vktRenderPassTests.cpp#L8564-L8569) | Adds the group to each rendering-type suballocation subgroup. |
+| Support checks | [check NONE load/store extensions and attachment formats](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L441-L503) | Extension, rendering-type, and depth/stencil format requirement checks. |
+| Shader programs | [Shader programs](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L505-L560) | Trivial vertex and fragment shaders used as rendering vehicles. |
+| Test instance constructor | [set image extent and the smaller render area](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L562-L569) | Sets the 32×32 image size and 27×19 render area. |
+| Render pass creation | [Render pass creation](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L213-L375) | Builds the render pass object from attachment descriptions and subpass references. |
+| Dynamic rendering command buffer | [record NONE attachment operations with optional secondary commands](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L600-L780) | Records the dynamic rendering instance with attachment info and optional secondary command buffer. |
+| Draw commands and mid-pass clears | [Draw commands and mid-pass clears](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L782-L883) | Issues `cmdClearAttachments` and draws inside the render pass. |
+| Main test iteration | [Main test iteration](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L885-L1528) | Creates images, pre-initializes attachments, builds pipelines, submits, reads back, and compares. |
+| Verification loop | [Verification loop](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L1452-L1527) | Reads back each verified aspect and compares inner/outer pixels against reference values. |
+| Test case creation | [assign load/store parameters across behavioral groups](../../../modules/vulkan/renderpass/vktRenderPassLoadStoreOpNoneTests.cpp#L1536-L2216) | Defines the `TestParams` for every registered case across all behavioral groups. |
 | Mustpass entries | [renderpasses.txt](../../../mustpass/main/vk-default/renderpasses.txt) | Lists all `dEQP-VK.renderpasses.*.suballocation.load_store_op_none.*` entries across rendering types. |

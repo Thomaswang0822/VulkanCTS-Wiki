@@ -1099,15 +1099,15 @@ clear, shader write visibility to transfer, final copyback, or host invalidation
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Package category registration | [vktTestPackage.cpp#L1370-L1380](../../../modules/vulkan/vktTestPackage.cpp#L1370-L1380) | Registers the `memory_model` test category in the normal Vulkan CTS package. |
-| Vulkan SC package category registration | [vktTestPackage.cpp#L1413-L1447](../../../modules/vulkan/vktTestPackage.cpp#L1413-L1447) | Shows the Vulkan SC package also registers the `memory_model` test category. |
-| Test category factory declaration | [vktMemoryModelTests.hpp#L30-L35](../../../modules/vulkan/memory_model/vktMemoryModelTests.hpp#L30-L35) | Declares `MemoryModel::createTests`. |
-| Support checks | [vktMemoryModelMessagePassing.cpp#L181-L365](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L181-L365) | Applies API, feature, memory-type, stage, scope, and storage support gates. |
-| Regular shader builder | [vktMemoryModelMessagePassing.cpp#L368-L1030](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L368-L1030) | Generates the regular `message_passing` and `write_after_read` GLSL. |
-| Transitive shader builder | [vktMemoryModelMessagePassing.cpp#L1032-L1344](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L1032-L1344) | Generates the separate availability/visibility-chain GLSL. |
-| Runtime execution loop | [vktMemoryModelMessagePassing.cpp#L1356-L2018](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L1356-L2018) | Allocates resources, builds pipelines, runs repeated dispatch/draw work, and checks the fail buffer. |
-| Permuted-index Amber tests | [vktMemoryModelMessagePassing.cpp#L2020-L2055](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2020-L2055) | Adds non-VulkanSC Amber cases under `message_passing/permuted_index`. |
-| Regular matrix registration and pruning | [vktMemoryModelMessagePassing.cpp#L2060-L2339](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2060-L2339) | Builds the regular nested parameter matrix and skips invalid or redundant combinations. |
-| Transitive matrix registration and pruning | [vktMemoryModelMessagePassing.cpp#L2341-L2408](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2341-L2408) | Builds the separate `transitive` test family and its fixed dimensions. |
-| Delegated `padding` test family | [vktMemoryModelPadding.cpp#L360-L367](../../../modules/vulkan/memory_model/vktMemoryModelPadding.cpp#L360-L367) | Implements the `padding` test family attached by this root page. |
-| Delegated `shared` test family | [vktMemoryModelSharedLayout.cpp#L287-L330](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L287-L330) | Implements the `shared` test family attached by this root page. |
+| Package category registration | [Package category registration](../../../modules/vulkan/vktTestPackage.cpp#L1370-L1380) | Registers the `memory_model` test category in the normal Vulkan CTS package. |
+| Vulkan SC package category registration | [Vulkan SC package category registration](../../../modules/vulkan/vktTestPackage.cpp#L1413-L1447) | Shows the Vulkan SC package also registers the `memory_model` test category. |
+| Test category factory declaration | [Test category factory declaration](../../../modules/vulkan/memory_model/vktMemoryModelTests.hpp#L30-L35) | Declares `MemoryModel::createTests`. |
+| Support checks | [Support checks](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L181-L365) | Applies API, feature, memory-type, stage, scope, and storage support gates. |
+| Regular shader builder | [Regular shader builder](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L368-L1030) | Generates the regular `message_passing` and `write_after_read` GLSL. |
+| Transitive shader builder | [Transitive shader builder](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L1032-L1344) | Generates the separate availability/visibility-chain GLSL. |
+| Runtime execution loop | [Runtime execution loop](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L1356-L2018) | Allocates resources, builds pipelines, runs repeated dispatch/draw work, and checks the fail buffer. |
+| Permuted-index Amber tests | [Permuted-index Amber tests](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2020-L2055) | Adds non-VulkanSC Amber cases under `message_passing/permuted_index`. |
+| Regular matrix registration and pruning | [Regular matrix registration and pruning](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2060-L2339) | Builds the regular nested parameter matrix and skips invalid or redundant combinations. |
+| Transitive matrix registration and pruning | [Transitive matrix registration and pruning](../../../modules/vulkan/memory_model/vktMemoryModelMessagePassing.cpp#L2341-L2408) | Builds the separate `transitive` test family and its fixed dimensions. |
+| Delegated `padding` test family | [Delegated padding test family](../../../modules/vulkan/memory_model/vktMemoryModelPadding.cpp#L360-L367) | Implements the `padding` test family attached by this root page. |
+| Delegated `shared` test family | [Delegated shared test family](../../../modules/vulkan/memory_model/vktMemoryModelSharedLayout.cpp#L287-L330) | Implements the `shared` test family attached by this root page. |

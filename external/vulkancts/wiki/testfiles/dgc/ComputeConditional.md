@@ -2,7 +2,7 @@
 
 **Core question:** Does conditional rendering select the expected execution result for NV device-generated compute commands, including explicit preprocessing?
 
-- This page covers the `dgc.nv.compute.conditional_rendering` test family implemented in [`vktDGCComputeConditionalTests.cpp`](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTests.cpp#L615-L677).
+- This page covers the `dgc.nv.compute.conditional_rendering` test family implemented in [NV conditional-dispatch cases](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTests.cpp#L615-L677).
 - The `general` family combines ordinary or generated pipeline binding, an optional sequence-count buffer, predicate values, inversion, command-buffer scope, and queue choice.
 - The `preprocess` family checks conditional rendering around preprocessing and later execution, including execution on a compute queue.
 - The observable result is a one-word storage buffer. An effective true condition must produce `777`; an effective false condition must leave the initialized value at `0`.
@@ -253,6 +253,6 @@ For `preprocess` cases, the corresponding failure may additionally involve condi
 | `checkConditionalDGCComputeSupport` and `checkConditionalPreprocessSupport` | [support checks](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTests.cpp#L79-L107) | Apply extension, DGC, inheritance, and queue requirements. |
 | `conditionalDispatchRun` | [general runtime](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTests.cpp#L171-L404) | Builds resources, records generated commands, and checks the output word. |
 | `conditionalPreprocessRun` | [preprocess runtime](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTests.cpp#L406-L611) | Separates preprocessing and execution and checks the same predicate contract. |
-| `createDGCComputeConditionalTests` | [registration](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTests.cpp#L615-L677) | Registers `general`, `preprocess`, and their exact case names. |
+| `createDGCComputeConditionalTests` | [`createDGCComputeConditionalTests()`](../../../modules/vulkan/device_generated_commands/vktDGCComputeConditionalTests.cpp#L615-L677) | Registers `general`, `preprocess`, and their exact case names. |
 | Conditional rendering semantics | [VK_EXT_conditional_rendering](../../../../vulkan-docs/src/appendices/VK_EXT_conditional_rendering.adoc#L21-L45) | Defines conditional execution and secondary-command-buffer inheritance semantics. |
-| Mustpass coverage | [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L4496-L4599) | Lists the exact NV registered identifiers. |
+| Mustpass coverage | [dgc source](../../../mustpass/main/vk-default/dgc.txt#L4496-L4599) | Lists the exact NV registered identifiers. |

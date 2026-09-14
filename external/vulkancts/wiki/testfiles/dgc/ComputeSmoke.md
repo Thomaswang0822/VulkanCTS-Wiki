@@ -2,7 +2,7 @@
 
 **Core question:** Do NV device-generated compute commands execute every registered dispatch with the expected workgroup coverage?
 
-- This page covers `dgc.nv.compute.smoke`, implemented and registered by [`vktDGCComputeSmokeTests.cpp`](../../../modules/vulkan/device_generated_commands/vktDGCComputeSmokeTests.cpp#L53-L580).
+- This page covers `dgc.nv.compute.smoke`, implemented and registered by [NV generated-dispatch smoke tests](../../../modules/vulkan/device_generated_commands/vktDGCComputeSmokeTests.cpp#L53-L580).
 - Each case generates 4 or 1024 indirect dispatches, executes them through a one-token NV DGC layout, and checks a 256-entry atomic-counter result buffer.
 - The 32 variants select sequence count, command-buffer memory placement, command generation path, preprocessing mode, and queue type.
 
@@ -325,5 +325,5 @@ void main ()
 | `SmokeTestCase::initPrograms` | [`initPrograms`](../../../modules/vulkan/device_generated_commands/vktDGCComputeSmokeTests.cpp#L128-L182) | Generates `comp` and optional `gen` GLSL programs. |
 | `SmokeTestCase::checkSupport` | [`checkSupport`](../../../modules/vulkan/device_generated_commands/vktDGCComputeSmokeTests.cpp#L184-L195) | Applies feature and queue support gates. |
 | `SmokeTestInstance::iterate` | [`iterate`](../../../modules/vulkan/device_generated_commands/vktDGCComputeSmokeTests.cpp#L197-L467) | Creates resources, selects memory and queues, records preparation, preprocesses, executes, and reads back results. |
-| Result verification | [`result verification`](../../../modules/vulkan/device_generated_commands/vktDGCComputeSmokeTests.cpp#L469-L549) | Reconstructs expected ranges and returns pass or fail. |
+| Result verification | [`SmokeTestInstance::iterate()`](../../../modules/vulkan/device_generated_commands/vktDGCComputeSmokeTests.cpp#L469-L549) | Reconstructs expected ranges and returns pass or fail. |
 | Registration | [`createDGCComputeSmokeTests`](../../../modules/vulkan/device_generated_commands/vktDGCComputeSmokeTests.cpp#L554-L580) | Registers the 32 direct children listed above. |

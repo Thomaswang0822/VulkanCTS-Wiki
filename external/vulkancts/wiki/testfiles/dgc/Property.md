@@ -2,7 +2,7 @@
 
 **Core question:** Do the advertised `VK_NV_device_generated_commands` properties support the limits and offsets that the implementation reports?
 
-- [`vktDGCPropertyTests.cpp`](../../../modules/vulkan/device_generated_commands/vktDGCPropertyTests.cpp#L53-L1271) implements the `dgc.nv.misc.properties` test family.
+- [NV DGC property tests](../../../modules/vulkan/device_generated_commands/vktDGCPropertyTests.cpp#L53-L1271) implements the `dgc.nv.misc.properties` test family.
 - The family checks `valid_limits`, command stream and token limits, command buffer offset alignment, and sequence count or index buffer alignment.
 - The executable cases use generated compute commands that write push constant values into a host-visible storage buffer, then compare the results on the host.
 - This page explains the registered values, support gates, generated compute shader, runtime checks, and failure meaning.
@@ -30,7 +30,7 @@ dgc.nv.misc.properties
 └── valid_limits
 ```
 
-The root is attached below `dgc.nv.misc` by [`createTests()`](../../../modules/vulkan/device_generated_commands/vktDGCTests.cpp#L76-L94). The ten direct children are registered by [`createDGCPropertyTests()`](../../../modules/vulkan/device_generated_commands/vktDGCPropertyTests.cpp#L1232-L1268), and the same paths are listed in the Vulkan default mustpass file [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L4724-L4733).
+The root is attached below `dgc.nv.misc` by [`createTests()`](../../../modules/vulkan/device_generated_commands/vktDGCTests.cpp#L75-L93). The ten direct children are registered by [`createDGCPropertyTests()`](../../../modules/vulkan/device_generated_commands/vktDGCPropertyTests.cpp#L1232-L1268), and the same paths are listed in the Vulkan default mustpass file [dgc source](../../../mustpass/main/vk-default/dgc.txt#L4724-L4733).
 
 ## Parameter Dimensions and Observed Values
 
@@ -295,7 +295,7 @@ Support failures are separate from these result failures. `checkDGCSupport()` re
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `createDGCPropertyTests()` | [`registration`](../../../modules/vulkan/device_generated_commands/vktDGCPropertyTests.cpp#L1232-L1271) | Registers the `properties` group and all ten exact direct child names. |
+| `createDGCPropertyTests()` | [`createDGCPropertyTests`](../../../modules/vulkan/device_generated_commands/vktDGCPropertyTests.cpp#L1232-L1271) | Registers the `properties` group and all ten exact direct child names. |
 | `storePushConstantProgram()` and `storePushConstantWithIndexProgram()` | [`shader generators`](../../../modules/vulkan/device_generated_commands/vktDGCPropertyTests.cpp#L79-L104) | Define the two generated compute shader forms used by the cases. |
 | `checkBasicDGCComputeSupport()` and alignment checks | [`support helpers`](../../../modules/vulkan/device_generated_commands/vktDGCPropertyTests.cpp#L53-L76) | Gate generated cases on the NV compute extension and offset alignment. |
 | `maxIndirectCommandsTokenCountRun()` | [`token count`](../../../modules/vulkan/device_generated_commands/vktDGCPropertyTests.cpp#L112-L257) | Builds many push constant tokens and validates the final output value. |
@@ -306,4 +306,4 @@ Support failures are separate from these result failures. `checkDGCSupport()` re
 | `minSequencesOffsetAlignmentsRun()` | [`sequence metadata alignment`](../../../modules/vulkan/device_generated_commands/vktDGCPropertyTests.cpp#L955-L1191) | Tests count and index buffer offsets, sequence selection, and output comparison. |
 | `validLimits()` | [`property verification`](../../../modules/vulkan/device_generated_commands/vktDGCPropertyTests.cpp#L1193-L1227) | Checks the advertised DGC property ranges. |
 | `checkDGCSupport()` and `checkDGCComputeSupport()` | [`DGC support utilities`](../../../modules/vulkan/device_generated_commands/vktDGCUtil.cpp#L40-L56) | Define the extension and feature requirements used by this file. |
-| `dgc.nv.misc.properties` mustpass paths | [dgc.txt](../../../mustpass/main/vk-default/dgc.txt#L4724-L4733) | Confirms the ten registered test paths in the default Vulkan profile. |
+| `dgc.nv.misc.properties` mustpass paths | [dgc source](../../../mustpass/main/vk-default/dgc.txt#L4724-L4733) | Confirms the ten registered test paths in the default Vulkan profile. |

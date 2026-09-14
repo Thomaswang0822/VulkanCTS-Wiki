@@ -135,12 +135,12 @@ No shader is involved in this test family. The leaves exercise host-side version
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Test family registration | [vktApiTests.cpp#L90](../../../modules/vulkan/api/vktApiTests.cpp#L90) | Attaches `version_check` as a child of the `api` test category. |
-| Test family factory | [vktApiVersionCheck.cpp#L777-L788](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L748-L748) | Creates the `version_check` group and adds the three test case leaves, with `unavailable_entry_points` behind `#ifndef CTS_USES_VULKANSC`. |
-| Header declaration | [vktApiVersionCheck.hpp#L37](../../../modules/vulkan/api/vktApiVersionCheck.hpp#L37) | Declares `createVersionSanityCheckTests`. |
-| `version` test instance | [vktApiVersionCheck.cpp#L70-L103](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L70-L103) | Logs version info and fails when the device version exceeds the framework maximum. |
-| `entry_points` test instance | [vktApiVersionCheck.cpp#L123-L600](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L123-L600) | Runs the five proc-address sub-checks across no-extension and enabled-extension instance/device pairs. |
-| `unavailable_entry_points` test instance | [vktApiVersionCheck.cpp#L620-L753](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L620-L748) | Iterates requested API versions and checks that higher-version device functions return `NULL`. |
-| Proc-address helpers | [vktApiVersionCheck.cpp#L465-L494](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L465-L494) | `reportFail`, `checkPlatformFunction`, `checkInstanceFunction`, and `checkDeviceFunction` implement the nullability comparison used by every `entry_points` sub-check. |
-| Maintenance5 support gate | [vktApiVersionCheck.cpp#L764-L767](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L748-L748) | `checkSupport` for `unavailable_entry_points` requires `VK_KHR_maintenance5`. |
-| Mustpass entries | [api.txt#L327793-L327795](../../../mustpass/main/vk-default/api.txt#L267497-L267497) | The three `dEQP-VK.api.version_check.*` lines in the default mustpass list. |
+| Test family registration | [Test family registration](../../../modules/vulkan/api/vktApiTests.cpp#L90) | Attaches `version_check` as a child of the `api` test category. |
+| Test family factory | [Test family factory](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L748-L748) | Creates the `version_check` group and adds the three test case leaves, with `unavailable_entry_points` behind `#ifndef CTS_USES_VULKANSC`. |
+| Header declaration | [Header declaration](../../../modules/vulkan/api/vktApiVersionCheck.hpp#L37) | Declares `createVersionSanityCheckTests`. |
+| `version` test instance | [version test instance](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L70-L103) | Logs version info and fails when the device version exceeds the framework maximum. |
+| `entry_points` test instance | [entrypoints test instance](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L123-L600) | Runs the five proc-address sub-checks across no-extension and enabled-extension instance/device pairs. |
+| `unavailable_entry_points` test instance | [unavailableentrypoints test instance](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L620-L748) | Iterates requested API versions and checks that higher-version device functions return `NULL`. |
+| Proc-address helpers | [Proc-address helpers](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L465-L494) | `reportFail`, `checkPlatformFunction`, `checkInstanceFunction`, and `checkDeviceFunction` implement the nullability comparison used by every `entry_points` sub-check. |
+| Maintenance5 support gate | [Maintenance5 support gate](../../../modules/vulkan/api/vktApiVersionCheck.cpp#L748-L748) | `checkSupport` for `unavailable_entry_points` requires `VK_KHR_maintenance5`. |
+| Mustpass entries | [Mustpass entries](../../../mustpass/main/vk-default/api.txt#L267497-L267497) | The three `dEQP-VK.api.version_check.*` lines in the default mustpass list. |

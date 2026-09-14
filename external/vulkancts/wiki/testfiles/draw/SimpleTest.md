@@ -412,7 +412,7 @@ void main()
 
 ## Source Reference Appendix
 
-- [Assigned implementation: `vktDrawSimpleTest.cpp`](../../../modules/vulkan/draw/vktDrawSimpleTest.cpp#L47-L120) : test classes and vertex data.
+- [vktDrawSimpleTest.cpp](../../../modules/vulkan/draw/vktDrawSimpleTest.cpp#L47-L120) : test classes and vertex data.
 - [`SimpleDraw::iterate`](../../../modules/vulkan/draw/vktDrawSimpleTest.cpp#L123-L239) : non-instanced recording and image oracle.
 - [`SimpleDrawInstanced::iterate`](../../../modules/vulkan/draw/vktDrawSimpleTest.cpp#L273-L391) : instanced recording and image oracle.
 - [`SimpleDrawTests::init`](../../../modules/vulkan/draw/vktDrawSimpleTest.cpp#L401-L446) : exact leaf registration.

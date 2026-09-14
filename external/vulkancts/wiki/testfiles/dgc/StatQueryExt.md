@@ -2,8 +2,8 @@
 
 **Core question:** Does `VK_EXT_device_generated_commands` preserve the selected pipeline-statistics counts while generated compute or graphics work executes through each supported construction and preprocessing path?
 
-- This page documents the implementation-bearing `dgc.ext.stat_query` family in [`vktDGCStatQueryTestsExt.cpp`](../../../modules/vulkan/device_generated_commands/vktDGCStatQueryTestsExt.cpp#L57-L203).
-- The source registers 120 exact leaves: ten statistic selections, three construction modes, optional execution sets, and optional preprocessing. All 120 appear in the default mustpass inventory ([registration](../../../modules/vulkan/device_generated_commands/vktDGCStatQueryTestsExt.cpp#L1404-L1449), [mustpass](../../../mustpass/main/vk-default/dgc.txt#L4376-L4495)).
+- This page documents the implementation-bearing `dgc.ext.stat_query` family in [Pipeline-statistic query parameters and support checks](../../../modules/vulkan/device_generated_commands/vktDGCStatQueryTestsExt.cpp#L57-L203).
+- The source registers 120 exact leaves: ten statistic selections, three construction modes, optional execution sets, and optional preprocessing. All 120 appear in the default mustpass inventory ([`vktDGCStatQueryTestsExt.cpp`](../../../modules/vulkan/device_generated_commands/vktDGCStatQueryTestsExt.cpp#L1404-L1449), [mustpass](../../../mustpass/main/vk-default/dgc.txt#L4376-L4495)).
 - Compute cases validate a storage-buffer result and the selected query counter. Graphics cases validate rendered colors and the selected query counter.
 - The page explains the complete direct-child hierarchy, parameter matrix, support gates, generated shader roles, execution flow, result checks, and evidence-backed failure meaning.
 
@@ -140,7 +140,7 @@ dgc.ext.stat_query
 └── vert_inv_shader_obj_preprocess
 ```
 
-The source registers the 120 direct test-case leaves shown above. They are the Cartesian product of ten statistic selections, three construction modes, optional execution sets, and optional preprocessing ([registration](../../../modules/vulkan/device_generated_commands/vktDGCStatQueryTestsExt.cpp#L1404-L1449)).
+The source registers the 120 direct test-case leaves shown above. They are the Cartesian product of ten statistic selections, three construction modes, optional execution sets, and optional preprocessing ([`vktDGCStatQueryTestsExt.cpp`](../../../modules/vulkan/device_generated_commands/vktDGCStatQueryTestsExt.cpp#L1404-L1449)).
 
 ## Parameter Dimensions and Observed Values
 
@@ -379,7 +379,7 @@ The source prunes at support-check time: unsupported DGC stages, execution-set b
 
 ### Design-based pruning
 
-The registration deliberately fixes the statistic set, three construction modes, two execution-set states, two preprocessing states, an 8×8 graphics extent, and a 64×64 compute workload. It does not explore other statistics, extents, workgroup sizes, construction modes, or arbitrary combinations outside the 120 generated leaves ([registration](../../../modules/vulkan/device_generated_commands/vktDGCStatQueryTestsExt.cpp#L1404-L1449)).
+The registration deliberately fixes the statistic set, three construction modes, two execution-set states, two preprocessing states, an 8×8 graphics extent, and a 64×64 compute workload. It does not explore other statistics, extents, workgroup sizes, construction modes, or arbitrary combinations outside the 120 generated leaves ([`vktDGCStatQueryTestsExt.cpp`](../../../modules/vulkan/device_generated_commands/vktDGCStatQueryTestsExt.cpp#L1404-L1449)).
 
 ## Key Takeaways
 
@@ -396,4 +396,4 @@ The registration deliberately fixes the statistic set, three construction modes,
 | `checkSupport` | [support gates](../../../modules/vulkan/device_generated_commands/vktDGCStatQueryTestsExt.cpp#L177-L203) | Defines feature and construction requirements. |
 | `initPrograms` | [generated shaders](../../../modules/vulkan/device_generated_commands/vktDGCStatQueryTestsExt.cpp#L205-L434) | Emits the stage-specific shader variants. |
 | `iterate` | [execution and checks](../../../modules/vulkan/device_generated_commands/vktDGCStatQueryTestsExt.cpp#L440-L1389) | Records generated execution, readback, image comparison, and query validation. |
-| `populateStatQueryTestGroup` | [registration](../../../modules/vulkan/device_generated_commands/vktDGCStatQueryTestsExt.cpp#L1404-L1449) | Defines the ten direct children and 120 generated leaves. |
+| `populateStatQueryTestGroup` | [`populateStatQueryTestGroup`](../../../modules/vulkan/device_generated_commands/vktDGCStatQueryTestsExt.cpp#L1404-L1449) | Defines the ten direct children and 120 generated leaves. |

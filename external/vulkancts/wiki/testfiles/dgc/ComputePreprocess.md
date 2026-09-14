@@ -2,7 +2,7 @@
 
 **Core question:** Does `VK_NV_device_generated_commands` preprocess and execute generated compute commands correctly across the registered count, queue, and zero-count variants?
 
-- This page covers the implementation and registrations in [`vktDGCComputePreprocessTests.cpp`](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTests.cpp), the NV DGC compute-preprocess family.
+- This page covers the implementation and registrations in [NV compute preprocessing tests](../../../modules/vulkan/device_generated_commands/vktDGCComputePreprocessTests.cpp), the NV DGC compute-preprocess family.
 - The registered test families vary the preprocessing queue, execution queue, execution-count source, and zero-count boundary case.
 - Each case prepares generated compute commands, executes the prepared sequence, and checks a host-readable result buffer.
 - The page explains the exact registered hierarchy, the parameter dimensions, queue-switch behavior, result checking, pruning, and failure interpretation.

@@ -325,10 +325,10 @@ This representative case does not use GLSL or HLSL. CTS supplies the shader modu
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| `addComputeIndexingStructTests()` | [source](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L68-L293) | Generates nested compute-buffer assembly, parameter variants, and expected values. |
-| `addGraphicsIndexingStructTests()` | [source](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L295-L532) | Generates graphics-stage nested indexing cases and feature requirements. |
-| `addGraphicsOutputComponentIndexingTests()` | [source](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L534-L595) | Generates the output-interface component case across stages. |
-| `addComputeIndexingNon16BaseAlignmentTests()` | [source](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L597-L757) | Generates the 18-float, 72-byte-stride assembly and CPU sum reference. |
-| `createIndexingComputeGroup()` | [source](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L761-L773) | Registers compute `input.struct` and `input.non16basealignment`. |
-| `createIndexingGraphicsGroup()` | [source](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L776-L788) | Registers graphics `input.struct` and `output.component`. |
+| `addComputeIndexingStructTests()` | [`addComputeIndexingStructTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L68-L293) | Generates nested compute-buffer assembly, parameter variants, and expected values. |
+| `addGraphicsIndexingStructTests()` | [`addGraphicsIndexingStructTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L295-L532) | Generates graphics-stage nested indexing cases and feature requirements. |
+| `addGraphicsOutputComponentIndexingTests()` | [`addGraphicsOutputComponentIndexingTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L534-L595) | Generates the output-interface component case across stages. |
+| `addComputeIndexingNon16BaseAlignmentTests()` | [`addComputeIndexingNon16BaseAlignmentTests()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L597-L757) | Generates the 18-float, 72-byte-stride assembly and CPU sum reference. |
+| `createIndexingComputeGroup()` | [`createIndexingComputeGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L761-L773) | Registers compute `input.struct` and `input.non16basealignment`. |
+| `createIndexingGraphicsGroup()` | [`createIndexingGraphicsGroup()`](../../../modules/vulkan/spirv_assembly/vktSpvAsmIndexingTests.cpp#L776-L788) | Registers graphics `input.struct` and `output.component`. |
 | Mustpass inventory | [`spirv-assembly.txt`](../../../mustpass/main/vksc-default/spirv-assembly.txt#L4906-L4925) | Confirms the VulkanSC compute registration names; graphics entries are listed later in the same file. |

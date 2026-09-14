@@ -18,7 +18,7 @@ draw.renderpass.output_location
 └── shuffle
 ```
 
-`createOutputLocationTests()` creates the `output_location` group through `createTestGroup()` ([source](../../../modules/vulkan/draw/vktDrawOutputLocationTests.cpp#L127-L131)). The draw dispatcher adds that group only while building the render-pass branch and only when `CTS_USES_VULKANSC` is not defined and `useDynamicRendering` is false ([dispatcher](../../../modules/vulkan/draw/vktDrawTests.cpp#L103-L117)). Therefore this page describes neither a Vulkan SC registration nor a dynamic-rendering variant.
+`createOutputLocationTests()` creates the `output_location` group through `createTestGroup()` ([wrapper](../../../modules/vulkan/draw/vktDrawOutputLocationTests.cpp#L127-L131)). The draw dispatcher adds that group only while building the render-pass branch and only when `CTS_USES_VULKANSC` is not defined and `useDynamicRendering` is false ([dispatcher](../../../modules/vulkan/draw/vktDrawTests.cpp#L103-L117)). Therefore this page describes neither a Vulkan SC registration nor a dynamic-rendering variant.
 
 The public entry point is declared in [`vktDrawOutputLocationTests.hpp`](../../../modules/vulkan/draw/vktDrawOutputLocationTests.hpp#L27-L40), and the wrapper implementation is [`vktDrawOutputLocationTests.cpp`](../../../modules/vulkan/draw/vktDrawOutputLocationTests.cpp#L25-L134).
 
@@ -115,7 +115,7 @@ void main()
 
 #### Additional Info
 
-- The exact Amber source also defines `vert_shader`, which assigns `gl_Position = vec4(position_in, 0, 1)` and copies `color_in[i]` to `color_out[i]`; this producer remains fixed across the 28 array cases ([source](../../../data/vulkan/amber/draw/output_location/array/b8g8r8a8-unorm-highp.amber#L16-L32)).
+- The exact Amber source also defines `vert_shader`, which assigns `gl_Position = vec4(position_in, 0, 1)` and copies `color_in[i]` to `color_out[i]`; this producer remains fixed across the 28 array cases ([B8G8R8A8 Unorm Highp.Amber](../../../data/vulkan/amber/draw/output_location/array/b8g8r8a8-unorm-highp.amber#L16-L32)).
 - The three draw pipelines bind `framebuffer0`, `framebuffer1`, and `framebuffer2` as color locations 0, 1, and 2. Separate reference and verification pipelines make attachment routing observable rather than relying on a single combined image ([pipeline setup](../../../data/vulkan/amber/draw/output_location/array/b8g8r8a8-unorm-highp.amber#L95-L167)).
 - The source comparison is exact (`result != ref`): a mismatch writes red, while equality writes green; the final `EXPECT` requires green for each 60x60 result image ([verification shader](../../../data/vulkan/amber/draw/output_location/array/b8g8r8a8-unorm-highp.amber#L64-L82), [expectations](../../../data/vulkan/amber/draw/output_location/array/b8g8r8a8-unorm-highp.amber#L212-L214)).
 
@@ -336,7 +336,7 @@ The source supplies names rather than a C++ parameter object or generated case m
 
 ### `shuffle` family
 
-The wrapper uses `draw/output_location/shuffle` and registers exactly two Amber cases ([source](../../../modules/vulkan/draw/vktDrawOutputLocationTests.cpp#L103-L118)):
+The wrapper uses `draw/output_location/shuffle` and registers exactly two Amber cases ([shuffle](../../../modules/vulkan/draw/vktDrawOutputLocationTests.cpp#L103-L118)):
 
 | Case | Registered Amber file |
 |---|---|
