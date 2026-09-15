@@ -692,7 +692,6 @@ public:
 ### 13.4 Documentation
 
 - [`README.md`](../README.md) - Build and run instructions
-- [`Objectives.md`](Objectives.md) - Project objectives
 - [`doc/testspecs/VK/apitests.adoc`](../../../doc/testspecs/VK/apitests.adoc) - API test specifications
 
 ## Summary

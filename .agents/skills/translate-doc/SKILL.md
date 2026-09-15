@@ -122,7 +122,6 @@ one landing-page exception and one publish-layout transformation.
 |--------------------------|------------------------|
 | `external/vulkancts/wiki/README.md` | `vkcts-wiki-pages/home.md` |
 | `external/vulkancts/wiki/CTS_Framework.md` | `vkcts-wiki-pages/CTS_Framework.md` |
-| `external/vulkancts/wiki/Objectives.md` | `vkcts-wiki-pages/Objectives.md` |
 | `external/vulkancts/wiki/categories/memory_model.md` | `vkcts-wiki-pages/categories/memory_model.md` |
 | `external/vulkancts/wiki/testfiles/memory_model/MessagePassing.md` | `vkcts-wiki-pages/categories/memory_model/MessagePassing.md` |
 

@@ -65,7 +65,7 @@ Use these helper skills when applicable:
 
 ### 1. Resolve the fresh category
 
-Confirm the category name, source directory, mustpass location, and target output directory. Read the user-facing `README.md` and `Objectives.md` for navigation and documentation scope, but do not use any existing wiki page as a content reference. Read relevant framework files only when making framework-level claims.
+Confirm the category name, source directory, mustpass location, and target output directory. Read the user-facing `README.md` for navigation and documentation scope, but do not use any existing wiki page as a content reference. Read relevant framework files only when making framework-level claims.
 
 If the category is not clean or the task asks to rewrite an existing page, stop: this skill is scratch-only.
 
