@@ -2,7 +2,7 @@
 
 **Core question:** Does swapchain presentation report coherent timing data while the application schedules frames through `VK_GOOGLE_display_timing`?
 
-- This page covers the `display_timing` test family implemented in [`vktWsiDisplayTimingTests.cpp`](../../../modules/vulkan/wsi/vktWsiDisplayTimingTests.cpp).
+- This page covers the `display_timing` test family implemented in [vktWsiDisplayTimingTests.cpp](../../../modules/vulkan/wsi/vktWsiDisplayTimingTests.cpp).
 - The WSI dispatcher registers the same five present-mode intermediate nodes for each supported platform. Each contains a baseline `reference` test case and a `display_timing` test case.
 - Both test cases render and present 300 frames. The timed case supplies desired presentation times, queries past presentation records, checks their timestamps, and adjusts its target frame interval from the returned data.
 - The host performs all timing checks. The shaders only render a frame-dependent color pattern into the swapchain image.
@@ -36,8 +36,8 @@ Each shown intermediate node contains the `reference` and `display_timing` test 
 | Dimension | Registered values | Meaning in this test | Evidence |
 |-----------|-------------------|----------------------|----------|
 | WSI platform | `android`, `direct`, `direct_drm`, `headless`, `metal`, `wayland`, `win32`, `xcb`, `xlib` in the default mustpass list | Selects the native display, window, surface extension, and surface implementation. The `display_timing` family logic stays the same. | Default mustpass paths for [Android](../../../mustpass/main/vk-default/wsi.txt#L20-L29), [direct](../../../mustpass/main/vk-default/wsi.txt#L4428-L4437), [direct DRM](../../../mustpass/main/vk-default/wsi.txt#L7970-L7979), [headless](../../../mustpass/main/vk-default/wsi.txt#L11528-L11537), [Metal](../../../mustpass/main/vk-default/wsi.txt#L15449-L15458), [Wayland](../../../mustpass/main/vk-default/wsi.txt#L20236-L20245), [Win32](../../../mustpass/main/vk-default/wsi.txt#L24157-L24166), [XCB](../../../mustpass/main/vk-default/wsi.txt#L28079-L28088), and [Xlib](../../../mustpass/main/vk-default/wsi.txt#L32001-L32010) |
-| Present-mode intermediate node | `fifo`, `fifo_relaxed`, `immediate`, `mailbox`, `fifo_latest_ready` | Selects swapchain presentation semantics. It also controls whether the deliberate present-ID-80 timing perturbation runs. | [present mode registration](../../../modules/vulkan/wsi/vktWsiDisplayTimingTests.cpp#L1089-L1123) |
-| Test case leaf | `reference`, `display_timing` | Selects baseline presentation or extension-driven scheduling and timing checks. This is the primary behavioral axis. | [test case registration](../../../modules/vulkan/wsi/vktWsiDisplayTimingTests.cpp#L1108-L1119) |
+| Present-mode intermediate node | `fifo`, `fifo_relaxed`, `immediate`, `mailbox`, `fifo_latest_ready` | Selects swapchain presentation semantics. It also controls whether the deliberate present-ID-80 timing perturbation runs. | [present mode registration](../../../modules/vulkan/wsi/vktWsiDisplayTimingTests.cpp#L1091-L1112) |
+| Test case leaf | `reference`, `display_timing` | Selects baseline presentation or extension-driven scheduling and timing checks. This is the primary behavioral axis. | [test case registration](../../../modules/vulkan/wsi/vktWsiDisplayTimingTests.cpp#L1103-L1110) |
 
 Fixed execution values include 300 frames, 16 quads per draw, six fences, and at most 20 out-of-date recoveries. These values bound the run but do not create registered cases.
 
@@ -57,7 +57,7 @@ The timed case enables `VK_GOOGLE_display_timing`, queries the refresh duration,
 
 The shaders do not implement the timing property or produce the pass/fail signal, so this page has no representative shader walkthrough or SPIR-V subsection.
 
-`Programs::init` creates a fixed vertex shader that derives full-screen triangle positions from `gl_VertexIndex` and a fragment shader that mixes the pushed frame index with `gl_FragCoord` to produce a changing color pattern. The host does not read pixels back. The presentation engine receives distinct rendered frames, while extension queries and host timestamps provide all timing evidence.
+`DisplayTimingTestCase::initPrograms` creates a fixed vertex shader that derives full-screen triangle positions from `gl_VertexIndex` and a fragment shader that mixes the pushed frame index with `gl_FragCoord` to produce a changing color pattern. The host does not read pixels back. The presentation engine receives distinct rendered frames, while extension queries and host timestamps provide all timing evidence.
 
 ## Runtime Execution and Result Checking
 
@@ -112,8 +112,8 @@ The shaders do not implement the timing property or produce the pass/fail signal
 
 ### Requirement-based pruning
 
-- The instance requires `VK_KHR_surface`, the selected platform surface extension, `VK_KHR_display` for display surfaces, and `VK_EXT_direct_mode_display` for `direct_drm`.
-- Device setup requires `VK_KHR_swapchain`. The source also checks advertised support for `VK_GOOGLE_display_timing` for both test case leaves, although only `display_timing` enables it.
+- [`DisplayTimingTestCase::checkSupport`](../../../modules/vulkan/wsi/vktWsiDisplayTimingTests.cpp#L1025-L1040) requires `VK_KHR_surface`, the selected platform surface extension, `VK_KHR_display` for display surfaces, and `VK_EXT_direct_mode_display` for `direct_drm` before any instance is created.
+- The same function requires the `VK_KHR_swapchain` and `VK_GOOGLE_display_timing` device extensions for both test case leaves, although only `display_timing` enables `VK_GOOGLE_display_timing` on the created device.
 - The selected surface must advertise the registered present mode. Otherwise, the case reports not supported before swapchain creation.
 
 ### Design-based pruning
@@ -133,15 +133,15 @@ The shaders do not implement the timing property or produce the pass/fail signal
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Device and extension creation | [createDeviceWithWsi](../../../modules/vulkan/wsi/vktWsiDisplayTimingTests.cpp#L105-L136) | Selects enabled extensions and performs the unconditional support loop. |
+| Device and extension creation | [createDeviceWithWsi](../../../modules/vulkan/wsi/vktWsiDisplayTimingTests.cpp#L76-L99) | Selects enabled extensions and performs the unconditional support loop. |
 | Swapchain configuration | [createSwapchainConfig](../../../modules/vulkan/wsi/vktWsiDisplayTimingTests.cpp#L502-L578) | Checks the present mode and builds the swapchain parameters. |
 | Resource and timing initialization | [DisplayTimingTestInstance::initSwapchainResources](../../../modules/vulkan/wsi/vktWsiDisplayTimingTests.cpp#L638-L687) | Creates swapchain resources and initializes refresh-based scheduling. |
 | Timing checks and adaptation | [DisplayTimingTestInstance::render](../../../modules/vulkan/wsi/vktWsiDisplayTimingTests.cpp#L737-L887) | Consumes timing records, performs checks, and adjusts the target interval. |
 | Timed and reference presentation | [presentation branches](../../../modules/vulkan/wsi/vktWsiDisplayTimingTests.cpp#L905-L975) | Submits desired times, injects the present-ID-80 case, or uses baseline presentation. |
 | Completion and out-of-date recovery | [DisplayTimingTestInstance::iterate](../../../modules/vulkan/wsi/vktWsiDisplayTimingTests.cpp#L986-L1046) | Defines the 300-frame completion rule and recreation limit. |
-| Shader source | [Programs::init](../../../modules/vulkan/wsi/vktWsiDisplayTimingTests.cpp#L1048-L1085) | Generates the frame-dependent render pattern. |
-| Registration | [createDisplayTimingTests](../../../modules/vulkan/wsi/vktWsiDisplayTimingTests.cpp#L1089-L1124) | Registers all present-mode intermediate nodes and both test case leaves. |
-| WSI dispatch | [WSI dispatch](../../../modules/vulkan/wsi/vktWsiTests.cpp#L42-L81) | Attaches this test family under each platform-specific WSI branch. |
+| Shader source | [DisplayTimingTestCase::initPrograms](../../../modules/vulkan/wsi/vktWsiDisplayTimingTests.cpp#L1042-L1076) | Generates the frame-dependent render pattern. |
+| Registration | [createDisplayTimingTests](../../../modules/vulkan/wsi/vktWsiDisplayTimingTests.cpp#L1085-L1114) | Registers all present-mode intermediate nodes and both test case leaves. |
+| WSI dispatch | [vktWsiTests.cpp](../../../modules/vulkan/wsi/vktWsiTests.cpp#L42-L81) | Attaches this test family under each platform-specific WSI branch. |
 | Extension timing semantics | [Vulkan WSI specification](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L5293-L5465) | Defines refresh duration, timing-history fields, and present-mode behavior. |
 | Desired presentation times | [Vulkan WSI specification](../../../../vulkan-docs/src/chapters/VK_KHR_surface/wsi.adoc#L8077-L8141) | Defines the timed-present structures and requested-time contract. |
 | Representative mustpass registration | [default WSI mustpass list](../../../mustpass/main/vk-default/wsi.txt#L11528-L11537) | Confirms the five modes and two leaves under `wsi.headless.display_timing`. |

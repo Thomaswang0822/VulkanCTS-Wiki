@@ -27,7 +27,7 @@ data_graph
 └── specialization_constants
 ```
 
-The top-level Vulkan test package adds `data_graph` with `dataGraph::createTests` in [`TestPackage::init()`](../../../modules/vulkan/vktTestPackage.cpp#L1398-L1400). The dispatcher adds eight direct children in order in [`vktDataGraphTests.cpp`](../../../modules/vulkan/data_graph/vktDataGraphTests.cpp#L39-L55). The mustpass file contains the corresponding prefixes in [`data-graph.txt`](../../../mustpass/main/vk-default/data-graph.txt#L1-L10176).
+The top-level Vulkan test package adds `data_graph` with `dataGraph::createTests` in [`vktTestPackage.cpp`](../../../modules/vulkan/vktTestPackage.cpp#L1455-L1457). The dispatcher adds eight direct children in order in [`vktDataGraphTests.cpp`](../../../modules/vulkan/data_graph/vktDataGraphTests.cpp#L39-L55). The mustpass file contains the corresponding prefixes in [`data-graph.txt`](../../../mustpass/main/vk-default/data-graph.txt#L1-L10176).
 
 ## Parameter Dimensions and Observed Values
 
@@ -35,7 +35,7 @@ The dispatcher has no parameterized test cases. It passes the test context and s
 
 | Dispatcher dimension | Observed value | Meaning in this page | Evidence |
 |----------------------|----------------|----------------------|----------|
-| Direct child group | `basic`, `cache`, `properties` | Selects which child factory owns registration and execution | [`createTests()`](../../../modules/vulkan/data_graph/vktDataGraphTests.cpp#L41-L45) |
+| Direct child group | `basic`, `cache`, `properties` | Selects which child factory owns registration and execution | [`vktDataGraphTests.cpp`](../../../modules/vulkan/data_graph/vktDataGraphTests.cpp#L41-L45) |
 
 ## Behavior Parameters
 
@@ -56,7 +56,7 @@ The dispatcher source is registration-only: [`createTests`](../../../modules/vul
 - The test package calls `dataGraph::createTests` while constructing the Vulkan test tree. The function creates a `TestCaseGroup` using the supplied root name.
 - The function attaches the `basic`, `cache`, and `properties` child groups through `createTestGroup`. Each child factory then registers its own executable cases.
 - The dispatcher performs no Vulkan device query, command submission, output readback, or pass/fail comparison. Those operations remain within the child implementations and their shared data graph utilities.
-- The shared child support path requires `VK_ARM_data_graph` and `VK_ARM_tensors`, then checks the `dataGraph`, `dataGraphShaderModule`, `tensors`, and `shaderTensorAccess` features. Parameter sets using non-packed resources also require `tensorNonPacked` in [`vktDataGraphTestUtil.hpp`](../../../modules/vulkan/data_graph/vktDataGraphTestUtil.hpp#L219-L256). Cache cases add the pipeline-creation cache-control requirement in [`checkSupport()`](../../../modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp#L129-L146).
+- The shared child support path requires `VK_ARM_data_graph` and `VK_ARM_tensors`, then checks the `dataGraph`, `dataGraphShaderModule`, `tensors`, and `shaderTensorAccess` features. Parameter sets using non-packed resources also require `tensorNonPacked` in [`vktDataGraphTestUtil.hpp`](../../../modules/vulkan/data_graph/vktDataGraphTestUtil.hpp#L219-L256). Cache cases add the pipeline-creation cache-control requirement in [`vktDataGraphPipelineCacheTests.cpp`](../../../modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp#L129-L146).
 
 ## Failure Meaning
 
@@ -80,7 +80,7 @@ Because this page documents a single registration dispatcher rather than an exec
 
 ### Requirement-based pruning
 
-The dispatcher does not prune executable cases. Each child test case runs its own support callback, so unsupported extension, feature, or limit combinations are skipped at the child boundary. The shared support checks require `VK_ARM_data_graph` and `VK_ARM_tensors`, the relevant data graph and tensor features, and `tensorNonPacked` when a parameter set uses non-packed resources. Cache tests add their cache-control requirement. See [`vktDataGraphTestUtil.hpp`](../../../modules/vulkan/data_graph/vktDataGraphTestUtil.hpp#L219-L256) and [`checkSupport()`](../../../modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp#L129-L146).
+The dispatcher does not prune executable cases. Each child test case runs its own support callback, so unsupported extension, feature, or limit combinations are skipped at the child boundary. The shared support checks require `VK_ARM_data_graph` and `VK_ARM_tensors`, the relevant data graph and tensor features, and `tensorNonPacked` when a parameter set uses non-packed resources. Cache tests add their cache-control requirement. See [`vktDataGraphTestUtil.hpp`](../../../modules/vulkan/data_graph/vktDataGraphTestUtil.hpp#L219-L256) and [`vktDataGraphPipelineCacheTests.cpp`](../../../modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp#L129-L146).
 
 ### Design-based pruning
 
@@ -97,10 +97,10 @@ The dispatcher intentionally exposes exactly eight direct children. It does not 
 
 | Entry point | Link | Why it matters |
 |-------------|------|----------------|
-| Vulkan package root registration | [`TestPackage::init()`](../../../modules/vulkan/vktTestPackage.cpp#L1398-L1400) | Adds `data_graph` to the Vulkan test package |
-| Data graph dispatcher | [Data graph dispatcher](../../../modules/vulkan/data_graph/vktDataGraphTests.cpp#L39-L47) | Creates the root and registers its three direct children |
-| Mustpass hierarchy | [Mustpass hierarchy](../../../mustpass/main/vk-default/data-graph.txt#L1-L10176) | Lists the registered `basic`, `cache`, and `properties` paths |
-| Basic child registration | [Basic child registration](../../../modules/vulkan/data_graph/vktDataGraphBasicTests.cpp#L423-L427) | Defines the `basic` child boundary |
-| Cache child registration | [Cache child registration](../../../modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp#L851-L855) | Defines the `cache` child boundary |
-| Properties child registration | [`propertiesTestsGroup()`](../../../modules/vulkan/data_graph/vktDataGraphPropertiesTests.cpp#L547-L551) | Defines the `properties` child boundary |
-| Shared support routing | [Shared support routing](../../../modules/vulkan/data_graph/vktDataGraphTestUtil.hpp#L219-L256) | Defines common extension, feature, and parameter-dependent support checks |
+| Vulkan package root registration | [`vktTestPackage.cpp#L1398-L1400`](../../../modules/vulkan/vktTestPackage.cpp#L1398-L1400) | Adds `data_graph` to the Vulkan test package |
+| Data graph dispatcher | [`vktDataGraphTests.cpp#L39-L47`](../../../modules/vulkan/data_graph/vktDataGraphTests.cpp#L39-L47) | Creates the root and registers its three direct children |
+| Mustpass hierarchy | [`data-graph.txt#L1-L10176`](../../../mustpass/main/vk-default/data-graph.txt#L1-L10176) | Lists the registered `basic`, `cache`, and `properties` paths |
+| Basic child registration | [`vktDataGraphBasicTests.cpp#L423-L427`](../../../modules/vulkan/data_graph/vktDataGraphBasicTests.cpp#L423-L427) | Defines the `basic` child boundary |
+| Cache child registration | [`vktDataGraphPipelineCacheTests.cpp#L851-L855`](../../../modules/vulkan/data_graph/vktDataGraphPipelineCacheTests.cpp#L851-L855) | Defines the `cache` child boundary |
+| Properties child registration | [`vktDataGraphPropertiesTests.cpp#L547-L551`](../../../modules/vulkan/data_graph/vktDataGraphPropertiesTests.cpp#L547-L551) | Defines the `properties` child boundary |
+| Shared support routing | [`vktDataGraphTestUtil.hpp#L219-L256`](../../../modules/vulkan/data_graph/vktDataGraphTestUtil.hpp#L219-L256) | Defines common extension, feature, and parameter-dependent support checks |
