@@ -31,6 +31,7 @@ technical explanation rather than replace it.
 | Level-2 category pages | [categories/](categories/) | What does one top-level test category cover, and which Level-3 page should I open? | Read when you know the category name. |
 | Level-3 testfile pages | [testfiles/](testfiles/) | What do specific test families, generated cases, parameters, resources, shaders, and checks do? | Read when you need technical test behavior. |
 | Source and mustpass links | Inline links and appendices | Which repository evidence supports the explanation? | Use for audit, debugging, or source-level follow-up. |
+| Case lookup tool | [Static case lookup site](https://vulkan-cts-wiki-78aa2e.pages.mthreads.com/) | Which Chinese Level-3 page owns this complete registration path? | Use when you already have a `dEQP-VK.` or `dEQP-VKSC.` path. |
 
 Typical reading flow:
 
@@ -41,6 +42,32 @@ README
         -> Source Reference Appendix
            -> source or mustpass evidence
 ```
+
+## Finding a Page from a CTS Registration Path
+
+When you already have a complete registration path, use the
+[Case Lookup Tool](https://vulkan-cts-wiki-78aa2e.pages.mthreads.com/)
+instead of searching the category index manually.
+
+1. Paste a path such as
+   `dEQP-VK.api.buffer.basic.max_size` into the input field.
+2. Submit the query. The tool returns the Chinese Level-3 page whose
+   registration hierarchy owns the longest matching path prefix.
+3. Open the result and use the page's registration hierarchy, source links, and
+   mustpass references to continue the investigation.
+
+The tool accepts only complete paths beginning with `dEQP-VK.` or `dEQP-VKSC.`.
+It checks path components before lookup, and it does not use suffix guessing or
+generic fallback aliases. A syntactically valid path can still return no page
+when the tracked index has no verified owner for it.
+
+The site is a static browser application. It loads the tracked mapping index
+once and performs the lookup locally; the query is not sent to a backend. The
+index currently covers 55 test categories and 13,485 registration-prefix
+mappings. Vulkan SC uses `vksc-default/sc.txt` and the `dEQP-VKSC` namespace.
+
+For the implementation and local verification commands, see
+[`case_lookup/README.md`](case_lookup/README.md).
 
 ## If You Have a Specific Goal
 

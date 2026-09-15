@@ -1,4 +1,34 @@
-# CTS Registration Path 查询工具
+# CTS Registration Path Lookup / 查询工具
+
+## English
+
+The [CTS Registration Path Lookup](https://vulkan-cts-wiki-78aa2e.pages.mthreads.com/)
+tool maps a complete Vulkan CTS registration path to the Chinese Level-3 wiki
+page that owns it.
+
+### Quick use
+
+1. Open the static site.
+2. Enter a path beginning with `dEQP-VK.` or `dEQP-VKSC.`, for example
+   `dEQP-VK.api.buffer.basic.max_size`.
+3. Submit the form and open the returned Level-3 page.
+
+The browser loads `site/mappings.json` and performs a component-boundary-safe
+longest-prefix lookup locally. It does not send queries to a backend. The
+current index covers 55 categories and 13,485 verified mappings. A valid path
+may still have no result when its prefix has no verified page owner. Invalid
+paths are rejected before lookup.
+
+The command-line equivalent is:
+
+```bash
+python3 external/vulkancts/wiki/case_lookup/lookup.py lookup \
+  dEQP-VK.api.buffer.basic.max_size
+```
+
+For the reader-facing workflow, see
+[`../Reader_Guide.md`](../Reader_Guide.md). The remaining sections document
+the supervised build, runtime artifacts, and verification commands.
 
 这个工具接收一个以 `dEQP-VK.` 或 `dEQP-VKSC.` 开头的完整 Vulkan CTS registration path，并返回对应的中文 Level-3 Wiki 页面链接。当前索引覆盖 55 个 category；`sc` 使用独立的 `vksc-default/sc.txt` 输入和 `dEQP-VKSC` namespace。
 

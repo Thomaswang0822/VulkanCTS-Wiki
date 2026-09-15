@@ -14,6 +14,8 @@ summaries and per-source-file notes that link back to the implementation evidenc
 - Looking for source-file-level behavior: open a category page, then follow its Level-3 testfile links.
 - Investigating naming mismatches between wiki pages, mustpass files, and source directories: see
   [Category Naming Notes](#category-naming-notes).
+- Starting from a complete CTS registration path: use the
+  [Case Lookup Tool](https://vulkan-cts-wiki-78aa2e.pages.mthreads.com/).
 
 ## How the Wiki Is Organized
 
@@ -23,6 +25,7 @@ summaries and per-source-file notes that link back to the implementation evidenc
 | [CTS_Framework.md](CTS_Framework.md) | Framework, registration, execution, verification, mustpass, and Vulkan SC overview. |
 | [categories/](categories/) | One page per top-level Vulkan CTS category, summarizing registration structure and cross-file behavior. |
 | [testfiles/](testfiles/) | Source-file-level pages linked from category pages, covering registered groups, test families, parameters, support checks, and verification methods. |
+| [Case Lookup Tool](https://vulkan-cts-wiki-78aa2e.pages.mthreads.com/) | Enter a complete `dEQP-VK.` or `dEQP-VKSC.` path and open the matching Chinese Level-3 page. |
 
 ```text
 wiki/
@@ -39,6 +42,22 @@ wiki/
     │   └── ...
     └── ...
 ```
+
+## Case Lookup Tool
+
+The [Case Lookup Tool](https://vulkan-cts-wiki-78aa2e.pages.mthreads.com/)
+maps a complete Vulkan CTS registration path to the Chinese Level-3 wiki page
+that owns the path. It accepts paths beginning with `dEQP-VK.` or `dEQP-VKSC.`
+and uses a component-boundary-safe longest-prefix match, so a more specific
+registered prefix wins over a broader category prefix.
+
+The lookup runs entirely in the browser from the tracked static index. It does
+not send the query to a backend. The current index contains 55 test categories
+and 13,485 verified registration-prefix mappings; Vulkan SC cases use the
+separate `vksc-default/sc.txt` input and the `dEQP-VKSC` namespace.
+
+For step-by-step usage, examples, and the distinction between a valid path with
+no mapping and an invalid path, see [Reader_Guide.md](Reader_Guide.md).
 
 ## Scope and Evidence
 

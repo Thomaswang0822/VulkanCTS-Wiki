@@ -137,9 +137,9 @@ async def run_e2e(debug_port: int, base_url: str) -> list[dict[str, object]]:
         results.append(
             {
                 "path": "api.buffer.basic.max_size",
-                "expected": "请输入以 dEQP-VK. 开头",
+                "expected": "请输入以 dEQP-VK. 或 dEQP-VKSC. 开头",
                 "actual": invalid,
-                "pass": "请输入以 dEQP-VK. 开头" in invalid,
+                "pass": "请输入以 dEQP-VK. 或 dEQP-VKSC. 开头" in invalid,
             }
         )
         # The suite uses one page only and closes it explicitly before Chromium exits.
