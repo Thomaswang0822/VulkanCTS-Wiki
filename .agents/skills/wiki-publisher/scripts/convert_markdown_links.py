@@ -21,6 +21,7 @@ from urllib.parse import quote
 
 # Static publish configuration. Update here if the GitLab project or source ref changes.
 GITLAB_BLOB_PREFIX = "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/blob/vkcts-wiki/"
+GITLAB_REPO_PREFIX = "https://sh-code.mthreads.com/haoxuan.wang/vulkan-cts-wiki/-/"
 PUBLISH_WIKI_ROOT = Path("vkcts-wiki-pages")
 CANONICAL_WIKI_ROOT = Path("external/vulkancts/wiki")
 
@@ -36,8 +37,19 @@ EXTERNAL_SOURCE_UPSTREAMS = {
     "external/spirv-headers/src": "https://github.com/KhronosGroup/SPIRV-Headers/blob/main/",
 }
 
-LINK_RE = re.compile(r"(?<!!)\[([^\]\n]+)\]\(([^)\s]+)(\s+[^)]*)?\)")
+# Link labels may themselves contain an empty bracket pair, as in `cases[]`.
+# Keep `]` in a label unless it is the closing bracket immediately followed by
+# the target opener, so those links are not skipped during conversion.
+LINK_RE = re.compile(r"(?<!!)\[((?:[^\]\n]|\](?!\())+)\]\(([^)\s]+)(\s+[^)]*)?\)")
 SCHEME_RE = re.compile(r"^[A-Za-z][A-Za-z0-9+.-]*:")
+LEGACY_REPO_URL_RE = re.compile(
+    r"^https://github\.com/KhronosGroup/VK-GL-CTS/(?P<kind>blob|tree)/main/"
+    r"external/vulkancts/(?P<path>[^#]*)(?P<fragment>#.*)?$"
+)
+LEGACY_PROJECT_URL_RE = re.compile(
+    r"^https://sh-code\.mthreads\.com/haoxuan\.wang/(?P<project>vulkan-cts|vulkan-cts-wiki)/-/"
+    r"(?P<kind>blob|tree)/(?P<ref>[^/]+)/(?P<path>.*)$"
+)
 
 
 def as_posix(path: Path) -> str:
@@ -59,6 +71,28 @@ def is_external_or_special(target: str) -> bool:
         or target.startswith("/")
         or SCHEME_RE.match(target) is not None
     )
+
+
+def normalize_existing_repo_url(target: str) -> str:
+    """Normalize known legacy CTS source URLs to the publish repository."""
+    match = LEGACY_REPO_URL_RE.match(target)
+    if match:
+        fragment = match.group("fragment") or ""
+        return (
+            f"{GITLAB_REPO_PREFIX}{match.group('kind')}/vkcts-wiki/"
+            f"external/vulkancts/{match.group('path')}{fragment}"
+        )
+
+    match = LEGACY_PROJECT_URL_RE.match(target)
+    if match and match.group("path").startswith("external/vulkancts/"):
+        fragment = ""
+        path = match.group("path")
+        if "#" in path:
+            path, fragment = path.split("#", 1)
+            fragment = "#" + fragment
+        return f"{GITLAB_REPO_PREFIX}{match.group('kind')}/vkcts-wiki/{path}{fragment}"
+
+    return target
 
 
 def canonical_path_for_publish_file(markdown_file: Path) -> Path:
@@ -194,6 +228,9 @@ def is_converted_publish_link(path_part: str, publish_file: Path) -> bool:
 
 
 def convert_target(target: str, publish_file: Path, canonical_file: Path) -> str:
+    normalized_target = normalize_existing_repo_url(target)
+    if normalized_target != target:
+        return normalized_target
     if is_external_or_special(target):
         return target
 
