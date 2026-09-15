@@ -654,4 +654,3 @@ All six values also depend on the shared shader generator, tessellation executio
 | Vulkan interface rules | [User-Defined Variable Interface and Interface Matching](../../../../vulkan-docs/src/chapters/interfaces.adoc#L104-L180) | Grounds locations, decorations, and matching types. |
 | Vulkan tessellation model | [Tessellation Control and Evaluation Shaders](../../../../vulkan-docs/src/chapters/shaders.adoc#L2576-L2681) | Grounds patch ownership and stage invocation roles. |
 | Mustpass paths | [`vk-default/tessellation.txt`](../../../mustpass/main/vk-default/tessellation.txt#L1002-L1055) | Confirms all 54 executable paths. |
-| Understanding Brief | [UserDefinedIO_brief.md](UserDefinedIO_brief.md) | Records the source-backed learning model and audit decisions used for this rewrite. |

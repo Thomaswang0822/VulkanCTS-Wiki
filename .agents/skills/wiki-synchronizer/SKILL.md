@@ -54,17 +54,17 @@ Fix a proven tooling defect within the authorized scope, with regression tests; 
 
 ## 4. Update C-class English categories
 
-For each category, compare its upstream delta with current source, registration, MUSTPASS, and relevant specification evidence. Maintain the gateway, affected Level-3 pages, and related briefs where their evidence became stale. New implementation-bearing families may need new pages; dispatchers and helper-only files do not.
+For each category, compare its upstream delta with current source, registration, MUSTPASS, and relevant specification evidence. Maintain the gateway and affected Level-3 pages where their evidence became stale. New implementation-bearing families may need new pages; dispatchers and helper-only files do not.
 
 Preserve explanation depth and canonical structure. Change source-proven facts and dependent references, not unrelated prose. Do not replace real shader walkthroughs with exceptions. Use writer's shader helpers when required; keep host-only/setup-only explanations short and factual, without workflow filenames in published prose.
 
-Use category-sized maintenance batches. When splitting substantial writing or audit work, assign exactly one canonical page (and its related brief if needed) to a worker. The lead owns the gateway, shared files, and final category verification. Supply each worker the exact local skills/references to read, baseline, evidence, writable paths, and validation commands. Never run two writers on the same file or re-dispatch it while its worker is live.
+Use maintenance batches of at most four canonical pages. Assign exactly one canonical page to each worker, with at most four concurrent workers. The lead owns the gateway, shared files, and final category verification. Supply each worker the exact local skills/references to read, baseline, evidence, writable paths, and validation commands. Never run two writers on the same file or re-dispatch it while its worker is live.
 
 Apply the writer's English language gates and auditor's source-vs-page review. After edits, run the category checks below. Record `update` or `no wiki update`, evidence, affected paths, and actual results. A checked box follows verified work; it never substitutes for it.
 
 ## 5. Validate English and rebuild the lookup DB
 
-Use the current commands in [writer's validation checklist](../wiki-writer/references/validation-checklist.md): English structure, registration paths, and local links. Run the source line-reference checker as well, after inspecting its current CLI. Use category identifiers, not `.md` filenames; resolve shared physical page directories explicitly. Include briefs in link/reference checks but not canonical Level-3 structure counts.
+Use the current commands in [writer's validation checklist](../wiki-writer/references/validation-checklist.md): English structure, registration paths, and local links. Run the source line-reference checker as well, after inspecting its current CLI. Use category identifiers, not `.md` filenames; resolve shared physical page directories explicitly.
 
 Then follow [db-lookup-updater](../db-lookup-updater/SKILL.md): inspect configured inputs and current mappings, build affected categories in isolation, diagnose ownership or namespace failures, rebuild the full runtime index, and run lookup tests/coverage. Updating an already-enabled category need not change category counts. Preserve tree-first ownership; no generic aliases or suffix guesses to force a successful build.
 
@@ -78,7 +78,7 @@ Separate genuine page defects, tool limitations, namespace projections, and sour
 
 ## 6. Synchronize Chinese changes by category
 
-After English and DB acceptance and explicit translation authorization, freeze the accepted English revision. Derive the Chinese work list from the English delta since the last synchronized wiki revision, including added pages and B-class/global repairs, not merely the upstream source delta. Exclude briefs and internal documents.
+After English and DB acceptance and explicit translation authorization, freeze the accepted English revision. Derive the Chinese work list from the English delta since the last synchronized wiki revision, including added pages and B-class/global repairs, not merely the upstream source delta. Exclude internal documents.
 
 For this merge-maintenance phase, use **one worker per test category** as requested by the user. This overrides publisher's normal page-worker dispatch granularity only; all publisher/translate-doc content, path, terminology, language, and validation rules still apply. Each worker processes its affected pages sequentially. Group shared physical outputs into one non-overlapping assignment. Handle changed global pages with explicit separate ownership.
 

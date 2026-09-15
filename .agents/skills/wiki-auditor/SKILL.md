@@ -22,9 +22,7 @@ Use this skill for:
 Target explanation-first outputs created under [`wiki-writer`](../wiki-writer/SKILL.md). This skill audits the final pages produced by
 the scratch-writing workflow, not temporary outlines or first-version source-analysis notes.
 
-Do not treat Understanding Briefs, writing outlines, or other internal coordination files as user-facing audit targets unless explicitly requested.
-
-If a requested page is still a temporary source-analysis artifact rather than a final writer output, stop and route it through `wiki-writer` instead of adapting this audit to an incomplete page shape.
+Do not treat writing outlines or other internal coordination files as user-facing audit targets unless explicitly requested.
 
 ## Required Inputs
 
@@ -37,7 +35,7 @@ Resolve before auditing:
 - relevant Vulkan specification chapters for semantic claims;
 - applicable writer templates and validation policy.
 
-For a category audit, enumerate the complete target set before assigning work. Include every final Level-3 page and the final Level-2 page when present. Exclude files ending in `_brief.md` and files under `wiki/internal_doc/` from user-facing page ownership.
+For a category audit, enumerate the complete target set before assigning work. Include every final Level-3 page and the final Level-2 page when present. Exclude files under `wiki/internal_doc/` from user-facing page ownership.
 
 ## References
 
@@ -220,8 +218,7 @@ Edit confirmed defects in place and validate its links.
 ### 10. Run category validation
 
 After all page edits, run the canonical category-scoped English structure and registration validators plus the category wiki-link
-command from `../wiki-writer/references/validation-checklist.md`. Exclude Understanding Briefs from semantic target accounting even
-when a glob includes them in link validation.
+command from `../wiki-writer/references/validation-checklist.md`.
 
 Rerun until validation passes or record the remaining limitation compactly.
 

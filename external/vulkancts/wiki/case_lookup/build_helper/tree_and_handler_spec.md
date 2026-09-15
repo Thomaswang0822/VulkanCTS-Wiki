@@ -89,7 +89,7 @@ Builder 不应先为每个 mustpass leaf 生成完整的 `case → page` 表，�
 11. `synchronization` / `synchronization2` 是当前页面级例外：共享页面可以包含两个
     category 的 roots，但每个 category 的 tree 仍必须列出其完整、可验证的 direct-child
     ownership set。只属于一个 category 的页面仍使用一个 snippet。
-12. `vkt*.md`、`*_brief.md`、`internal_doc/` 不参与 ownership evidence。
+12. `vkt*.md`、`internal_doc/` 不参与 ownership evidence。
 
 推荐写法：
 

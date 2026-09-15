@@ -31,7 +31,7 @@ python3 .agents/skills/wiki-writer/scripts/verify_english_structure.py \
   <category> [<category> ...]
 ```
 
-This is a mechanical structure guard, not a semantic audit. It verifies canonical section names and order, heading spacing, fixed Failure Meaning and Case Pruning subsections, Cause Analysis labels, exact shader-walkthrough tables and subsection order, SPIR-V artifact shape, multi-stage H5 organization, and code-fence closure. It excludes `vkt*.md` and `*_brief.md` from category mode. Registration Hierarchy tree semantics are checked separately by `verify_registration_paths.py`.
+This is a mechanical structure guard, not a semantic audit. It verifies canonical section names and order, heading spacing, fixed Failure Meaning and Case Pruning subsections, Cause Analysis labels, exact shader-walkthrough tables and subsection order, SPIR-V artifact shape, multi-stage H5 organization, and code-fence closure. It excludes `vkt*.md` from category mode. Registration Hierarchy tree semantics are checked separately by `verify_registration_paths.py`.
 
 ## Semantic Audit
 
@@ -153,20 +153,3 @@ Use when the page includes shader analysis.
 - [ ] `shader-disassembler` generated the subsection from reconstructed GLSL or HLSL; the target comes from CTS shader build options,
   and `Target SPIRV version: spirv1.X` matches the assembly `; Version: 1.X` header.
 - [ ] SPIR-V assembly is full, collapsed, fenced as `llvm`, and unmodified.
-
-## Brief-to-Page Audit
-
-Use when an Understanding Brief was created.
-
-- [ ] Final page distills the brief rather than copying beginner scaffolding verbatim.
-- [ ] Final Background Knowledge retains only necessary prerequisites, useful bounded examples, and necessary ordinary-to-special
-  contrast bridges; detailed application is moved to the appropriate section.
-- [ ] If shared prerequisites were consolidated into Level-2, the final page uses the standalone upward-link sentence before any
-  retained page-local prerequisite bullets.
-- [ ] Brief's `### Failure Cause Mapping` table is copied directly into the final page's `### Failure Cause Mapping`.
-- [ ] Brief's `## Behavior Parameter Identification` conclusion is carried into `## Behavior Parameters`.
-- [ ] `### Cause Analysis` is written fresh during the write, not carried from the brief.
-- [ ] Brief source mapping becomes a focused source appendix.
-- [ ] Important concrete examples become formal walkthroughs, tables, or concise explanations.
-- [ ] Relevant Vulkan spec chapters were read before writing the brief.
-- [ ] Risk points are resolved or reported.

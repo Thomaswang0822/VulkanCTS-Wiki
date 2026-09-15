@@ -4,7 +4,6 @@
 
 [`vktPipelineSpecConstantTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineSpecConstantTests.cpp#L147-L2994) implements the `spec_constant` test family. Most cases generate GLSL for a selected shader stage, optionally attach `VkSpecializationInfo` during pipeline creation, write observed values to a storage buffer, then compare raw bytes with the case's expected values. The compute-only `unaligned_spec_constant` and `same_id` cases instead use hand-authored SPIR-V and dedicated result checks.
 
-[SpecConstant_brief.md](SpecConstant_brief.md) gives a compact failure-oriented map. This page records registration, generated-program, runtime, and coverage evidence.
 
 ## Background Knowledge
 

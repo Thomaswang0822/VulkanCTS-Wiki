@@ -247,11 +247,8 @@ Explain what a failure of this test means. This section has two fixed subsection
 
 ### Failure Cause Mapping
 
-If an Understanding Brief exists for this page, copy its `### Failure Cause Mapping` table directly from the brief's
-`## What Failure Means` section. Do not craft a new table from scratch when a brief is available.
-
-If no brief exists, map each value of the primary behavioral axis (the axis identified in `## Behavior Parameters`) to the possible
-failure cause(s) that value's failure would point to. Use a table:
+Map each value of the primary behavioral axis (the axis identified in `## Behavior Parameters`) to the possible failure cause(s) that
+value's failure would point to. Use a table:
 
 | If this behavior parameter value fails | Possible failure cause(s) |
 |----------------------------------------|---------------------------|

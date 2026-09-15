@@ -71,7 +71,7 @@ helper skills（2 个，均为 `wiki-rewriter` 的 helper）：
 
 | 节点 ID | 显示内容 |
 |---------|----------|
-| rwHelpers | `• rewrite-outline-template.md — 类别范围与分批<br/>• level3-template.md — Level-3 页面 contract<br/>• level2-template.md — 类别 gateway contract<br/>• understanding-brief-template.md — 改写前的学习模型<br/>• terminology-policy.md — 层级术语规则<br/>• validation-checklist.md — 完成校验项<br/>• pilot-examples.md — 已接受的风格示例` |
+| rwHelpers | `• rewrite-outline-template.md — 类别范围与分批<br/>• level3-template.md — Level-3 页面 contract<br/>• level2-template.md — 类别 gateway contract<br/>• terminology-policy.md — 层级术语规则<br/>• validation-checklist.md — 完成校验项<br/>• pilot-examples.md — 已接受的风格示例` |
 | auditHelpers | `• review-protocol.md<br/>　target-reader 与 professor model<br/>　meaningful-defect 阈值<br/>　truth 与 exposition 审查工作表<br/>　generated-artifact 编辑边界<br/>　worker result contract<br/>　以页面为中心的类别 summary 格式<br/><br/>同时复用 rewriter 的页面 templates、<br/>terminology policy 与 validation checklist` |
 | trHelpers | `• terminology.zh.md — 中文术语与保护规则<br/>• level2-template.zh.md — 固定的 Level-2 中文结构<br/>• level3-template.zh.md — 固定的 Level-3 标题与翻译规则<br/>• .skillfish.json — skill 来源元数据<br/><br/>共同保证 identifier、链接、代码、<br/>registration tree 与结构对齐` |
 | pubHelpers | `• worker-dispatch-templates.md — Level-2、Level-3 与 link-worker 的固定分配<br/>• verify_translation_structure.py — 逐 section 比对 list、table、code block 与 tree<br/>• convert_markdown_links.py — 把 canonical 本地链接映射为 GitLab Wiki 与 blob URL<br/><br/>这些 helper 在翻译之后、category-index<br/>收尾之前运行` |

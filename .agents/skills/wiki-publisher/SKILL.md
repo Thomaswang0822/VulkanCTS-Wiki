@@ -20,9 +20,6 @@ For normal category publishing, use Orchestrator mode to coordinate page-scoped 
 - One Level-2 translation worker translates `external/vulkancts/wiki/categories/<category>.md`.
 - One Level-3 translation worker translates exactly one canonical English page under
   `external/vulkancts/wiki/testfiles/<category>/`.
-- Exclude Understanding Brief files from publisher inputs. Files matching
-  `external/vulkancts/wiki/testfiles/<category>/*_brief.md` are internal English-only understanding notes for writing work; do not
-  translate, publish, link-convert, or count them as Level-3 publish pages.
 - Prepared Level-3 outputs live under the category directory,
   `vkcts-wiki-pages/categories/<category>/`, so GitLab Wiki can show a category page and its
   expandable child pages together in the sidebar.
@@ -50,7 +47,7 @@ dependencies, and validation. Do not continue unless the worker confirms that sk
 1. Invoke [`translate-doc`](../translate-doc/SKILL.md) for the assigned files.
    - The Level-2 worker owns only `external/vulkancts/wiki/categories/<category>.md`.
    - Each Level-3 worker owns only its one assigned English source and one exact Chinese target.
-   - Exclude `*_brief.md` internal notes and do not edit the canonical English wiki.
+   - Do not edit the canonical English wiki.
    - For each assigned page, load and apply `shuorenhua` followed by `humanizer-zh` inside the translation worker, as required by `translate-doc`. Do not dispatch a separate language-review agent or launch a separate chat, session, or process.
    - Complete all `translate-doc` dependency, output, and validation requirements before reporting completion.
 

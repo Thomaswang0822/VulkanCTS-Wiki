@@ -34,21 +34,19 @@ Registration-only dispatchers and helper-only files must be listed for completen
 
 - Implementation-bearing or hybrid Level-3 pages: `{implementation_level3_count}`
 - Registration-only/helper files with no page: `{no_page_count}`
-- Counted writing files for batching: `{total_counted_files}`
-  - `{brief_count}` Understanding Briefs
-  - `{page_count}` final Level-3 pages
+- Counted writing pages: `{page_count}` final Level-3 pages
 
 ## Batch 1 — {description}
 
-Counted files: {batch_counted_files}
+Pages: {batch_page_count}
 
-| Level-3 page | Brief? | Reason |
-|---|---:|---|
-| `{page}.md` | Yes/No | {brief_required_or_direct_write_reason}. |
+| Level-3 page | Reason |
+|---|---|
+| `{page}.md` | {evidence-backed reason}. |
 
 ## Batch 2 — {description}
 
-Counted files: {batch_counted_files}
+Pages: {batch_page_count}
 
 |(same table)|
 |---|
@@ -57,7 +55,7 @@ Counted files: {batch_counted_files}
 
 ## Batch N — {description}
 
-Counted files: {batch_counted_files}
+Pages: {batch_page_count}
 
 |(same table)|
 |---|
@@ -75,11 +73,8 @@ After all planned Level-3 pages stabilize:
 
 Batching rules:
 
-- Count each direct-write Level-3 page as 1 file.
-- Count each page with an Understanding Brief as 2 files: brief plus page.
-- Group pages into batches with at most 8 counted files where possible.
-- Use `ceil(total_counted_files / 8)` batches normally.
-- If the whole category has fewer than 8 counted files, use a single smaller batch.
-- Never split a page from its Understanding Brief across batches.
+- Each Level-3 page counts as one page.
+- Each batch contains at most four pages and therefore at most four concurrently created page subagents.
+- Dispatch exactly one subagent per page; do not combine multiple pages in one worker.
 
 Keep the outline concise and actionable. Do not create a separate progress tracker.

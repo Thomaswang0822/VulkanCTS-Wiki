@@ -5,9 +5,7 @@ Use these accepted pilot artifacts as style and structure references when uncert
 ## Memory Model Pilot
 
 - `external/vulkancts/wiki/testfiles/memory_model/MessagePassing.md`: accepted Level-3 example for a shader-heavy page with multiple test families, parameter dimensions, representative shader walkthroughs, runtime checking, pruning, takeaways, and source appendix.
-- `external/vulkancts/wiki/testfiles/memory_model/MessagePassing_brief.md`: accepted Understanding Brief example for a concept-heavy shader page.
 - `external/vulkancts/wiki/testfiles/memory_model/SharedLayout.md`: accepted Level-3 example for resource/layout-heavy shared memory behavior.
-- `external/vulkancts/wiki/testfiles/memory_model/SharedLayout_brief.md`: accepted Understanding Brief example for generated layout/resource concepts.
 - `external/vulkancts/wiki/testfiles/memory_model/Padding.md`: accepted simpler Level-3 example.
 
 These examples illustrate accepted explanatory style and scope, but they do not override the current templates or validators. When

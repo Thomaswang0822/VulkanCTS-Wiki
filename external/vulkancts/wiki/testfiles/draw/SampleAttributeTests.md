@@ -460,4 +460,3 @@ void main() {
 | Rendering-path roots | [`createTests()`](../../../modules/vulkan/draw/vktDrawTests.cpp#L126-L198) | Creates render-pass and dynamic-rendering hierarchy roots. |
 | Vulkan sample-shading semantics | [Sample shading](https://registry.khronos.org/vulkan/specs/latest/html/chapters/primsrast.html#primsrast-sampleshading) | Defines implicit sample-shading triggers and rates. |
 | Vulkan fragment interfaces | [Fragment shader interfaces](https://registry.khronos.org/vulkan/specs/latest/html/chapters/interfaces.html#interfaces-fragmentinput) | Defines sample-related input decorations and built-ins. |
-| Understanding Brief | [SampleAttributeTests_brief.md](SampleAttributeTests_brief.md) | Learning-oriented analysis and source mapping. |

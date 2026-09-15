@@ -30,7 +30,7 @@ Read their required references and helper skills as those primary skills direct.
 ## Non-negotiable workflow
 
 1. Run wiki-writer's outline/discovery step yourself as lead agent: inspect the clean category source and create or resume `external/vulkancts/wiki/internal_doc/<category>_outline.md`.
-2. **Hard stop 1 for user approval:** when the outline is new, stop and ask the user to approve it before briefing or writing pages. Resume only after approval or an explicit request to continue. The outline is the only temporary coordination artifact; do not create a progress tracker.
+2. **Hard stop 1 for user approval:** when the outline is new, stop and ask the user to approve it before writing pages. Resume only after approval or an explicit request to continue. The outline is the only temporary coordination artifact; do not create a progress tracker.
 3. Follow the approved outline's batches exactly for page-writing dispatch.
 4. Write all assigned Level-3 pages. A page stabilizes only after the canonical English structure, registration hierarchy, and
    wiki-link validators pass. Then synthesize the Level-2 page after every Level-3 page is stable.
@@ -48,8 +48,7 @@ Read their required references and helper skills as those primary skills direct.
 12. Verify the lookup category build, full runtime index, tests, and mustpass coverage.
 13. **Final mandatory update:** only after local publish-target preparation and lookup DB verification both pass, update `external/vulkancts/wiki/internal_doc/wiki_rewrite_checklist.md`, then report.
     - Mark the category done.
-    - Count final Level-3 pages only: exclude `_brief.md`, source/dispatcher pages folded into Level-2, and helper-only files.
-    - Set `UB` from the category's `*_brief.md` count.
+    - Count final Level-3 pages from the actual implementation-bearing page files, excluding source/dispatcher pages folded into Level-2 and helper-only files.
     - Recount checked and unchecked rows and update the summary.
 
 ## Dispatch invariant
@@ -58,7 +57,7 @@ For **writing, audit, and local publish-target preparation**:
 
 > **one subagent = one page = one phase**
 
-An outline batch is a dispatch wave, not a multi-page assignment. Preserve page membership and ordering from the outline. If a wave exceeds the runtime concurrency limit, split it into multiple waves without combining pages into one worker. Never use a multi-page worker as a workaround for rate limits or timeouts.
+An outline batch is a dispatch wave of at most four pages and therefore at most four concurrently created subagents. Preserve page membership and ordering from the outline. Dispatch exactly one page per subagent; never combine pages into one worker. Split larger categories into successive four-page waves.
 
 ## Lead-owned responsibilities
 

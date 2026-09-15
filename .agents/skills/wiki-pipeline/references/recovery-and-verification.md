@@ -49,7 +49,7 @@ If an erroneous multi-page worker was accidentally dispatched, its outputs are u
 
 For every Level-3 page:
 
-- expected final page and required brief exist;
+- expected final page exists;
 - output follows the page classification and filename in the approved outline;
 - the canonical English structure validator passes, including headings/spacing, fixed subsections, walkthrough tables, SPIR-V
   artifacts, and multi-stage H5 organization;
@@ -87,7 +87,7 @@ Before conversion:
 - the canonical Chinese structure/fixed-language validator passes for every Level-3 source/target pair after language-quality passes;
 - validator output confirms the English source itself is canonical before accepting the Chinese result;
 - no worker ran link conversion early;
-- English sources and internal briefs are unchanged.
+- English sources are unchanged.
 - audited English source hashes/diffs remain unchanged throughout local publish-target preparation.
 
 After conversion:
@@ -116,10 +116,8 @@ and only then accept the rebuilt runtime JSON. This bounded repair loop adds no 
 
 Derive values from disk:
 
-- final Level-3 count excludes `*_brief.md` files and source scopes classified as registration-only or helper-only;
-- UB count includes only `*_brief.md` Understanding Briefs;
-- update the category checkbox and `(UB: N)` annotation;
-- recompute done/todo category counts and L3/UB totals arithmetically;
+- final Level-3 count comes from actual implementation-bearing page files, excluding source scopes classified as registration-only or helper-only;
+- recompute done/todo category counts arithmetically;
 - ensure spoken counts match the file and final report exactly.
 
 ## Writing staging checkpoint

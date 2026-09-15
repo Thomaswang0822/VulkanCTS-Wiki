@@ -1,6 +1,6 @@
 ---
 name: wiki-writer
-description: Writes source-backed Vulkan CTS wiki pages from scratch for clean test categories, including Level-2 gateways, Level-3 explanations, briefs, shader walkthroughs, and validation.
+description: Writes source-backed Vulkan CTS wiki pages from scratch for clean test categories, including Level-2 gateways, Level-3 explanations, shader walkthroughs, and validation.
 ---
 
 # Wiki Writer
@@ -15,7 +15,6 @@ Use this skill to:
 
 - document one fresh Vulkan CTS test category as one Level-2 gateway and its implementation-bearing Level-3 pages;
 - discover the category's registration hierarchy and page boundaries directly from C++ source and mustpass files;
-- prepare Understanding Briefs for complex pages;
 - coordinate `shader-analyzer` and `shader-disassembler` for representative shader walkthroughs;
 - apply the mandatory English language-quality passes;
 - validate structure, links, registration coverage, and semantics before completion.
@@ -29,7 +28,6 @@ Before writing any page, read every file under `references/`:
 - `references/outline-template.md` — category scope, page classification, and batching contract.
 - `references/level3-template.md` — canonical Level-3 structure and Background Knowledge ownership.
 - `references/level2-template.md` — canonical Level-2 gateway structure.
-- `references/understanding-brief-template.md` — complex-page learning and risk-review shape.
 - `references/terminology-policy.md` — hierarchy terminology and exact identifier rules.
 - `references/validation-checklist.md` — completion assertions and validator commands.
 - `references/pilot-examples.md` — accepted style and structure examples.
@@ -100,7 +98,7 @@ Write the temporary outline to:
 external/vulkancts/wiki/internal_doc/{category}_outline.md
 ```
 
-Use `references/outline-template.md`. Preserve its batching rules: count each direct page as one file, count each page with an Understanding Brief as two files, keep batches at most eight counted files where practical, and never separate a brief from its page.
+Use `references/outline-template.md`. Dispatch Level-3 pages in batches of at most four pages, with one subagent per page.
 
 The outline must list:
 
@@ -108,22 +106,13 @@ The outline must list:
 - every discovered branch and registered group name;
 - every implementation-bearing/hybrid Level-3 page to write;
 - every registration-only/helper file explicitly marked as no-page;
-- the reason each Brief is or is not required;
 - the planned batches and later Level-2 synthesis.
 
 After creating a new outline, stop for user review. Do not write Level-3 or Level-2 pages until the user approves the outline or explicitly asks to continue.
 
 Do not create progress trackers. `*_outline.md` is the only temporary coordination artifact; remove it, along with any temporary validator logs, after the category is complete.
 
-### 4. Prepare Understanding Briefs when needed
-
-Before a complex Level-3 page, read the relevant chapters under `external/vulkan-docs/src/chapters/` and write `<Level3PageName>_brief.md` beside the target page using `references/understanding-brief-template.md`.
-
-Use a Brief for shader-heavy, generated-artifact, resource-layout, synchronization, descriptor, pipeline, or otherwise nontrivial behavior, or whenever the behavior axis and failure mapping are not yet clear. A direct write is appropriate only when intent, execution, primary behavior axis, validation, pruning, and failure meaning are already unambiguous.
-
-Resolve Brief risk points before final writing. Distill its teaching material into the final page; carry its confirmed behavior-axis conclusion and `Failure Cause Mapping` table, but write `Cause Analysis` fresh.
-
-### 5. Write Level-3 pages
+### 4. Write Level-3 pages
 
 Use `references/level3-template.md` exactly. Start with `## Overview`; omit a top-level H1. Keep the page explanation-first and use source links as evidence rather than as the main narrative.
 
@@ -137,7 +126,7 @@ When `## Shader Analysis` requires walkthroughs:
 - include at most three materially distinct walkthroughs, each ending in the generated `#### SPIR-V` subsection;
 - use the reviewed exception registry only for source-confirmed pages where shader code is absent or irrelevant.
 
-### 6. Write the Level-2 gateway
+### 5. Write the Level-2 gateway
 
 After the planned Level-3 pages are stable, write `external/vulkancts/wiki/categories/{category}.md` using `references/level2-template.md`.
 
@@ -145,7 +134,7 @@ Use verified registered group names, fold registration-only dispatcher routing i
 
 Then perform the category Background Knowledge consolidation pass: move repeated prerequisites shared by multiple Level-3 pages into Level-2 and replace affected Level-3 material with the canonical upward-link sentence while preserving page-local prerequisites.
 
-### 7. Apply language passes and validate
+### 6. Apply language passes and validate
 
 Once each page is technically complete, apply `humanizer` and then `stop-slop` in the current worker. Afterwards run all applicable validators from the repository root:
 
@@ -160,7 +149,7 @@ python3 .agents/skills/wiki-writer/scripts/validate_wiki_links.py \
 
 Use single-page variants while drafting. Fix failures at their actual scope and rerun. Then invoke `wiki-auditor` over the complete generated category scope, compare every claim against its cited source, correct confirmed semantic errors, and rerun registration and link validation.
 
-### 8. Complete the category
+### 7. Complete the category
 
 Before reporting completion, verify that:
 

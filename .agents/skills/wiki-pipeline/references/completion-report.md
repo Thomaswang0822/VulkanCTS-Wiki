@@ -8,13 +8,12 @@ Use this compact structure. Replace every count with independently verified file
 ### Scope
 - Level-3 written: <N>
 - Level-2 written: <N>
-- Understanding Briefs: <N>
 - Chinese publish-target pages prepared: <N>
 
 ### Writing
 - Outline: <path and approval status>
 - Outline batches: <batch count and page counts>
-- Worker granularity: one page per worker
+- Worker granularity: one page per worker; at most four concurrent workers per batch
 - English structure validation: <N>/<N> pages; category <result>
 - Registration hierarchy validation: <N>/<N> pages; category <result>
 - English wiki-link validation: <N>/<N> pages; category/Level-2 <result>

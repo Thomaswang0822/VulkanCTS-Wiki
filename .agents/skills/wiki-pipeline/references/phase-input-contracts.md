@@ -15,16 +15,15 @@ Supply:
   Registration Hierarchy/mustpass validation, and wiki links;
 - source-backed no-walkthrough status: either a required `shader-analyzer` walkthrough or an existing/lead-approved entry in
 -  `wiki-writer/scripts/walkthrough_exceptions.py`; workers must not create an exception merely to make validation pass;
-- the outline's `brief required` or `direct write` decision;
 - dispatcher-folding or page-specific scope notes from the outline;
-- explicit permission to write only the assigned brief, when required, and assigned final page;
+- explicit permission to write only the assigned final page;
 - explicit prohibition on editing other pages, summaries, translating, publishing, or changing the Git index.
 
 Tell the worker to load `.agents/skills/wiki-writer/SKILL.md` and every dependency it requires. Do not restate its internal writing,
 shader, language-pass, template, or validator rule implementations. Require the worker result to report English structure,
 registration, and link validator status for its assigned page.
 
-A required Understanding Brief and its final page stay with the same page worker. They do not make the worker a multi-page worker.
+The page worker owns only its assigned final page and never edits another page.
 
 ## Writing: Level-2 synthesis
 

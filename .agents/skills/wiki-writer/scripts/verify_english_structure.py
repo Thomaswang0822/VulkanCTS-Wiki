@@ -1121,7 +1121,7 @@ def discover_category_pages(wiki_dir: Path, category: str) -> list[Path]:
     return [
         page
         for page in sorted(directory.glob("*.md"))
-        if not page.name.startswith("vkt") and not page.stem.endswith("_brief")
+        if not page.name.startswith("vkt")
     ]
 
 

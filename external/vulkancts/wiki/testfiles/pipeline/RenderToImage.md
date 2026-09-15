@@ -5,7 +5,7 @@
 - This page covers the `render_to_image` test family implemented by [`vktPipelineRenderToImageTests.cpp`](../../../modules/vulkan/pipeline/vktPipelineRenderToImageTests.cpp#L1).
 - The family tests color attachment rendering through 1D, array, 2D, 3D, cube, and cube-array image views; it varies image size, mip levels, color formats, optional depth/stencil attachments, and image-memory allocation mode.
 - Its direct intermediate nodes are `core` and `dedicated_allocation`. They share the rendering and comparison design, while the latter selects dedicated image allocation and excludes huge-image leaves.
-- [RenderToImage_brief.md](RenderToImage_brief.md) supplies a worked 2D case and the same failure-cause mapping used below.
+
 
 ## Background Knowledge
 

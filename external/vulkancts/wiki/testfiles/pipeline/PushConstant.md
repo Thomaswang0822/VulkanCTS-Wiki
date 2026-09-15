@@ -4,7 +4,6 @@
 
 [`vktPipelinePushConstantTests.cpp`](../../../modules/vulkan/pipeline/vktPipelinePushConstantTests.cpp#L3337-L3832) builds the `push_constant` group. Its graphics leaves cover disjoint and overlapping ranges, range sizes, stage combinations, partial and repeated updates, dynamic indexing, unused declarations, and overwrites. The monolithic-only compute leaves cover a simple read, an uninitialized read survival case, and overwrite behavior. Nine lifetime leaves arrange pushes and graphics/compute pipeline binds in different sequences.
 
-For a diagnostic summary, start with [PushConstant_brief.md](PushConstant_brief.md). This page records the implementation and coverage evidence behind that failure map.
 
 ## Background Knowledge
 

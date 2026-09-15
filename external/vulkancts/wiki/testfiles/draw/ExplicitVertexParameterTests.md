@@ -546,4 +546,3 @@ void main() {
 | Vulkan SC mustpass coverage | [`vksc-default/draw.txt`](../../../mustpass/main/vksc-default/draw.txt) | Confirms the 38 render-pass-only Vulkan SC cases. |
 | AMD shader semantics | [`VK_AMD_shader_explicit_vertex_parameter`](https://registry.khronos.org/vulkan/specs/latest/html/appendices.html#VK_AMD_shader_explicit_vertex_parameter) | Connects Vulkan support to the AMD SPIR-V explicit-vertex-parameter extension. |
 | Vulkan interface semantics | [Shader Input and Output Interfaces](https://registry.khronos.org/vulkan/specs/latest/html/chapters/interfaces.html#interfaces-iointerfaces) | Background for stage interface matching. |
-| Understanding Brief | [ExplicitVertexParameterTests_brief.md](ExplicitVertexParameterTests_brief.md) | Learning-oriented analysis and source mapping. |

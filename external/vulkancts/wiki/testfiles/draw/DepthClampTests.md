@@ -330,5 +330,5 @@ Secondary-command-buffer groups intentionally reduce the format matrix to `d16_u
 - [vktDrawDepthClampTests.cpp](../../../modules/vulkan/draw/vktDrawDepthClampTests.cpp)
 - [Test-group declaration](../../../modules/vulkan/draw/vktDrawDepthClampTests.hpp)
 - [Draw registration and rendering-mode dispatcher](../../../modules/vulkan/draw/vktDrawTests.cpp)
-- [Understanding Brief](DepthClampTests_brief.md)
+
 - [Vulkan viewport and depth-range specification](https://registry.khronos.org/vulkan/specs/latest/html/chapters/viewport.html)

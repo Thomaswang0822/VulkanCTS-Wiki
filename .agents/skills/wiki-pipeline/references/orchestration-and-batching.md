@@ -7,7 +7,7 @@ The lead agent performs wiki-writer's source-discovery and outline step directly
 1. Inspect the clean category source, root registration file, and mustpass inputs; do not rely on a legacy-page inventory.
 2. If an outline exists, treat the task as resumed work and establish which entries are unfinished.
 3. If no outline exists and the category is new, create the canonical outline under `external/vulkancts/wiki/internal_doc/` using wiki-writer's outline template.
-4. If a new outline was created, hard stop 1 for user approval. Do not create briefs or write pages before approval. A resumed category with an existing approved outline skips this checkpoint.
+4. If a new outline was created, hard stop 1 for user approval. Do not write pages before approval. A resumed category with an existing approved outline skips this checkpoint.
 5. Once approved, retain the outline as the batching and page-classification authority for writing.
 
 The lead writes the outline because its category-wide survey is required context for later coordination. This reason need not be exposed in worker prompts.
@@ -18,12 +18,11 @@ An approved outline batch defines:
 
 - which pages belong to the same logical wave;
 - page order;
-- brief/direct-write decisions;
 - dispatcher and Level-2 synthesis notes.
 
 It does not define worker granularity. For a batch containing pages A, B, and C, dispatch three workers: one for A, one for B, and one for C.
 
-If the runtime permits fewer workers than the batch contains, preserve outline order and split the batch into successive dispatch waves. Do not move pages between outline batches merely to fill concurrency slots.
+Each batch contains at most four pages and is dispatched as at most four concurrent subagents, one page per subagent. If the category has more than four pages, use successive four-page waves.
 
 ## Level-3 writing phase
 
@@ -32,7 +31,7 @@ For each approved outline batch:
 1. Resolve one input contract per page.
 2. Dispatch one writing worker per page.
 3. Wait for the complete wave result.
-4. Check each expected brief/output on disk. For each Level-3 output, run the page-scoped English structure, registration hierarchy,
+4. Check each expected Level-3 output on disk. For each Level-3 output, run the page-scoped English structure, registration hierarchy,
    and wiki-link validators from `wiki-writer/references/validation-checklist.md`.
 5. Retry missing, failed, or provenance-suspect pages individually.
 6. Mark the outline batch stable only when every page passes.
@@ -44,7 +43,7 @@ pre-existing work), and continue into audit without stopping.
 
 ## Audit phase
 
-1. Enumerate the full final Level-3 set and Level-2 page; exclude briefs and internal documentation.
+1. Enumerate the full final Level-3 set and Level-2 page; exclude internal documentation.
 2. Audit Level-2 Background Knowledge first so workers have the correct shared-concept ownership model.
 3. Create the combined audit summary before dispatching Level-3 workers.
 4. Dispatch one audit worker per Level-3 page. Concurrency waves may differ from writing batches, but page granularity never changes.
@@ -71,7 +70,7 @@ pre-existing work), and continue into audit without stopping.
 Do not cross a barrier until its condition is true:
 
 - **Outline barrier:** when a new outline was created, it has explicit user approval.
-- **Writing barrier:** all outline-assigned Level-3 outputs/briefs and Level-2 synthesis exist; every Level-3 page and the category
+- **Writing barrier:** all outline-assigned Level-3 outputs and Level-2 synthesis exist; every Level-3 page and the category
   pass English structure, registration hierarchy, and applicable wiki-link gates.
 - **Writing staging checkpoint:** the writing-phase paths are staged, unrelated pre-existing work is preserved, and the lead continues into audit without stopping.
 - **Audit barrier:** every Level-3 page and Level-2 page has an audit outcome; repaired Level-3 pages and the category pass English

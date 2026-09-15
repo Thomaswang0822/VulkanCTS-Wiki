@@ -28,8 +28,8 @@ Input:
 Output:
 - `vkcts-wiki-pages/categories/<category>/<file>.md`
 
-Do not assign an `*_brief.md` file. Read and translate only the assigned page; do not edit any other English or Chinese page, shared
-summary, or Git index. Strictly follow the skill's translation-worker requirements. Load and apply `shuorenhua` then `humanizer-zh`
+Read and translate only the assigned page; do not edit any other English or Chinese page, shared summary, or Git index. Strictly
+follow the skill's translation-worker requirements. Load and apply `shuorenhua` then `humanizer-zh`
 yourself; do not dispatch another language-review agent or launch a separate chat, session, or process. After both passes, run:
 
 `python3 .agents/skills/wiki-publisher/scripts/verify_translation_structure.py --source external/vulkancts/wiki/testfiles/<category>/<file>.md --target vkcts-wiki-pages/categories/<category>/<file>.md`

@@ -142,7 +142,7 @@ publishing orchestrator
 • rewrite-outline-template.md — 类别范围与分批
 • level3-template.md — Level-3 页面 contract
 • level2-template.md — 类别 gateway contract
-• understanding-brief-template.md — 改写前的学习模型
+
 • terminology-policy.md — 层级术语规则
 • validation-checklist.md — 完成校验项
 • pilot-examples.md — 已接受的风格示例

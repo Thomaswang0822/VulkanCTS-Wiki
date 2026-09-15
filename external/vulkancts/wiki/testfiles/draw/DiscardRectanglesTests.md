@@ -177,5 +177,5 @@ The checked-in mustpass draw lists contain the category-qualified `discard_recta
 | Draw dispatcher | [`createChildren()` and rendering arrangements](../../../modules/vulkan/draw/vktDrawTests.cpp#L70-L199) | Selects the render-pass and dynamic-rendering scopes and excludes nested-secondary variants. |
 | Vulkan default mustpass | [Draw list](../../../mustpass/main/vk-default/draw.txt) | Includes 72 leaves in each of four arrangements. |
 | Vulkan SC default mustpass | [Draw list](../../../mustpass/main/vksc-default/draw.txt) | Includes the 72 render-pass leaves. |
-| Supporting analysis | [Understanding Brief](DiscardRectanglesTests_brief.md) | Records the pre-rewrite source model and audit risks. |
+
 | Vulkan semantics | [Discard rectangles test](https://registry.khronos.org/vulkan/specs/latest/html/chapters/fragops.html#fragops-discard-rectangles) | Defines inclusive/exclusive coverage, coordinate delivery, and ordering before scissoring. |
